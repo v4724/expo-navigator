@@ -1,0 +1,47 @@
+{
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "debug.terminal.clearBeforeReusing": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.suggestSelection": "first",
+  "editor.tabSize": 2,
+  "editor.wordWrap": "on",
+  "emmet.includeLanguages": {
+    "postcss": "css"
+  },
+  "emmet.showSuggestionsAsSnippets": true,
+  "emmet.triggerExpansionOnTab": true,
+  "eslint.validate": ["typescript", "javascript"],
+  "files.exclude": {
+    "**/node_modules": true
+  },
+  "html.format.wrapAttributes": "aligned-multiple",
+  "html.format.wrapLineLength": 100,
+  "ionic.autoImportIcons": "yes",
+  "javascript.preferences.quoteStyle": "single",
+  "tailwindCSS.emmetCompletions": true,
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "@ionic/angular/common",
+    "@ionic/angular"
+  ],
+  "typescript.preferences.quoteStyle": "single",
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
