@@ -23,8 +23,12 @@
   background-color: rgba(255, 226, 101, 0.95); /* Default Yellowish tint */
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease,
-    box-shadow 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    color 0.3s ease;
 
   /* Styles for the stall number text */
   display: flex;
@@ -57,7 +61,10 @@
   background-color: rgba(184, 129, 225, 0.9); /* A light violet fill */
   z-index: 10;
   color: white; /* Indigo, for readability on violet bg */
-  text-shadow: -1px -1px 0 #00000045, 1px -1px 0 #00000045, -1px 1px 0 #00000045,
+  text-shadow:
+    -1px -1px 0 #00000045,
+    1px -1px 0 #00000045,
+    -1px 1px 0 #00000045,
     1px 1px 0 #00000045;
   font-weight: 400;
 }
@@ -81,9 +88,17 @@
 .stall-group-area {
   font-size: 1rem;
   color: #666; /* Neutral dark gray text */
-  background-color: rgba(255, 193, 7, 0.2); /* Very light gray, almost transparent */
+  background-color: rgba(
+    255,
+    193,
+    7,
+    0.2
+  ); /* Very light gray, almost transparent */
 
-  text-shadow: -1px -1px 0 #ffffff8a, 1px -1px 0 #ffffff8a, -1px 1px 0 #ffffff8a,
+  text-shadow:
+    -1px -1px 0 #ffffff8a,
+    1px -1px 0 #ffffff8a,
+    -1px 1px 0 #ffffff8a,
     1px 1px 0 #ffffff8a; /* Override default from .stall-area */
 }
 
