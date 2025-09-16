@@ -6,10 +6,11 @@ import { initializeModalEventListeners, openModal } from '../../ts/modal-manager
 import { createMagnifier } from '../../ts/magnifier';
 import { renderStalls, uiState, updateStallClass } from '../../ts/ui-manager';
 import { locateStalls } from '../../ts/official-data';
+import { Lightbox } from 'src/app/shared/components/lightbox/lightbox';
 
 @Component({
   selector: 'app-stalls-map',
-  imports: [],
+  imports: [Lightbox],
   templateUrl: './stalls-map.html',
   styleUrl: './stalls-map.scss',
 })

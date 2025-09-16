@@ -1,0 +1,27 @@
+<div
+  #imageLightbox
+  id="image-lightbox"
+  class="lightbox-container"
+  [ngClass]="{ hidden: !(visible$ | async) }"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Enlarged image view"
+  (click)="boundCloseImageLightbox($event)"
+>
+  <div class="lightbox-overlay"></div>
+  <button
+    id="image-lightbox-close"
+    class="lightbox-close"
+    aria-label="Close image"
+    (click)="closeImageLightbox($event)"
+  >
+    &times;
+  </button>
+  <img
+    #imageLightboxImage
+    id="image-lightbox-image"
+    [src]="imageSrc$ | async"
+    [alt]="imageAlt$ | async"
+    class="lightbox-image"
+  />
+</div>
