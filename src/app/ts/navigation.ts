@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { StallData } from './types.ts';
+import { StallData } from '../core/interfaces/stall-data.interface';
 
 /** The definitive order of all rows on the map. */
 export const allRowIds = [
@@ -54,17 +54,14 @@ export const allRowIds = [
  * @param searchTerm The current value from the search input.
  * @returns An array of StallData objects that match the search.
  */
-export const getNavigableStalls = (
-  allStalls: StallData[],
-  searchTerm: string,
-): StallData[] => {
+export const getNavigableStalls = (allStalls: StallData[], searchTerm: string): StallData[] => {
   const normalizedSearch = searchTerm.toLowerCase().trim();
   if (normalizedSearch === '') {
     return allStalls;
   }
   return allStalls.filter((stall) => {
     const hasPromoUserMatch = stall.promoData.some((promo) =>
-      promo.promoUser.toLowerCase().includes(normalizedSearch),
+      promo.promoUser.toLowerCase().includes(normalizedSearch)
     );
     return (
       stall.id.toLowerCase().includes(normalizedSearch) ||
@@ -84,13 +81,11 @@ export const getNavigableStalls = (
 export const getAdjacentStallId = (
   currentStall: StallData,
   navigableStalls: StallData[],
-  direction: 'up' | 'down' | 'left' | 'right',
+  direction: 'up' | 'down' | 'left' | 'right'
 ): string | null => {
   const currentLine = currentStall.id.substring(0, 1);
   const currentNum = currentStall.num;
-  const isCurrentVertical = ['狗', '雞', '猴', '特', '商'].includes(
-    currentLine,
-  );
+  const isCurrentVertical = ['狗', '雞', '猴', '特', '商'].includes(currentLine);
   const currentRowIndex = allRowIds.indexOf(currentLine);
 
   if (
@@ -104,15 +99,14 @@ export const getAdjacentStallId = (
 
   if (direction === 'left' || direction === 'right') {
     const horizDirection = direction === 'right' ? 'prev' : 'next';
-    const isReversed =
-      !isCurrentVertical && !(currentNum >= 1 && currentNum <= 36);
+    const isReversed = !isCurrentVertical && !(currentNum >= 1 && currentNum <= 36);
     const step = horizDirection === 'next' ? 1 : -1;
     const directionStep = isReversed ? -step : step;
 
     let targetNum = currentNum + directionStep;
     while (targetNum >= 1 && targetNum <= 72) {
       const foundStallInRow = navigableStalls.find(
-        (s) => s.id.startsWith(currentLine) && s.num === targetNum,
+        (s) => s.id.startsWith(currentLine) && s.num === targetNum
       );
       if (foundStallInRow) return foundStallInRow.id;
 
@@ -131,9 +125,7 @@ export const getAdjacentStallId = (
     let targetRowIndex = currentRowIndex + step;
     while (targetRowIndex >= 0 && targetRowIndex < allRowIds.length) {
       const targetRowId = allRowIds[targetRowIndex];
-      const stallsInTargetRow = navigableStalls.filter((s) =>
-        s.id.startsWith(targetRowId),
-      );
+      const stallsInTargetRow = navigableStalls.filter((s) => s.id.startsWith(targetRowId));
       if (stallsInTargetRow.length > 0) {
         let targetStall: StallData | undefined;
 
@@ -154,8 +146,7 @@ export const getAdjacentStallId = (
           targetStall = stallsInTargetRow.find((s) => s.num === currentNum);
           if (!targetStall) {
             targetStall = stallsInTargetRow.sort(
-              (a, b) =>
-                Math.abs(a.num - currentNum) - Math.abs(b.num - currentNum),
+              (a, b) => Math.abs(a.num - currentNum) - Math.abs(b.num - currentNum)
             )[0];
           }
         }

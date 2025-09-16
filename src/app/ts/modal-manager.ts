@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { StallData } from './types.ts';
 import type { DOMElements } from './dom-elements.ts';
 import type { MagnifierController } from './magnifier.ts';
 import { allRowIds, getAdjacentStallId, getNavigableStalls } from './navigation.js';
 import { locateStalls } from './official-data.js';
 import { clearSelection, updateStallClass, UIState } from './ui-manager.js';
+import { ModalContext } from '../core/interfaces/stall-modal.interface.js';
+import { StallData } from '../core/interfaces/stall-data.interface.js';
 
 declare global {
   interface Window {
@@ -23,15 +24,6 @@ declare global {
       };
     };
   }
-}
-
-/** A context object to pass dependencies into modal functions. */
-interface ModalContext {
-  allStalls: StallData[];
-  elements: DOMElements;
-  magnifierController: MagnifierController | null;
-  uiState: UIState;
-  isMobile: boolean;
 }
 
 // Module-level state for the modal

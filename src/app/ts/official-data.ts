@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { LocateStall } from './types.ts';
+import { LocateStall } from '../core/interfaces/locate-stall.interface';
 
 /**
  * Defines the starting coordinates for each row/column of stalls on the map.

@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { StallData } from '../core/interfaces/stall-data.interface.js';
 import type { DOMElements } from './dom-elements.ts';
 import type { MagnifierController } from './magnifier.ts';
 import { locateStalls } from './official-data.js';
-import type { StallData } from './types.ts';
 
 /** Defines the shape of the shared UI state object. */
 export interface UIState {

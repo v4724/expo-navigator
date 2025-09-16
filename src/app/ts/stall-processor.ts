@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { PromoLink } from '../core/interfaces/promo-link.interface.js';
+import { PromoStall } from '../core/interfaces/promo-stall.interface.js';
+import { StallData } from '../core/interfaces/stall-data.interface.js';
 import { locateStalls } from './official-data.js';
-import type { StallData, PromoLink, PromoStall } from './types.ts';
 import DOMPurify from 'dompurify';
 
 // Convert the locateStalls array into a Map for efficient O(1) lookups by stall letter.
