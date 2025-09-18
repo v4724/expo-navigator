@@ -9,12 +9,24 @@
   (touchend)="onDragEnd()"
 >
   <div id="magnifier" #magnifier>
-    <div id="magnifier-stall-layer" #magnifierStallLayer></div>
+    <div id="magnifier-stall-layer" #magnifierStallLayer>
+      @for (stall of (allStalls$ | async); track $index) {
+      <app-stall [stall]="stall"></app-stall>
+      } @for (row of stallGridRefs; track $index) {
+      <app-stall-group-area [row]="row"></app-stall-group-area>
+      }
+    </div>
   </div>
-  <div id="magnifier-row-indicator-container">
-    <div id="magnifier-row-indicator-next" class="row-indicator-adjacent"></div>
-    <div id="magnifier-row-indicator-current" class="row-indicator-current"></div>
-    <div id="magnifier-row-indicator-prev" class="row-indicator-adjacent"></div>
+  <div id="magnifier-row-indicator-container" #indicatorContainer>
+    <div id="magnifier-row-indicator-next" class="row-indicator-adjacent">
+      {{ rowIndicatorNext$ | async }}
+    </div>
+    <div id="magnifier-row-indicator-current" class="row-indicator-current">
+      {{ rowIndicatorCurrent$ | async }}
+    </div>
+    <div id="magnifier-row-indicator-prev" class="row-indicator-adjacent">
+      {{ rowIndicatorPrev$ | async }}
+    </div>
   </div>
   <div id="magnifier-marker"></div>
 </div>

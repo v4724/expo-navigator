@@ -1,11 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, inject, input, InputSignal, signal } from '@angular/core';
+import { StallData } from './stall-.interface';
+import { CommonModule } from '@angular/common';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { StallService } from 'src/app/core/services/state/stall-service';
 
 @Component({
   selector: 'app-stall',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './stall.html',
-  styleUrl: './stall.scss'
+  styleUrl: './stall.scss',
 })
 export class Stall {
+  stall: InputSignal<StallData> = input.required();
 
+  private _stallSevice = inject(StallService);
+
+  isGroupedMember$ = toObservable(this.stall).pipe(
+    map((stall) => {
+      return this._stallSevice.isGroupedMember(stall.id);
+    })
+  );
 }

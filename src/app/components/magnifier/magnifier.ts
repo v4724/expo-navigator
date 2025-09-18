@@ -1,14 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { stallGridRefs } from 'src/app/core/const/official-data';
 import { allGroupIds } from 'src/app/core/const/row-id';
+import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
+import { Stall } from '../stall/stall';
+import { StallGroupArea } from '../stall-group-area/stall-group-area';
 
 @Component({
   selector: 'app-magnifier',
-  imports: [],
+  imports: [CommonModule, Stall, StallGroupArea],
   templateUrl: './magnifier.html',
   styleUrl: './magnifier.scss',
 })
@@ -16,6 +20,7 @@ export class Magnifier {
   @ViewChild('magnifier') magnifier!: HTMLElement;
   @ViewChild('magnifierWrapper') magnifierWrapper!: HTMLElement;
   @ViewChild('magnifierStallLayer') magnifierStallLayer!: HTMLElement;
+  @ViewChild('indicatorContainer') indicatorContainer!: HTMLElement;
 
   isShownState = false;
   zoomFactor = 2.5;
@@ -36,6 +41,14 @@ export class Magnifier {
   private _stallMapService = inject(StallMapService);
   private _stallService = inject(StallService);
   private _stallModalService = inject(StallModalService);
+  private _magnifierService = inject(MagnifierService);
+
+  rowIndicatorNext$ = this._magnifierService.rowIndicatorNext$;
+  rowIndicatorCurrent$ = this._magnifierService.rowIndicatorCurrent$;
+  rowIndicatorPrev$ = this._magnifierService.rowIndicatorPrev$;
+
+  allStalls$ = this._stallService.allStalls$;
+  stallGridRefs = stallGridRefs;
 
   constructor() {
     this.zoomFactor = this._uiStateService.isMobile() ? 3.5 : 2.5; // Use a higher zoom for mobile.
@@ -124,8 +137,7 @@ export class Magnifier {
     if (clickedGroupArea?.dataset['rowId']) {
       const rowId = clickedGroupArea.dataset['rowId'];
       // Find the first stall in the row (top-most for vertical rows) and open its modal directly.
-      const stallsInRow = this._stallService
-        .getAllStalls()
+      const stallsInRow = this._stallService.allStalls
         .filter((s) => s.id.startsWith(rowId))
         .sort((a, b) => b.num - a.num); // Sort by number descending.
 
@@ -162,7 +174,7 @@ export class Magnifier {
     this.magnifierWrapper.style.top = `${clampedTop}px`;
 
     // Keep the row indicator container pinned within the visible map area.
-    const indicatorContainer = indicators.current.parentElement;
+    const indicatorContainer = this.indicatorContainer;
     if (indicatorContainer) {
       const indicatorWidth = indicatorContainer.offsetWidth;
       let shiftX = 0;
@@ -227,9 +239,7 @@ export class Magnifier {
 
     // Hide indicator if magnifier is above the top row or below the bottom row.
     if (lensCenterY_pct < TOP_VISIBLE_BOUNDARY_Y || lensCenterY_pct > BOTTOM_VISIBLE_BOUNDARY_Y) {
-      indicators.current.textContent = '';
-      indicators.prev.textContent = '';
-      indicators.next.textContent = '';
+      this._magnifierService.setRowIndicator('', '', '');
       return;
     }
 
@@ -258,15 +268,13 @@ export class Magnifier {
 
     if (closestRowData) {
       const currentIndex = allGroupIds.indexOf(closestRowData.groupId);
-      indicators.current.textContent = closestRowData.groupId;
-      indicators.prev.textContent = currentIndex > 0 ? allGroupIds[currentIndex - 1] : '';
-      indicators.next.textContent =
-        currentIndex < allGroupIds.length - 1 ? allGroupIds[currentIndex + 1] : '';
+      const current = closestRowData.groupId;
+      const prev = currentIndex > 0 ? allGroupIds[currentIndex - 1] : '';
+      const next = currentIndex < allGroupIds.length - 1 ? allGroupIds[currentIndex + 1] : '';
+      this._magnifierService.setRowIndicator(prev, current, next);
     } else {
       // This case is a fallback, but should not be reached with the current logic.
-      indicators.current.textContent = '';
-      indicators.prev.textContent = '';
-      indicators.next.textContent = '';
+      this._magnifierService.setRowIndicator('', '', '');
     }
   }
 

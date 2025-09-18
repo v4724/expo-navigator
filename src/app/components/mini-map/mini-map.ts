@@ -18,10 +18,13 @@ import { StallData } from '../stall/stall-.interface';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { stallGridRefs } from 'src/app/core/const/official-data';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
+import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
+import { StallGroupArea } from '../stall-group-area/stall-group-area';
+import { Stall } from '../stall/stall';
 
 @Component({
   selector: 'app-mini-map',
-  imports: [CommonModule],
+  imports: [CommonModule, Stall, StallGroupArea],
   templateUrl: './mini-map.html',
   styleUrl: './mini-map.scss',
 })
@@ -30,6 +33,8 @@ export class MiniMap implements AfterViewInit {
   @ViewChild('modalMagnifier') modalMagnifier!: HTMLDivElement;
   @ViewChild('modalMagnifierStallLayer') modalMagnifierStallLayer!: HTMLDivElement;
   @ViewChild('modalVerticalStallList') modalVerticalStallList!: HTMLDivElement;
+  @ViewChild('modalMagnifierRowIndicatorContainer')
+  modalMagnifierRowIndicatorContainer!: HTMLDivElement;
   @ViewChild('navUpEl') navUpEl!: HTMLButtonElement;
   @ViewChild('navDownEl') navDownEl!: HTMLButtonElement;
   @ViewChild('navLeftEl') navLeftEl!: HTMLButtonElement;
@@ -76,8 +81,12 @@ export class MiniMap implements AfterViewInit {
   private _stallService = inject(StallService);
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
+  private _magnifierService = inject(MagnifierService);
 
   selectedStall$ = this._stallService.selectedStall$;
+  allStalls$ = this._stallService.allStalls$;
+  stallGridRefs = stallGridRefs;
+
   /**
    * Sets up all event listeners related to the modal.
    * @param context An object containing all necessary dependencies.
@@ -199,7 +208,7 @@ export class MiniMap implements AfterViewInit {
    * @param target The event target.
    */
   handleModalMapClick(target: HTMLElement) {
-    const allStalls = this._stallService.getAllStalls();
+    const allStalls = this._stallService.allStalls;
     const clickedGroupArea = target.closest('.stall-group-area') as HTMLElement | null;
     const clickedStallArea = target.closest(
       '.stall-area:not(.stall-group-area)'
@@ -387,7 +396,7 @@ export class MiniMap implements AfterViewInit {
   // TODO 修改成根據設定，通用的判斷
   updateVerticalStallList(currId: string | null, targetId: string) {
     const modalVerticalStallList = this.modalVerticalStallList;
-    const allStalls = this._stallService.getAllStalls();
+    const allStalls = this._stallService.allStalls;
 
     const rowId = targetId.substring(0, 1);
     const verticalRowIds = ['猴', '雞', '狗', '特', '商'];
@@ -543,7 +552,7 @@ export class MiniMap implements AfterViewInit {
     bgY: number,
     stall?: StallDto
   ): { clampedBgX: number; clampedBgY: number } {
-    const allStalls = this._stallService.getAllStalls();
+    const allStalls = this._stallService.allStalls;
 
     const zoomFactor = this._uiStateService.isMobile() ? 4.5 : 1.8;
     const viewW = this.modalMagnifier.offsetWidth;
@@ -575,40 +584,34 @@ export class MiniMap implements AfterViewInit {
     const visibleBottom = (-clampedBgY + viewH) / zoomFactor + bufferY;
 
     allStalls.forEach((s: StallData) => {
-      const clone = uiState.stallIdToModalCloneMap.get(s.id);
-      if (!clone || !s.numericCoords) return;
-
-      const { left, top, width, height } = s.numericCoords;
-      const stallLeft_px = (left / 100) * mapW;
-      const stallTop_px = (top / 100) * mapH;
-      const stallRight_px = stallLeft_px + (width / 100) * mapW;
-      const stallBottom_px = stallTop_px + (height / 100) * mapH;
-
-      const isVisible =
-        stallLeft_px < visibleRight &&
-        stallRight_px > visibleLeft &&
-        stallTop_px < visibleBottom &&
-        stallBottom_px > visibleTop;
-
-      clone.classList.toggle('modal-map-hidden', !isVisible);
+      // const clone = uiState.stallIdToModalCloneMap.get(s.id);
+      // if (!clone || !s.numericCoords) return;
+      // const { left, top, width, height } = s.numericCoords;
+      // const stallLeft_px = (left / 100) * mapW;
+      // const stallTop_px = (top / 100) * mapH;
+      // const stallRight_px = stallLeft_px + (width / 100) * mapW;
+      // const stallBottom_px = stallTop_px + (height / 100) * mapH;
+      // const isVisible =
+      //   stallLeft_px < visibleRight &&
+      //   stallRight_px > visibleLeft &&
+      //   stallTop_px < visibleBottom &&
+      //   stallBottom_px > visibleTop;
+      // clone.classList.toggle('modal-map-hidden', !isVisible);
     });
 
     stallGridRefs.forEach((group) => {
-      const clone = uiState.rowIdToModalGroupCloneMap.get(group.groupId);
-      if (!clone) return;
-
-      const rowLeft_px = (group.boundingBox.left / 100) * mapW;
-      const rowTop_px = (group.boundingBox.top / 100) * mapH;
-      const rowRight_px = (group.boundingBox.right / 100) * mapW;
-      const rowBottom_px = (group.boundingBox.bottom / 100) * mapH;
-
-      const isVisible =
-        rowLeft_px < visibleRight &&
-        rowRight_px > visibleLeft &&
-        rowTop_px < visibleBottom &&
-        rowBottom_px > visibleTop;
-
-      clone.classList.toggle('modal-map-hidden', !isVisible);
+      // const clone = uiState.rowIdToModalGroupCloneMap.get(group.groupId);
+      // if (!clone) return;
+      // const rowLeft_px = (group.boundingBox.left / 100) * mapW;
+      // const rowTop_px = (group.boundingBox.top / 100) * mapH;
+      // const rowRight_px = (group.boundingBox.right / 100) * mapW;
+      // const rowBottom_px = (group.boundingBox.bottom / 100) * mapH;
+      // const isVisible =
+      //   rowLeft_px < visibleRight &&
+      //   rowRight_px > visibleLeft &&
+      //   rowTop_px < visibleBottom &&
+      //   rowBottom_px > visibleTop;
+      // clone.classList.toggle('modal-map-hidden', !isVisible);
     });
 
     this._updateModalRowIndicator(clampedBgX, clampedBgY, stall);
@@ -626,18 +629,10 @@ export class MiniMap implements AfterViewInit {
    * @param stall The currently selected stall, if any.
    */
   private _updateModalRowIndicator(currentBgX: number, currentBgY: number, stall?: StallDto) {
-    const { elements } = context;
-    const { modalMagnifier, modalMagnifierRowIndicatorContainer } = elements;
-    const {
-      modalMagnifierRowIndicatorPrev,
-      modalMagnifierRowIndicatorCurrent,
-      modalMagnifierRowIndicatorNext,
-    } = elements;
-
     const isMobile = this._uiStateService.isMobile();
     const mapImage = this._stallMapService.mapImage;
 
-    modalMagnifierRowIndicatorContainer.style.display = 'flex';
+    this.modalMagnifierRowIndicatorContainer.style.display = 'flex';
 
     let closestRowData: (typeof stallGridRefs)[0] | null = null;
 
@@ -648,8 +643,8 @@ export class MiniMap implements AfterViewInit {
     } else {
       // Priority 2 (Fallback for panning): Use geometric calculation based on view center.
       const zoomFactor = isMobile ? 4.5 : 1.8;
-      const viewW = modalMagnifier.offsetWidth;
-      const viewH = modalMagnifier.offsetHeight;
+      const viewW = this.modalMagnifier.offsetWidth;
+      const viewH = this.modalMagnifier.offsetHeight;
       const mapW = mapImage?.offsetWidth ?? 0;
       const mapH = mapImage?.offsetHeight ?? 0;
 
@@ -685,22 +680,17 @@ export class MiniMap implements AfterViewInit {
     }
 
     if (closestRowData && closestRowData.groupId === '範') {
-      modalMagnifierRowIndicatorCurrent.textContent = '';
-      modalMagnifierRowIndicatorPrev.textContent = '';
-      modalMagnifierRowIndicatorNext.textContent = '';
+      this._magnifierService.setRowIndicator('', '', '');
     } else {
-      modalMagnifierRowIndicatorContainer.style.display = 'flex';
+      this.modalMagnifierRowIndicatorContainer.style.display = 'flex';
       if (closestRowData) {
         const currentIndex = allGroupIds.indexOf(closestRowData.groupId);
-        modalMagnifierRowIndicatorCurrent.textContent = closestRowData.groupId;
-        modalMagnifierRowIndicatorPrev.textContent =
-          currentIndex > 0 ? allGroupIds[currentIndex - 1] : '';
-        modalMagnifierRowIndicatorNext.textContent =
-          currentIndex < allGroupIds.length - 1 ? allGroupIds[currentIndex + 1] : '';
+        const curr = closestRowData.groupId;
+        const prev = currentIndex > 0 ? allGroupIds[currentIndex - 1] : '';
+        const next = currentIndex < allGroupIds.length - 1 ? allGroupIds[currentIndex + 1] : '';
+        this._magnifierService.setRowIndicator(prev, curr, next);
       } else {
-        modalMagnifierRowIndicatorCurrent.textContent = '';
-        modalMagnifierRowIndicatorPrev.textContent = '';
-        modalMagnifierRowIndicatorNext.textContent = '';
+        this._magnifierService.setRowIndicator('', '', '');
       }
     }
   }
@@ -712,7 +702,7 @@ export class MiniMap implements AfterViewInit {
    * @returns An array of StallData objects that match the search.
    */
   private _getNavigableStalls(): StallDto[] {
-    return this._stallService.getAllStalls();
+    return this._stallService.allStalls;
   }
 
   /**

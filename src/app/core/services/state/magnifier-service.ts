@@ -7,17 +7,29 @@ import { StallData } from 'src/app/components/stall/stall-.interface';
   providedIn: 'root',
 })
 export class MagnifierService {
+  private _rowIndicatorNext = new BehaviorSubject<string>('');
+  private _rowIndicatorCurrent = new BehaviorSubject<string>('');
+  private _rowIndicatorPrev = new BehaviorSubject<string>('');
+  rowIndicatorNext$ = this._rowIndicatorNext.asObservable();
+  rowIndicatorCurrent$ = this._rowIndicatorCurrent.asObservable();
+  rowIndicatorPrev$ = this._rowIndicatorPrev.asObservable();
+
   stallIdToOriginalMap = new Map<string, HTMLElement>();
   stallIdToCloneMap = new Map<string, HTMLElement>();
 
   isShownState = false;
 
+  setRowIndicator(prev: string, curr: string, next: string) {
+    this._rowIndicatorPrev.next(prev);
+    this._rowIndicatorCurrent.next(curr);
+    this._rowIndicatorNext.next(next);
+  }
+
   /** Adds a stall element and its clone to the magnifier system. */
   addStall(stallElement) {
     const stallId = stallElement.dataset['stallId'];
     if (!stallId) return;
-    const clone = stallElement.cloneNode(true) as HTMLElement;
-    magnifierStallLayer.appendChild(clone);
+
     // Store references to both the original and the clone for synchronization.
     this.stallIdToOriginalMap.set(stallId, stallElement);
     this.stallIdToCloneMap.set(stallId, clone);
@@ -78,6 +90,7 @@ export class MagnifierService {
     toggleButton.textContent = '隱藏放大鏡';
     updateZoom(); // Perform initial zoom update.
   }
+
   /** Hides the magnifier. */
   hide() {
     this.isShownState = false;
@@ -85,6 +98,7 @@ export class MagnifierService {
     toggleButton.setAttribute('aria-pressed', 'false');
     toggleButton.textContent = '顯示放大鏡';
   }
+
   /** Toggles the visibility of the magnifier. */
   toggle() {
     if (this.isShownState) {
@@ -93,6 +107,7 @@ export class MagnifierService {
       this.show();
     }
   }
+
   /** Returns true if the magnifier is currently visible. */
   isShown() {
     return this.isShownState;

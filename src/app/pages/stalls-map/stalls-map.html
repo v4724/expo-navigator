@@ -10,19 +10,39 @@
       <span class="legend-box legend-selected"></span><span>選擇中</span>
     </div>
   </div>
-  <p id="instructions-text">請與地圖互動以查看攤位資訊。</p>
+
+  <p id="instructions-text" [ngClass]="{ 'loading-text': isInitialLoading() }">
+    @if (isInitialLoading()) { 正在載入地圖與攤位資料 } @else if(isInitialError()) {
+    {{ errorMsg }}
+    } @else { @if(isMobile()) { 點擊按鈕可用放大鏡，或直接點擊攤位查看宣傳。 } @else {
+    請與地圖互動以查看攤位資訊。 點擊按鈕顯示/隱藏放大鏡並拖曳。點擊攤位(含放大鏡內)可看宣傳。 } }
+  </p>
+
   <div class="search-container">
     <input
       type="search"
+      #searchInput
       id="search-input"
       placeholder="搜尋攤位編號、名稱、作者或標籤..."
       aria-label="Search for stalls"
+      (input)="input()"
     />
     <button #toggleButton id="toggle-magnifier-btn" (click)="toggleMagnifier()">顯示放大鏡</button>
   </div>
 
   <!-- Map container: will hold the map image and dynamically injected stall areas -->
-  <div id="map-container" #mapContainer>
+  <div
+    id="map-container"
+    #mapContainer
+    (mousedown)="mapContainerMousedown($event)"
+    (touchstart)="mapContainerTouchstart($event)"
+  >
+    @if(isInitialLoading()) { }@else if(isInitialError()) {
+    <p style="color: red; padding: 20px">
+      <b>無法載入攤位資料：</b><br />請檢查您的 Google Sheet
+      是否已「發佈至網路」、網址是否正確，或檢查您的網路連線。
+    </p>
+    } @else {
     <img
       #mapImage
       id="map-image"
@@ -33,6 +53,11 @@
 
     <!-- Magnifier elements: wrapper handles positioning, lens handles visuals -->
     <app-magnifier></app-magnifier>
+    } @for (stall of (allStalls$ | async); track $index) {
+    <app-stall [stall]="stall"></app-stall>
+    } @for (row of stallGridRefs; track $index) {
+    <app-stall-group-area [row]="row"></app-stall-group-area>
+    }
   </div>
 
   <div class="recommendation-note">

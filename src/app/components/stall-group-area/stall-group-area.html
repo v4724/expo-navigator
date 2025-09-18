@@ -1,0 +1,13 @@
+<div
+  class="stall-area stall-group-area"
+  [ngClass]="{
+    'mobile-only-group': row().isGrouped
+  }"
+  [style.top]="`${row().boundingBox.top}%`"
+  [style.left]="`${row().boundingBox.left}%`"
+  [style.width]="`${row().boundingBox.right - row().boundingBox.left}%`"
+  [style.height]="`${row().boundingBox.bottom - row().boundingBox.top}%`"
+  [aria-label]="`Row: ${row().groupId}`"
+>
+  {{ row().groupId }}
+</div>

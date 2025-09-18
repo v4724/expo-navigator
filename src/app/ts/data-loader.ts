@@ -7,9 +7,7 @@
 // IMPORTANT: Replace this with your Google Sheet's "Publish to web" CSV URL.
 // In Google Sheets: File > Share > Publish to web > Select a sheet & "Comma-separated values (.csv)" > Publish.
 const GOOGLE_SHEET_CSV_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSekTVRYingSPdcpjSzVazPOJRJr_SxAyQV1lvqvgzvoW6BtnP8aEoVOo1sZSF6tJ27tLXv7JvxCPP9/pub?output=csv&gid=0&single=true';
-
-//   'https://docs.google.com/spreadsheets/d/e/2PACX-1vRIC4sfV673wpgmYCTgUvavqlB0untN1UzaUzmYN1B8YeOWstKpV6HkW9J9bL2lkSZuXPU5uNyeOxZK/pub?output=csv&gid=0&single=true';
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-6P2J3HQhJvEb5Cl8RnSrceSMUafFXrKwLPa8zqgB64nUDSv0n34qKM12Rc59lonN69n5a-h6SraF/pub?gid=0&single=true&output=csv';
 
 /**
  * A robust CSV parser that handles quoted fields, double quotes inside fields,
@@ -135,10 +133,7 @@ export async function fetchStallData(): Promise<Record<string, string>[]> {
     return parseCsv(csvText);
   } catch (error) {
     // If both attempts fail, log the final error and return empty.
-    console.error(
-      'Error fetching or parsing stall data after fallback:',
-      error
-    );
+    console.error('Error fetching or parsing stall data after fallback:', error);
     return [];
   }
 }

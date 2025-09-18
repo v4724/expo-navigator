@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { StallDto } from '../../interfaces/stall-dto.interface';
 import { StallData } from 'src/app/components/stall/stall-.interface';
 import { TooltipService } from './tooltip-service';
+import { stallGridRefs } from '../../const/official-data';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,11 @@ export class StallService {
   private _allStalls = new BehaviorSubject<StallData[]>([]);
   private _selectedId = new BehaviorSubject<string | null>(null);
   private _allOrigStalls = new BehaviorSubject<StallDto[]>([]);
+
+  // This set contains rows that are *permanently* grouped on all screen sizes.
+  permanentlyGroupedRowIds = new Set(
+    stallGridRefs.filter((r) => r.isGrouped).map((r) => r.groupId)
+  );
 
   allStalls$ = this._allStalls.asObservable();
   selectedStall$ = this._selectedId.asObservable();
@@ -30,6 +36,13 @@ export class StallService {
     this._selectedId.next(id);
   }
 
+  set allStalls(stalls: StallData[]) {
+    this._allStalls.next(stalls);
+  }
+  get allStalls() {
+    return this._allStalls.getValue();
+  }
+
   hasSelected(): boolean {
     return !!this.selected;
   }
@@ -38,8 +51,10 @@ export class StallService {
     return this._allStalls.getValue().find((stall) => stall.id === id);
   }
 
-  getAllStalls() {
-    return this._allStalls.getValue();
+  isGroupedMember(stallId: string) {
+    // Stalls that are members of a permanently grouped row are hidden on the main map (on all screen sizes).
+    const rowId = stallId.substring(0, 1);
+    return this.permanentlyGroupedRowIds.has(rowId);
   }
 
   /**
@@ -48,10 +63,8 @@ export class StallService {
    * @param magnifierController The controller for the desktop magnifier.
    * @param state The shared UI state object.
    */
-  clearSelection() // elements: DOMElements,
-  // magnifierController: MagnifierController | null,
-  // state: UIState
-  {
+  clearSelection() {
+    // state: UIState // magnifierController: MagnifierController | null, // elements: DOMElements,
     if (this.hasSelected()) {
       // updateStallClass(
       //   state.selectedStallElement,

@@ -1,1 +1,11 @@
-<p>stall works!</p>
+<div
+  class="stall-area"
+  [ngClass]="{ 'has-promo': stall().hasPromo, 'is-grouped-member': (isGroupedMember$ | async) }"
+  [style.top]="stall().coords.top"
+  [style.left]="stall().coords.left"
+  [style.width]="stall().coords.width"
+  [style.height]="stall().coords.height"
+  [aria-label]="`Stall: ${stall().stallTitle}`"
+>
+  {{ stall().padNum }}
+</div>
