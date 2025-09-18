@@ -5,12 +5,13 @@
 
 import { PromoLink } from '../core/interfaces/promo-link.interface.js';
 import { PromoStall } from '../core/interfaces/promo-stall.interface.js';
-import { StallData } from '../core/interfaces/stall-data.interface.js';
-import { locateStalls } from './official-data.js';
+import { StallDto } from '../core/interfaces/stall-dto.interface.js';
+import { stallGridRefs } from '../core/const/official-data.js';
 import DOMPurify from 'dompurify';
+import { StallData } from '../components/stall/stall-.interface.js';
 
-// Convert the locateStalls array into a Map for efficient O(1) lookups by stall letter.
-const locateStallMap = new Map(locateStalls.map((s) => [s.id, s]));
+// Convert the stallGridRefs array into a Map for efficient O(1) lookups by stall letter.
+const locateStallMap = new Map(stallGridRefs.map((s) => [s.groupId, s]));
 
 /**
  * Parses a string of semi-colon delimited links into an array of PromoLink objects.
@@ -93,6 +94,7 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
     if (!stallEntry) {
       const line = id.substring(0, 1); // e.g., 'A' from 'A01'
       const num = parseInt(rawStall['num'], 10);
+      const padNum = num.toString().padStart(2, '0');
       const stallCnt = parseInt(rawStall['stallCnt'], 10) || 1; // How many table spaces the stall occupies.
       const locateStall = locateStallMap.get(line); // Get the template coordinates for this row/column.
 
@@ -103,7 +105,7 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
       }
 
       // --- Coordinate Calculation ---
-      const coordsTemplate = locateStall.coords;
+      const coordsTemplate = locateStall.anchorStallRect;
       let myCoords: NonNullable<StallData['coords']>;
       let myNumericCoords: NonNullable<StallData['numericCoords']>;
 
@@ -206,9 +208,10 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
       if (stallImg && stallImg.startsWith('assets/2025/')) {
         stallImg = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@d24cd07/${stallImg}`;
       }
-      stallEntry = {
+      const stall = {
         id: id,
         num: num,
+        padNum,
         stallCnt: stallCnt,
         coords: myCoords,
         numericCoords: myNumericCoords,
@@ -217,8 +220,11 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
         stallLink: rawStall['stallLink'] || undefined,
         promoData: [], // Initialize with an empty array for promotions.
         promoTags: [],
+        hasPromo: false,
+        isSearchMatch: false,
       };
-      stallsMap.set(id, stallEntry);
+      stallsMap.set(id, stall);
+      stallEntry = stall;
     }
 
     // --- Promotion Data Aggregation ---
@@ -248,6 +254,7 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
         promoTags: parsePromoTags(rawStall['promoTags']),
       };
       stallEntry.promoData.push(promo);
+      stallEntry.hasPromo = true;
     }
   });
 

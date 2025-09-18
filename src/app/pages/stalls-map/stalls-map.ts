@@ -1,20 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { getDOMElements } from '../../ts/dom-elements';
 import { fetchStallData } from '../../ts/data-loader';
 import { processStalls } from '../../ts/stall-processor';
-import { initializeModalEventListeners, openModal } from '../../ts/modal-manager';
 import { createMagnifier } from '../../ts/magnifier';
 import { renderStalls, uiState, updateStallClass } from '../../ts/ui-manager';
-import { locateStalls } from '../../ts/official-data';
+import { stallGridRefs } from '../../core/const/official-data';
 import { Lightbox } from 'src/app/shared/components/lightbox/lightbox';
+import { StallModal } from 'src/app/components/stall-modal/stall-modal';
+import { Tooptip } from 'src/app/shared/components/tooptip/tooptip';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
+import { StallMapService } from 'src/app/core/services/state/stall-map-service';
+import { Magnifier } from 'src/app/components/magnifier/magnifier';
 
 @Component({
   selector: 'app-stalls-map',
-  imports: [Lightbox],
+  imports: [Lightbox, StallModal, Tooptip, Magnifier],
   templateUrl: './stalls-map.html',
   styleUrl: './stalls-map.scss',
 })
 export class StallsMap implements OnInit {
+  @ViewChild(Magnifier) magnifier!: Magnifier;
+  @ViewChild(StallModal) stallModal!: StallModal;
+  @ViewChild('mapImage') mapImage!: HTMLImageElement;
+  @ViewChild('mapContainer') mapContainer!: HTMLImageElement;
+  @ViewChild('toggleButton') toggleButton!: HTMLButtonElement;
+
+  private _uiStateService = inject(UiStateService);
+  private _stallMapService = inject(StallMapService);
+
   ngOnInit() {
     this.runApp();
   }
@@ -39,6 +52,9 @@ export class StallsMap implements OnInit {
         elements.mapImage.onload = () => resolve();
         elements.mapImage.onerror = () => reject(new Error('Map image failed to load.'));
       }
+    }).then(() => {
+      this._stallMapService.mapImage = this.mapImage;
+      this._stallMapService.mapContainer = this.mapContainer;
     });
 
     try {
@@ -54,9 +70,7 @@ export class StallsMap implements OnInit {
       const allStalls = processStalls(rawData);
 
       // --- Initialization & Setup ---
-      // Use a media query for a more robust responsive check based on viewport width.
-      const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
-      const mobileCheck = isMobile(); // Check once and store the result.
+      const mobileCheck = this._uiStateService.isMobile();
 
       const context = {
         allStalls,
@@ -81,10 +95,10 @@ export class StallsMap implements OnInit {
             .sort((a, b) => b.num - a.num); // Sort by number descending.
 
           if (stallsInRow.length > 0) {
-            openModal(stallsInRow[0].id, context);
+            this.openModal(stallsInRow[0].id);
           }
         } else if (clickedStallArea?.dataset['stallId']) {
-          openModal(clickedStallArea.dataset['stallId'], context);
+          this.openModal(clickedStallArea.dataset['stallId']);
         }
       };
 
@@ -108,9 +122,6 @@ export class StallsMap implements OnInit {
       // --- UI Rendering ---
       renderStalls(allStalls, elements, magnifierController, uiState);
       renderDebugBorders(elements.mapContainer);
-
-      // --- Event Listener Binding ---
-      initializeModalEventListeners(context);
 
       elements.searchInput.addEventListener('input', () => {
         const searchTerm = elements.searchInput.value.toLowerCase().trim();
@@ -152,12 +163,12 @@ export class StallsMap implements OnInit {
         });
 
         // 3. Update the visible group area elements based on whether any stall in that row matched.
-        locateStalls.forEach((row) => {
+        stallGridRefs.forEach((row) => {
           const groupAreaElements = document.querySelectorAll(
-            `.stall-group-area[data-row-id="${row.id}"]`
+            `.stall-group-area[data-row-id="${row.groupId}"]`
           ) as NodeList;
           groupAreaElements.forEach((groupAreaElement: Node) => {
-            const hasMatch = matchingRowIds.has(row.id);
+            const hasMatch = matchingRowIds.has(row.groupId);
             (groupAreaElement as HTMLElement).classList.toggle('is-search-match', hasMatch);
           });
         });
@@ -238,19 +249,35 @@ export class StallsMap implements OnInit {
       elements.instructionsEl.textContent = '地圖或資料載入失敗，請重新整理頁面。';
     }
   }
+
+  openModal(stallId: string) {
+    this.stallModal.openModal(stallId);
+  }
+
+  toggleMagnifier() {
+    if (this.magnifier.isShownState) {
+      this.toggleButton.setAttribute('aria-pressed', 'false');
+      this.toggleButton.textContent = '顯示放大鏡';
+      this.magnifier.hide();
+    } else {
+      this.toggleButton.setAttribute('aria-pressed', 'true'); // For accessibility
+      this.toggleButton.textContent = '隱藏放大鏡';
+      this.magnifier.show();
+    }
+  }
 }
 
 function renderDebugBorders(mapContainer: HTMLElement) {
-  locateStalls.forEach((row) => {
+  stallGridRefs.forEach((row) => {
     const borderEl = document.createElement('div');
     borderEl.className = 'debug-border';
-    borderEl.style.top = `${row.border.top}%`;
-    borderEl.style.left = `${row.border.left}%`;
-    borderEl.style.width = `${row.border.right - row.border.left}%`;
-    borderEl.style.height = `${row.border.bottom - row.border.top}%`;
+    borderEl.style.top = `${row.boundingBox.top}%`;
+    borderEl.style.left = `${row.boundingBox.left}%`;
+    borderEl.style.width = `${row.boundingBox.right - row.boundingBox.left}%`;
+    borderEl.style.height = `${row.boundingBox.bottom - row.boundingBox.top}%`;
 
     const label = document.createElement('span');
-    label.textContent = row.id;
+    label.textContent = row.groupId;
     borderEl.appendChild(label);
 
     mapContainer.appendChild(borderEl);

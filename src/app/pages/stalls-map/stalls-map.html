@@ -18,12 +18,13 @@
       placeholder="搜尋攤位編號、名稱、作者或標籤..."
       aria-label="Search for stalls"
     />
-    <button id="toggle-magnifier-btn">顯示放大鏡</button>
+    <button #toggleButton id="toggle-magnifier-btn" (click)="toggleMagnifier()">顯示放大鏡</button>
   </div>
 
   <!-- Map container: will hold the map image and dynamically injected stall areas -->
-  <div id="map-container">
+  <div id="map-container" #mapContainer>
     <img
+      #mapImage
       id="map-image"
       src="https://cdn.jsdelivr.net/gh/v4724/nice-0816@c6b3cd1/assets/stalls-map.jpg"
       alt="Neo iComic Echo Venue Map"
@@ -31,17 +32,7 @@
     <!-- Stall areas will be injected here by JS -->
 
     <!-- Magnifier elements: wrapper handles positioning, lens handles visuals -->
-    <div id="magnifier-wrapper">
-      <div id="magnifier">
-        <div id="magnifier-stall-layer"></div>
-      </div>
-      <div id="magnifier-row-indicator-container">
-        <div id="magnifier-row-indicator-next" class="row-indicator-adjacent"></div>
-        <div id="magnifier-row-indicator-current" class="row-indicator-current"></div>
-        <div id="magnifier-row-indicator-prev" class="row-indicator-adjacent"></div>
-      </div>
-      <div id="magnifier-marker"></div>
-    </div>
+    <app-magnifier></app-magnifier>
   </div>
 
   <div class="recommendation-note">
@@ -66,54 +57,11 @@
   </div>
 </div>
 
-<!-- Tooltip element: used for hover information. It is hidden by default. -->
-<div id="tooltip" class="hidden" role="tooltip"></div>
+<app-tooptip></app-tooptip>
 
 <!-- Modal dialog: for displaying detailed stall information. Hidden by default. -->
 <!-- ARIA attributes ensure it's accessible to screen readers. -->
-<div
-  id="modal"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="modal-title"
-  aria-hidden="true"
-  class="hidden"
->
-  <div class="modal-overlay" id="modal-overlay"></div>
-
-  <div class="modal-mini-map">
-    <div id="modal-magnifier-wrapper">
-      <div class="modal-magnifier-content">
-        <div id="modal-vertical-stall-list"></div>
-        <div id="modal-magnifier">
-          <div id="modal-magnifier-stall-layer"></div>
-        </div>
-      </div>
-      <div id="modal-magnifier-row-indicator-container">
-        <div id="modal-magnifier-row-indicator-next" class="row-indicator-adjacent"></div>
-        <div id="modal-magnifier-row-indicator-current" class="row-indicator-current"></div>
-        <div id="modal-magnifier-row-indicator-prev" class="row-indicator-adjacent"></div>
-      </div>
-      <!-- The highlight element will be injected here by JS into the wrapper -->
-    </div>
-    <div id="modal-nav-controls">
-      <button id="modal-nav-up" class="modal-nav-btn" aria-label="往上一排" disabled>▲</button>
-      <button id="modal-nav-left" class="modal-nav-btn" aria-label="往左一攤" disabled>◄</button>
-      <button id="modal-nav-down" class="modal-nav-btn" aria-label="往下一排" disabled>▼</button>
-      <button id="modal-nav-right" class="modal-nav-btn" aria-label="往右一攤" disabled>►</button>
-    </div>
-  </div>
-  <div class="modal-wrapper">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 id="modal-title"></h2>
-        <button id="modal-close" aria-label="Close dialog">&times;</button>
-      </div>
-      <div id="modal-body"></div>
-      <div id="modal-footer"></div>
-    </div>
-  </div>
-</div>
+<app-stall-modal></app-stall-modal>
 
 <!-- Image Lightbox for viewing images in detail -->
 <app-lightbox></app-lightbox>

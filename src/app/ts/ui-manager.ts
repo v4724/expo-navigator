@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { StallData } from '../core/interfaces/stall-data.interface.js';
 import type { DOMElements } from './dom-elements.ts';
 import type { MagnifierController } from './magnifier.ts';
-import { locateStalls } from './official-data.js';
+import { stallGridRefs } from '../core/const/official-data.js';
+import { StallData } from '../components/stall/stall-.interface.js';
 
 /** Defines the shape of the shared UI state object. */
 export interface UIState {
@@ -37,7 +37,7 @@ export function renderStalls(
 ) {
   // This set contains rows that are *permanently* grouped on all screen sizes.
   const permanentlyGroupedRowIds = new Set(
-    locateStalls.filter((r) => r.isGrouped).map((r) => r.id)
+    stallGridRefs.filter((r) => r.isGrouped).map((r) => r.groupId)
   );
 
   // --- 1. Render all individual stall elements ---
@@ -77,17 +77,17 @@ export function renderStalls(
 
   // --- 2. Create the visible, clickable group areas for ALL rows ---
   // Their visibility will be controlled by CSS based on screen size and whether they are permanently grouped.
-  locateStalls.forEach((row) => {
+  stallGridRefs.forEach((row) => {
     const groupArea = document.createElement('div');
     // Add both classes. `.stall-area` for base styles, `.stall-group-area` for group-specific styles.
     groupArea.className = 'stall-area stall-group-area';
-    groupArea.dataset['rowId'] = row.id;
-    groupArea.style.top = `${row.border.top}%`;
-    groupArea.style.left = `${row.border.left}%`;
-    groupArea.style.width = `${row.border.right - row.border.left}%`;
-    groupArea.style.height = `${row.border.bottom - row.border.top}%`;
-    groupArea.setAttribute('aria-label', `Row: ${row.id}`);
-    groupArea.textContent = row.id;
+    groupArea.dataset['rowId'] = row.groupId;
+    groupArea.style.top = `${row.boundingBox.top}%`;
+    groupArea.style.left = `${row.boundingBox.left}%`;
+    groupArea.style.width = `${row.boundingBox.right - row.boundingBox.left}%`;
+    groupArea.style.height = `${row.boundingBox.bottom - row.boundingBox.top}%`;
+    groupArea.setAttribute('aria-label', `Row: ${row.groupId}`);
+    groupArea.textContent = row.groupId;
 
     // If a row is NOT permanently grouped, its group area should be hidden by default on desktop.
     // CSS will make it visible on mobile devices.
@@ -106,7 +106,7 @@ export function renderStalls(
       // Add to modal mini-map
       const modalGroupClone = groupArea.cloneNode(true) as HTMLElement;
       elements.modalMagnifierStallLayer.appendChild(modalGroupClone);
-      state.rowIdToModalGroupCloneMap.set(row.id, modalGroupClone);
+      state.rowIdToModalGroupCloneMap.set(row.groupId, modalGroupClone);
     }
   });
 }
@@ -142,22 +142,4 @@ export function updateStallClass(
   if (modalClone) {
     modalClone.classList.toggle(className, force);
   }
-}
-
-/**
- * Clears the currently selected stall, resetting its style and hiding the tooltip.
- * @param elements A reference to all DOM elements.
- * @param magnifierController The controller for the desktop magnifier.
- * @param state The shared UI state object.
- */
-export function clearSelection(
-  elements: DOMElements,
-  magnifierController: MagnifierController | null,
-  state: UIState
-) {
-  if (state.selectedStallElement) {
-    updateStallClass(state.selectedStallElement, 'is-selected', false, magnifierController, state);
-  }
-  state.selectedStallElement = null;
-  elements.tooltip.classList.add('hidden');
 }

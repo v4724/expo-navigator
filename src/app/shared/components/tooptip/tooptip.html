@@ -1,0 +1,11 @@
+<!-- Tooltip element: used for hover information. It is hidden by default. -->
+<div
+  #tooltip
+  id="tooltip"
+  [ngClass]="{ hidden: !(show$ | async) }"
+  [style.left.px]="left"
+  [style.top.px]="top"
+  role="tooltip"
+>
+  {{ label$ | async }}
+</div>

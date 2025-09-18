@@ -1,0 +1,67 @@
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { StallDto } from '../../interfaces/stall-dto.interface';
+import { StallData } from 'src/app/components/stall/stall-.interface';
+import { TooltipService } from './tooltip-service';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class StallService {
+  private _allStalls = new BehaviorSubject<StallData[]>([]);
+  private _selectedId = new BehaviorSubject<string | null>(null);
+  private _allOrigStalls = new BehaviorSubject<StallDto[]>([]);
+
+  allStalls$ = this._allStalls.asObservable();
+  selectedStall$ = this._selectedId.asObservable();
+
+  private _tooltipService = inject(TooltipService);
+
+  get selected(): string | null {
+    return this._selectedId.getValue();
+  }
+  get selectedStall(): StallData | undefined {
+    const id = this._selectedId.getValue();
+    if (!id) return undefined;
+    return this.findStall(id);
+  }
+
+  set selected(id: string | null) {
+    this._selectedId.next(id);
+  }
+
+  hasSelected(): boolean {
+    return !!this.selected;
+  }
+
+  findStall(id: string): StallData | undefined {
+    return this._allStalls.getValue().find((stall) => stall.id === id);
+  }
+
+  getAllStalls() {
+    return this._allStalls.getValue();
+  }
+
+  /**
+   * Clears the currently selected stall, resetting its style and hiding the tooltip.
+   * @param elements A reference to all DOM elements.
+   * @param magnifierController The controller for the desktop magnifier.
+   * @param state The shared UI state object.
+   */
+  clearSelection() // elements: DOMElements,
+  // magnifierController: MagnifierController | null,
+  // state: UIState
+  {
+    if (this.hasSelected()) {
+      // updateStallClass(
+      //   state.selectedStallElement,
+      //   'is-selected',
+      //   false,
+      //   magnifierController,
+      //   state
+      // );
+    }
+    this.selected = null;
+    this._tooltipService.hide();
+  }
+}

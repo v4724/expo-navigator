@@ -1,1 +1,20 @@
-<p>magnifier works!</p>
+<div
+  id="magnifier-wrapper"
+  #magnifierWrapper
+  (mousedown)="onDragStart($event)"
+  (mousemove)="onDragMove($event)"
+  (mouseup)="onDragEnd()"
+  (touchstart)="onTouchStart($event)"
+  (touchmove)="onTouchMove($event)"
+  (touchend)="onDragEnd()"
+>
+  <div id="magnifier" #magnifier>
+    <div id="magnifier-stall-layer" #magnifierStallLayer></div>
+  </div>
+  <div id="magnifier-row-indicator-container">
+    <div id="magnifier-row-indicator-next" class="row-indicator-adjacent"></div>
+    <div id="magnifier-row-indicator-current" class="row-indicator-current"></div>
+    <div id="magnifier-row-indicator-prev" class="row-indicator-adjacent"></div>
+  </div>
+  <div id="magnifier-marker"></div>
+</div>

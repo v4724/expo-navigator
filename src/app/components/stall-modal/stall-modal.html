@@ -1,1 +1,61 @@
-<p>stall-modal works!</p>
+<div
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+  [aria-hidden]="!(show$ | async)"
+  [ngClass]="{ hidden: !(show$ | async) }"
+  class="hidden"
+>
+  <div class="modal-overlay" id="modal-overlay" (click)="closeModal()"></div>
+
+  <app-mini-map></app-mini-map>
+
+  <div class="modal-wrapper">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">{{ stall()?.id }}: {{ stall()?.stallTitle }}</h2>
+        <button id="modal-close" aria-label="Close dialog" (click)="closeModal()">&times;</button>
+      </div>
+      <div id="modal-body" (click)="bodyClicked($event)">
+        @if (!(hasPromoInfo$ | async)) {暫無宣傳資訊。 } @else { @if (stall()?.stallImg) {
+        <img
+          [src]="stall()?.stallImg"
+          [alt]="'Official Promo Image: ' + stall()?.stallTitle"
+          class="official-stall-image"
+          loading="lazy"
+          onload="this.classList.add('loaded')"
+        />
+        } @if (stall()?.stallImg && stall()?.hasPromo) {
+        <hr class="promo-section-separator" />
+        } @for (item of stall()?.promoData; track $index) { @if ($index > 0) {
+        <div class="promo-entry-separator"></div>
+        }
+        <div class="promo-entry">
+          <div class="modal-user-info">
+            <img
+              [src]="item.promoAvatar ? item.promoAvatar : defaultAvatar"
+              [alt]="item.promoUser"
+              class="modal-avatar"
+            />
+            <span class="modal-username">{{ item.promoUser }}</span>
+          </div>
+          @if (item.promoTags && item.promoTags.length > 0) {
+          <div class="promo-tags-container">
+            @for (tag of item.promoTags; track $index) {<span class="promo-tag">#{{ tag }}</span> }
+          </div>
+          }
+          <div class="promo-html-content">{{ item.promoHTML }}</div>
+        </div>
+        } }
+      </div>
+      <div id="modal-footer">
+        @for (link of promoLinks(); track $index) {
+        <a [href]="link.href" class="footer-link" target="_blank" rel="noopener noreferrer">{{
+          link.text
+        }}</a>
+        }
+      </div>
+    </div>
+  </div>
+</div>
