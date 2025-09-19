@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { DOMElements } from './dom-elements.ts';
-import type { MagnifierController } from './magnifier.ts';
 import { stallGridRefs } from '../core/const/official-data.js';
 import { StallData } from '../components/stall/stall-.interface.js';
 
@@ -34,19 +32,13 @@ export function updateStallClass(
   stallElement: HTMLElement,
   className: string,
   force: boolean,
-  magnifierController: MagnifierController | null,
   state: UIState
 ) {
   const stallId = stallElement.dataset['stallId'];
   if (!stallId) return;
 
   // Delegate to magnifier controller which handles main element + its own clone
-  if (magnifierController) {
-    magnifierController.updateStallClass(stallId, className, force);
-  } else {
-    // On mobile, update the main element directly
-    stallElement.classList.toggle(className, force);
-  }
+  // On mobile, update the main element directly
 
   // Always update the modal mini-map clone
   const modalClone = state.stallIdToModalCloneMap.get(stallId);

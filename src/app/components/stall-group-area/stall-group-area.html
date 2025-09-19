@@ -1,7 +1,7 @@
 <div
   class="stall-area stall-group-area"
   [ngClass]="{
-    'mobile-only-group': row().isGrouped
+    'mobile-only-group': !row().isGrouped
   }"
   [style.top]="`${row().boundingBox.top}%`"
   [style.left]="`${row().boundingBox.left}%`"

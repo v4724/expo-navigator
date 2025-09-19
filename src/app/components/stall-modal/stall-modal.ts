@@ -8,7 +8,6 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { StallDto } from 'src/app/core/interfaces/stall-dto.interface';
-import { ModalContext } from 'src/app/core/interfaces/stall-modal.interface';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
 import { updateStallClass } from 'src/app/ts/ui-manager';
@@ -102,22 +101,22 @@ export class StallModal {
     const stall = this._stallService.findStall(stallId);
     if (!stall) return;
 
-    const isModalHidden = this._stallModalService.isHidden();
-    if (magnifierController && isModalHidden) {
-      modalState.wasMagnifierVisible = magnifierController.isShown();
-      if (modalState.wasMagnifierVisible) {
-        magnifierController.hide();
-      }
-    }
+    // const isModalHidden = this._stallModalService.isHidden();
+    // if (magnifierController && isModalHidden) {
+    //   modalState.wasMagnifierVisible = magnifierController.isShown();
+    //   if (modalState.wasMagnifierVisible) {
+    //     magnifierController.hide();
+    //   }
+    // }
     // this._stallService.clearSelection();
 
-    const stallElement = document.querySelector(
-      `.stall-area[data-stall-id="${stallId}"]`
-    ) as HTMLElement;
-    if (stallElement) {
-      uiState.selectedStallElement = stallElement;
-      updateStallClass(stallElement, 'is-selected', true, magnifierController, uiState);
-    }
+    // const stallElement = document.querySelector(
+    //   `.stall-area[data-stall-id="${stallId}"]`
+    // ) as HTMLElement;
+    // if (stallElement) {
+    //   uiState.selectedStallElement = stallElement;
+    //   updateStallClass(stallElement, 'is-selected', true, magnifierController, uiState);
+    // }
 
     // 動態嵌入 IG 貼文
     if (window.instgrm) {

@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   HostListener,
   inject,
@@ -7,7 +8,6 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
-import { getDOMElements } from '../../ts/dom-elements';
 import { fetchStallData } from '../../ts/data-loader';
 import { processStalls } from '../../ts/stall-processor';
 import { uiState } from '../../ts/ui-manager';
@@ -23,6 +23,8 @@ import { CommonModule } from '@angular/common';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';
 import { Stall } from 'src/app/components/stall/stall';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
+import { catchError, EMPTY, finalize, forkJoin, from, Subject, tap } from 'rxjs';
+import { error } from 'console';
 
 @Component({
   selector: 'app-stalls-map',
@@ -30,7 +32,7 @@ import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-
   templateUrl: './stalls-map.html',
   styleUrl: './stalls-map.scss',
 })
-export class StallsMap implements OnInit {
+export class StallsMap implements OnInit, AfterViewInit {
   @ViewChild(Magnifier) magnifier!: Magnifier;
   @ViewChild(StallModal) stallModal!: StallModal;
   @ViewChild('mapImage') mapImage!: HTMLImageElement;
@@ -51,12 +53,33 @@ export class StallsMap implements OnInit {
   allStalls$ = this._stallService.allStalls$;
   stallGridRefs = stallGridRefs;
 
+  mapImageSrc = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@c6b3cd1/assets/stalls-map.jpg`;
+
   ngOnInit() {
+    this.mapImageLoaded.pipe().subscribe(() => {
+      this._stallMapService.mapImage = this.mapImage;
+      this._stallMapService.mapContainer = this.mapContainer;
+    });
+  }
+
+  ngAfterViewInit() {
     this.runApp();
   }
 
-  async runApp() {
-    const elements = getDOMElements();
+  mapImageLoaded = new Subject<boolean>();
+
+  onMapImageLoad() {
+    this.mapImageLoaded.next(true);
+    this.mapImageLoaded.complete();
+  }
+
+  onMapImageError() {
+    this.mapImageLoaded.error(new Error('Map image failed to load.'));
+    this.mapImageLoaded.complete();
+  }
+
+  runApp() {
+    // const elements = getDOMElements();
 
     // To enable debug borders, add `?debug=true` to the URL.
     const urlParams = new URLSearchParams(window.location.search);
@@ -65,43 +88,38 @@ export class StallsMap implements OnInit {
     }
 
     // --- Asynchronous Resource Loading ---
-    const loadImage = new Promise<void>((resolve, reject) => {
-      if (this.mapImage.complete) {
-        resolve();
-      } else {
-        this.mapImage.onload = () => resolve();
-        this.mapImage.onerror = () => reject(new Error('Map image failed to load.'));
-      }
-    }).then(() => {
-      this._stallMapService.mapImage = this.mapImage;
-      this._stallMapService.mapContainer = this.mapContainer;
-    });
+    forkJoin([fetchStallData(), this.mapImageLoaded])
+      .pipe(
+        catchError((error) => {
+          console.error('Failed to initialize app:', error);
+          this.isInitialLoading.set(false);
+          this.isInitialError.set(true);
+          this.errorMsg = '地圖或資料載入失敗，請重新整理頁面。';
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isInitialLoading.set(false);
+        })
+      )
+      .subscribe(([rawData]) => {
+        console.log();
+        if (rawData.length === 0) {
+          this.isInitialError.set(true);
+          this.errorMsg = '載入失敗';
+          return;
+        }
 
-    try {
-      const [rawData] = await Promise.all([fetchStallData(), loadImage]);
+        const allStalls = processStalls(rawData);
+        this._stallService.allStalls = allStalls;
 
-      if (rawData.length === 0) {
-        this.isInitialError.set(true);
-        this.errorMsg = '載入失敗';
-        return;
-      }
+        // --- Initialization & Setup ---
+        const mobileCheck = this._uiStateService.isMobile();
+        this.isMobile.set(mobileCheck);
 
-      const allStalls = processStalls(rawData);
-      this._stallService.allStalls = allStalls;
-
-      // --- Initialization & Setup ---
-      const mobileCheck = this._uiStateService.isMobile();
-      this.isMobile.set(mobileCheck);
-
-      // --- UI Rendering ---
-      this.renderStalls();
-      renderDebugBorders(elements.mapContainer);
-    } catch (error) {
-      console.error('Failed to initialize app:', error);
-      this.isInitialLoading.set(false);
-      this.isInitialError.set(true);
-      this.errorMsg = '地圖或資料載入失敗，請重新整理頁面。';
-    }
+        // --- UI Rendering ---
+        this.renderStalls();
+        // renderDebugBorders(this.mapContainer);
+      });
   }
 
   mapContainerMouseover(e: MouseEvent) {

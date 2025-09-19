@@ -99,7 +99,6 @@ function parseCsv(csvText: string): Record<string, string>[] {
  */
 export async function fetchStallData(): Promise<Record<string, string>[]> {
   const urlWithTimestamp = `${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`;
-
   // --- First Attempt: With Cache-Busting Timestamp ---
   try {
     const response = await fetch(urlWithTimestamp);

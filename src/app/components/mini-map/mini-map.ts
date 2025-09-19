@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import { allGroupIds } from 'src/app/core/const/row-id';
 import { StallDto } from 'src/app/core/interfaces/stall-dto.interface';
-import { ModalContext } from 'src/app/core/interfaces/stall-modal.interface';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';

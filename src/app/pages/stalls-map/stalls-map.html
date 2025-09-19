@@ -37,20 +37,20 @@
     (mousedown)="mapContainerMousedown($event)"
     (touchstart)="mapContainerTouchstart($event)"
   >
+    <img
+      #mapImage
+      id="map-image"
+      [src]="mapImageSrc"
+      alt="Neo iComic Echo Venue Map"
+      (load)="onMapImageLoad()"
+      (error)="onMapImageError()"
+    />
     @if(isInitialLoading()) { }@else if(isInitialError()) {
     <p style="color: red; padding: 20px">
       <b>無法載入攤位資料：</b><br />請檢查您的 Google Sheet
       是否已「發佈至網路」、網址是否正確，或檢查您的網路連線。
     </p>
     } @else {
-    <img
-      #mapImage
-      id="map-image"
-      src="https://cdn.jsdelivr.net/gh/v4724/nice-0816@c6b3cd1/assets/stalls-map.jpg"
-      alt="Neo iComic Echo Venue Map"
-    />
-    <!-- Stall areas will be injected here by JS -->
-
     <!-- Magnifier elements: wrapper handles positioning, lens handles visuals -->
     <app-magnifier></app-magnifier>
     } @for (stall of (allStalls$ | async); track $index) {
