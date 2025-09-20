@@ -224,48 +224,7 @@ export class StallsMap implements OnInit, AfterViewInit {
 
   input() {
     const searchTerm = this.searchInput.nativeElement.value.toLowerCase().trim();
-
-    // A set to track which rows (by ID) have at least one matching stall.
-    const matchingRowIds = new Set<string>();
-    const allStalls = this._stallService.allStalls;
-
-    allStalls.forEach((stall) => {
-      const mainElement = document.querySelector(
-        `.stall-area[data-stall-id="${stall.id}"]`,
-      ) as HTMLElement;
-      if (!mainElement) return;
-
-      let isMatch = false;
-      if (searchTerm !== '') {
-        const hasPromoUserMatch = stall.promoData.some((promo) =>
-          promo.promoUser.toLowerCase().includes(searchTerm),
-        );
-        const hasTagMatch = stall.promoTags.some((tag) => tag.toLowerCase().includes(searchTerm));
-
-        isMatch =
-          stall.id.toLowerCase().includes(searchTerm) ||
-          stall.stallTitle.toLowerCase().includes(searchTerm) ||
-          hasPromoUserMatch ||
-          hasTagMatch;
-      }
-
-      // If a match is found, record its row ID.
-      if (isMatch) {
-        matchingRowIds.add(stall.id.substring(0, 1));
-      }
-      stall.isSearchMatch = isMatch;
-    });
-
-    // 3. Update the visible group area elements based on whether any stall in that row matched.
-    stallGridRefs.forEach((row) => {
-      const groupAreaElements = document.querySelectorAll(
-        `.stall-group-area[data-row-id="${row.groupId}"]`,
-      ) as NodeList;
-      groupAreaElements.forEach((groupAreaElement: Node) => {
-        const hasMatch = matchingRowIds.has(row.groupId);
-        (groupAreaElement as HTMLElement).classList.toggle('is-search-match', hasMatch);
-      });
-    });
+    this._stallMapService.inputSearch = searchTerm;
   }
 
   /**

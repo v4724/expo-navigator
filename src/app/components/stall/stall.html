@@ -1,10 +1,9 @@
 <div
   class="stall-area"
-  [ngClass]="{
-    'has-promo': stall().hasPromo,
-  }"
   [class.hidden]="hiddenIfGrouped() && (isGroupedMember$ | async)"
   [class.is-selected]="isSelected()"
+  [class.is-search-match]="isSearchMatch()"
+  [class.has-promo]="stall().hasPromo"
   [style.position]="absolutePosition() ? 'absolute' : 'unset'"
   [style.top]="absolutePosition() ? stall().coords.top : ''"
   [style.left]="absolutePosition() ? stall().coords.left : ''"
