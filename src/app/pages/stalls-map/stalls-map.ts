@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   HostListener,
   inject,
   OnInit,
@@ -37,10 +38,10 @@ import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interfac
 export class StallsMap implements OnInit, AfterViewInit {
   @ViewChild(Magnifier) magnifier!: Magnifier;
   @ViewChild(StallModal) stallModal!: StallModal;
-  @ViewChild('mapImage') mapImage!: HTMLImageElement;
-  @ViewChild('mapContainer') mapContainer!: HTMLImageElement;
-  @ViewChild('toggleButton') toggleButton!: HTMLButtonElement;
-  @ViewChild('searchInput') searchInput!: HTMLInputElement;
+  @ViewChild('mapImage') mapImage!: ElementRef<HTMLImageElement>;
+  @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLImageElement>;
+  @ViewChild('toggleButton') toggleButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
@@ -59,8 +60,8 @@ export class StallsMap implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.mapImageLoaded.pipe().subscribe(() => {
-      this._stallMapService.mapImage = this.mapImage;
-      this._stallMapService.mapContainer = this.mapContainer;
+      this._stallMapService.mapImage = this.mapImage.nativeElement;
+      this._stallMapService.mapContainer = this.mapContainer.nativeElement;
     });
   }
 
@@ -86,7 +87,7 @@ export class StallsMap implements OnInit, AfterViewInit {
     // To enable debug borders, add `?debug=true` to the URL.
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('debug') === 'true') {
-      this.mapContainer.classList.add('debug-mode');
+      this.mapContainer.nativeElement.classList.add('debug-mode');
     }
 
     // --- Asynchronous Resource Loading ---
@@ -101,7 +102,7 @@ export class StallsMap implements OnInit, AfterViewInit {
         }),
         finalize(() => {
           this.isInitialLoading.set(false);
-        })
+        }),
       )
       .subscribe(([rawData]) => {
         console.log();
@@ -122,18 +123,6 @@ export class StallsMap implements OnInit, AfterViewInit {
         this.renderStalls();
         // renderDebugBorders(this.mapContainer);
       });
-  }
-
-  stallClicked(stall: StallData) {
-    this._stallService.selected = stall.id;
-  }
-
-  stallGroupClicked(row: StallGroupGridRef) {
-    let id = `${row.groupId}01`;
-    if (row.groupDefaultStallId) {
-      id = row.groupDefaultStallId;
-    }
-    this._stallService.selected = id;
   }
 
   mapContainerMouseover(e: MouseEvent) {
@@ -199,7 +188,7 @@ export class StallsMap implements OnInit, AfterViewInit {
     const allStalls = this._stallService.allStalls;
     const clickedGroupArea = target.closest('.stall-group-area') as HTMLElement | null;
     const clickedStallArea = target.closest(
-      '.stall-area:not(.stall-group-area)'
+      '.stall-area:not(.stall-group-area)',
     ) as HTMLElement | null;
 
     if (clickedGroupArea?.dataset['rowId']) {
@@ -223,18 +212,18 @@ export class StallsMap implements OnInit, AfterViewInit {
 
   toggleMagnifier() {
     if (this.magnifier.isShownState) {
-      this.toggleButton.setAttribute('aria-pressed', 'false');
-      this.toggleButton.textContent = '顯示放大鏡';
+      this.toggleButton.nativeElement.setAttribute('aria-pressed', 'false');
+      this.toggleButton.nativeElement.textContent = '顯示放大鏡';
       this.magnifier.hide();
     } else {
-      this.toggleButton.setAttribute('aria-pressed', 'true'); // For accessibility
-      this.toggleButton.textContent = '隱藏放大鏡';
+      this.toggleButton.nativeElement.setAttribute('aria-pressed', 'true'); // For accessibility
+      this.toggleButton.nativeElement.textContent = '隱藏放大鏡';
       this.magnifier.show();
     }
   }
 
   input() {
-    const searchTerm = this.searchInput.value.toLowerCase().trim();
+    const searchTerm = this.searchInput.nativeElement.value.toLowerCase().trim();
 
     // A set to track which rows (by ID) have at least one matching stall.
     const matchingRowIds = new Set<string>();
@@ -242,14 +231,14 @@ export class StallsMap implements OnInit, AfterViewInit {
 
     allStalls.forEach((stall) => {
       const mainElement = document.querySelector(
-        `.stall-area[data-stall-id="${stall.id}"]`
+        `.stall-area[data-stall-id="${stall.id}"]`,
       ) as HTMLElement;
       if (!mainElement) return;
 
       let isMatch = false;
       if (searchTerm !== '') {
         const hasPromoUserMatch = stall.promoData.some((promo) =>
-          promo.promoUser.toLowerCase().includes(searchTerm)
+          promo.promoUser.toLowerCase().includes(searchTerm),
         );
         const hasTagMatch = stall.promoTags.some((tag) => tag.toLowerCase().includes(searchTerm));
 
@@ -270,7 +259,7 @@ export class StallsMap implements OnInit, AfterViewInit {
     // 3. Update the visible group area elements based on whether any stall in that row matched.
     stallGridRefs.forEach((row) => {
       const groupAreaElements = document.querySelectorAll(
-        `.stall-group-area[data-row-id="${row.groupId}"]`
+        `.stall-group-area[data-row-id="${row.groupId}"]`,
       ) as NodeList;
       groupAreaElements.forEach((groupAreaElement: Node) => {
         const hasMatch = matchingRowIds.has(row.groupId);

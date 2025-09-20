@@ -42,14 +42,9 @@
 }
 
 /* Default state for mobile-only group areas (hidden on desktop). */
-.mobile-only-group {
+/* .mobile-only-group {
   display: none;
-}
-
-/* Individual stalls inside a permanently grouped row are not rendered on the main map */
-.stall-area.is-grouped-member {
-  display: none;
-}
+} */
 
 .stall-area.has-promo {
   background-color: rgba(19, 174, 231, 0.95); /* Blue tint for promo stalls */
@@ -88,12 +83,7 @@
 .stall-group-area {
   font-size: 1rem;
   color: #666; /* Neutral dark gray text */
-  background-color: rgba(
-    255,
-    193,
-    7,
-    0.2
-  ); /* Very light gray, almost transparent */
+  background-color: rgba(255, 193, 7, 0.2); /* Very light gray, almost transparent */
 
   text-shadow:
     -1px -1px 0 #ffffff8a,

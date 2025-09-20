@@ -12,10 +12,17 @@
   </div>
 
   <p id="instructions-text" [ngClass]="{ 'loading-text': isInitialLoading() }">
-    @if (isInitialLoading()) { 正在載入地圖與攤位資料 } @else if(isInitialError()) {
-    {{ errorMsg }}
-    } @else { @if(isMobile()) { 點擊按鈕可用放大鏡，或直接點擊攤位查看宣傳。 } @else {
-    請與地圖互動以查看攤位資訊。 點擊按鈕顯示/隱藏放大鏡並拖曳。點擊攤位(含放大鏡內)可看宣傳。 } }
+    @if (isInitialLoading()) {
+      正在載入地圖與攤位資料
+    } @else if (isInitialError()) {
+      {{ errorMsg }}
+    } @else {
+      @if (isMobile()) {
+        點擊按鈕可用放大鏡，或直接點擊攤位查看宣傳。
+      } @else {
+        請與地圖互動以查看攤位資訊。 點擊按鈕顯示/隱藏放大鏡並拖曳。點擊攤位(含放大鏡內)可看宣傳。
+      }
+    }
   </p>
 
   <div class="search-container">
@@ -45,18 +52,21 @@
       (load)="onMapImageLoad()"
       (error)="onMapImageError()"
     />
-    @if(isInitialLoading()) { }@else if(isInitialError()) {
-    <p style="color: red; padding: 20px">
-      <b>無法載入攤位資料：</b><br />請檢查您的 Google Sheet
-      是否已「發佈至網路」、網址是否正確，或檢查您的網路連線。
-    </p>
+    @if (isInitialLoading()) {
+    } @else if (isInitialError()) {
+      <p style="color: red; padding: 20px">
+        <b>無法載入攤位資料：</b><br />請檢查您的 Google Sheet
+        是否已「發佈至網路」、網址是否正確，或檢查您的網路連線。
+      </p>
     } @else {
-    <!-- Magnifier elements: wrapper handles positioning, lens handles visuals -->
-    <app-magnifier></app-magnifier>
-    } @for (stall of (allStalls$ | async); track $index) {
-    <app-stall [stall]="stall" (click)="stallClicked(stall)"></app-stall>
-    } @for (row of stallGridRefs; track $index) {
-    <app-stall-group-area [row]="row" (click)="stallGroupClicked(row)"></app-stall-group-area>
+      <!-- Magnifier elements: wrapper handles positioning, lens handles visuals -->
+      <app-magnifier></app-magnifier>
+    }
+    @for (stall of allStalls$ | async; track $index) {
+      <app-stall [stall]="stall" [hiddenIfGrouped]="true" [absolutePosition]="true"></app-stall>
+    }
+    @for (row of stallGridRefs; track $index) {
+      <app-stall-group-area [row]="row"></app-stall-group-area>
     }
   </div>
 

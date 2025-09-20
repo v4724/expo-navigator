@@ -2,14 +2,16 @@
   class="stall-area"
   [ngClass]="{
     'has-promo': stall().hasPromo,
-    'is-grouped-member': (isGroupedMember$ | async),
   }"
+  [class.hidden]="hiddenIfGrouped() && (isGroupedMember$ | async)"
   [class.is-selected]="isSelected()"
-  [style.top]="stall().coords.top"
-  [style.left]="stall().coords.left"
-  [style.width]="stall().coords.width"
-  [style.height]="stall().coords.height"
+  [style.position]="absolutePosition() ? 'absolute' : 'unset'"
+  [style.top]="absolutePosition() ? stall().coords.top : ''"
+  [style.left]="absolutePosition() ? stall().coords.left : ''"
+  [style.width]="absolutePosition() ? stall().coords.width : '100%'"
+  [style.height]="absolutePosition() ? stall().coords.height : '100%'"
   [aria-label]="`Stall: ${stall().stallTitle}`"
+  (click)="stallClicked()"
 >
   {{ stall().padNum }}
 </div>

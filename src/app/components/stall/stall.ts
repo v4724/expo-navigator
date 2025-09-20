@@ -13,20 +13,27 @@ import { StallService } from 'src/app/core/services/state/stall-service';
 })
 export class Stall implements OnInit {
   stall: InputSignal<StallData> = input.required();
+  absolutePosition = input();
+  hiddenIfGrouped = input();
 
-  private _stallSevice = inject(StallService);
+  private _stallService = inject(StallService);
 
   isGroupedMember$ = toObservable(this.stall).pipe(
     map((stall) => {
-      return this._stallSevice.isGroupedMember(stall.id);
-    })
+      return this._stallService.isGroupedMember(stall.id);
+    }),
   );
 
   isSelected = signal<boolean>(false);
 
   ngOnInit() {
-    this._stallSevice.selectedStallId$.subscribe((selectedStall) => {
+    this._stallService.selectedStallId$.subscribe((selectedStall) => {
       this.isSelected.set(this.stall().id === selectedStall);
     });
+  }
+
+  stallClicked() {
+    console.log(this.stall().id);
+    this._stallService.selected = this.stall().id;
   }
 }

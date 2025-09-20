@@ -10,27 +10,30 @@
     (touchend)="onPanEnd()"
   >
     <div class="modal-magnifier-content">
-      <div #modalVerticalStallList id="modal-vertical-stall-list">
+      <div
+        #modalVerticalStallList
+        [class.hidden]="!verticalStallGroup().length"
+        id="modal-vertical-stall-list"
+      >
         @for (stall of verticalStallGroup(); track stall.id) {
-        <div
-          class="modal-vertical-stall-item"
-          [ngClass]="{
-            'has-promo': stall.hasPromo,
-            'is-search-match': stall.isSearchMatch,
-            'is-selected': stall.id === (selectedStall$ | async)
-          }"
-          (click)="verticalStallClicked($event, stall)"
-        >
-          {{ stall.padNum }}
-        </div>
+          <app-stall class="modal-vertical-stall-item" [stall]="stall"></app-stall>
         }
       </div>
-      <div id="modal-magnifier" #modalMagnifier>
+
+      <div id="modal-magnifier" #modalMagnifier [style.backgroundImage]="mapImageSrc()">
         <div id="modal-magnifier-stall-layer" #modalMagnifierStallLayer>
-          @for (stall of (allStalls$ | async); track $index) {
-          <app-stall [stall]="stall"></app-stall>
-          } @for (row of stallGridRefs; track $index) {
-          <app-stall-group-area [row]="row"></app-stall-group-area>
+          @for (stall of allStalls$ | async; track $index) {
+            <app-stall
+              [stall]="stall"
+              [hiddenIfGrouped]="true"
+              [absolutePosition]="true"
+            ></app-stall>
+          }
+          @for (row of stallGridRefs; track $index) {
+            <app-stall-group-area
+              [row]="row"
+              (click)="verticalGroupClicked(row)"
+            ></app-stall-group-area>
           }
         </div>
       </div>

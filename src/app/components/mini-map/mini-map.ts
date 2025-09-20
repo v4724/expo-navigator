@@ -5,6 +5,7 @@ import {
   ElementRef,
   HostListener,
   inject,
+  OnInit,
   Renderer2,
   signal,
   ViewChild,
@@ -22,6 +23,8 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
 import { StallGroupArea } from '../stall-group-area/stall-group-area';
 import { Stall } from '../stall/stall';
+import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interface';
+import { pairwise, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-mini-map',
@@ -29,7 +32,7 @@ import { Stall } from '../stall/stall';
   templateUrl: './mini-map.html',
   styleUrl: './mini-map.scss',
 })
-export class MiniMap implements AfterViewInit {
+export class MiniMap implements OnInit, AfterViewInit {
   @ViewChild('modalMagnifierWrapper') modalMagnifierWrapper!: ElementRef<HTMLDivElement>;
   @ViewChild('modalMagnifier') modalMagnifier!: ElementRef<HTMLDivElement>;
   @ViewChild('modalMagnifierStallLayer') modalMagnifierStallLayer!: ElementRef<HTMLDivElement>;
@@ -76,6 +79,7 @@ export class MiniMap implements AfterViewInit {
 
   verticalStallGroup: WritableSignal<StallData[]> = signal([]);
   verticalStallGroupHidden: WritableSignal<boolean> = signal(true);
+  mapImageSrc: WritableSignal<string> = signal('');
 
   private _tooltipService = inject(TooltipService);
   private _stallModalService = inject(StallModalService);
@@ -88,6 +92,23 @@ export class MiniMap implements AfterViewInit {
   selectedStall$ = this._stallService.selectedStallId$;
   allStalls$ = this._stallService.allStalls$;
   stallGridRefs = stallGridRefs;
+
+  ngOnInit(): void {
+    this._stallMapService.mapImage$.pipe().subscribe((el) => {
+      this.mapImageSrc.set(`url('${el?.src}')`);
+    });
+
+    this._stallService.selectedStallId$
+      .pipe(
+        startWith(null), // 預設前一個值
+        pairwise(),
+      )
+      .subscribe(([prev, curr]) => {
+        if (!curr) return;
+        this.updateNavControls(curr);
+        this.updateVerticalStallList(prev, curr);
+      });
+  }
 
   /**
    * Sets up all event listeners related to the modal.
@@ -131,7 +152,7 @@ export class MiniMap implements AfterViewInit {
 
     // Get initial position from the transform property
     const transformMatrix = new DOMMatrix(
-      window.getComputedStyle(this.modalMagnifierStallLayer.nativeElement).transform
+      window.getComputedStyle(this.modalMagnifierStallLayer.nativeElement).transform,
     );
     this.initialBgX = transformMatrix.e;
     this.initialBgY = transformMatrix.f;
@@ -214,7 +235,7 @@ export class MiniMap implements AfterViewInit {
     const allStalls = this._stallService.allStalls;
     const clickedGroupArea = target.closest('.stall-group-area') as HTMLElement | null;
     const clickedStallArea = target.closest(
-      '.stall-area:not(.stall-group-area)'
+      '.stall-area:not(.stall-group-area)',
     ) as HTMLElement | null;
     const currentStallId = this._stallService.selected;
 
@@ -256,13 +277,10 @@ export class MiniMap implements AfterViewInit {
     this._tooltipService.hide();
   }
 
-  // 點擊 地圖-直排
-  // 預設 直排點選後的預設 stallId
-  verticalStallClicked(e: Event, stall: StallData) {
+  //
+  verticalGroupClicked(row: StallGroupGridRef) {
     const currId = this._stallService.selected;
-    const targetId = stall.id;
-
-    this._stallService.selected = targetId;
+    const targetId = row.groupDefaultStallId ? row.groupDefaultStallId : `${row.groupId}01`;
 
     this.updateNavControls(targetId);
     this.updateVerticalStallList(currId, targetId);
@@ -326,7 +344,7 @@ export class MiniMap implements AfterViewInit {
       let upStep = 1;
       while (stall.num + upStep <= 34) {
         const findId = navigableStalls.find(
-          (s) => s.id.startsWith(rowId) && s.num === stall.num + upStep
+          (s) => s.id.startsWith(rowId) && s.num === stall.num + upStep,
         )?.id;
         if (findId) {
           upStallId = findId;
@@ -338,7 +356,7 @@ export class MiniMap implements AfterViewInit {
       let downStep = -1;
       while (stall.num + downStep > 0) {
         const findId = navigableStalls.find(
-          (s) => s.id.startsWith(rowId) && s.num === stall.num + downStep
+          (s) => s.id.startsWith(rowId) && s.num === stall.num + downStep,
         )?.id;
         if (findId) {
           downStallId = findId;
@@ -417,7 +435,7 @@ export class MiniMap implements AfterViewInit {
       const stallsInRow = allStalls
         .filter((s) => s.id.startsWith(rowId))
         .sort((a, b) => b.num - a.num); // Sort numerically descending
-
+      console.debug('stallsInRow', stallsInRow);
       this.verticalStallGroup.set(stallsInRow);
       this.verticalStallGroupHidden.set(false);
 
@@ -458,7 +476,7 @@ export class MiniMap implements AfterViewInit {
       // });
 
       const selectedEl = modalVerticalStallList.nativeElement.querySelector(
-        '.is-selected'
+        '.is-selected',
       ) as HTMLElement;
       if (selectedEl) {
         // Defer scrollIntoView to the next animation frame. This ensures the browser
@@ -510,12 +528,7 @@ export class MiniMap implements AfterViewInit {
     this._renderer.setStyle(
       this.modalMagnifier.nativeElement,
       'backgroundSize',
-      `${scaledMapW}px ${scaledMapH}px`
-    );
-    this._renderer.setStyle(
-      this.modalMagnifier.nativeElement,
-      'backgroundImage',
-      `url('${mapImage?.src}')`
+      `${scaledMapW}px ${scaledMapH}px`,
     );
 
     const { left, top, width, height } = stall.numericCoords;
@@ -536,7 +549,7 @@ export class MiniMap implements AfterViewInit {
 
     // Update the highlight element's position. It's inside the stall layer now.
     let highlightEl = this.modalMagnifierStallLayer.nativeElement.querySelector(
-      '.modal-stall-highlight'
+      '.modal-stall-highlight',
     ) as HTMLElement | null;
     if (!highlightEl) {
       highlightEl = document.createElement('div');
@@ -564,7 +577,7 @@ export class MiniMap implements AfterViewInit {
   setModalMapPosition(
     bgX: number,
     bgY: number,
-    stall?: StallDto
+    stall?: StallDto,
   ): { clampedBgX: number; clampedBgY: number } {
     const allStalls = this._stallService.allStalls;
 
@@ -589,12 +602,12 @@ export class MiniMap implements AfterViewInit {
     this._renderer.setStyle(
       this.modalMagnifier.nativeElement,
       'backgroundPosition',
-      `${clampedBgX}px ${clampedBgY}px`
+      `${clampedBgX}px ${clampedBgY}px`,
     );
     this._renderer.setStyle(
       this.modalMagnifierStallLayer.nativeElement,
       'transform',
-      `translate(${clampedBgX}px, ${clampedBgY}px) scale(${zoomFactor})`
+      `translate(${clampedBgX}px, ${clampedBgY}px) scale(${zoomFactor})`,
     );
 
     // --- Viewport Culling for Performance ---
@@ -657,7 +670,7 @@ export class MiniMap implements AfterViewInit {
     this._renderer.setStyle(
       this.modalMagnifierRowIndicatorContainer.nativeElement,
       'display',
-      'flex'
+      'flex',
     );
 
     let closestRowData: (typeof stallGridRefs)[0] | null = null;
@@ -689,12 +702,12 @@ export class MiniMap implements AfterViewInit {
         const dx = Math.max(
           row.boundingBox.left - lensCenterX_pct,
           0,
-          lensCenterX_pct - row.boundingBox.right
+          lensCenterX_pct - row.boundingBox.right,
         );
         const dy = Math.max(
           row.boundingBox.top - lensCenterY_pct,
           0,
-          lensCenterY_pct - row.boundingBox.bottom
+          lensCenterY_pct - row.boundingBox.bottom,
         );
         const distanceSq = dx * dx + dy * dy;
 
@@ -711,7 +724,7 @@ export class MiniMap implements AfterViewInit {
       this._renderer.setStyle(
         this.modalMagnifierRowIndicatorContainer.nativeElement,
         'display',
-        'flex'
+        'flex',
       );
       if (closestRowData) {
         const currentIndex = allGroupIds.indexOf(closestRowData.groupId);
@@ -745,7 +758,7 @@ export class MiniMap implements AfterViewInit {
   private _getAdjacentStallId = (
     currentStall: StallDto,
     navigableStalls: StallDto[],
-    direction: 'up' | 'down' | 'left' | 'right'
+    direction: 'up' | 'down' | 'left' | 'right',
   ): string | null => {
     const currentLine = currentStall.id.substring(0, 1);
     const currentNum = currentStall.num;
@@ -770,7 +783,7 @@ export class MiniMap implements AfterViewInit {
       let targetNum = currentNum + directionStep;
       while (targetNum >= 1 && targetNum <= 72) {
         const foundStallInRow = navigableStalls.find(
-          (s) => s.id.startsWith(currentLine) && s.num === targetNum
+          (s) => s.id.startsWith(currentLine) && s.num === targetNum,
         );
         if (foundStallInRow) return foundStallInRow.id;
 
@@ -810,7 +823,7 @@ export class MiniMap implements AfterViewInit {
             targetStall = stallsInTargetRow.find((s) => s.num === currentNum);
             if (!targetStall) {
               targetStall = stallsInTargetRow.sort(
-                (a, b) => Math.abs(a.num - currentNum) - Math.abs(b.num - currentNum)
+                (a, b) => Math.abs(a.num - currentNum) - Math.abs(b.num - currentNum),
               )[0];
             }
           }
