@@ -230,6 +230,7 @@ export const stallGridRefs: StallGroupGridRef[] = [
     anchorStallRect: { top: 43.7, left: 4.5, width: 1.1, height: 1.44 },
     boundingBox: { top: 23, left: 4.5, bottom: 45.6, right: 5.55 },
     isGrouped: true,
+    groupDefaultStallId: '雞01雞02',
   },
   {
     groupId: '狗',
@@ -237,6 +238,7 @@ export const stallGridRefs: StallGroupGridRef[] = [
     anchorStallRect: { top: 18.2, left: 4.5, width: 1.1, height: 1.44 },
     boundingBox: { top: 7.5, left: 4.5, bottom: 19.8, right: 5.55 },
     isGrouped: true,
+    groupDefaultStallId: '狗01狗02',
   },
   {
     groupId: '特',

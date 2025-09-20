@@ -1,22 +1,10 @@
-import {
-  AfterViewInit,
-  Component,
-  HostListener,
-  inject,
-  signal,
-  ViewChild,
-  WritableSignal,
-} from '@angular/core';
-import { StallDto } from 'src/app/core/interfaces/stall-dto.interface';
+import { Component, HostListener, inject, signal, ViewChild, WritableSignal } from '@angular/core';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
-import { updateStallClass } from 'src/app/ts/ui-manager';
 import { MiniMap } from '../mini-map/mini-map';
 import { CommonModule } from '@angular/common';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
-import { stallGridRefs } from 'src/app/core/const/official-data';
-import { allGroupIds } from 'src/app/core/const/row-id';
 import { StallData } from '../stall/stall-.interface';
 import { filter, map } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -71,6 +59,7 @@ export class StallModal {
   show$ = this._stallModalService.showStallModal$;
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
   promoLinks: WritableSignal<PromoLink[]> = signal<PromoLink[]>([]);
+  imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
 
   hasPromoInfo$ = toObservable(this.stall).pipe(
     map((stall) => {
@@ -79,15 +68,20 @@ export class StallModal {
       } else {
         return false;
       }
-    })
+    }),
   );
 
   defaultAvatar: string = 'https://images.plurk.com/3rbw6tg1lA5dEGpdKTL8j1.png';
 
   ngOnInit() {
-    this._stallService.selectedStall$.pipe(filter((id) => id !== null)).subscribe((stallId) => {
+    this._stallService.selectedStallId$.subscribe((stallId) => {
+      console.debug('stall modal select stall: ', stallId);
       this.stall.set(this._stallService.selectedStall);
-      this.openModal(stallId);
+      if (stallId) {
+        this.openModal(stallId);
+      } else {
+        this.imageLoaded.set(false);
+      }
     });
   }
 
@@ -99,6 +93,7 @@ export class StallModal {
   openModal(stallId: string) {
     // const { elements, magnifierController, uiState } = context;
     const stall = this._stallService.findStall(stallId);
+    console.debug('openＭodal stall:', stall);
     if (!stall) return;
 
     // const isModalHidden = this._stallModalService.isHidden();
@@ -126,7 +121,7 @@ export class StallModal {
     // 動態嵌入 twitter 貼文
     if (window.twttr) {
       window.twttr?.widgets?.load(
-        document.getElementsByClassName('modal-wrapper')[0] as HTMLElement
+        document.getElementsByClassName('modal-wrapper')[0] as HTMLElement,
       );
     }
 
@@ -155,11 +150,10 @@ export class StallModal {
   closeModal() {
     // const { elements, magnifierController, uiState } = context;
 
+    this._stallService.clearSelection();
     this._stallModalService.hide();
     // TODO 作用?
     // this.document.body.classList.remove('body-modal-open');
-
-    this._stallService.clearSelection();
 
     // if (magnifierController && modalState.wasMagnifierVisible) {
     //   magnifierController.show();

@@ -54,9 +54,9 @@
     <!-- Magnifier elements: wrapper handles positioning, lens handles visuals -->
     <app-magnifier></app-magnifier>
     } @for (stall of (allStalls$ | async); track $index) {
-    <app-stall [stall]="stall"></app-stall>
+    <app-stall [stall]="stall" (click)="stallClicked(stall)"></app-stall>
     } @for (row of stallGridRefs; track $index) {
-    <app-stall-group-area [row]="row"></app-stall-group-area>
+    <app-stall-group-area [row]="row" (click)="stallGroupClicked(row)"></app-stall-group-area>
     }
   </div>
 

@@ -1,6 +1,10 @@
 <div
   class="stall-area"
-  [ngClass]="{ 'has-promo': stall().hasPromo, 'is-grouped-member': (isGroupedMember$ | async) }"
+  [ngClass]="{
+    'has-promo': stall().hasPromo,
+    'is-grouped-member': (isGroupedMember$ | async),
+  }"
+  [class.is-selected]="isSelected()"
   [style.top]="stall().coords.top"
   [style.left]="stall().coords.left"
   [style.width]="stall().coords.width"

@@ -19,7 +19,7 @@ export class StallService {
   );
 
   allStalls$ = this._allStalls.asObservable();
-  selectedStall$ = this._selectedId.asObservable();
+  selectedStallId$ = this._selectedId.asObservable();
 
   private _tooltipService = inject(TooltipService);
 
@@ -33,6 +33,7 @@ export class StallService {
   }
 
   set selected(id: string | null) {
+    console.debug('stall-service next selected', id);
     this._selectedId.next(id);
   }
 

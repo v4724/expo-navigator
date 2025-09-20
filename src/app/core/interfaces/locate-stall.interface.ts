@@ -12,6 +12,9 @@ export interface StallGroupGridRef {
   /** The starting number for this column, usually 1. */
   anchorStallNum: number;
 
+  // 預設選擇攤位id
+  groupDefaultStallId?: string;
+
   // TODO
   // 共幾排
   trackCnt?: number;

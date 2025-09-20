@@ -1,4 +1,4 @@
-import { Component, inject, input, InputSignal, signal } from '@angular/core';
+import { Component, inject, input, InputSignal, OnInit, signal } from '@angular/core';
 import { StallData } from './stall-.interface';
 import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -11,7 +11,7 @@ import { StallService } from 'src/app/core/services/state/stall-service';
   templateUrl: './stall.html',
   styleUrl: './stall.scss',
 })
-export class Stall {
+export class Stall implements OnInit {
   stall: InputSignal<StallData> = input.required();
 
   private _stallSevice = inject(StallService);
@@ -21,4 +21,12 @@ export class Stall {
       return this._stallSevice.isGroupedMember(stall.id);
     })
   );
+
+  isSelected = signal<boolean>(false);
+
+  ngOnInit() {
+    this._stallSevice.selectedStallId$.subscribe((selectedStall) => {
+      this.isSelected.set(this.stall().id === selectedStall);
+    });
+  }
 }

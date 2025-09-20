@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   HostListener,
   inject,
+  Renderer2,
   signal,
   ViewChild,
   WritableSignal,
@@ -28,16 +30,16 @@ import { Stall } from '../stall/stall';
   styleUrl: './mini-map.scss',
 })
 export class MiniMap implements AfterViewInit {
-  @ViewChild('modalMagnifierWrapper') modalMagnifierWrapper!: HTMLDivElement;
-  @ViewChild('modalMagnifier') modalMagnifier!: HTMLDivElement;
-  @ViewChild('modalMagnifierStallLayer') modalMagnifierStallLayer!: HTMLDivElement;
-  @ViewChild('modalVerticalStallList') modalVerticalStallList!: HTMLDivElement;
+  @ViewChild('modalMagnifierWrapper') modalMagnifierWrapper!: ElementRef<HTMLDivElement>;
+  @ViewChild('modalMagnifier') modalMagnifier!: ElementRef<HTMLDivElement>;
+  @ViewChild('modalMagnifierStallLayer') modalMagnifierStallLayer!: ElementRef<HTMLDivElement>;
+  @ViewChild('modalVerticalStallList') modalVerticalStallList!: ElementRef<HTMLDivElement>;
   @ViewChild('modalMagnifierRowIndicatorContainer')
-  modalMagnifierRowIndicatorContainer!: HTMLDivElement;
-  @ViewChild('navUpEl') navUpEl!: HTMLButtonElement;
-  @ViewChild('navDownEl') navDownEl!: HTMLButtonElement;
-  @ViewChild('navLeftEl') navLeftEl!: HTMLButtonElement;
-  @ViewChild('navRightEl') navRightEl!: HTMLButtonElement;
+  modalMagnifierRowIndicatorContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('navUpEl') navUpEl!: ElementRef<HTMLButtonElement>;
+  @ViewChild('navDownEl') navDownEl!: ElementRef<HTMLButtonElement>;
+  @ViewChild('navLeftEl') navLeftEl!: ElementRef<HTMLButtonElement>;
+  @ViewChild('navRightEl') navRightEl!: ElementRef<HTMLButtonElement>;
 
   wasMagnifierVisible: boolean = true;
   isPanning: boolean = true;
@@ -81,8 +83,9 @@ export class MiniMap implements AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
   private _magnifierService = inject(MagnifierService);
+  private _renderer = inject(Renderer2);
 
-  selectedStall$ = this._stallService.selectedStall$;
+  selectedStall$ = this._stallService.selectedStallId$;
   allStalls$ = this._stallService.allStalls$;
   stallGridRefs = stallGridRefs;
 
@@ -128,7 +131,7 @@ export class MiniMap implements AfterViewInit {
 
     // Get initial position from the transform property
     const transformMatrix = new DOMMatrix(
-      window.getComputedStyle(this.modalMagnifierStallLayer).transform
+      window.getComputedStyle(this.modalMagnifierStallLayer.nativeElement).transform
     );
     this.initialBgX = transformMatrix.e;
     this.initialBgY = transformMatrix.f;
@@ -136,10 +139,11 @@ export class MiniMap implements AfterViewInit {
     this.targetBgY = this.initialBgY;
 
     // Disable transitions during panning for direct control
-    this.modalMagnifier.style.transition = 'none';
-    this.modalMagnifierStallLayer.style.transition = 'none';
+    this._renderer.setStyle(this.modalMagnifier.nativeElement, 'transition', 'none');
+    this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'transition', 'none');
 
-    const highlight = this.modalMagnifierStallLayer.querySelector('.modal-stall-highlight');
+    const highlight =
+      this.modalMagnifierStallLayer.nativeElement.querySelector('.modal-stall-highlight');
     if (highlight) (highlight as HTMLElement).style.visibility = 'hidden';
 
     cancelAnimationFrame(this.animationFrameId);
@@ -164,7 +168,7 @@ export class MiniMap implements AfterViewInit {
 
     if (!this.panHappened && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
       this.panHappened = true;
-      this.modalMagnifierWrapper.style.cursor = 'grabbing';
+      this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'cursor', 'grabbing');
     }
 
     if (this.panHappened) {
@@ -189,11 +193,11 @@ export class MiniMap implements AfterViewInit {
 
     this.isPanning = false;
     this.clickTarget = null;
-    this.modalMagnifierWrapper.style.cursor = 'grab';
+    this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'cursor', 'grab');
 
     // Restore transitions for smooth centering next time a stall is selected
-    this.modalMagnifier.style.transition = '';
-    this.modalMagnifierStallLayer.style.transition = '';
+    this._renderer.setStyle(this.modalMagnifier.nativeElement, 'transition', '');
+    this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'transition', '');
   }
 
   panAnimationLoop() {
@@ -407,7 +411,7 @@ export class MiniMap implements AfterViewInit {
     if (isVertical) {
       // Only reset scroll if we are opening a *different* vertical row.
       if (rowId !== previousRowId) {
-        modalVerticalStallList.scrollTop = 0;
+        modalVerticalStallList.nativeElement.scrollTop = 0;
       }
 
       const stallsInRow = allStalls
@@ -453,7 +457,9 @@ export class MiniMap implements AfterViewInit {
       //   modalVerticalStallList.appendChild(itemEl);
       // });
 
-      const selectedEl = modalVerticalStallList.querySelector('.is-selected') as HTMLElement;
+      const selectedEl = modalVerticalStallList.nativeElement.querySelector(
+        '.is-selected'
+      ) as HTMLElement;
       if (selectedEl) {
         // Defer scrollIntoView to the next animation frame. This ensures the browser
         // has rendered the modal and its contents, allowing the scroll to work correctly,
@@ -476,20 +482,20 @@ export class MiniMap implements AfterViewInit {
    */
   updateModalMagnifierView(stall: StallData) {
     if (!stall || !stall.coords) {
-      this.modalMagnifierWrapper.style.display = 'none';
+      this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'display', 'none');
       return;
     }
 
-    this.modalMagnifierWrapper.style.display = 'block';
-    this.modalMagnifierWrapper.style.cursor = 'grab';
+    this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'display', 'block');
+    this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'cursor', 'grab');
 
     const isMobile = this._uiStateService.isMobile();
     const zoomFactor = isMobile ? 4.5 : 1.8;
-    const viewW = this.modalMagnifier.offsetWidth;
-    const viewH = this.modalMagnifier.offsetHeight;
+    const viewW = this.modalMagnifier.nativeElement.offsetWidth;
+    const viewH = this.modalMagnifier.nativeElement.offsetHeight;
 
     if (viewW === 0 || viewH === 0) {
-      this.modalMagnifierWrapper.style.display = 'none';
+      this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'display', 'none');
       return;
     }
 
@@ -499,15 +505,24 @@ export class MiniMap implements AfterViewInit {
     const scaledMapW = mapW * zoomFactor;
     const scaledMapH = mapH * zoomFactor;
 
-    this.modalMagnifierStallLayer.style.width = `${mapW}px`;
-    this.modalMagnifierStallLayer.style.height = `${mapH}px`;
-    this.modalMagnifier.style.backgroundSize = `${scaledMapW}px ${scaledMapH}px`;
-    this.modalMagnifier.style.backgroundImage = `url('${mapImage?.src}')`;
+    this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'width', `${mapW}px`);
+    this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'height', `${mapH}px`);
+    this._renderer.setStyle(
+      this.modalMagnifier.nativeElement,
+      'backgroundSize',
+      `${scaledMapW}px ${scaledMapH}px`
+    );
+    this._renderer.setStyle(
+      this.modalMagnifier.nativeElement,
+      'backgroundImage',
+      `url('${mapImage?.src}')`
+    );
 
     const { left, top, width, height } = stall.numericCoords;
     if ([left, top, width, height].some((v) => typeof v !== 'number')) {
       console.error('Could not parse stall coordinates for modal magnifier:', stall.coords);
-      this.modalMagnifierWrapper.style.display = 'none';
+
+      this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'display', 'none');
       return;
     }
 
@@ -520,13 +535,13 @@ export class MiniMap implements AfterViewInit {
     this.setModalMapPosition(bgX, bgY, stall);
 
     // Update the highlight element's position. It's inside the stall layer now.
-    let highlightEl = this.modalMagnifierStallLayer.querySelector(
+    let highlightEl = this.modalMagnifierStallLayer.nativeElement.querySelector(
       '.modal-stall-highlight'
     ) as HTMLElement | null;
     if (!highlightEl) {
       highlightEl = document.createElement('div');
       highlightEl.className = 'modal-stall-highlight';
-      this.modalMagnifierStallLayer.appendChild(highlightEl);
+      this.modalMagnifierStallLayer.nativeElement.appendChild(highlightEl);
     }
 
     // Use the percentage-based coordinates directly from the stall data for smooth CSS transition.
@@ -554,8 +569,8 @@ export class MiniMap implements AfterViewInit {
     const allStalls = this._stallService.allStalls;
 
     const zoomFactor = this._uiStateService.isMobile() ? 4.5 : 1.8;
-    const viewW = this.modalMagnifier.offsetWidth;
-    const viewH = this.modalMagnifier.offsetHeight;
+    const viewW = this.modalMagnifier.nativeElement.offsetWidth;
+    const viewH = this.modalMagnifier.nativeElement.offsetHeight;
 
     if (viewW === 0 || viewH === 0) return { clampedBgX: 0, clampedBgY: 0 };
 
@@ -571,8 +586,16 @@ export class MiniMap implements AfterViewInit {
     const clampedBgY = Math.max(viewH - scaledMapH, Math.min(bgY, 0));
 
     // PERFORMANCE: Use `transform` for movement instead of `left`/`top`.
-    this.modalMagnifier.style.backgroundPosition = `${clampedBgX}px ${clampedBgY}px`;
-    this.modalMagnifierStallLayer.style.transform = `translate(${clampedBgX}px, ${clampedBgY}px) scale(${zoomFactor})`;
+    this._renderer.setStyle(
+      this.modalMagnifier.nativeElement,
+      'backgroundPosition',
+      `${clampedBgX}px ${clampedBgY}px`
+    );
+    this._renderer.setStyle(
+      this.modalMagnifierStallLayer.nativeElement,
+      'transform',
+      `translate(${clampedBgX}px, ${clampedBgY}px) scale(${zoomFactor})`
+    );
 
     // --- Viewport Culling for Performance ---
     const bufferX = (viewW / zoomFactor) * 0.5;
@@ -631,7 +654,11 @@ export class MiniMap implements AfterViewInit {
     const isMobile = this._uiStateService.isMobile();
     const mapImage = this._stallMapService.mapImage;
 
-    this.modalMagnifierRowIndicatorContainer.style.display = 'flex';
+    this._renderer.setStyle(
+      this.modalMagnifierRowIndicatorContainer.nativeElement,
+      'display',
+      'flex'
+    );
 
     let closestRowData: (typeof stallGridRefs)[0] | null = null;
 
@@ -642,8 +669,8 @@ export class MiniMap implements AfterViewInit {
     } else {
       // Priority 2 (Fallback for panning): Use geometric calculation based on view center.
       const zoomFactor = isMobile ? 4.5 : 1.8;
-      const viewW = this.modalMagnifier.offsetWidth;
-      const viewH = this.modalMagnifier.offsetHeight;
+      const viewW = this.modalMagnifier.nativeElement.offsetWidth;
+      const viewH = this.modalMagnifier.nativeElement.offsetHeight;
       const mapW = mapImage?.offsetWidth ?? 0;
       const mapH = mapImage?.offsetHeight ?? 0;
 
@@ -681,7 +708,11 @@ export class MiniMap implements AfterViewInit {
     if (closestRowData && closestRowData.groupId === '範') {
       this._magnifierService.setRowIndicator('', '', '');
     } else {
-      this.modalMagnifierRowIndicatorContainer.style.display = 'flex';
+      this._renderer.setStyle(
+        this.modalMagnifierRowIndicatorContainer.nativeElement,
+        'display',
+        'flex'
+      );
       if (closestRowData) {
         const currentIndex = allGroupIds.indexOf(closestRowData.groupId);
         const curr = closestRowData.groupId;
@@ -798,16 +829,16 @@ export class MiniMap implements AfterViewInit {
 
     switch (e.key) {
       case 'ArrowUp':
-        this.navUpEl.click();
+        this.navUpEl.nativeElement.click();
         break;
       case 'ArrowDown':
-        this.navDownEl.click();
+        this.navDownEl.nativeElement.click();
         break;
       case 'ArrowLeft':
-        this.navLeftEl.click();
+        this.navLeftEl.nativeElement.click();
         break;
       case 'ArrowRight':
-        this.navRightEl.click();
+        this.navRightEl.nativeElement.click();
         break;
     }
   }

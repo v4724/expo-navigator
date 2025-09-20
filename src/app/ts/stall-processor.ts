@@ -266,7 +266,7 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
     });
     stall.promoTags = Array.from(uniqueTags);
   });
-
   // Convert the Map values back to an array to be used by the application.
-  return Array.from(stallsMap.values());
+  const arr = Array.from(stallsMap.values());
+  return arr;
 }

@@ -25,6 +25,8 @@ import { Stall } from 'src/app/components/stall/stall';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
 import { catchError, EMPTY, finalize, forkJoin, from, Subject, tap } from 'rxjs';
 import { error } from 'console';
+import { StallData } from 'src/app/components/stall/stall-.interface';
+import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interface';
 
 @Component({
   selector: 'app-stalls-map',
@@ -120,6 +122,18 @@ export class StallsMap implements OnInit, AfterViewInit {
         this.renderStalls();
         // renderDebugBorders(this.mapContainer);
       });
+  }
+
+  stallClicked(stall: StallData) {
+    this._stallService.selected = stall.id;
+  }
+
+  stallGroupClicked(row: StallGroupGridRef) {
+    let id = `${row.groupId}01`;
+    if (row.groupDefaultStallId) {
+      id = row.groupDefaultStallId;
+    }
+    this._stallService.selected = id;
   }
 
   mapContainerMouseover(e: MouseEvent) {
