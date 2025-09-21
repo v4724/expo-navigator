@@ -19,8 +19,8 @@ export class TooltipService {
   }
 
   show(label: string, target: HTMLElement) {
-    this._label.next(label);
     this._target.next(target);
+    this._label.next(label);
     this._showTooltip.next(true);
   }
 

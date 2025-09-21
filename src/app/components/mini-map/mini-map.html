@@ -70,7 +70,7 @@
     <button
       id="modal-nav-up"
       class="modal-nav-btn"
-      [ngClass]="{ hidden: upVisible() }"
+      [ngClass]="{ hidden: !upVisible() }"
       [aria-label]="upLabel()"
       [disabled]="upDisabled()"
       (click)="navControlsClicked($event, 'up')"
@@ -80,7 +80,7 @@
     <button
       id="modal-nav-left"
       class="modal-nav-btn"
-      [ngClass]="{ hidden: leftVisible() }"
+      [ngClass]="{ hidden: !leftVisible() }"
       [aria-label]="leftLabel()"
       [disabled]="leftDisabled()"
       (click)="navControlsClicked($event, 'left')"
@@ -90,7 +90,7 @@
     <button
       id="modal-nav-down"
       class="modal-nav-btn"
-      [ngClass]="{ hidden: downVisible() }"
+      [ngClass]="{ hidden: !downVisible() }"
       [aria-label]="downLabel()"
       [disabled]="downDisabled()"
       (click)="navControlsClicked($event, 'down')"
@@ -100,7 +100,7 @@
     <button
       id="modal-nav-right"
       class="modal-nav-btn"
-      [ngClass]="{ hidden: rightVisible() }"
+      [ngClass]="{ hidden: !rightVisible() }"
       [aria-label]="rightLabel()"
       [disabled]="rightDisabled()"
       (click)="navControlsClicked($event, 'right')"

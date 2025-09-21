@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';
 
 @Component({
@@ -9,7 +9,7 @@ import { TooltipService } from 'src/app/core/services/state/tooltip-service';
   styleUrl: './tooptip.scss',
 })
 export class Tooptip implements OnInit {
-  @ViewChild('tooltip') tooltipEl!: HTMLDivElement;
+  @ViewChild('tooltip') tooltipEl!: ElementRef<HTMLDivElement>;
 
   left: number = 0;
   top: number = 0;
@@ -27,7 +27,7 @@ export class Tooptip implements OnInit {
       const targetRect = target.getBoundingClientRect();
       // Make the tooltip visible to correctly calculate its dimensions for centering.
       // This all happens in one execution thread, so it won't cause a visual flicker.
-      const tooltipRect = this.tooltipEl.getBoundingClientRect();
+      const tooltipRect = this.tooltipEl.nativeElement.getBoundingClientRect();
 
       // Position it centered above the button.
       const top = targetRect.top - tooltipRect.height - 8; // 8px gap.

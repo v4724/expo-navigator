@@ -333,6 +333,7 @@ export class MiniMap implements OnInit, AfterViewInit {
     const verticalRowIds = ['猴', '雞', '狗', '特', '商'];
     const isVertical = verticalRowIds.includes(rowId);
     const stall = this._stallService.findStall(targetId);
+
     if (!stall) {
       return;
     }
@@ -383,6 +384,7 @@ export class MiniMap implements OnInit, AfterViewInit {
         downStallId = this._getAdjacentStallId(stall, navigableStalls, 'down');
       }
 
+      console.log('vertical navIds', upStallId, downStallId);
       this.upDisabled.set(!upStallId);
       this.downDisabled.set(!downStallId);
       this.navControlsTarget.up.id = upStallId ?? '';
@@ -406,7 +408,7 @@ export class MiniMap implements OnInit, AfterViewInit {
         left: this._getAdjacentStallId(stall, navigableStalls, 'left'),
         right: this._getAdjacentStallId(stall, navigableStalls, 'right'),
       };
-
+      console.log('navIds', navIds);
       this.upDisabled.set(!navIds.up);
       this.downDisabled.set(!navIds.down);
       this.leftDisabled.set(!navIds.left);
@@ -446,42 +448,6 @@ export class MiniMap implements OnInit, AfterViewInit {
       console.debug('stallsInRow', stallsInRow);
       this.verticalStallGroup.set(stallsInRow);
       this.verticalStallGroupHidden.set(false);
-
-      // const searchTerm = elements.searchInput.value.toLowerCase().trim();
-      // const searchTerm = '';
-
-      // stallsInRow.forEach((s) => {
-      //   const itemEl = document.createElement('div');
-      //   itemEl.className = 'modal-vertical-stall-item';
-      //   itemEl.dataset['stallId'] = s.id;
-      //   itemEl.textContent = s.num.toString().padStart(2, '0');
-
-      //   if (s.promoData.length > 0) {
-      //     itemEl.classList.add('has-promo');
-      //   }
-
-      //   let isMatch = false;
-      //   if (searchTerm !== '') {
-      //     const hasPromoUserMatch = s.promoData.some((promo) =>
-      //       promo.promoUser.toLowerCase().includes(searchTerm)
-      //     );
-      //     const hasTagMatch = s.promoTags.some((tag) => tag.toLowerCase().includes(searchTerm));
-      //     isMatch =
-      //       s.id.toLowerCase().includes(searchTerm) ||
-      //       s.stallTitle.toLowerCase().includes(searchTerm) ||
-      //       hasPromoUserMatch ||
-      //       hasTagMatch;
-      //   }
-      //   if (isMatch) {
-      //     itemEl.classList.add('is-search-match');
-      //   }
-
-      //   if (s.id === targetId) {
-      //     itemEl.classList.add('is-selected');
-      //   }
-
-      //   modalVerticalStallList.appendChild(itemEl);
-      // });
 
       const selectedEl = modalVerticalStallList.nativeElement.querySelector(
         '.is-selected',
