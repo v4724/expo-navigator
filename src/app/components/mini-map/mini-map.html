@@ -2,6 +2,8 @@
   <div
     #modalMagnifierWrapper
     id="modal-magnifier-wrapper"
+    [class.hidden]="hidden()"
+    [style.cursor]="cursor()"
     (mousedown)="onPanStart($event)"
     (touchstart)="onTouchStart($event)"
     (mousemove)="onPanMove($event)"
@@ -20,8 +22,18 @@
         }
       </div>
 
-      <div id="modal-magnifier" #modalMagnifier [style.backgroundImage]="mapImageSrc()">
-        <div id="modal-magnifier-stall-layer" #modalMagnifierStallLayer>
+      <div
+        id="modal-magnifier"
+        #modalMagnifier
+        [style.backgroundImage]="mapImageSrc()"
+        [style.backgroundSize]="`${scaleMapImgW()}px ${scaleMapImgH()}px`"
+      >
+        <div
+          id="modal-magnifier-stall-layer"
+          #modalMagnifierStallLayer
+          [style.width.px]="mapImgW()"
+          [style.height.px]="mapImgH()"
+        >
           @for (stall of allStalls$ | async; track $index) {
             <app-stall
               [stall]="stall"
@@ -35,6 +47,11 @@
               (click)="verticalGroupClicked(row)"
             ></app-stall-group-area>
           }
+          <div
+            #highlightEl
+            class="modal-stall-highlight"
+            [style.visibility]="highlightVisible()"
+          ></div>
         </div>
       </div>
     </div>

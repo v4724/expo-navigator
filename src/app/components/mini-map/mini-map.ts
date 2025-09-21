@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  afterNextRender,
   AfterViewInit,
   Component,
   ElementRef,
@@ -39,6 +40,7 @@ export class MiniMap implements OnInit, AfterViewInit {
   @ViewChild('modalVerticalStallList') modalVerticalStallList!: ElementRef<HTMLDivElement>;
   @ViewChild('modalMagnifierRowIndicatorContainer')
   modalMagnifierRowIndicatorContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('highlightEl') highlightEl!: ElementRef<HTMLDivElement>;
   @ViewChild('navUpEl') navUpEl!: ElementRef<HTMLButtonElement>;
   @ViewChild('navDownEl') navDownEl!: ElementRef<HTMLButtonElement>;
   @ViewChild('navLeftEl') navLeftEl!: ElementRef<HTMLButtonElement>;
@@ -80,6 +82,14 @@ export class MiniMap implements OnInit, AfterViewInit {
   verticalStallGroup: WritableSignal<StallData[]> = signal([]);
   verticalStallGroupHidden: WritableSignal<boolean> = signal(true);
   mapImageSrc: WritableSignal<string> = signal('');
+  hidden = signal<boolean>(true);
+  cursor = signal<string>('default');
+  highlightVisible = signal<'visible' | 'hidden'>('hidden');
+
+  mapImgW = signal<number>(0);
+  mapImgH = signal<number>(0);
+  scaleMapImgW = signal<number>(0);
+  scaleMapImgH = signal<number>(0);
 
   private _tooltipService = inject(TooltipService);
   private _stallModalService = inject(StallModalService);
@@ -163,9 +173,7 @@ export class MiniMap implements OnInit, AfterViewInit {
     this._renderer.setStyle(this.modalMagnifier.nativeElement, 'transition', 'none');
     this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'transition', 'none');
 
-    const highlight =
-      this.modalMagnifierStallLayer.nativeElement.querySelector('.modal-stall-highlight');
-    if (highlight) (highlight as HTMLElement).style.visibility = 'hidden';
+    this.highlightVisible.set('hidden');
 
     cancelAnimationFrame(this.animationFrameId);
     this.animationFrameId = requestAnimationFrame(this.panAnimationLoop);
@@ -189,7 +197,7 @@ export class MiniMap implements OnInit, AfterViewInit {
 
     if (!this.panHappened && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
       this.panHappened = true;
-      this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'cursor', 'grabbing');
+      this.cursor.set('grabbing');
     }
 
     if (this.panHappened) {
@@ -214,7 +222,7 @@ export class MiniMap implements OnInit, AfterViewInit {
 
     this.isPanning = false;
     this.clickTarget = null;
-    this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'cursor', 'grab');
+    this.cursor.set('grab');
 
     // Restore transitions for smooth centering next time a stall is selected
     this._renderer.setStyle(this.modalMagnifier.nativeElement, 'transition', '');
@@ -499,72 +507,65 @@ export class MiniMap implements OnInit, AfterViewInit {
    * @param context The application context.
    */
   updateModalMagnifierView(stall: StallData) {
+    console.log('update', stall);
     if (!stall || !stall.coords) {
-      this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'display', 'none');
+      this.hidden.set(true);
+      this.cursor.set('default');
       return;
     }
 
-    this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'display', 'block');
-    this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'cursor', 'grab');
+    this.hidden.set(false);
+    this.cursor.set('grab');
 
-    const isMobile = this._uiStateService.isMobile();
-    const zoomFactor = isMobile ? 4.5 : 1.8;
-    const viewW = this.modalMagnifier.nativeElement.offsetWidth;
-    const viewH = this.modalMagnifier.nativeElement.offsetHeight;
+    requestAnimationFrame(() => {
+      const isMobile = this._uiStateService.isMobile();
+      const zoomFactor = isMobile ? 4.5 : 1.8;
+      const viewW = this.modalMagnifier.nativeElement.offsetWidth;
+      const viewH = this.modalMagnifier.nativeElement.offsetHeight;
 
-    if (viewW === 0 || viewH === 0) {
-      this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'display', 'none');
-      return;
-    }
+      console.log(viewW, viewH);
+      if (viewW === 0 || viewH === 0) {
+        this.hidden.set(true);
+        return;
+      }
 
-    const mapImage = this._stallMapService.mapImage;
-    const mapW = mapImage?.offsetWidth ?? 0;
-    const mapH = mapImage?.offsetHeight ?? 0;
-    const scaledMapW = mapW * zoomFactor;
-    const scaledMapH = mapH * zoomFactor;
+      const mapImage = this._stallMapService.mapImage;
+      const mapW = mapImage?.offsetWidth ?? 0;
+      const mapH = mapImage?.offsetHeight ?? 0;
+      const scaledMapW = mapW * zoomFactor;
+      const scaledMapH = mapH * zoomFactor;
 
-    this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'width', `${mapW}px`);
-    this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'height', `${mapH}px`);
-    this._renderer.setStyle(
-      this.modalMagnifier.nativeElement,
-      'backgroundSize',
-      `${scaledMapW}px ${scaledMapH}px`,
-    );
+      this.mapImgW.set(mapW);
+      this.mapImgH.set(mapH);
 
-    const { left, top, width, height } = stall.numericCoords;
-    if ([left, top, width, height].some((v) => typeof v !== 'number')) {
-      console.error('Could not parse stall coordinates for modal magnifier:', stall.coords);
+      this.scaleMapImgW.set(scaledMapW);
+      this.scaleMapImgH.set(scaledMapH);
 
-      this._renderer.setStyle(this.modalMagnifierWrapper.nativeElement, 'display', 'none');
-      return;
-    }
+      const { left, top, width, height } = stall.numericCoords;
+      if ([left, top, width, height].some((v) => typeof v !== 'number')) {
+        console.error('Could not parse stall coordinates for modal magnifier:', stall.coords);
 
-    // Calculate the ideal background position to center the stall.
-    const stallCenterX_px = ((left + width / 2) / 100) * mapW;
-    const stallCenterY_px = ((top + height / 2) / 100) * mapH;
-    const bgX = viewW / 2 - stallCenterX_px * zoomFactor;
-    const bgY = viewH / 2 - stallCenterY_px * zoomFactor;
+        this.hidden.set(true);
+        return;
+      }
 
-    this.setModalMapPosition(bgX, bgY, stall);
+      // Calculate the ideal background position to center the stall.
+      const stallCenterX_px = ((left + width / 2) / 100) * mapW;
+      const stallCenterY_px = ((top + height / 2) / 100) * mapH;
+      const bgX = viewW / 2 - stallCenterX_px * zoomFactor;
+      const bgY = viewH / 2 - stallCenterY_px * zoomFactor;
 
-    // Update the highlight element's position. It's inside the stall layer now.
-    let highlightEl = this.modalMagnifierStallLayer.nativeElement.querySelector(
-      '.modal-stall-highlight',
-    ) as HTMLElement | null;
-    if (!highlightEl) {
-      highlightEl = document.createElement('div');
-      highlightEl.className = 'modal-stall-highlight';
-      this.modalMagnifierStallLayer.nativeElement.appendChild(highlightEl);
-    }
+      this.setModalMapPosition(bgX, bgY, stall);
 
-    // Use the percentage-based coordinates directly from the stall data for smooth CSS transition.
-    highlightEl.style.width = stall.coords.width;
-    highlightEl.style.height = stall.coords.height;
-    highlightEl.style.left = stall.coords.left;
-    highlightEl.style.top = stall.coords.top;
-    highlightEl.style.visibility = 'visible';
+      // Update the highlight element's position. It's inside the stall layer now.
+
+      // Use the percentage-based coordinates directly from the stall data for smooth CSS transition.
+      this.highlightVisible.set('visible');
+      this.highlightEl.nativeElement.style.width = stall.coords.width;
+      this.highlightEl.nativeElement.style.height = stall.coords.height;
+      this.highlightEl.nativeElement.style.transform = `translate(${stall.coords.left}, ${stall.coords.top})`;
+    });
   }
-
   /**
    * Sets the position of the mini-map view, clamps it within bounds, culls off-screen elements,
    * and updates the row indicator. It now returns the final clamped background positions.

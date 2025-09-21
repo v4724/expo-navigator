@@ -96,23 +96,6 @@ export class StallModal {
     console.debug('openＭodal stall:', stall);
     if (!stall) return;
 
-    // const isModalHidden = this._stallModalService.isHidden();
-    // if (magnifierController && isModalHidden) {
-    //   modalState.wasMagnifierVisible = magnifierController.isShown();
-    //   if (modalState.wasMagnifierVisible) {
-    //     magnifierController.hide();
-    //   }
-    // }
-    // this._stallService.clearSelection();
-
-    // const stallElement = document.querySelector(
-    //   `.stall-area[data-stall-id="${stallId}"]`
-    // ) as HTMLElement;
-    // if (stallElement) {
-    //   uiState.selectedStallElement = stallElement;
-    //   updateStallClass(stallElement, 'is-selected', true, magnifierController, uiState);
-    // }
-
     // 動態嵌入 IG 貼文
     if (window.instgrm) {
       window.instgrm.Embeds.process();
@@ -134,6 +117,7 @@ export class StallModal {
         return links.length;
       })
       .flat();
+
     this.promoLinks.set(promoLinks);
     if (stall.stallLink) promoLinks.push({ href: stall.stallLink, text: '社團網站' });
 
