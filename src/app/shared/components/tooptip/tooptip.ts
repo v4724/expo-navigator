@@ -16,10 +16,10 @@ export class Tooptip implements OnInit {
 
   private _tooltipService = inject(TooltipService);
   show$ = this._tooltipService.showTooltip$;
-  label$ = this._tooltipService.label$;
+  innerHTML$ = this._tooltipService.innerHTML$;
 
   ngOnInit() {
-    this.label$.subscribe(() => {
+    this.show$.subscribe(() => {
       const target = this._tooltipService.target;
       if (!target) {
         return;

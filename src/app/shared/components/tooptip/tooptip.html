@@ -6,6 +6,5 @@
   [style.left.px]="left"
   [style.top.px]="top"
   role="tooltip"
->
-  {{ label$ | async }}
-</div>
+  [innerHTML]="innerHTML$ | async"
+></div>

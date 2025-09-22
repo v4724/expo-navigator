@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -11,16 +10,16 @@ export class TooltipService {
   private _showTooltip = new BehaviorSubject<boolean>(false);
   showTooltip$ = this._showTooltip.asObservable();
 
-  private _label = new BehaviorSubject<string>('');
-  label$ = this._label.asObservable();
+  private _innerHTML = new BehaviorSubject<string>('');
+  innerHTML$ = this._innerHTML.asObservable();
 
   get target() {
     return this._target.getValue();
   }
 
-  show(label: string, target: HTMLElement) {
+  show(innerHtml: string, target: HTMLElement) {
     this._target.next(target);
-    this._label.next(label);
+    this._innerHTML.next(innerHtml);
     this._showTooltip.next(true);
   }
 

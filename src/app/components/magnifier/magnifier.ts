@@ -3,7 +3,9 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   inject,
+  NgZone,
   OnInit,
   Renderer2,
   signal,
@@ -33,7 +35,6 @@ export class Magnifier implements AfterViewInit {
   @ViewChild('magnifierStallLayer') magnifierStallLayer!: ElementRef<HTMLElement>;
   @ViewChild('indicatorContainer') indicatorContainer!: ElementRef<HTMLElement>;
 
-  isShownState = false;
   zoomFactor = 2.5;
   isDragging = false;
   hasBeenPositioned = false; // Flag to center the magnifier only once.
@@ -53,6 +54,7 @@ export class Magnifier implements AfterViewInit {
   private _stallModalService = inject(StallModalService);
   private _magnifierService = inject(MagnifierService);
   private _renderer = inject(Renderer2);
+  private _ngZone = inject(NgZone);
 
   hidden = signal<boolean>(false);
   mapImageSrc = signal('');
@@ -82,73 +84,55 @@ export class Magnifier implements AfterViewInit {
   }
 
   // --- Unified Drag and Interaction Handlers for Mouse and Touch ---
-  onDragStart(e: MouseEvent | TouchEvent) {
-    e.preventDefault();
-
+  onDragStart(e: PointerEvent) {
     this.isDragging = true;
     this.dragHappened = false; // Reset for the new interaction.
     this.clickTarget = e.target as HTMLElement; // Store the initial target.
-
-    const touch = (e as TouchEvent).touches?.[0];
-    const clientX = touch ? touch.clientX : (e as MouseEvent).clientX;
-    const clientY = touch ? touch.clientY : (e as MouseEvent).clientY;
-
+    const clientX = e.clientX;
+    const clientY = e.clientY;
     // Record the starting position of the mouse/touch and the lens.
     this.dragStartX = clientX;
     this.dragStartY = clientY;
     this.initialLensX = this.magnifierWrapper.nativeElement.offsetLeft;
     this.initialLensY = this.magnifierWrapper.nativeElement.offsetTop;
-
     cancelAnimationFrame(this.animationFrameId);
     this.animationFrameId = requestAnimationFrame(this.panAnimationLoop);
+
+    // performance: run outside angular
+    this._ngZone.runOutsideAngular(() => {
+      this._boundMove = this.onDragMove.bind(this);
+      this._boundUp = this.onDragEnd.bind(this);
+      window.addEventListener('pointermove', this._boundMove, { passive: false });
+      window.addEventListener('pointerup', this._boundUp, { once: true });
+    });
   }
 
-  onTouchStart(e: TouchEvent) {
-    e.stopPropagation();
-    e.preventDefault();
-    this.onDragStart(e);
-  }
+  _boundMove: any;
+  _boundUp: any;
 
-  onDragMove(e: MouseEvent | TouchEvent) {
+  onDragMove(e: PointerEvent) {
     if (!this.isDragging) return;
-
-    const touch = (e as TouchEvent).touches?.[0];
-    const clientX = touch ? touch.clientX : (e as MouseEvent).clientX;
-    const clientY = touch ? touch.clientY : (e as MouseEvent).clientY;
-
+    const clientX = e.clientX;
+    const clientY = e.clientY;
     const dx = clientX - this.dragStartX; // Change in mouse/touch X.
     const dy = clientY - this.dragStartY; // Change in mouse/touch Y.
-
     // Check if movement exceeds a threshold to be considered a drag.
     if (!this.dragHappened && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
       this.dragHappened = true;
     }
-
     if (this.dragHappened) {
       this.targetBgX = this.initialLensX + dx;
       this.targetBgY = this.initialLensY + dy;
     }
   }
 
-  onTouchMove(e: TouchEvent) {
-    e.stopPropagation();
-    e.preventDefault();
-    this.onDragMove(e);
-  }
-
   onDragEnd() {
     if (!this.isDragging) return;
     this.isDragging = false;
 
-    // If no significant movement happened, it's a click.
-    if (!this.dragHappened && this.clickTarget) {
-      const clickedArea = this.clickTarget.closest('.stall-area');
-      if (clickedArea) {
-        // Delegate to the main click handler.
-        this.onAreaClick(this.clickTarget);
-      }
-    }
     this.clickTarget = null; // Clear the stored target.
+
+    window.removeEventListener('pointermove', this._boundMove);
   }
 
   animationFrameId: number = 0;
@@ -160,7 +144,6 @@ export class Magnifier implements AfterViewInit {
 
   /** Handles opening the modal for a clicked stall or group area from any context (map or magnifier). */
   onAreaClick(target: HTMLElement) {
-    console.log('target', target);
     const clickedGroupArea = target.closest('.stall-group-area') as HTMLElement | null;
     const clickedStallArea = target.closest(
       '.stall-area:not(.stall-group-area)',
@@ -304,7 +287,6 @@ export class Magnifier implements AfterViewInit {
 
   /** Shows the magnifier. */
   show() {
-    this.isShownState = true;
     const offsetWidth = this.mapImage?.offsetWidth ?? 0;
     const offsetHeight = this.mapImage?.offsetHeight ?? 0;
 
@@ -312,8 +294,6 @@ export class Magnifier implements AfterViewInit {
     // the map image's dimensions are loaded and correct.
     const scaledMapW = offsetWidth * this.zoomFactor;
     const scaledMapH = offsetHeight * this.zoomFactor;
-
-    console.log(offsetWidth, offsetHeight);
 
     this.mapImgW.set(offsetWidth);
     this.mapImgH.set(offsetHeight);
@@ -325,7 +305,6 @@ export class Magnifier implements AfterViewInit {
     this.magnifierStallLayer.nativeElement.style.width = `${offsetWidth}px`;
     this.magnifierStallLayer.nativeElement.style.height = `${offsetHeight}px`;
     this.magnifierStallLayer.nativeElement.style.transform = `scale(${this.zoomFactor})`;
-    console.log(`${offsetWidth * this.zoomFactor}px ${offsetHeight * this.zoomFactor}px`);
 
     this.magnifierWrapper.nativeElement.style.display = 'block';
 
@@ -344,14 +323,9 @@ export class Magnifier implements AfterViewInit {
     this.hidden.set(false);
     this.updateZoom(); // Perform initial zoom update.
   }
+
   /** Hides the magnifier. */
   hide() {
-    this.isShownState = false;
     this.hidden.set(true);
-  }
-
-  /** Returns true if the magnifier is currently visible. */
-  isShown() {
-    return this.isShownState;
   }
 }

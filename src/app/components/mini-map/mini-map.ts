@@ -195,18 +195,15 @@ export class MiniMap implements OnInit, AfterViewInit {
     this.animationFrameId = requestAnimationFrame(this.panAnimationLoop);
   }
 
-  onTouchStart(e: TouchEvent) {
-    e.stopPropagation();
-    this.onPanStart(e);
-  }
-
-  onPanMove(e: MouseEvent | TouchEvent) {
+  onPanMove(e: PointerEvent) {
     if (!this._miniMapService.isPanning) return;
     if (e.type === 'touchmove') e.preventDefault();
 
-    const touch = (e as TouchEvent).touches?.[0];
-    const clientX = touch ? touch.clientX : (e as MouseEvent).clientX;
-    const clientY = touch ? touch.clientY : (e as MouseEvent).clientY;
+    const el = this.modalMagnifier.nativeElement;
+    el.setPointerCapture(e.pointerId);
+
+    const clientX = e.clientX;
+    const clientY = e.clientY;
 
     const dx = clientX - this.panStartX;
     const dy = clientY - this.panStartY;
@@ -221,11 +218,6 @@ export class MiniMap implements OnInit, AfterViewInit {
       this.targetBgX = this.initialBgX + dx;
       this.targetBgY = this.initialBgY + dy;
     }
-  }
-
-  onTouchMove(e: TouchEvent) {
-    e.stopPropagation();
-    this.onPanMove(e);
   }
 
   onPanEnd(e: MouseEvent | TouchEvent) {

@@ -6,6 +6,9 @@ import { map } from 'rxjs';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { MiniMapService } from 'src/app/core/services/state/mini-map-service';
+import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
+import { TooltipService } from 'src/app/core/services/state/tooltip-service';
 
 @Component({
   selector: 'app-stall',
@@ -21,6 +24,8 @@ export class Stall implements OnInit {
   private _stallService = inject(StallService);
   private _stallMapService = inject(StallMapService);
   private _miniMapService = inject(MiniMapService);
+  private _uiStateService = inject(UiStateService);
+  private _tooltipService = inject(TooltipService);
 
   isGroupedMember$ = toObservable(this.stall).pipe(
     map((stall) => {
@@ -72,6 +77,26 @@ export class Stall implements OnInit {
     } else {
       this.isPanning = false;
     }
+  }
+
+  mouseover(e: MouseEvent) {
+    if (this._uiStateService.isMobile()) return;
+
+    const target = e.target as HTMLElement;
+    const promoUsers = this.stall()
+      .promoData?.map((o) => o.promoUser)
+      .filter((value, index, self) => self.indexOf(value) === index)
+      .join(',');
+    const innerHTML = `<strong>${this.stall().stallTitle}</strong><br><small>${this.stall().id}${
+      promoUsers ? ` / ${promoUsers}` : ''
+    }</small>`;
+    this._tooltipService.show(innerHTML, target);
+  }
+
+  mouseout(e: MouseEvent) {
+    if (this._uiStateService.isMobile()) return;
+
+    this._tooltipService.hide();
   }
 
   stallClicked() {

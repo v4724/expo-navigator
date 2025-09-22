@@ -1,21 +1,17 @@
-<div
-  id="magnifier-wrapper"
-  #magnifierWrapper
-  [class.hidden]="hidden()"
-  (mousedown)="onDragStart($event)"
-  (mousemove)="onDragMove($event)"
-  (mouseup)="onDragEnd()"
-  (touchstart)="onTouchStart($event)"
-  (touchmove)="onTouchMove($event)"
-  (touchend)="onDragEnd()"
->
+<div id="magnifier-wrapper" #magnifierWrapper [class.hidden]="hidden()">
   <div
     id="magnifier"
     #magnifier
     [style.backgroundImage]="mapImageSrc()"
     [style.backgroundSize]="`${scaleMapImgW()}px ${scaleMapImgH()}px`"
+    (pointerdown)="onDragStart($event)"
   >
-    <div id="magnifier-stall-layer" #magnifierStallLayer>
+    <div
+      id="magnifier-stall-layer"
+      #magnifierStallLayer
+      [style.width.px]="mapImgW()"
+      [style.height.px]="mapImgH()"
+    >
       @for (stall of allStalls$ | async; track $index) {
         <app-stall [stall]="stall" [absolutePosition]="true" [hiddenIfGrouped]="true"></app-stall>
       }

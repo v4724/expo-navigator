@@ -125,37 +125,6 @@ export class StallsMap implements OnInit, AfterViewInit {
       });
   }
 
-  mapContainerMouseover(e: MouseEvent) {
-    if (this.isMobile()) return;
-
-    const allStalls = this._stallService.allStalls;
-    const target = e.target as HTMLElement;
-    const stallArea = target.closest('.stall-area:not(.stall-group-area)');
-    if (stallArea && !uiState.selectedStallElement) {
-      const stallId = (stallArea as HTMLElement).dataset['stallId'];
-      const stall = allStalls.find((s) => s.id === stallId);
-      if (stall) {
-        const promoUsers = stall.promoData
-          ?.map((o) => o.promoUser)
-          .filter((value, index, self) => self.indexOf(value) === index)
-          .join(',');
-        const innerHTML = `<strong>${stall.stallTitle}</strong><br><small>${stall.id}${
-          promoUsers ? ` / ${promoUsers}` : ''
-        }</small>`;
-        this._tooltipService.show(innerHTML, target);
-      }
-    }
-  }
-
-  mapContainerMouseout(e: MouseEvent) {
-    if (this.isMobile()) return;
-
-    const target = e.target as HTMLElement;
-    if (target.classList.contains('stall-area')) {
-      this._tooltipService.hide();
-    }
-  }
-
   /** Handles interactions on the main map, ignoring those on the magnifier. */
   mapContainerMousedown(e: MouseEvent | TouchEvent) {
     e.stopPropagation();
@@ -211,7 +180,7 @@ export class StallsMap implements OnInit, AfterViewInit {
   }
 
   toggleMagnifier() {
-    if (this.magnifier.isShownState) {
+    if (!this.magnifier.hidden()) {
       this.toggleButton.nativeElement.setAttribute('aria-pressed', 'false');
       this.toggleButton.nativeElement.textContent = '顯示放大鏡';
       this.magnifier.hide();

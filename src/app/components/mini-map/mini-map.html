@@ -17,12 +17,9 @@
         [style.backgroundImage]="mapImageSrc()"
         [style.backgroundSize]="`${scaleMapImgW()}px ${scaleMapImgH()}px`"
         [style.cursor]="cursor()"
-        (mousedown)="onPanStart($event)"
-        (touchstart)="onTouchStart($event)"
-        (mousemove)="onPanMove($event)"
-        (touchmove)="onTouchMove($event)"
-        (mouseup)="onPanEnd($event)"
-        (touchend)="onPanEnd($event)"
+        (pointerdown)="onPanStart($event)"
+        (pointermove)="onPanMove($event)"
+        (pointerup)="onPanEnd($event)"
       >
         <div
           id="modal-magnifier-stall-layer"

@@ -10,9 +10,10 @@
   [style.width]="absolutePosition() ? stall().coords.width : '100%'"
   [style.height]="absolutePosition() ? stall().coords.height : '100%'"
   [aria-label]="`Stall: ${stall().stallTitle}`"
-  (mousemove)="mousemove()"
-  (touchmove)="mousemove()"
+  (pointermove)="mousemove()"
   (click)="stallClicked()"
+  (mouseover)="mouseover($event)"
+  (mouseout)="mouseout($event)"
 >
   {{ stall().padNum }}
 </div>
