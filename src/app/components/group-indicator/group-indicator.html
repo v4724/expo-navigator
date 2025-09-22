@@ -1,0 +1,11 @@
+<div #modalMagnifierRowIndicatorContainer id="modal-magnifier-row-indicator-container">
+  <div id="modal-magnifier-row-indicator-next" class="row-indicator-adjacent">
+    {{ rowIndicatorNext$ | async }}
+  </div>
+  <div id="modal-magnifier-row-indicator-current" class="row-indicator-current">
+    {{ rowIndicatorCurrent$ | async }}
+  </div>
+  <div id="modal-magnifier-row-indicator-prev" class="row-indicator-adjacent">
+    {{ rowIndicatorPrev$ | async }}
+  </div>
+</div>

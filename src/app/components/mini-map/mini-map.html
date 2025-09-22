@@ -1,16 +1,5 @@
 <div class="modal-mini-map">
-  <div
-    #modalMagnifierWrapper
-    id="modal-magnifier-wrapper"
-    [class.hidden]="hidden()"
-    [style.cursor]="cursor()"
-    (mousedown)="onPanStart($event)"
-    (touchstart)="onTouchStart($event)"
-    (mousemove)="onPanMove($event)"
-    (touchmove)="onTouchMove($event)"
-    (mouseup)="onPanEnd()"
-    (touchend)="onPanEnd()"
-  >
+  <div #modalMagnifierWrapper id="modal-magnifier-wrapper" [class.hidden]="hidden()">
     <div class="modal-magnifier-content">
       <div
         #modalVerticalStallList
@@ -27,6 +16,13 @@
         #modalMagnifier
         [style.backgroundImage]="mapImageSrc()"
         [style.backgroundSize]="`${scaleMapImgW()}px ${scaleMapImgH()}px`"
+        [style.cursor]="cursor()"
+        (mousedown)="onPanStart($event)"
+        (touchstart)="onTouchStart($event)"
+        (mousemove)="onPanMove($event)"
+        (touchmove)="onTouchMove($event)"
+        (mouseup)="onPanEnd($event)"
+        (touchend)="onPanEnd($event)"
       >
         <div
           id="modal-magnifier-stall-layer"
@@ -55,11 +51,7 @@
         </div>
       </div>
     </div>
-    <div #modalMagnifierRowIndicatorContainer id="modal-magnifier-row-indicator-container">
-      <div id="modal-magnifier-row-indicator-next" class="row-indicator-adjacent"></div>
-      <div id="modal-magnifier-row-indicator-current" class="row-indicator-current"></div>
-      <div id="modal-magnifier-row-indicator-prev" class="row-indicator-adjacent"></div>
-    </div>
+    <app-group-indicator></app-group-indicator>
     <!-- The highlight element will be injected here by JS into the wrapper -->
   </div>
   <div

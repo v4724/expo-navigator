@@ -5,6 +5,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
+import { MiniMapService } from 'src/app/core/services/state/mini-map-service';
 
 @Component({
   selector: 'app-stall',
@@ -19,6 +20,7 @@ export class Stall implements OnInit {
 
   private _stallService = inject(StallService);
   private _stallMapService = inject(StallMapService);
+  private _miniMapService = inject(MiniMapService);
 
   isGroupedMember$ = toObservable(this.stall).pipe(
     map((stall) => {
@@ -28,6 +30,8 @@ export class Stall implements OnInit {
 
   isSelected = signal<boolean>(false);
   isSearchMatch = signal<boolean>(false);
+
+  isPanning = false;
 
   ngOnInit() {
     this._stallService.selectedStallId$.subscribe((selectedStall) => {
@@ -58,10 +62,24 @@ export class Stall implements OnInit {
       }
       this.isSearchMatch.set(isMatch);
     });
+
+    this._miniMapService.isPanning$.subscribe(() => {});
+  }
+
+  mousemove() {
+    if (this._miniMapService.isPanning) {
+      this.isPanning = true;
+    } else {
+      this.isPanning = false;
+    }
   }
 
   stallClicked() {
-    console.log(this.stall().id);
+    if (this.isPanning) {
+      this.isPanning = false;
+      return;
+    }
+
     this._stallService.selected = this.stall().id;
   }
 }

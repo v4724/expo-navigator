@@ -6,6 +6,7 @@ import {
   ElementRef,
   HostListener,
   inject,
+  NgZone,
   OnInit,
   Renderer2,
   signal,
@@ -26,10 +27,12 @@ import { StallGroupArea } from '../stall-group-area/stall-group-area';
 import { Stall } from '../stall/stall';
 import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interface';
 import { pairwise, startWith } from 'rxjs';
+import { MiniMapService } from 'src/app/core/services/state/mini-map-service';
+import { GroupIndicator } from '../group-indicator/group-indicator';
 
 @Component({
   selector: 'app-mini-map',
-  imports: [CommonModule, Stall, StallGroupArea],
+  imports: [CommonModule, Stall, StallGroupArea, GroupIndicator],
   templateUrl: './mini-map.html',
   styleUrl: './mini-map.scss',
 })
@@ -50,8 +53,10 @@ export class MiniMap implements OnInit, AfterViewInit {
   isPanning: boolean = true;
   panHappened: boolean = false;
   clickTarget: EventTarget | null = null;
+  // 平移起點
   panStartX: number = 0;
   panStartY: number = 0;
+  // 背景的平移起點
   initialBgX: number = 0;
   initialBgY: number = 0;
   targetBgX: number = 0;
@@ -83,7 +88,7 @@ export class MiniMap implements OnInit, AfterViewInit {
   verticalStallGroupHidden: WritableSignal<boolean> = signal(true);
   mapImageSrc: WritableSignal<string> = signal('');
   hidden = signal<boolean>(true);
-  cursor = signal<string>('default');
+  cursor = signal<'grab' | 'grabbing'>('grab');
   highlightVisible = signal<'visible' | 'hidden'>('hidden');
 
   mapImgW = signal<number>(0);
@@ -97,7 +102,9 @@ export class MiniMap implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
   private _magnifierService = inject(MagnifierService);
+  private _miniMapService = inject(MiniMapService);
   private _renderer = inject(Renderer2);
+  private _ngZone = inject(NgZone);
 
   selectedStall$ = this._stallService.selectedStallId$;
   allStalls$ = this._stallService.allStalls$;
@@ -106,6 +113,19 @@ export class MiniMap implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this._stallMapService.mapImage$.pipe().subscribe((el) => {
       this.mapImageSrc.set(`url('${el?.src}')`);
+
+      const zoomFactor = this._uiStateService.zoomFactor();
+      const mapImage = this._stallMapService.mapImage;
+      const mapW = mapImage?.offsetWidth ?? 0;
+      const mapH = mapImage?.offsetHeight ?? 0;
+      const scaledMapW = mapW * zoomFactor;
+      const scaledMapH = mapH * zoomFactor;
+
+      this.mapImgW.set(mapW);
+      this.mapImgH.set(mapH);
+
+      this.scaleMapImgW.set(scaledMapW);
+      this.scaleMapImgH.set(scaledMapH);
     });
 
     this._stallService.selectedStallId$
@@ -130,10 +150,6 @@ export class MiniMap implements OnInit, AfterViewInit {
 
   onPanStart(e: MouseEvent | TouchEvent) {
     const target = e.target as HTMLElement;
-    // Prevent pan from starting if the click is on the vertical stall list.
-    if (target.closest('#modal-vertical-stall-list')) {
-      return;
-    }
 
     // NEW Check: Prevent pan if clicking the currently active group area.
     const clickedGroupArea = target.closest('.stall-group-area') as HTMLElement | null;
@@ -149,7 +165,7 @@ export class MiniMap implements OnInit, AfterViewInit {
     // Prevent starting a pan with the right mouse button
     if ('button' in e && e.button !== 0) return;
 
-    this.isPanning = true;
+    this._miniMapService.isPanning = true;
     this.panHappened = false;
     this.clickTarget = e.target;
 
@@ -169,7 +185,7 @@ export class MiniMap implements OnInit, AfterViewInit {
     this.targetBgX = this.initialBgX;
     this.targetBgY = this.initialBgY;
 
-    // Disable transitions during panning for direct control
+    // Disable transitions during panning for direct control 關掉過渡相關效果
     this._renderer.setStyle(this.modalMagnifier.nativeElement, 'transition', 'none');
     this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'transition', 'none');
 
@@ -185,7 +201,7 @@ export class MiniMap implements OnInit, AfterViewInit {
   }
 
   onPanMove(e: MouseEvent | TouchEvent) {
-    if (!this.isPanning) return;
+    if (!this._miniMapService.isPanning) return;
     if (e.type === 'touchmove') e.preventDefault();
 
     const touch = (e as TouchEvent).touches?.[0];
@@ -195,6 +211,7 @@ export class MiniMap implements OnInit, AfterViewInit {
     const dx = clientX - this.panStartX;
     const dy = clientY - this.panStartY;
 
+    // 防止誤觸
     if (!this.panHappened && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
       this.panHappened = true;
       this.cursor.set('grabbing');
@@ -211,8 +228,8 @@ export class MiniMap implements OnInit, AfterViewInit {
     this.onPanMove(e);
   }
 
-  onPanEnd() {
-    if (!this.isPanning) return;
+  onPanEnd(e: MouseEvent | TouchEvent) {
+    if (!this._miniMapService.isPanning) return;
 
     cancelAnimationFrame(this.animationFrameId);
 
@@ -220,7 +237,7 @@ export class MiniMap implements OnInit, AfterViewInit {
       this.handleModalMapClick(this.clickTarget as HTMLElement);
     }
 
-    this.isPanning = false;
+    this._miniMapService.isPanning = false;
     this.clickTarget = null;
     this.cursor.set('grab');
 
@@ -229,11 +246,11 @@ export class MiniMap implements OnInit, AfterViewInit {
     this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'transition', '');
   }
 
-  panAnimationLoop() {
-    if (!this.isPanning) return;
+  panAnimationLoop = () => {
+    if (!this._miniMapService.isPanning) return;
     this.setModalMapPosition(this.targetBgX, this.targetBgY);
     this.animationFrameId = requestAnimationFrame(this.panAnimationLoop);
-  }
+  };
 
   /**
    * Handles a click/tap event inside the modal mini-map.
@@ -473,10 +490,9 @@ export class MiniMap implements OnInit, AfterViewInit {
    * @param context The application context.
    */
   updateModalMagnifierView(stall: StallData) {
-    console.log('update', stall);
     if (!stall || !stall.coords) {
       this.hidden.set(true);
-      this.cursor.set('default');
+      this.cursor.set('grab');
       return;
     }
 
@@ -484,8 +500,7 @@ export class MiniMap implements OnInit, AfterViewInit {
     this.cursor.set('grab');
 
     requestAnimationFrame(() => {
-      const isMobile = this._uiStateService.isMobile();
-      const zoomFactor = isMobile ? 4.5 : 1.8;
+      const zoomFactor = this._uiStateService.zoomFactor();
       const viewW = this.modalMagnifier.nativeElement.offsetWidth;
       const viewH = this.modalMagnifier.nativeElement.offsetHeight;
 
@@ -494,18 +509,6 @@ export class MiniMap implements OnInit, AfterViewInit {
         this.hidden.set(true);
         return;
       }
-
-      const mapImage = this._stallMapService.mapImage;
-      const mapW = mapImage?.offsetWidth ?? 0;
-      const mapH = mapImage?.offsetHeight ?? 0;
-      const scaledMapW = mapW * zoomFactor;
-      const scaledMapH = mapH * zoomFactor;
-
-      this.mapImgW.set(mapW);
-      this.mapImgH.set(mapH);
-
-      this.scaleMapImgW.set(scaledMapW);
-      this.scaleMapImgH.set(scaledMapH);
 
       const { left, top, width, height } = stall.numericCoords;
       if ([left, top, width, height].some((v) => typeof v !== 'number')) {
@@ -516,8 +519,8 @@ export class MiniMap implements OnInit, AfterViewInit {
       }
 
       // Calculate the ideal background position to center the stall.
-      const stallCenterX_px = ((left + width / 2) / 100) * mapW;
-      const stallCenterY_px = ((top + height / 2) / 100) * mapH;
+      const stallCenterX_px = ((left + width / 2) / 100) * this.mapImgW();
+      const stallCenterY_px = ((top + height / 2) / 100) * this.mapImgH();
       const bgX = viewW / 2 - stallCenterX_px * zoomFactor;
       const bgY = viewH / 2 - stallCenterY_px * zoomFactor;
 
@@ -546,9 +549,7 @@ export class MiniMap implements OnInit, AfterViewInit {
     bgY: number,
     stall?: StallDto,
   ): { clampedBgX: number; clampedBgY: number } {
-    const allStalls = this._stallService.allStalls;
-
-    const zoomFactor = this._uiStateService.isMobile() ? 4.5 : 1.8;
+    const zoomFactor = this._uiStateService.zoomFactor();
     const viewW = this.modalMagnifier.nativeElement.offsetWidth;
     const viewH = this.modalMagnifier.nativeElement.offsetHeight;
 
@@ -559,62 +560,28 @@ export class MiniMap implements OnInit, AfterViewInit {
     const mapH = mapImage?.offsetHeight ?? 0;
     if (mapW === 0 || mapH === 0) return { clampedBgX: 0, clampedBgY: 0 };
 
+    // 計算縮放後的地圖大小
     const scaledMapW = mapW * zoomFactor;
     const scaledMapH = mapH * zoomFactor;
 
+    // 限制（Clamp）地圖偏移量
     const clampedBgX = Math.max(viewW - scaledMapW, Math.min(bgX, 0));
     const clampedBgY = Math.max(viewH - scaledMapH, Math.min(bgY, 0));
 
     // PERFORMANCE: Use `transform` for movement instead of `left`/`top`.
+    // 背景位置
     this._renderer.setStyle(
       this.modalMagnifier.nativeElement,
       'backgroundPosition',
       `${clampedBgX}px ${clampedBgY}px`,
     );
+
+    // 攤位圖層（前景，通常是可互動的元素）
     this._renderer.setStyle(
       this.modalMagnifierStallLayer.nativeElement,
       'transform',
       `translate(${clampedBgX}px, ${clampedBgY}px) scale(${zoomFactor})`,
     );
-
-    // --- Viewport Culling for Performance ---
-    const bufferX = (viewW / zoomFactor) * 0.5;
-    const bufferY = (viewH / zoomFactor) * 0.5;
-    const visibleLeft = -clampedBgX / zoomFactor - bufferX;
-    const visibleTop = -clampedBgY / zoomFactor - bufferY;
-    const visibleRight = (-clampedBgX + viewW) / zoomFactor + bufferX;
-    const visibleBottom = (-clampedBgY + viewH) / zoomFactor + bufferY;
-
-    allStalls.forEach((s: StallData) => {
-      // const clone = uiState.stallIdToModalCloneMap.get(s.id);
-      // if (!clone || !s.numericCoords) return;
-      // const { left, top, width, height } = s.numericCoords;
-      // const stallLeft_px = (left / 100) * mapW;
-      // const stallTop_px = (top / 100) * mapH;
-      // const stallRight_px = stallLeft_px + (width / 100) * mapW;
-      // const stallBottom_px = stallTop_px + (height / 100) * mapH;
-      // const isVisible =
-      //   stallLeft_px < visibleRight &&
-      //   stallRight_px > visibleLeft &&
-      //   stallTop_px < visibleBottom &&
-      //   stallBottom_px > visibleTop;
-      // clone.classList.toggle('modal-map-hidden', !isVisible);
-    });
-
-    stallGridRefs.forEach((group) => {
-      // const clone = uiState.rowIdToModalGroupCloneMap.get(group.groupId);
-      // if (!clone) return;
-      // const rowLeft_px = (group.boundingBox.left / 100) * mapW;
-      // const rowTop_px = (group.boundingBox.top / 100) * mapH;
-      // const rowRight_px = (group.boundingBox.right / 100) * mapW;
-      // const rowBottom_px = (group.boundingBox.bottom / 100) * mapH;
-      // const isVisible =
-      //   rowLeft_px < visibleRight &&
-      //   rowRight_px > visibleLeft &&
-      //   rowTop_px < visibleBottom &&
-      //   rowBottom_px > visibleTop;
-      // clone.classList.toggle('modal-map-hidden', !isVisible);
-    });
 
     this._updateModalRowIndicator(clampedBgX, clampedBgY, stall);
 
@@ -631,14 +598,7 @@ export class MiniMap implements OnInit, AfterViewInit {
    * @param stall The currently selected stall, if any.
    */
   private _updateModalRowIndicator(currentBgX: number, currentBgY: number, stall?: StallDto) {
-    const isMobile = this._uiStateService.isMobile();
     const mapImage = this._stallMapService.mapImage;
-
-    this._renderer.setStyle(
-      this.modalMagnifierRowIndicatorContainer.nativeElement,
-      'display',
-      'flex',
-    );
 
     let closestRowData: (typeof stallGridRefs)[0] | null = null;
 
@@ -648,7 +608,7 @@ export class MiniMap implements OnInit, AfterViewInit {
       closestRowData = stallGridRefs.find((r) => r.groupId === rowId) ?? null;
     } else {
       // Priority 2 (Fallback for panning): Use geometric calculation based on view center.
-      const zoomFactor = isMobile ? 4.5 : 1.8;
+      const zoomFactor = this._uiStateService.zoomFactor();
       const viewW = this.modalMagnifier.nativeElement.offsetWidth;
       const viewH = this.modalMagnifier.nativeElement.offsetHeight;
       const mapW = mapImage?.offsetWidth ?? 0;
@@ -685,24 +645,23 @@ export class MiniMap implements OnInit, AfterViewInit {
       }
     }
 
-    if (closestRowData && closestRowData.groupId === '範') {
-      this._magnifierService.setRowIndicator('', '', '');
-    } else {
-      this._renderer.setStyle(
-        this.modalMagnifierRowIndicatorContainer.nativeElement,
-        'display',
-        'flex',
-      );
-      if (closestRowData) {
-        const currentIndex = allGroupIds.indexOf(closestRowData.groupId);
-        const curr = closestRowData.groupId;
-        const prev = currentIndex > 0 ? allGroupIds[currentIndex - 1] : '';
-        const next = currentIndex < allGroupIds.length - 1 ? allGroupIds[currentIndex + 1] : '';
-        this._magnifierService.setRowIndicator(prev, curr, next);
-      } else {
+    // 在 raf 要用 ngZone 強制更新畫面
+    this._ngZone.run(() => {
+      // 更新多個值
+      if (closestRowData && closestRowData.groupId === '範') {
         this._magnifierService.setRowIndicator('', '', '');
+      } else {
+        if (closestRowData) {
+          const currentIndex = allGroupIds.indexOf(closestRowData.groupId);
+          const curr = closestRowData.groupId;
+          const prev = currentIndex > 0 ? allGroupIds[currentIndex - 1] : '';
+          const next = currentIndex < allGroupIds.length - 1 ? allGroupIds[currentIndex + 1] : '';
+          this._magnifierService.setRowIndicator(prev, curr, next);
+        } else {
+          this._magnifierService.setRowIndicator('', '', '');
+        }
       }
-    }
+    });
   }
 
   /**

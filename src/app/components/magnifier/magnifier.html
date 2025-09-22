@@ -1,6 +1,7 @@
 <div
   id="magnifier-wrapper"
   #magnifierWrapper
+  [class.hidden]="hidden()"
   (mousedown)="onDragStart($event)"
   (mousemove)="onDragMove($event)"
   (mouseup)="onDragEnd()"
@@ -8,25 +9,24 @@
   (touchmove)="onTouchMove($event)"
   (touchend)="onDragEnd()"
 >
-  <div id="magnifier" #magnifier>
+  <div
+    id="magnifier"
+    #magnifier
+    [style.backgroundImage]="mapImageSrc()"
+    [style.backgroundSize]="`${scaleMapImgW()}px ${scaleMapImgH()}px`"
+  >
     <div id="magnifier-stall-layer" #magnifierStallLayer>
-      @for (stall of (allStalls$ | async); track $index) {
-      <app-stall [stall]="stall"></app-stall>
-      } @for (row of stallGridRefs; track $index) {
-      <app-stall-group-area [row]="row"></app-stall-group-area>
+      @for (stall of allStalls$ | async; track $index) {
+        <app-stall [stall]="stall" [absolutePosition]="true" [hiddenIfGrouped]="true"></app-stall>
+      }
+      @for (row of stallGridRefs; track $index) {
+        <app-stall-group-area [row]="row"></app-stall-group-area>
       }
     </div>
   </div>
-  <div id="magnifier-row-indicator-container" #indicatorContainer>
-    <div id="magnifier-row-indicator-next" class="row-indicator-adjacent">
-      {{ rowIndicatorNext$ | async }}
-    </div>
-    <div id="magnifier-row-indicator-current" class="row-indicator-current">
-      {{ rowIndicatorCurrent$ | async }}
-    </div>
-    <div id="magnifier-row-indicator-prev" class="row-indicator-adjacent">
-      {{ rowIndicatorPrev$ | async }}
-    </div>
+  <div [style.position]="'relative'" [style.height]="'100%'" [style.width.px]="0">
+    <app-group-indicator></app-group-indicator>
   </div>
+
   <div id="magnifier-marker"></div>
 </div>

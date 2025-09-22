@@ -10,6 +10,7 @@ import { filter, map } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
 import { link } from 'fs';
+import { MiniMapService } from 'src/app/core/services/state/mini-map-service';
 
 declare global {
   interface Window {
@@ -55,6 +56,7 @@ export class StallModal {
   private _lightboxService = inject(LightboxService);
   private _stallService = inject(StallService);
   private _uiStateService = inject(UiStateService);
+  private _miniMapService = inject(MiniMapService);
 
   show$ = this._stallModalService.showStallModal$;
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
@@ -74,7 +76,7 @@ export class StallModal {
   defaultAvatar: string = 'https://images.plurk.com/3rbw6tg1lA5dEGpdKTL8j1.png';
 
   ngOnInit() {
-    this._stallService.selectedStallId$.subscribe((stallId) => {
+    this._stallService.selectedStallId$.pipe().subscribe((stallId) => {
       console.debug('stall modal select stall: ', stallId);
       this.stall.set(this._stallService.selectedStall);
       if (stallId) {

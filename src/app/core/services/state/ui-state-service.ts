@@ -16,4 +16,8 @@ export class UiStateService {
 
     return mobileCheck;
   }
+
+  zoomFactor() {
+    return this.isMobile() ? 4.5 : 1.8;
+  }
 }
