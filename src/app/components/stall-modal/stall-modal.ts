@@ -4,13 +4,10 @@ import { StallModalService } from 'src/app/core/services/state/stall-modal-servi
 import { MiniMap } from '../mini-map/mini-map';
 import { CommonModule } from '@angular/common';
 import { StallService } from 'src/app/core/services/state/stall-service';
-import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { StallData } from '../stall/stall-.interface';
-import { filter, map } from 'rxjs';
+import { map } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
-import { link } from 'fs';
-import { DraggableService } from 'src/app/core/services/state/draggable-service';
 
 declare global {
   interface Window {
@@ -39,8 +36,6 @@ export class StallModal {
   private _stallModalService = inject(StallModalService);
   private _lightboxService = inject(LightboxService);
   private _stallService = inject(StallService);
-  private _uiStateService = inject(UiStateService);
-  private _miniMapService = inject(DraggableService);
 
   show$ = this._stallModalService.showStallModal$;
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
@@ -62,11 +57,10 @@ export class StallModal {
   ngOnInit() {
     this._stallService.selectedStallId$.pipe().subscribe((stallId) => {
       console.debug('stall modal select stall: ', stallId);
+      this.imageLoaded.set(false);
       this.stall.set(this._stallService.selectedStall);
       if (stallId) {
-        this.openModal(stallId);
-      } else {
-        this.imageLoaded.set(false);
+        this.updateStallInfo(stallId);
       }
     });
   }
@@ -76,7 +70,7 @@ export class StallModal {
    * @param stallId The ID of the stall to display.
    * @param context An object containing all necessary dependencies.
    */
-  openModal(stallId: string) {
+  updateStallInfo(stallId: string) {
     // const { elements, magnifierController, uiState } = context;
     const stall = this._stallService.findStall(stallId);
     console.debug('openＭodal stall:', stall);
@@ -118,19 +112,8 @@ export class StallModal {
    * @param context An object containing all necessary dependencies.
    */
   closeModal() {
-    // const { elements, magnifierController, uiState } = context;
-
     this._stallService.clearSelection();
     this._stallModalService.hide();
-    // TODO 作用?
-    // this.document.body.classList.remove('body-modal-open');
-
-    // if (magnifierController && modalState.wasMagnifierVisible) {
-    //   magnifierController.show();
-    // }
-    // modalState.wasMagnifierVisible = false;
-    // elements.modalMagnifierWrapper.style.display = 'none';
-    // elements.modalVerticalStallList.style.display = 'none';
   }
 
   // --- Image Lightbox Listeners ---
@@ -160,17 +143,6 @@ export class StallModal {
       }
 
       this._lightboxService.openImageLightbox(src, target.alt);
-    }
-  }
-
-  @HostListener('keydown', ['$event'])
-  keydownHandler(e: KeyboardEvent) {
-    if (this._stallModalService.isHidden()) return;
-
-    switch (e.key) {
-      case 'Escape':
-        this.closeModal();
-        break;
     }
   }
 }

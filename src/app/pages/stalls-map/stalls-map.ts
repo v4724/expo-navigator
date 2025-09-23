@@ -176,7 +176,7 @@ export class StallsMap implements OnInit, AfterViewInit {
   }
 
   openModal(stallId: string) {
-    this.stallModal.openModal(stallId);
+    this.stallModal.updateStallInfo(stallId);
   }
 
   toggleMagnifier() {
