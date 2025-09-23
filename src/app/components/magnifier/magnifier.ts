@@ -57,7 +57,7 @@ export class Magnifier implements AfterViewInit {
   stallGridRefs = stallGridRefs;
 
   constructor() {
-    this.zoomFactor = this._uiStateService.isMobile() ? 3.5 : 2.5; // Use a higher zoom for mobile.
+    this.zoomFactor = this._uiStateService.isSmallScreen() ? 3.5 : 2.5; // Use a higher zoom for mobile.
   }
 
   get mapContainer(): HTMLElement | null {

@@ -10,6 +10,7 @@ import {
   output,
 } from '@angular/core';
 import { DraggableService } from '../services/state/draggable-service';
+import { UiStateService } from '../services/state/ui-state-service';
 
 export interface TargetXY {
   x: number;
@@ -46,11 +47,12 @@ export class Draggable implements OnDestroy {
   private _el = inject(ElementRef);
   private _ngZone = inject(NgZone);
   private _draggableService = inject(DraggableService);
+  private _uiStateService = inject(UiStateService);
 
   constructor() {}
 
   ngOnDestroy(): void {
-    cancelAnimationFrame(this.animationFrameId);
+    if (this._uiStateService.isPlatformBrowser()) cancelAnimationFrame(this.animationFrameId);
   }
 
   // --- Unified Drag and Interaction Handlers for Mouse and Touch ---
@@ -79,7 +81,7 @@ export class Draggable implements OnDestroy {
     this.targetBgX = offsetX;
     this.targetBgY = offsetY;
 
-    cancelAnimationFrame(this.animationFrameId);
+    if (this._uiStateService.isPlatformBrowser()) cancelAnimationFrame(this.animationFrameId);
     this.animationFrameId = requestAnimationFrame(this._panAnimationLoop);
 
     // performance: run outside angular

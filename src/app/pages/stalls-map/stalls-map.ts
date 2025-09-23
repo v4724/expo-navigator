@@ -82,12 +82,12 @@ export class StallsMap implements OnInit, AfterViewInit {
   }
 
   runApp() {
-    // const elements = getDOMElements();
-
-    // To enable debug borders, add `?debug=true` to the URL.
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('debug') === 'true') {
-      this.mapContainer.nativeElement.classList.add('debug-mode');
+    if (this._uiStateService.isPlatformBrowser()) {
+      // To enable debug borders, add `?debug=true` to the URL.
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('debug') === 'true') {
+        this.mapContainer.nativeElement.classList.add('debug-mode');
+      }
     }
 
     // --- Asynchronous Resource Loading ---
@@ -116,7 +116,7 @@ export class StallsMap implements OnInit, AfterViewInit {
         this._stallService.allStalls = allStalls;
 
         // --- Initialization & Setup ---
-        const mobileCheck = this._uiStateService.isMobile();
+        const mobileCheck = this._uiStateService.isSmallScreen();
         this.isMobile.set(mobileCheck);
 
         // --- UI Rendering ---

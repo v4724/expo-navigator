@@ -80,7 +80,7 @@ export class Stall implements OnInit {
   }
 
   mouseover(e: MouseEvent) {
-    if (this._uiStateService.isMobile()) return;
+    if (this._uiStateService.isSmallScreen()) return;
 
     const target = e.target as HTMLElement;
     const promoUsers = this.stall()
@@ -94,7 +94,7 @@ export class Stall implements OnInit {
   }
 
   mouseout(e: MouseEvent) {
-    if (this._uiStateService.isMobile()) return;
+    if (this._uiStateService.isSmallScreen()) return;
 
     this._tooltipService.hide();
   }

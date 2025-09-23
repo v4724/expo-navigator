@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -9,15 +9,26 @@ export class UiStateService {
   private _showUiState = new BehaviorSubject<boolean>(false);
   showUiState$ = this._showUiState.asObservable();
 
-  isMobile() {
-    // Use a media query for a more robust responsive check based on viewport width.
-    const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
-    const mobileCheck = isMobile(); // Check once and store the result.
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
-    return mobileCheck;
+  isPlatformBrowser() {
+    return isPlatformBrowser(this.platformId);
+  }
+
+  // 裝置寬度較窄
+  isSmallScreen() {
+    if (this.isPlatformBrowser()) {
+      // Use a media query for a more robust responsive check based on viewport width.
+      const isSmallScreen = () => window.matchMedia('(max-width: 768px)').matches;
+      const mobileCheck = isSmallScreen(); // Check once and store the result.
+
+      return mobileCheck;
+    }
+
+    return false;
   }
 
   zoomFactor() {
-    return this.isMobile() ? 4.5 : 1.8;
+    return this.isSmallScreen() ? 4.5 : 1.8;
   }
 }
