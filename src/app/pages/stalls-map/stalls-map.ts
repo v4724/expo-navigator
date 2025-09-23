@@ -28,10 +28,20 @@ import { catchError, EMPTY, finalize, forkJoin, from, Subject, tap } from 'rxjs'
 import { error } from 'console';
 import { StallData } from 'src/app/components/stall/stall-.interface';
 import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interface';
+import { LayersController } from 'src/app/components/layers-controller/layers-controller';
 
 @Component({
   selector: 'app-stalls-map',
-  imports: [Lightbox, StallModal, Tooptip, Magnifier, CommonModule, Stall, StallGroupArea],
+  imports: [
+    Lightbox,
+    StallModal,
+    Tooptip,
+    Magnifier,
+    CommonModule,
+    Stall,
+    StallGroupArea,
+    LayersController,
+  ],
   templateUrl: './stalls-map.html',
   styleUrl: './stalls-map.scss',
 })

@@ -1,0 +1,170 @@
+<!-- Floating Controls Toggle Button -->
+<button
+  (click)="toggleControls()"
+  class="absolute top-4 left-4 z-30 bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition-transform duration-300"
+  [class.translate-x-[320px]]="showControls()"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-6 w-6 text-gray-700"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M4 6h16M4 12h16m-7 6h7"
+    />
+  </svg>
+</button>
+
+<!-- Floating Controls Panel -->
+<div
+  class="absolute p-4 top-0 left-0 h-full bg-white bg-opacity-90 backdrop-blur-sm shadow-2xl z-20 w-80 p-4 transform transition-transform duration-300 ease-in-out flex flex-col"
+  [class.-translate-x-full]="!showControls()"
+>
+  <h2 class="text-xl font-bold text-gray-800 mb-4">圖層控制</h2>
+
+  <div class="overflow-y-auto flex-grow">
+    <!-- Layer Controls Section -->
+    <div class="mb-4 border-b pb-2">
+      <button
+        (click)="toggleAreaSection()"
+        class="w-full flex justify-between items-center text-left font-semibold text-gray-700"
+      >
+        <span>場內 Only 區</span>
+        <mat-icon
+          aria-hidden="false"
+          aria-label="Example home icon"
+          fontIcon="keyboard_arrow_up"
+          class="h-5 w-5 transition-transform"
+          [class.rotate-180]="!isAreaSectionOpen()"
+        ></mat-icon>
+      </button>
+      @if (isAreaSectionOpen()) {
+        <div class="mt-2 space-y-2 pl-2">
+          @for (area of areas(); track area.name) {
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                [checked]="activeAreas().has(area.name)"
+                (change)="toggleArea(area.name)"
+                class="h-4 w-4 rounded accent-blue-500"
+              />
+              <span class="text-sm text-gray-600">{{ area.name }}</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Tag Filters Section -->
+    <div>
+      <button
+        (click)="toggleTagSection()"
+        class="w-full flex justify-between items-center text-left font-semibold text-gray-700"
+      >
+        <span>攤位標籤</span>
+
+        <mat-icon
+          aria-hidden="false"
+          aria-label="Example home icon"
+          fontIcon="keyboard_arrow_up"
+          class="h-5 w-5 transition-transform"
+          [class.rotate-180]="!isTagSectionOpen()"
+        ></mat-icon>
+      </button>
+      @if (isTagSectionOpen()) {
+        <div class="mt-2 space-y-2 pl-2">
+          @for (tag of allTags(); track tag.category) {
+            <div class="flex items-center justify-between">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  (change)="toggleCategory(tag.category)"
+                  [checked]="isCategorySelected(tag.category)"
+                  class="h-4 w-4 rounded accent-purple-500"
+                />
+                <span class="text-sm text-gray-600">{{ tag.category }}</span>
+                @if (selectedAdvancedTagsCount()[tag.category]) {
+                  <span class="text-xs bg-purple-200 text-purple-800 rounded-full px-2 py-0.5">
+                    {{ selectedAdvancedTagsCount()[tag.category] }}
+                  </span>
+                }
+              </label>
+              <button
+                (click)="openAdvancedFilterModal(tag)"
+                class="text-gray-500 hover:text-gray-800"
+              >
+                <mat-icon
+                  aria-hidden="false"
+                  aria-label="Example home icon"
+                  fontIcon="home"
+                ></mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Advanced Filter Modal -->
+@if (isAdvancedFilterModalOpen() && advancedFilterOptions(); as options) {
+  <div
+    class="fixed inset-0 bg-black/50 bg-opacity-50 z-40 flex items-center justify-center"
+    (click)="closeAdvancedFilterModal()"
+  >
+    <div
+      class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 class="text-lg font-bold mb-4">進階篩選: {{ options.category }}</h3>
+      <div class="space-y-4 max-h-96 overflow-y-auto">
+        <div>
+          <h4 class="font-semibold text-md text-gray-700 mb-2 border-b pb-1">CP</h4>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            @for (value of options.advanced?.cp; track value) {
+              <label class="flex items-center space-x-2 cursor-pointer text-sm">
+                <input
+                  type="checkbox"
+                  [checked]="isAdvancedTagSelected(options.category, 'couples', value)"
+                  (change)="toggleAdvancedTag(options.category, 'couples', value)"
+                  class="h-4 w-4 rounded accent-purple-500"
+                />
+                <span>{{ value }}</span>
+              </label>
+            }
+          </div>
+        </div>
+        <div>
+          <h4 class="font-semibold text-md text-gray-700 mb-2 border-b pb-1">角色</h4>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            @for (value of options.advanced?.characs; track value) {
+              <label class="flex items-center space-x-2 cursor-pointer text-sm">
+                <input
+                  type="checkbox"
+                  [checked]="isAdvancedTagSelected(options.category, 'characs', value)"
+                  (change)="toggleAdvancedTag(options.category, 'characs', value)"
+                  class="h-4 w-4 rounded accent-purple-500"
+                />
+                <span>{{ value }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="text-right mt-6">
+        <button
+          (click)="closeAdvancedFilterModal()"
+          class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+          完成
+        </button>
+      </div>
+    </div>
+  </div>
+}

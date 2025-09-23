@@ -7,7 +7,8 @@
   --modal-shadow: rgba(0, 0, 0, 0.4);
 }
 
-* {
+html,
+body {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
