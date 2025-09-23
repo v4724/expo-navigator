@@ -22,10 +22,11 @@ import { Stall } from '../stall/stall';
 import { StallGroupArea } from '../stall-group-area/stall-group-area';
 import { GroupIndicator } from '../group-indicator/group-indicator';
 import { After } from 'v8';
+import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 
 @Component({
   selector: 'app-magnifier',
-  imports: [CommonModule, Stall, StallGroupArea, GroupIndicator],
+  imports: [CommonModule, Stall, StallGroupArea, GroupIndicator, Draggable],
   templateUrl: './magnifier.html',
   styleUrl: './magnifier.scss',
 })
@@ -36,17 +37,7 @@ export class Magnifier implements AfterViewInit {
   @ViewChild('indicatorContainer') indicatorContainer!: ElementRef<HTMLElement>;
 
   zoomFactor = 2.5;
-  isDragging = false;
   hasBeenPositioned = false; // Flag to center the magnifier only once.
-  // Variables to track drag state.
-  dragStartX = 0;
-  dragStartY = 0;
-  initialLensX = 0;
-  initialLensY = 0;
-  targetBgX: number = 0;
-  targetBgY: number = 0;
-  dragHappened = false; // Differentiates a click from a drag.
-  clickTarget: HTMLElement | null = null; // The element that was initially clicked.
 
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
@@ -54,7 +45,6 @@ export class Magnifier implements AfterViewInit {
   private _stallModalService = inject(StallModalService);
   private _magnifierService = inject(MagnifierService);
   private _renderer = inject(Renderer2);
-  private _ngZone = inject(NgZone);
 
   hidden = signal<boolean>(false);
   mapImageSrc = signal('');
@@ -83,94 +73,15 @@ export class Magnifier implements AfterViewInit {
     });
   }
 
-  // --- Unified Drag and Interaction Handlers for Mouse and Touch ---
-  onDragStart(e: PointerEvent) {
-    this.isDragging = true;
-    this.dragHappened = false; // Reset for the new interaction.
-    this.clickTarget = e.target as HTMLElement; // Store the initial target.
-    const clientX = e.clientX;
-    const clientY = e.clientY;
-    // Record the starting position of the mouse/touch and the lens.
-    this.dragStartX = clientX;
-    this.dragStartY = clientY;
-    this.initialLensX = this.magnifierWrapper.nativeElement.offsetLeft;
-    this.initialLensY = this.magnifierWrapper.nativeElement.offsetTop;
-    cancelAnimationFrame(this.animationFrameId);
-    this.animationFrameId = requestAnimationFrame(this.panAnimationLoop);
-
-    // performance: run outside angular
-    this._ngZone.runOutsideAngular(() => {
-      this._boundMove = this.onDragMove.bind(this);
-      this._boundUp = this.onDragEnd.bind(this);
-      window.addEventListener('pointermove', this._boundMove, { passive: false });
-      window.addEventListener('pointerup', this._boundUp, { once: true });
-    });
-  }
-
-  _boundMove: any;
-  _boundUp: any;
-
-  onDragMove(e: PointerEvent) {
-    if (!this.isDragging) return;
-    const clientX = e.clientX;
-    const clientY = e.clientY;
-    const dx = clientX - this.dragStartX; // Change in mouse/touch X.
-    const dy = clientY - this.dragStartY; // Change in mouse/touch Y.
-    // Check if movement exceeds a threshold to be considered a drag.
-    if (!this.dragHappened && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
-      this.dragHappened = true;
-    }
-    if (this.dragHappened) {
-      this.targetBgX = this.initialLensX + dx;
-      this.targetBgY = this.initialLensY + dy;
-    }
-  }
-
-  onDragEnd() {
-    if (!this.isDragging) return;
-    this.isDragging = false;
-
-    this.clickTarget = null; // Clear the stored target.
-
-    window.removeEventListener('pointermove', this._boundMove);
-  }
-
-  animationFrameId: number = 0;
-  panAnimationLoop = () => {
-    if (!this.isDragging) return;
-    this.setPosition(this.targetBgX, this.targetBgY);
-    this.animationFrameId = requestAnimationFrame(this.panAnimationLoop);
-  };
-
-  /** Handles opening the modal for a clicked stall or group area from any context (map or magnifier). */
-  onAreaClick(target: HTMLElement) {
-    const clickedGroupArea = target.closest('.stall-group-area') as HTMLElement | null;
-    const clickedStallArea = target.closest(
-      '.stall-area:not(.stall-group-area)',
-    ) as HTMLElement | null;
-
-    if (clickedGroupArea?.dataset['rowId']) {
-      const rowId = clickedGroupArea.dataset['rowId'];
-      // Find the first stall in the row (top-most for vertical rows) and open its modal directly.
-      const stallsInRow = this._stallService.allStalls
-        .filter((s) => s.id.startsWith(rowId))
-        .sort((a, b) => b.num - a.num); // Sort by number descending.
-
-      if (stallsInRow.length > 0) {
-        this._stallService.selected = stallsInRow[0].id;
-      }
-    } else if (clickedStallArea?.dataset['stallId']) {
-      this._stallService.selected = clickedStallArea.dataset['stallId'];
-    }
-  }
-
   /**
    * Sets the magnifier's position, clamps it within bounds, and updates the zoom.
    * It also ensures the row indicator remains visible without being clipped by the map edges.
    * @param newLeft The target left position.
    * @param newTop The target top position.
    */
-  setPosition(newLeft: number, newTop: number) {
+  setPosition(targetXY: TargetXY) {
+    const newLeft = targetXY.x;
+    const newTop = targetXY.y;
     const lensWidth = this.magnifierWrapper.nativeElement.offsetWidth;
     const lensHeight = this.magnifierWrapper.nativeElement.offsetHeight;
     const mapWidth = this.mapContainer?.offsetWidth ?? 0;
@@ -187,13 +98,10 @@ export class Magnifier implements AfterViewInit {
 
     this.magnifierWrapper.nativeElement.style.left = `${clampedLeft}px`;
     this.magnifierWrapper.nativeElement.style.top = `${clampedTop}px`;
-    // this._renderer.setStyle(
-    //   this.magnifierWrapper.nativeElement,
-    //   'transform',
-    //   `translate${clampedLeft}px ${clampedTop}px`,
-    // );
-    // console.log(`set Position translate${clampedLeft}px ${clampedTop}px`);
-    this.updateZoom();
+    // console.debug('放大鏡 setPosition left, top', clampedLeft, clampedTop);
+    requestAnimationFrame(() => {
+      this.updateZoom();
+    });
   }
 
   /**
@@ -215,8 +123,13 @@ export class Magnifier implements AfterViewInit {
 
     // Move both the background image and the cloned stall layer to keep them in sync.
     this.magnifier.nativeElement.style.backgroundPosition = `${bgX}px ${bgY}px`;
-    this.magnifierStallLayer.nativeElement.style.left = `${bgX}px`;
-    this.magnifierStallLayer.nativeElement.style.top = `${bgY}px`;
+    this._renderer.setStyle(
+      this.magnifierStallLayer.nativeElement,
+      'transform',
+      `translate(${bgX}px, ${bgY}px) scale(${this.zoomFactor})`,
+    );
+
+    // console.debug('updateZoom 更新放大鏡內容座標', bgX, bgY);
     this.updateRowIndicator();
   }
 
@@ -306,22 +219,23 @@ export class Magnifier implements AfterViewInit {
     this.magnifierStallLayer.nativeElement.style.height = `${offsetHeight}px`;
     this.magnifierStallLayer.nativeElement.style.transform = `scale(${this.zoomFactor})`;
 
-    this.magnifierWrapper.nativeElement.style.display = 'block';
-
-    // --- Center magnifier on first show ---
-    // If it's the first time, position it in the middle of the map.
-    if (!this.hasBeenPositioned) {
-      const mapWidth = offsetWidth;
-      const mapHeight = offsetHeight;
-      const lensWidth = this.magnifierWrapper.nativeElement.offsetWidth;
-      const lensHeight = this.magnifierWrapper.nativeElement.offsetHeight;
-
-      this.setPosition((mapWidth - lensWidth) / 2, (mapHeight - lensHeight) / 2);
-      this.hasBeenPositioned = true; // Set flag so it doesn't re-center again.
-    }
-
     this.hidden.set(false);
-    this.updateZoom(); // Perform initial zoom update.
+
+    // Perform initial zoom update.
+    requestAnimationFrame(() => {
+      // --- Center magnifier on first show ---
+      // If it's the first time, position it in the middle of the map.
+      if (!this.hasBeenPositioned) {
+        const mapWidth = offsetWidth;
+        const mapHeight = offsetHeight;
+        const lensWidth = this.magnifierWrapper.nativeElement.offsetWidth;
+        const lensHeight = this.magnifierWrapper.nativeElement.offsetHeight;
+        const targetXY = { x: (mapWidth - lensWidth) / 2, y: (mapHeight - lensHeight) / 2 };
+        this.setPosition(targetXY);
+        this.hasBeenPositioned = true; // Set flag so it doesn't re-center again.
+      }
+      this.updateZoom();
+    });
   }
 
   /** Hides the magnifier. */

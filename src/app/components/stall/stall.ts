@@ -5,7 +5,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
-import { MiniMapService } from 'src/app/core/services/state/mini-map-service';
+import { DraggableService } from 'src/app/core/services/state/draggable-service';
 import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';
@@ -23,7 +23,7 @@ export class Stall implements OnInit {
 
   private _stallService = inject(StallService);
   private _stallMapService = inject(StallMapService);
-  private _miniMapService = inject(MiniMapService);
+  private _miniMapService = inject(DraggableService);
   private _uiStateService = inject(UiStateService);
   private _tooltipService = inject(TooltipService);
 
@@ -68,11 +68,11 @@ export class Stall implements OnInit {
       this.isSearchMatch.set(isMatch);
     });
 
-    this._miniMapService.isPanning$.subscribe(() => {});
+    this._miniMapService.isDragging$.subscribe(() => {});
   }
 
   mousemove() {
-    if (this._miniMapService.isPanning) {
+    if (this._miniMapService.isDragging) {
       this.isPanning = true;
     } else {
       this.isPanning = false;

@@ -17,9 +17,14 @@
         [style.backgroundImage]="mapImageSrc()"
         [style.backgroundSize]="`${scaleMapImgW()}px ${scaleMapImgH()}px`"
         [style.cursor]="cursor()"
-        (pointerdown)="onPanStart($event)"
-        (pointermove)="onPanMove($event)"
-        (pointerup)="onPanEnd($event)"
+        appDraggable
+        [initX]="translateX()"
+        [initY]="translateY()"
+        [initVal]="true"
+        (dragAnimationLoop)="setModalMapPosition($event)"
+        (onDragstart)="onPanStart($event)"
+        (onDragmove)="onPanmove($event)"
+        (onDragend)="onPanend($event)"
       >
         <div
           id="modal-magnifier-stall-layer"

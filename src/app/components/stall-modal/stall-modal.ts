@@ -10,7 +10,7 @@ import { filter, map } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
 import { link } from 'fs';
-import { MiniMapService } from 'src/app/core/services/state/mini-map-service';
+import { DraggableService } from 'src/app/core/services/state/draggable-service';
 
 declare global {
   interface Window {
@@ -27,22 +27,6 @@ declare global {
   }
 }
 
-// Module-level state for the modal
-const modalState = {
-  wasMagnifierVisible: false,
-  // Panning state for all devices
-  isPanning: false,
-  panStartX: 0,
-  panStartY: 0,
-  initialBgX: 0,
-  initialBgY: 0,
-  panHappened: false,
-  clickTarget: null as EventTarget | null,
-  // State for smooth panning with requestAnimationFrame
-  animationFrameId: 0,
-  targetBgX: 0,
-  targetBgY: 0,
-};
 @Component({
   selector: 'app-stall-modal',
   imports: [MiniMap, CommonModule],
@@ -56,7 +40,7 @@ export class StallModal {
   private _lightboxService = inject(LightboxService);
   private _stallService = inject(StallService);
   private _uiStateService = inject(UiStateService);
-  private _miniMapService = inject(MiniMapService);
+  private _miniMapService = inject(DraggableService);
 
   show$ = this._stallModalService.showStallModal$;
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);

@@ -1,10 +1,15 @@
-<div id="magnifier-wrapper" #magnifierWrapper [class.hidden]="hidden()">
+<div
+  id="magnifier-wrapper"
+  #magnifierWrapper
+  [class.hidden]="hidden()"
+  appDraggable
+  (dragAnimationLoop)="setPosition($event)"
+>
   <div
     id="magnifier"
     #magnifier
     [style.backgroundImage]="mapImageSrc()"
     [style.backgroundSize]="`${scaleMapImgW()}px ${scaleMapImgH()}px`"
-    (pointerdown)="onDragStart($event)"
   >
     <div
       id="magnifier-stall-layer"

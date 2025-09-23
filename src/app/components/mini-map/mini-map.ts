@@ -27,17 +27,19 @@ import { StallGroupArea } from '../stall-group-area/stall-group-area';
 import { Stall } from '../stall/stall';
 import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interface';
 import { pairwise, startWith } from 'rxjs';
-import { MiniMapService } from 'src/app/core/services/state/mini-map-service';
+import { DraggableService } from 'src/app/core/services/state/draggable-service';
 import { GroupIndicator } from '../group-indicator/group-indicator';
+import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 
 @Component({
   selector: 'app-mini-map',
-  imports: [CommonModule, Stall, StallGroupArea, GroupIndicator],
+  imports: [CommonModule, Stall, StallGroupArea, GroupIndicator, Draggable],
   templateUrl: './mini-map.html',
   styleUrl: './mini-map.scss',
 })
 export class MiniMap implements OnInit, AfterViewInit {
   @ViewChild('modalMagnifierWrapper') modalMagnifierWrapper!: ElementRef<HTMLDivElement>;
+  @ViewChild('draggagleWrapper') draggagleWrapper!: ElementRef<HTMLDivElement>;
   @ViewChild('modalMagnifier') modalMagnifier!: ElementRef<HTMLDivElement>;
   @ViewChild('modalMagnifierStallLayer') modalMagnifierStallLayer!: ElementRef<HTMLDivElement>;
   @ViewChild('modalVerticalStallList') modalVerticalStallList!: ElementRef<HTMLDivElement>;
@@ -48,21 +50,6 @@ export class MiniMap implements OnInit, AfterViewInit {
   @ViewChild('navDownEl') navDownEl!: ElementRef<HTMLButtonElement>;
   @ViewChild('navLeftEl') navLeftEl!: ElementRef<HTMLButtonElement>;
   @ViewChild('navRightEl') navRightEl!: ElementRef<HTMLButtonElement>;
-
-  wasMagnifierVisible: boolean = true;
-  isPanning: boolean = true;
-  panHappened: boolean = false;
-  clickTarget: EventTarget | null = null;
-  // 平移起點
-  panStartX: number = 0;
-  panStartY: number = 0;
-  // 背景的平移起點
-  initialBgX: number = 0;
-  initialBgY: number = 0;
-  targetBgX: number = 0;
-  targetBgY: number = 0;
-  // State for smooth panning with requestAnimationFrame
-  animationFrameId: number = 0;
 
   navControlsTarget = {
     up: { id: '' },
@@ -95,6 +82,8 @@ export class MiniMap implements OnInit, AfterViewInit {
   mapImgH = signal<number>(0);
   scaleMapImgW = signal<number>(0);
   scaleMapImgH = signal<number>(0);
+  translateX = signal<number>(0);
+  translateY = signal<number>(0);
 
   private _tooltipService = inject(TooltipService);
   private _stallModalService = inject(StallModalService);
@@ -102,7 +91,6 @@ export class MiniMap implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
   private _magnifierService = inject(MagnifierService);
-  private _miniMapService = inject(MiniMapService);
   private _renderer = inject(Renderer2);
   private _ngZone = inject(NgZone);
 
@@ -137,6 +125,7 @@ export class MiniMap implements OnInit, AfterViewInit {
         if (!curr) return;
         this.updateNavControls(curr);
         this.updateVerticalStallList(prev, curr);
+        this.updateHighlight();
       });
   }
 
@@ -148,132 +137,21 @@ export class MiniMap implements OnInit, AfterViewInit {
     // --- Mini-Map Interaction: Unified Pan and Click for All Devices ---
   }
 
-  onPanStart(e: MouseEvent | TouchEvent) {
-    const target = e.target as HTMLElement;
-
-    // NEW Check: Prevent pan if clicking the currently active group area.
-    const clickedGroupArea = target.closest('.stall-group-area') as HTMLElement | null;
-    const currentStallId = this._stallService.selected;
-    if (clickedGroupArea && currentStallId) {
-      const clickedRowId = clickedGroupArea.dataset['rowId'];
-      const currentRowId = currentStallId.substring(0, 1);
-      if (clickedRowId === currentRowId) {
-        return; // Don't start a pan/drag if clicking the already-active group area.
-      }
-    }
-
-    // Prevent starting a pan with the right mouse button
-    if ('button' in e && e.button !== 0) return;
-
-    this._miniMapService.isPanning = true;
-    this.panHappened = false;
-    this.clickTarget = e.target;
-
-    const touch = (e as TouchEvent).touches?.[0];
-    const clientX = touch ? touch.clientX : (e as MouseEvent).clientX;
-    const clientY = touch ? touch.clientY : (e as MouseEvent).clientY;
-
-    this.panStartX = clientX;
-    this.panStartY = clientY;
-
-    // Get initial position from the transform property
-    const transformMatrix = new DOMMatrix(
-      window.getComputedStyle(this.modalMagnifierStallLayer.nativeElement).transform,
-    );
-    this.initialBgX = transformMatrix.e;
-    this.initialBgY = transformMatrix.f;
-    this.targetBgX = this.initialBgX;
-    this.targetBgY = this.initialBgY;
-
+  onPanStart(e: PointerEvent) {
     // Disable transitions during panning for direct control 關掉過渡相關效果
     this._renderer.setStyle(this.modalMagnifier.nativeElement, 'transition', 'none');
     this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'transition', 'none');
-
-    this.highlightVisible.set('hidden');
-
-    cancelAnimationFrame(this.animationFrameId);
-    this.animationFrameId = requestAnimationFrame(this.panAnimationLoop);
   }
 
-  onPanMove(e: PointerEvent) {
-    if (!this._miniMapService.isPanning) return;
-    if (e.type === 'touchmove') e.preventDefault();
-
-    const el = this.modalMagnifier.nativeElement;
-    el.setPointerCapture(e.pointerId);
-
-    const clientX = e.clientX;
-    const clientY = e.clientY;
-
-    const dx = clientX - this.panStartX;
-    const dy = clientY - this.panStartY;
-
-    // 防止誤觸
-    if (!this.panHappened && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
-      this.panHappened = true;
-      this.cursor.set('grabbing');
-    }
-
-    if (this.panHappened) {
-      this.targetBgX = this.initialBgX + dx;
-      this.targetBgY = this.initialBgY + dy;
-    }
+  onPanmove(e: PointerEvent) {
+    this.cursor.set('grabbing');
   }
 
-  onPanEnd(e: MouseEvent | TouchEvent) {
-    if (!this._miniMapService.isPanning) return;
-
-    cancelAnimationFrame(this.animationFrameId);
-
-    if (!this.panHappened && this.clickTarget) {
-      this.handleModalMapClick(this.clickTarget as HTMLElement);
-    }
-
-    this._miniMapService.isPanning = false;
-    this.clickTarget = null;
+  onPanend(e: PointerEvent) {
     this.cursor.set('grab');
-
     // Restore transitions for smooth centering next time a stall is selected
     this._renderer.setStyle(this.modalMagnifier.nativeElement, 'transition', '');
     this._renderer.setStyle(this.modalMagnifierStallLayer.nativeElement, 'transition', '');
-  }
-
-  panAnimationLoop = () => {
-    if (!this._miniMapService.isPanning) return;
-    this.setModalMapPosition(this.targetBgX, this.targetBgY);
-    this.animationFrameId = requestAnimationFrame(this.panAnimationLoop);
-  };
-
-  /**
-   * Handles a click/tap event inside the modal mini-map.
-   * @param target The event target.
-   */
-  handleModalMapClick(target: HTMLElement) {
-    const allStalls = this._stallService.allStalls;
-    const clickedGroupArea = target.closest('.stall-group-area') as HTMLElement | null;
-    const clickedStallArea = target.closest(
-      '.stall-area:not(.stall-group-area)',
-    ) as HTMLElement | null;
-    const currentStallId = this._stallService.selected;
-
-    if (clickedGroupArea?.dataset['rowId']) {
-      const rowId = clickedGroupArea.dataset['rowId'];
-      if (rowId === currentStallId?.substring(0, 1)) {
-        return; // Prevent reloading if the clicked row is already active.
-      }
-      const stallsInRow = allStalls
-        .filter((s) => s.id.startsWith(rowId))
-        .sort((a, b) => b.num - a.num);
-      if (stallsInRow.length > 0) {
-        this._stallService.selected = stallsInRow[0].id;
-      }
-    } else if (clickedStallArea?.dataset['stallId']) {
-      const clickedStallId = clickedStallArea.dataset['stallId'];
-      if (clickedStallId === currentStallId) {
-        return; // Do nothing if the same stall is clicked
-      }
-      this._stallService.selected = clickedStallId;
-    }
   }
 
   navControlMouseover(e: Event) {
@@ -496,7 +374,7 @@ export class MiniMap implements OnInit, AfterViewInit {
       const viewW = this.modalMagnifier.nativeElement.offsetWidth;
       const viewH = this.modalMagnifier.nativeElement.offsetHeight;
 
-      console.log(viewW, viewH);
+      console.debug(viewW, viewH);
       if (viewW === 0 || viewH === 0) {
         this.hidden.set(true);
         return;
@@ -516,15 +394,7 @@ export class MiniMap implements OnInit, AfterViewInit {
       const bgX = viewW / 2 - stallCenterX_px * zoomFactor;
       const bgY = viewH / 2 - stallCenterY_px * zoomFactor;
 
-      this.setModalMapPosition(bgX, bgY, stall);
-
-      // Update the highlight element's position. It's inside the stall layer now.
-
-      // Use the percentage-based coordinates directly from the stall data for smooth CSS transition.
-      this.highlightVisible.set('visible');
-      this.highlightEl.nativeElement.style.width = stall.coords.width;
-      this.highlightEl.nativeElement.style.height = stall.coords.height;
-      this.highlightEl.nativeElement.style.transform = `translate(${stall.coords.left}, ${stall.coords.top})`;
+      this.setModalMapPosition({ x: bgX, y: bgY }, stall);
     });
   }
   /**
@@ -534,23 +404,20 @@ export class MiniMap implements OnInit, AfterViewInit {
    * @param bgX The target horizontal background position.
    * @param bgY The target vertical background position.
    * @param stall The stall being centered on, if any, to ensure accurate row indicator display.
-   * @returns An object with the final, clamped background coordinates.
    */
-  setModalMapPosition(
-    bgX: number,
-    bgY: number,
-    stall?: StallDto,
-  ): { clampedBgX: number; clampedBgY: number } {
+  setModalMapPosition(targetBgXY: TargetXY, stall?: StallDto) {
+    const bgX = targetBgXY.x;
+    const bgY = targetBgXY.y;
     const zoomFactor = this._uiStateService.zoomFactor();
     const viewW = this.modalMagnifier.nativeElement.offsetWidth;
     const viewH = this.modalMagnifier.nativeElement.offsetHeight;
 
-    if (viewW === 0 || viewH === 0) return { clampedBgX: 0, clampedBgY: 0 };
+    if (viewW === 0 || viewH === 0) return;
 
     const mapImage = this._stallMapService.mapImage;
     const mapW = mapImage?.offsetWidth ?? 0;
     const mapH = mapImage?.offsetHeight ?? 0;
-    if (mapW === 0 || mapH === 0) return { clampedBgX: 0, clampedBgY: 0 };
+    if (mapW === 0 || mapH === 0) return;
 
     // 計算縮放後的地圖大小
     const scaledMapW = mapW * zoomFactor;
@@ -560,6 +427,11 @@ export class MiniMap implements OnInit, AfterViewInit {
     const clampedBgX = Math.max(viewW - scaledMapW, Math.min(bgX, 0));
     const clampedBgY = Math.max(viewH - scaledMapH, Math.min(bgY, 0));
 
+    console.debug('viewWH', viewW, viewH);
+    console.debug('scaledMapWH', scaledMapW, scaledMapH);
+    console.debug('X', viewW - scaledMapW, Math.min(bgX, 0));
+    console.debug('Y', viewH - scaledMapH, Math.min(bgY, 0));
+    console.debug('地圖偏移量', clampedBgX, clampedBgY);
     // PERFORMANCE: Use `transform` for movement instead of `left`/`top`.
     // 背景位置
     this._renderer.setStyle(
@@ -575,9 +447,24 @@ export class MiniMap implements OnInit, AfterViewInit {
       `translate(${clampedBgX}px, ${clampedBgY}px) scale(${zoomFactor})`,
     );
 
-    this._updateModalRowIndicator(clampedBgX, clampedBgY, stall);
+    this.translateX.set(clampedBgX);
+    this.translateY.set(clampedBgY);
 
-    return { clampedBgX, clampedBgY };
+    this._updateModalRowIndicator(clampedBgX, clampedBgY, stall);
+  }
+
+  updateHighlight() {
+    const stall = this._stallService.selectedStall;
+    if (!stall) {
+      return;
+    }
+    // Update the highlight element's position. It's inside the stall layer now.
+    // Use the percentage-based coordinates directly from the stall data for smooth CSS transition.
+    this.highlightVisible.set('visible');
+    this._renderer.setStyle(this.highlightEl.nativeElement, 'width', `${stall.coords.width}`);
+    this._renderer.setStyle(this.highlightEl.nativeElement, 'height', `${stall.coords.height}`);
+    this._renderer.setStyle(this.highlightEl.nativeElement, 'left', `${stall.coords.left}`);
+    this._renderer.setStyle(this.highlightEl.nativeElement, 'top', `${stall.coords.top}`);
   }
 
   /**
