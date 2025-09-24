@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input, InputSignal, OnInit, signal } from '@angular/core';
 import { filter, pairwise, startWith } from 'rxjs';
-import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interface';
+import { StallGroupGridRef } from 'src/app/core/interfaces/stall-group-grid-ref.interface';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 

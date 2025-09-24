@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { StallGroupGridRef } from '../interfaces/locate-stall.interface';
+import { StallGroupGridRef } from '../interfaces/stall-group-grid-ref.interface';
 
 /**
  * Defines the starting coordinates for each row/column of stalls on the map.

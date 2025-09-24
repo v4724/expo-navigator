@@ -25,9 +25,8 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
 import { StallGroupArea } from '../stall-group-area/stall-group-area';
 import { Stall } from '../stall/stall';
-import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interface';
+import { StallGroupGridRef } from 'src/app/core/interfaces/stall-group-grid-ref.interface';
 import { pairwise, startWith } from 'rxjs';
-import { DraggableService } from 'src/app/core/services/state/draggable-service';
 import { GroupIndicator } from '../group-indicator/group-indicator';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 

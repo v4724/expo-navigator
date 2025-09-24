@@ -27,7 +27,7 @@ import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-
 import { catchError, EMPTY, finalize, forkJoin, from, Subject, tap } from 'rxjs';
 import { error } from 'console';
 import { StallData } from 'src/app/components/stall/stall-.interface';
-import { StallGroupGridRef } from 'src/app/core/interfaces/locate-stall.interface';
+import { StallGroupGridRef } from 'src/app/core/interfaces/stall-group-grid-ref.interface';
 import { LayersController } from 'src/app/components/layers-controller/layers-controller';
 
 @Component({
