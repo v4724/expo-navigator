@@ -9,7 +9,6 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
-import { fetchStallData } from '../../ts/data-loader';
 import { processStalls } from '../../ts/stall-processor';
 import { uiState } from '../../ts/ui-manager';
 import { stallGridRefs } from '../../core/const/official-data';
@@ -25,10 +24,14 @@ import { TooltipService } from 'src/app/core/services/state/tooltip-service';
 import { Stall } from 'src/app/components/stall/stall';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
 import { catchError, EMPTY, finalize, forkJoin, from, Subject, tap } from 'rxjs';
-import { error } from 'console';
-import { StallData } from 'src/app/components/stall/stall-.interface';
-import { StallGroupGridRef } from 'src/app/core/interfaces/stall-group-grid-ref.interface';
+
 import { LayersController } from 'src/app/components/layers-controller/layers-controller';
+import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
+import {
+  STALL_CSV_URL,
+  SERIES_CSV_URL,
+  TAG_CSV_URL,
+} from 'src/app/core/const/google-excel-csv-url';
 
 @Component({
   selector: 'app-stalls-map',
@@ -101,7 +104,7 @@ export class StallsMap implements OnInit, AfterViewInit {
     }
 
     // --- Asynchronous Resource Loading ---
-    forkJoin([fetchStallData(), this.mapImageLoaded])
+    forkJoin([fetchExcelData(STALL_CSV_URL), this.mapImageLoaded])
       .pipe(
         catchError((error) => {
           console.error('Failed to initialize app:', error);

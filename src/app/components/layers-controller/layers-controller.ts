@@ -1,33 +1,14 @@
-import { Component, computed, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-interface AdvancedData {
-  cp: string[];
-  characs: string[];
-}
-
-interface TagData {
-  category: string;
-  advanced?: AdvancedData;
-}
-
-// Maps category to its selected advanced filter keys and values
-interface AdvancedFilters {
-  [category: string]: {
-    [key: string]: Set<string>;
-  };
-}
-
-interface Booth {
-  id: string;
-  name: string;
-  owner: string;
-  tags: TagData[];
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
+import { filter, map } from 'rxjs';
+import {
+  AdvancedFilters,
+  StallSeries,
+  StallTag,
+} from 'src/app/core/interfaces/stall-series-tag.interface';
+import { TagService } from 'src/app/core/services/state/tag-service';
 interface Area {
   name: string;
   x: number;
@@ -39,7 +20,7 @@ interface Area {
 
 @Component({
   selector: 'app-layers-controller',
-  imports: [MatIconModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './layers-controller.html',
   styleUrl: './layers-controller.scss',
 })
@@ -49,157 +30,61 @@ export class LayersController {
   isAreaSectionOpen = signal(true);
   isTagSectionOpen = signal(true);
 
-  // New state for hierarchical tag filtering
-  selectedCategories = signal<Set<string>>(new Set());
-  selectedAdvancedTags = signal<AdvancedFilters>({});
-
   activeAreas = signal<Set<string>>(new Set());
   isAdvancedFilterModalOpen = signal(false);
-  currentAdvancedFilterCategory = signal<TagData | null>(null);
+  currentAdvancedFilterSeries = signal<StallSeries | null>(null);
 
   // Helpers
-  objectKeys = Object.keys;
+  private _tagService = inject(TagService);
 
   // Data
-  booths = signal<Booth[]>([
-    {
-      id: 'A01',
-      name: 'Ninja Art',
-      owner: 'Rantaro',
-      tags: [{ category: '忍亂', advanced: { cp: ['砸一'], characs: ['砸度', '伊作'] } }],
-      x: 1,
-      y: 1,
-      width: 2,
-      height: 1,
-    },
-    {
-      id: 'A02',
-      name: 'Ninja Scrolls',
-      owner: 'Kirio',
-      tags: [{ category: '忍亂', advanced: { cp: ['兵傳'], characs: ['黃昏時'] } }],
-      x: 3,
-      y: 1,
-      width: 1,
-      height: 1,
-    },
-    {
-      id: 'B01',
-      name: 'Karasuno High',
-      owner: 'Hinata',
-      tags: [
-        {
-          category: '排球少年',
-          advanced: { cp: ['影日', '月山'], characs: ['日向', '月島'] },
-        },
-      ],
-      x: 5,
-      y: 2,
-      width: 2,
-      height: 2,
-    },
-    {
-      id: 'B02',
-      name: 'Nekoma Goods',
-      owner: 'Kuroo',
-      tags: [{ category: '排球少年', advanced: { cp: ['黑月'], characs: ['黑尾'] } }],
-      x: 7,
-      y: 2,
-      width: 1,
-      height: 2,
-    },
-    {
-      id: 'C01',
-      name: 'VTuber World',
-      owner: 'V-Fan',
-      tags: [{ category: 'VTuber' }],
-      x: 10,
-      y: 5,
-      width: 3,
-      height: 3,
-    },
-    {
-      id: 'C02',
-      name: 'Genshin Impact Zone',
-      owner: 'Paimon',
-      tags: [{ category: '原神' }],
-      x: 1,
-      y: 8,
-      width: 4,
-      height: 2,
-    },
-    {
-      id: 'D01',
-      name: 'Artbook Central',
-      owner: 'Artist Guild',
-      tags: [{ category: '畫冊' }],
-      x: 15,
-      y: 1,
-      width: 2,
-      height: 2,
-    },
-    {
-      id: 'D02',
-      name: 'Doujinshi Alley',
-      owner: 'Circle Union',
-      tags: [{ category: '同人誌' }],
-      x: 15,
-      y: 3,
-      width: 2,
-      height: 3,
-    },
-  ]);
-
   areas = signal<Area[]>([
     { name: '忍亂區', x: 1, y: 1, width: 3, height: 1, color: 'rgba(255, 99, 132, 0.5)' },
     { name: '排球少年區', x: 5, y: 2, width: 3, height: 2, color: 'rgba(54, 162, 235, 0.5)' },
   ]);
 
-  tags = signal<TagData[]>([
-    {
-      category: '忍亂',
-      advanced: { cp: ['砸一', '兵傳', '三忍數'], characs: ['砸度', '伊作', '黃昏時'] },
-    },
-    {
-      category: '排球少年',
-      advanced: { cp: ['黑月', '月山', '影日'], characs: ['黑尾', '月島', '日向'] },
-    },
-  ]);
+  allSeriesAndTags$ = this._tagService.fetchEnd$.pipe(
+    filter((val) => !!val),
+    map(() => {
+      const data: StallSeries[] = [];
+      this._tagService.allSeries.forEach((val, key) => {
+        const cp: StallTag[] = this._tagService.toStallTagArr(key, 'CP');
+        const char: StallTag[] = this._tagService.toStallTagArr(key, 'CHAR');
+
+        data.push({
+          id: key,
+          name: val.seriesName,
+          advanced: {
+            cp: cp,
+            char: char,
+          },
+        });
+      });
+      return data;
+    }),
+  );
 
   // Computed Signals
-  allTags = computed(() => {
-    const tagsMap = new Map<string, TagData>();
-    this.booths().forEach((booth) => {
-      booth.tags.forEach((tag) => {
-        if (!tagsMap.has(tag.category)) {
-          tagsMap.set(tag.category, JSON.parse(JSON.stringify(tag))); // Deep copy
-        } else {
-          // Merge advanced options
-          if (tag.advanced) {
-            const existingTag = tagsMap.get(tag.category)!;
-            if (!existingTag.advanced) {
-              existingTag.advanced = { cp: [], characs: [] };
-            }
-            const existingValues = new Set(existingTag.advanced.cp);
-            tag.advanced.cp.forEach((val) => existingValues.add(val));
-            existingTag.advanced.cp = Array.from(existingValues).sort();
-            const existingValues2 = new Set(existingTag.advanced.characs);
-            tag.advanced.characs.forEach((val) => existingValues2.add(val));
-            existingTag.advanced.characs = Array.from(existingValues2).sort();
-            console.log(existingValues, Array.from(existingValues).sort());
-            console.log(existingValues2, Array.from(existingValues2).sort());
-          }
-        }
-      });
-    });
-    console.log(Array.from(tagsMap.values()));
-    return Array.from(tagsMap.values());
+  advancedFilterOptions = computed(() => {
+    return this.currentAdvancedFilterSeries();
   });
 
-  advancedFilterOptions = computed(() => {
-    return this.currentAdvancedFilterCategory();
-  });
+  selectedAdvancedTagsId = toSignal(this._tagService.selectedAdvancedTagsId$, { initialValue: {} });
 
   selectedAdvancedTagsCount = computed(() => {
+    const counts: { [series: string]: number } = {};
+    const advancedFilters = this.selectedAdvancedTagsId() as AdvancedFilters;
+    for (const series in advancedFilters) {
+      counts[series] = 0;
+      for (const key in advancedFilters[series]) {
+        counts[series] += advancedFilters[series][key].size;
+      }
+    }
+    return counts;
+  });
+
+  selectedAdvancedTags = signal<AdvancedFilters>({});
+  selectedAdvancedTagsCount2 = computed(() => {
     const counts: { [category: string]: number } = {};
     const advancedFilters = this.selectedAdvancedTags();
     for (const category in advancedFilters) {
@@ -214,20 +99,15 @@ export class LayersController {
   toggleControls() {
     this.showControls.update((v) => !v);
   }
-  // expandAll() {
-  //   this.isAreaSectionOpen.set(true);
-  //   this.isTagSectionOpen.set(true);
-  // }
-  // collapseAll() {
-  //   this.isAreaSectionOpen.set(false);
-  //   this.isTagSectionOpen.set(false);
-  // }
+
   toggleAreaSection() {
     this.isAreaSectionOpen.update((v) => !v);
   }
+
   toggleTagSection() {
     this.isTagSectionOpen.update((v) => !v);
   }
+
   toggleArea(areaName: string) {
     this.activeAreas.update((areas) => {
       const newAreas = new Set(areas);
@@ -240,49 +120,30 @@ export class LayersController {
     });
   }
 
-  isCategorySelected(category: string): boolean {
-    return this.selectedCategories().has(category);
+  isSeriesSelected(category: string): boolean {
+    return this._tagService.selectedSeriesId.has(category);
   }
 
-  toggleCategory(category: string) {
-    this.selectedCategories.update((cats) => {
-      const newCats = new Set(cats);
-      if (newCats.has(category)) {
-        newCats.delete(category);
-      } else {
-        newCats.add(category);
-      }
-      return newCats;
-    });
+  toggleSeries(series: string) {
+    this._tagService.toggleSeries(series);
   }
 
-  openAdvancedFilterModal(tag: TagData) {
-    if (!tag.advanced) return;
-    this.currentAdvancedFilterCategory.set(tag);
+  openAdvancedFilterModal(series: StallSeries) {
+    if (!series.advanced) return;
+    this.currentAdvancedFilterSeries.set(series);
     this.isAdvancedFilterModalOpen.set(true);
   }
 
   closeAdvancedFilterModal() {
     this.isAdvancedFilterModalOpen.set(false);
-    this.currentAdvancedFilterCategory.set(null);
+    this.currentAdvancedFilterSeries.set(null);
   }
 
-  isAdvancedTagSelected(category: string, key: string, value: string): boolean {
-    return this.selectedAdvancedTags()[category]?.[key]?.has(value) ?? false;
+  isAdvancedTagSelected(series: string, key: string, tagId: string): boolean {
+    return this._tagService.selectedAdvancedTagsId[series]?.[key]?.has(tagId) ?? false;
   }
 
-  toggleAdvancedTag(category: string, key: string, value: string) {
-    this.selectedAdvancedTags.update((filters) => {
-      const newFilters = { ...filters };
-      if (!newFilters[category]) newFilters[category] = {};
-      if (!newFilters[category][key]) newFilters[category][key] = new Set();
-
-      if (newFilters[category][key].has(value)) {
-        newFilters[category][key].delete(value);
-      } else {
-        newFilters[category][key].add(value);
-      }
-      return newFilters;
-    });
+  toggleAdvancedTag(series: string, key: string, value: string) {
+    this._tagService.toggleAdvancedTag(series, key, value);
   }
 }

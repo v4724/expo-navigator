@@ -1,0 +1,115 @@
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, forkJoin } from 'rxjs';
+import { StallData } from 'src/app/components/stall/stall-.interface';
+import { TooltipService } from './tooltip-service';
+import { stallGridRefs } from '../../const/official-data';
+import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
+import { SERIES_CSV_URL, TAG_CSV_URL } from '../../const/google-excel-csv-url';
+import { StallSeriesDto, StallTagDto } from '../../models/stall-series-tag.model';
+import { AdvancedFilters, StallTag } from '../../interfaces/stall-series-tag.interface';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class TagService {
+  allSeries = new Map<string, StallSeriesDto>();
+  allTags = new Map<string, StallTagDto>();
+
+  private _allTags = new BehaviorSubject<StallData[]>([]);
+  private _selectedSeriesId = new BehaviorSubject<Set<string>>(new Set());
+  private _selectedAdvancedTagsId = new BehaviorSubject<AdvancedFilters>({});
+
+  allStalls$ = this._allTags.asObservable();
+  selectedSeriesId$ = this._selectedSeriesId.asObservable();
+  selectedAdvancedTagsId$ = this._selectedAdvancedTagsId.asObservable();
+
+  private _fetchEnd = new BehaviorSubject<boolean>(false);
+  fetchEnd$ = this._fetchEnd.asObservable();
+
+  constructor() {
+    forkJoin([fetchExcelData(SERIES_CSV_URL), fetchExcelData(TAG_CSV_URL)])
+      .pipe()
+      .subscribe(([series, tags]) => {
+        this.processSeries(series);
+        this.processTags(tags);
+        this._fetchEnd.next(true);
+      });
+  }
+
+  get selectedSeriesId() {
+    return this._selectedSeriesId.getValue();
+  }
+
+  get selectedAdvancedTagsId() {
+    return this._selectedAdvancedTagsId.getValue();
+  }
+
+  toggleSeries(series: string) {
+    const newCats = new Set(this.selectedSeriesId);
+    if (newCats.has(series)) {
+      newCats.delete(series);
+    } else {
+      newCats.add(series);
+    }
+    this._selectedSeriesId.next(newCats);
+  }
+
+  toggleAdvancedTag(series: string, key: string, value: string) {
+    const newFilters = { ...this.selectedAdvancedTagsId };
+    if (!newFilters[series]) newFilters[series] = {};
+    if (!newFilters[series][key]) newFilters[series][key] = new Set();
+
+    if (newFilters[series][key].has(value)) {
+      newFilters[series][key].delete(value);
+    } else {
+      newFilters[series][key].add(value);
+    }
+    this._selectedAdvancedTagsId.next(newFilters);
+  }
+
+  processSeries(rawData: Record<string, string>[]) {
+    rawData.forEach((rawSeries) => {
+      const id = rawSeries['seriesId'];
+      const name = rawSeries['seriesName'];
+
+      if (!this.allSeries.has(id)) {
+        const series: StallSeriesDto = {
+          seriesId: id,
+          seriesName: name,
+        };
+        this.allSeries.set(id, series);
+      }
+    });
+  }
+
+  processTags(rawData: Record<string, string>[]) {
+    rawData.forEach((rawSeries) => {
+      const tagId = rawSeries['tagId'];
+      const tagName = rawSeries['tagName'];
+      const tagType = rawSeries['tagType'];
+      const seriesId = rawSeries['seriesId'];
+      const seriesName = rawSeries['seriesName'];
+
+      if (!this.allTags.has(tagId)) {
+        const series: StallTagDto = {
+          tagId,
+          tagName,
+          tagType: tagType as 'CHAR' | 'CP',
+          seriesId,
+          seriesName,
+        };
+        this.allTags.set(tagId, series);
+      }
+    });
+  }
+
+  toStallTagArr(seriesId: string, tagType: 'CP' | 'CHAR'): StallTag[] {
+    return Array.from(this.allTags.values())
+      .filter((tag: StallTagDto) => {
+        return tag.seriesId === seriesId && tag.tagType === tagType;
+      })
+      .map((tag: StallTagDto) => {
+        return { id: tag.tagId, name: tag.tagName };
+      });
+  }
+}

@@ -77,25 +77,25 @@
         ></mat-icon>
       </button>
       @if (isTagSectionOpen()) {
-        <div class="mt-2 space-y-2 pl-2">
-          @for (tag of allTags(); track tag.category) {
+        <div class="mt-2 space-y-2 pl-2 max-h-80 overflow-auto">
+          @for (series of allSeriesAndTags$ | async; track $index) {
             <div class="flex items-center justify-between">
               <label class="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  (change)="toggleCategory(tag.category)"
-                  [checked]="isCategorySelected(tag.category)"
+                  (change)="toggleSeries(series.id)"
+                  [checked]="isSeriesSelected(series.id)"
                   class="h-4 w-4 rounded accent-purple-500"
                 />
-                <span class="text-sm text-gray-600">{{ tag.category }}</span>
-                @if (selectedAdvancedTagsCount()[tag.category]) {
+                <span class="text-sm text-gray-600">{{ series.name }}</span>
+                @if (selectedAdvancedTagsCount()[series.id]) {
                   <span class="text-xs bg-purple-200 text-purple-800 rounded-full px-2 py-0.5">
-                    {{ selectedAdvancedTagsCount()[tag.category] }}
+                    {{ selectedAdvancedTagsCount()[series.id] }}
                   </span>
                 }
               </label>
               <button
-                (click)="openAdvancedFilterModal(tag)"
+                (click)="openAdvancedFilterModal(series)"
                 class="text-gray-500 hover:text-gray-800"
               >
                 <mat-icon
@@ -122,20 +122,20 @@
       class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"
       (click)="$event.stopPropagation()"
     >
-      <h3 class="text-lg font-bold mb-4">進階篩選: {{ options.category }}</h3>
+      <h3 class="text-lg font-bold mb-4">進階篩選: {{ options.name }}</h3>
       <div class="space-y-4 max-h-96 overflow-y-auto">
         <div>
           <h4 class="font-semibold text-md text-gray-700 mb-2 border-b pb-1">CP</h4>
           <div class="grid grid-cols-2 gap-2 mt-2">
-            @for (value of options.advanced?.cp; track value) {
+            @for (tag of options.advanced.cp; track tag.id) {
               <label class="flex items-center space-x-2 cursor-pointer text-sm">
                 <input
                   type="checkbox"
-                  [checked]="isAdvancedTagSelected(options.category, 'couples', value)"
-                  (change)="toggleAdvancedTag(options.category, 'couples', value)"
+                  [checked]="isAdvancedTagSelected(options.id, 'cp', tag.id)"
+                  (change)="toggleAdvancedTag(options.id, 'cp', tag.id)"
                   class="h-4 w-4 rounded accent-purple-500"
                 />
-                <span>{{ value }}</span>
+                <span>{{ tag.name }}</span>
               </label>
             }
           </div>
@@ -143,15 +143,15 @@
         <div>
           <h4 class="font-semibold text-md text-gray-700 mb-2 border-b pb-1">角色</h4>
           <div class="grid grid-cols-2 gap-2 mt-2">
-            @for (value of options.advanced?.characs; track value) {
+            @for (tag of options.advanced.char; track tag.id) {
               <label class="flex items-center space-x-2 cursor-pointer text-sm">
                 <input
                   type="checkbox"
-                  [checked]="isAdvancedTagSelected(options.category, 'characs', value)"
-                  (change)="toggleAdvancedTag(options.category, 'characs', value)"
+                  [checked]="isAdvancedTagSelected(options.id, 'char', tag.id)"
+                  (change)="toggleAdvancedTag(options.id, 'char', tag.id)"
                   class="h-4 w-4 rounded accent-purple-500"
                 />
-                <span>{{ value }}</span>
+                <span>{{ tag.name }}</span>
               </label>
             }
           </div>

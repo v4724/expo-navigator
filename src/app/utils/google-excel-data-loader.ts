@@ -3,12 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// --- Configuration ---
-// IMPORTANT: Replace this with your Google Sheet's "Publish to web" CSV URL.
-// In Google Sheets: File > Share > Publish to web > Select a sheet & "Comma-separated values (.csv)" > Publish.
-const GOOGLE_SHEET_CSV_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-6P2J3HQhJvEb5Cl8RnSrceSMUafFXrKwLPa8zqgB64nUDSv0n34qKM12Rc59lonN69n5a-h6SraF/pub?gid=0&single=true&output=csv';
-
 /**
  * A robust CSV parser that handles quoted fields, double quotes inside fields,
  * and empty fields correctly. It skips the first line, assuming it's a description,
@@ -95,10 +89,11 @@ function parseCsv(csvText: string): Record<string, string>[] {
  * Fetches stall data from a published Google Sheet CSV. It first tries to fetch
  * with a cache-busting timestamp to get the latest data. If that fails (e.g., with a
  * 500 server error), it falls back to fetching without the timestamp for reliability.
+ * @param googleSheetCSVUrl In Google Sheets: File > Share > Publish to web > Select a sheet & "Comma-separated values (.csv)" > Publish.
  * @returns A promise that resolves to an array of stall objects.
  */
-export async function fetchStallData(): Promise<Record<string, string>[]> {
-  const urlWithTimestamp = `${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`;
+export async function fetchExcelData(googleSheetCSVUrl: string): Promise<Record<string, string>[]> {
+  const urlWithTimestamp = `${googleSheetCSVUrl}&_=${Date.now()}`;
   // --- First Attempt: With Cache-Busting Timestamp ---
   try {
     const response = await fetch(urlWithTimestamp);
@@ -108,24 +103,24 @@ export async function fetchStallData(): Promise<Record<string, string>[]> {
     }
     // Log non-critical server errors and proceed to fallback.
     console.warn(
-      `Initial fetch with timestamp failed with status: ${response.status}. Retrying without timestamp.`
+      `Initial fetch with timestamp failed with status: ${response.status}. Retrying without timestamp.`,
     );
   } catch (error) {
     // Catches network errors (e.g., DNS, CORS).
     console.warn(
       'Initial fetch with timestamp failed with a network error. Retrying without timestamp.',
-      error
+      error,
     );
   }
 
   // --- Second Attempt (Fallback): Without Timestamp ---
   console.log('Attempting fallback fetch without cache-busting timestamp.');
   try {
-    const fallbackResponse = await fetch(GOOGLE_SHEET_CSV_URL);
+    const fallbackResponse = await fetch(googleSheetCSVUrl);
     if (!fallbackResponse.ok) {
       // If the fallback also fails, this is a critical error.
       throw new Error(
-        `Fallback fetch failed: ${fallbackResponse.status} ${fallbackResponse.statusText}`
+        `Fallback fetch failed: ${fallbackResponse.status} ${fallbackResponse.statusText}`,
       );
     }
     const csvText = await fallbackResponse.text();
