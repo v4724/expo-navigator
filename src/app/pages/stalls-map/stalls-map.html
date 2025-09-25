@@ -28,14 +28,7 @@
   </p>
 
   <div class="search-container">
-    <input
-      type="search"
-      #searchInput
-      id="search-input"
-      placeholder="搜尋攤位編號、名稱、作者或標籤..."
-      aria-label="Search for stalls"
-      (input)="input()"
-    />
+    <app-input-search></app-input-search>
     <button #toggleButton id="toggle-magnifier-btn" (click)="toggleMagnifier()">顯示放大鏡</button>
   </div>
 

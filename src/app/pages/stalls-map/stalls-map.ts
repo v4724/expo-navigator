@@ -11,7 +11,6 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { processStalls } from '../../ts/stall-processor';
-import { uiState } from '../../ts/ui-manager';
 import { stallGridRefs } from '../../core/const/official-data';
 import { Lightbox } from 'src/app/shared/components/lightbox/lightbox';
 import { StallModal } from 'src/app/components/stall-modal/stall-modal';
@@ -32,6 +31,7 @@ import { STALL_CSV_URL } from 'src/app/core/const/google-excel-csv-url';
 import { AreaService } from 'src/app/core/services/state/area-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Area } from 'src/app/core/interfaces/area.interface';
+import { InputSearch } from 'src/app/components/input-search/input-search';
 
 @Component({
   selector: 'app-stalls-map',
@@ -44,6 +44,7 @@ import { Area } from 'src/app/core/interfaces/area.interface';
     Stall,
     StallGroupArea,
     LayersController,
+    InputSearch,
   ],
   templateUrl: './stalls-map.html',
   styleUrl: './stalls-map.scss',
@@ -54,7 +55,6 @@ export class StallsMap implements OnInit, AfterViewInit {
   @ViewChild('mapImage') mapImage!: ElementRef<HTMLImageElement>;
   @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLImageElement>;
   @ViewChild('toggleButton') toggleButton!: ElementRef<HTMLButtonElement>;
-  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
@@ -226,11 +226,6 @@ export class StallsMap implements OnInit, AfterViewInit {
       this.toggleButton.nativeElement.textContent = '隱藏放大鏡';
       this.magnifier.show();
     }
-  }
-
-  input() {
-    const searchTerm = this.searchInput.nativeElement.value.toLowerCase().trim();
-    this._stallMapService.inputSearch = searchTerm;
   }
 
   @HostListener('mousemove', ['$event'])
