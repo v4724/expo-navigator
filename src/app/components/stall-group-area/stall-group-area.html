@@ -3,7 +3,7 @@
   [ngClass]="{
     'mobile-only-group': !row().isGrouped,
   }"
-  [class.is-search-match]="isSearchMatch()"
+  [class.is-search-match]="isMatch()"
   [style.top]="`${row().boundingBox.top}%`"
   [style.left]="`${row().boundingBox.left}%`"
   [style.width]="`${row().boundingBox.right - row().boundingBox.left}%`"

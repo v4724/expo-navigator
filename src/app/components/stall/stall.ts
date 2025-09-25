@@ -1,4 +1,4 @@
-import { Component, inject, input, InputSignal, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, InputSignal, OnInit, signal } from '@angular/core';
 import { StallData } from './stall-.interface';
 import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -6,9 +6,9 @@ import { map } from 'rxjs';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { DraggableService } from 'src/app/core/services/state/draggable-service';
-import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';
+import { TagService } from 'src/app/core/services/state/tag-service';
 
 @Component({
   selector: 'app-stall',
@@ -26,6 +26,7 @@ export class Stall implements OnInit {
   private _miniMapService = inject(DraggableService);
   private _uiStateService = inject(UiStateService);
   private _tooltipService = inject(TooltipService);
+  private _tagService = inject(TagService);
 
   isGroupedMember$ = toObservable(this.stall).pipe(
     map((stall) => {
@@ -35,8 +36,14 @@ export class Stall implements OnInit {
 
   isSelected = signal<boolean>(false);
   isSearchMatch = signal<boolean>(false);
+  isSeriesMatch = signal<boolean>(false);
+  isTagMatch = signal<boolean>(false);
 
   isPanning = false;
+
+  isMatch = computed(() => {
+    return this.isSearchMatch() || this.isSeriesMatch() || this.isTagMatch();
+  });
 
   ngOnInit() {
     this._stallService.selectedStallId$.subscribe((selectedStall) => {
@@ -60,15 +67,37 @@ export class Stall implements OnInit {
           hasTagMatch;
       }
 
-      if (isMatch) {
-        // If a match is found, record its row ID.
-        const groupId = this.stall().id.substring(0, 1);
-        this._stallMapService.inputSearchMatchGroupId = groupId;
-      }
       this.isSearchMatch.set(isMatch);
+      this.updateGroupAreaMatch();
     });
 
-    this._miniMapService.isDragging$.subscribe(() => {});
+    this._tagService.selectedSeriesId$.pipe().subscribe((ids) => {
+      const isMatch = this.stall().filterSeries.some((id) => {
+        return ids.has(id);
+      });
+      this.isSeriesMatch.set(isMatch);
+      this.updateGroupAreaMatch();
+    });
+
+    this._tagService.selectedAdvancedTagsId$.pipe().subscribe((ids) => {
+      const isMatch = this.stall().filterTags.some((id) => {
+        let isMatch = false;
+        Object.keys(ids).forEach((series) => {
+          Object.keys(ids[series]).forEach((key) => {
+            isMatch = isMatch || ids[series][key].has(id);
+          });
+        });
+        return isMatch;
+      });
+      this.isTagMatch.set(isMatch);
+      this.updateGroupAreaMatch();
+    });
+  }
+
+  updateGroupAreaMatch() {
+    // If a match is found, record its row ID.
+    const groupId = this.stall().id.substring(0, 1);
+    this._stallMapService.updateMatchStallsId(groupId, this.stall().id, this.isMatch());
   }
 
   mousemove() {

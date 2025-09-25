@@ -27,4 +27,8 @@ export interface StallDto {
   promoData: PromoStall[];
 
   promoTags: string[];
+
+  filterTags: string[];
+
+  filterSeries: string[];
 }

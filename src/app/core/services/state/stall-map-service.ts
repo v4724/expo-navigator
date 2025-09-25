@@ -8,12 +8,14 @@ export class StallMapService {
   private _mapImage = new BehaviorSubject<HTMLImageElement | null>(null);
   private _mapContainer = new BehaviorSubject<HTMLElement | null>(null);
   private _inputSearch = new BehaviorSubject<string>('');
-  private _inputSearchMatchGroupId = new Subject<string>();
+  private _matchStallsId = new BehaviorSubject<Map<string, Set<string>>>(
+    new Map<string, Set<string>>(),
+  );
 
   mapImage$ = this._mapImage.asObservable();
   mapContainer$ = this._mapContainer.asObservable();
   inputSearch$ = this._inputSearch.asObservable();
-  inputSearchMatchGroupId$ = this._inputSearchMatchGroupId.asObservable();
+  matchStallsId$ = this._matchStallsId.asObservable();
 
   set mapImage(el: HTMLImageElement) {
     this._mapImage.next(el);
@@ -27,8 +29,21 @@ export class StallMapService {
     this._inputSearch.next(input);
   }
 
-  set inputSearchMatchGroupId(id: string) {
-    this._inputSearchMatchGroupId.next(id);
+  updateMatchStallsId(groupId: string, stallId: string, isMatch: boolean) {
+    const newCats = new Map(this._matchStallsId.getValue());
+
+    if (!newCats.has(groupId)) {
+      newCats.set(groupId, new Set());
+    }
+
+    const stallSet = newCats.get(groupId);
+    if (isMatch) {
+      stallSet?.add(stallId);
+    } else {
+      stallSet?.delete(stallId);
+    }
+
+    this._matchStallsId.next(newCats);
   }
 
   get mapContainer(): HTMLElement | null {

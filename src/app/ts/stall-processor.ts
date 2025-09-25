@@ -220,6 +220,8 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
         stallLink: rawStall['stallLink'] || undefined,
         promoData: [], // Initialize with an empty array for promotions.
         promoTags: [],
+        filterSeries: [],
+        filterTags: [],
         hasPromo: false,
         isSearchMatch: false,
       };
@@ -252,6 +254,8 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
         promoHTML: promoHTML,
         promoLinks: parsePromoLinks(promoUser, rawStall['promoLinks']),
         promoTags: parsePromoTags(rawStall['promoTags']),
+        series: rawStall['series'].split(';'),
+        tags: rawStall['tags'].split(';'),
       };
       stallEntry.promoData.push(promo);
       stallEntry.hasPromo = true;
@@ -265,6 +269,18 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
       promo.promoTags.forEach((tag) => uniqueTags.add(tag));
     });
     stall.promoTags = Array.from(uniqueTags);
+
+    const tags = new Set<string>();
+    stall.promoData.forEach((promo) => {
+      promo.tags.forEach((tag) => tags.add(tag));
+    });
+    stall.filterTags = Array.from(tags);
+
+    const series = new Set<string>();
+    stall.promoData.forEach((promo) => {
+      promo.series.forEach((tag) => series.add(tag));
+    });
+    stall.filterSeries = Array.from(series);
   });
   // Convert the Map values back to an array to be used by the application.
   const arr = Array.from(stallsMap.values());

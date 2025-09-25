@@ -14,4 +14,10 @@ export interface PromoStall {
   promoLinks: PromoLink[];
 
   promoTags: string[];
+
+  // 宣傳車作品
+  series: string[];
+
+  // 宣傳車 tag
+  tags: string[];
 }
