@@ -2,20 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
+import { Area } from 'src/app/core/interfaces/area.interface';
 import {
   AdvancedFilters,
   StallSeries,
   StallTag,
 } from 'src/app/core/interfaces/stall-series-tag.interface';
+import { AreaService } from 'src/app/core/services/state/area-service';
 import { TagService } from 'src/app/core/services/state/tag-service';
-interface Area {
-  name: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  color: string;
-}
 
 @Component({
   selector: 'app-layers-controller',
@@ -35,17 +29,21 @@ export class LayersController {
 
   // Helpers
   private _tagService = inject(TagService);
+  private _areaService = inject(AreaService);
 
   // Data
-  areas = signal<Area[]>([
-    { name: '忍亂區', x: 1, y: 1, width: 3, height: 1, color: 'rgba(255, 99, 132, 0.5)' },
-    { name: '排球少年區', x: 5, y: 2, width: 3, height: 2, color: 'rgba(54, 162, 235, 0.5)' },
-  ]);
+  // 場內 only
+  areaFetchEnd = toSignal(this._areaService.fetchEnd$);
+  allAreas = computed(() => {
+    if (!this.areaFetchEnd()) return [];
 
-  // 作品+標籤
-  fetchEnd = toSignal(this._tagService.fetchEnd$);
+    return this._areaService.allAreas;
+  });
+
+  // 作品 + 標籤
+  tagFetchEnd = toSignal(this._tagService.fetchEnd$);
   allSeriesAndTags = computed(() => {
-    if (!this.fetchEnd()) return [];
+    if (!this.tagFetchEnd()) return [];
     const data: StallSeries[] = [];
     this._tagService.allSeries.forEach((val, key) => {
       const cp: StallTag[] = this._tagService.toStallTagArr(key, 'CP');
@@ -94,16 +92,8 @@ export class LayersController {
     this.isTagSectionOpen.update((v) => !v);
   }
 
-  toggleArea(areaName: string) {
-    this.activeAreas.update((areas) => {
-      const newAreas = new Set(areas);
-      if (newAreas.has(areaName)) {
-        newAreas.delete(areaName);
-      } else {
-        newAreas.add(areaName);
-      }
-      return newAreas;
-    });
+  toggleArea(areaId: string) {
+    this._areaService.toggleArea(areaId);
   }
 
   isSeriesSelected(category: string): boolean {

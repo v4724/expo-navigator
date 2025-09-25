@@ -64,12 +64,48 @@
       <!-- Magnifier elements: wrapper handles positioning, lens handles visuals -->
       <app-magnifier></app-magnifier>
     }
-    @for (stall of allStalls$ | async; track $index) {
-      <app-stall [stall]="stall" [hiddenIfGrouped]="true" [absolutePosition]="true"></app-stall>
-    }
-    @for (row of stallGridRefs; track $index) {
-      <app-stall-group-area [row]="row"></app-stall-group-area>
-    }
+    <div>
+      @for (stall of allStalls$ | async; track $index) {
+        <app-stall [stall]="stall" [hiddenIfGrouped]="true" [absolutePosition]="true"></app-stall>
+      }
+    </div>
+    <div>
+      @for (row of stallGridRefs; track $index) {
+        <app-stall-group-area [row]="row"></app-stall-group-area>
+      }
+    </div>
+    <div>
+      @for (area of selectedAreas(); track $index) {
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <svg
+            [attr.viewBox]="`0 0 ${mapWidth()} ${mapHeight()}`"
+            style="border: 1px solid #ccc"
+            class="pointer-events-none"
+          >
+            <!-- 動態繪製攤位的多邊形 -->
+            <polygon
+              [attr.points]="area.polygonPoints"
+              [attr.fill]="area.fillColor"
+              [attr.opacity]="0.8"
+              [attr.stroke]="'gray'"
+              stroke-width="1"
+            />
+            <!-- 文字顯示在 polygon 中心 -->
+            <text
+              [attr.fill]="area.textColor"
+              [attr.x]="area.textPointX"
+              [attr.y]="area.textPointY"
+              text-anchor="middle"
+              alignment-baseline="middle"
+              font-size="16"
+              style="pointer-events: none"
+            >
+              {{ area.name }}
+            </text>
+          </svg>
+        </div>
+      }
+    </div>
   </div>
 
   <div class="recommendation-note">

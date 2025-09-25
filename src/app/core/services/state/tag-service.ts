@@ -15,11 +15,9 @@ export class TagService {
   allSeries = new Map<string, StallSeriesDto>();
   allTags = new Map<string, StallTagDto>();
 
-  private _allTags = new BehaviorSubject<StallData[]>([]);
   private _selectedSeriesId = new BehaviorSubject<Set<string>>(new Set());
   private _selectedAdvancedTagsId = new BehaviorSubject<AdvancedFilters>({});
 
-  allStalls$ = this._allTags.asObservable();
   selectedSeriesId$ = this._selectedSeriesId.asObservable();
   selectedAdvancedTagsId$ = this._selectedAdvancedTagsId.asObservable();
 
@@ -72,6 +70,11 @@ export class TagService {
       const id = rawSeries['seriesId'];
       const name = rawSeries['seriesName'];
 
+      if (!id || !name) {
+        console.warn('series 缺少設定', id, name);
+        return;
+      }
+
       if (!this.allSeries.has(id)) {
         const series: StallSeriesDto = {
           seriesId: id,
@@ -89,6 +92,11 @@ export class TagService {
       const tagType = rawSeries['tagType'];
       const seriesId = rawSeries['seriesId'];
       const seriesName = rawSeries['seriesName'];
+
+      if (!tagId || !tagName || !tagType || !seriesId) {
+        console.warn('tag 缺少設定', tagId, tagName, tagType, seriesId);
+        return;
+      }
 
       if (!this.allTags.has(tagId)) {
         const series: StallTagDto = {

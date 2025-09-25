@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   ElementRef,
   HostListener,
   inject,
@@ -27,11 +28,10 @@ import { catchError, EMPTY, finalize, forkJoin, from, Subject, tap } from 'rxjs'
 
 import { LayersController } from 'src/app/components/layers-controller/layers-controller';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import {
-  STALL_CSV_URL,
-  SERIES_CSV_URL,
-  TAG_CSV_URL,
-} from 'src/app/core/const/google-excel-csv-url';
+import { STALL_CSV_URL } from 'src/app/core/const/google-excel-csv-url';
+import { AreaService } from 'src/app/core/services/state/area-service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Area } from 'src/app/core/interfaces/area.interface';
 
 @Component({
   selector: 'app-stalls-map',
@@ -59,7 +59,10 @@ export class StallsMap implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
   private _stallService = inject(StallService);
-  private _tooltipService = inject(TooltipService);
+  private _areaService = inject(AreaService);
+
+  mapWidth = signal<number>(0);
+  mapHeight = signal<number>(0);
 
   isMobile: WritableSignal<boolean> = signal<boolean>(false);
   isInitialLoading: WritableSignal<boolean> = signal<boolean>(true);
@@ -71,6 +74,24 @@ export class StallsMap implements OnInit, AfterViewInit {
 
   mapImageSrc = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@c6b3cd1/assets/stalls-map.jpg`;
 
+  // 場內 only 圖層
+  selectedAreasId = toSignal(this._areaService.selectedAreasId$, {
+    initialValue: new Set<string>(),
+  });
+  selectedAreas = computed(() => {
+    const mapW = this.mapWidth();
+    const mapH = this.mapHeight();
+    if (!mapW || !mapH) {
+      return [];
+    }
+    const data: Area[] = [];
+    this.selectedAreasId().forEach((id: string) => {
+      const area = this._areaService.toArea(mapW, mapH, id);
+      area && data.push(area);
+    });
+    return data;
+  });
+
   ngOnInit() {
     this.mapImageLoaded.pipe().subscribe(() => {
       this._stallMapService.mapImage = this.mapImage.nativeElement;
@@ -80,6 +101,9 @@ export class StallsMap implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.runApp();
+
+    this.mapWidth.set(this.mapImage.nativeElement.offsetWidth);
+    this.mapHeight.set(this.mapImage.nativeElement.offsetHeight);
   }
 
   mapImageLoaded = new Subject<boolean>();
@@ -133,7 +157,7 @@ export class StallsMap implements OnInit, AfterViewInit {
         this.isMobile.set(mobileCheck);
 
         // --- UI Rendering ---
-        this.renderStalls();
+        // this.renderStalls();
         // renderDebugBorders(this.mapContainer);
       });
   }
@@ -207,35 +231,6 @@ export class StallsMap implements OnInit, AfterViewInit {
   input() {
     const searchTerm = this.searchInput.nativeElement.value.toLowerCase().trim();
     this._stallMapService.inputSearch = searchTerm;
-  }
-
-  /**
-   * Renders all stall areas onto the map and creates clones for the magnifiers.
-   * @param elements A reference to all DOM elements.
-   * @param magnifierController The controller for the desktop magnifier.
-   * @param state The shared UI state object.
-   */
-  renderStalls() {
-    const allStalls = this._stallService.allStalls;
-    // --- 1. Render all individual stall elements ---
-    // They are created for logic, cloning, and desktop view. CSS will manage visibility.
-
-    // --- 2. Create the visible, clickable group areas for ALL rows ---
-    // Their visibility will be controlled by CSS based on screen size and whether they are permanently grouped.
-    stallGridRefs.forEach((row) => {
-      const groupArea = document.createElement('div');
-      // Add both classes. `.stall-area` for base styles, `.stall-group-area` for group-specific styles.
-
-      // If a row is NOT permanently grouped, its group area should be hidden by default on desktop.
-      // CSS will make it visible on mobile devices.
-
-      // For permanently grouped rows, ensure their group area is cloned into both
-      // the main magnifier and the modal mini-map for visual consistency.
-      if (row.isGrouped) {
-        // Add to main magnifier
-        // Add to modal mini-map
-      }
-    });
   }
 
   @HostListener('mousemove', ['$event'])
