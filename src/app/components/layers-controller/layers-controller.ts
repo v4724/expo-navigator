@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { filter, map } from 'rxjs';
 import {
   AdvancedFilters,
   StallSeries,
@@ -43,26 +42,26 @@ export class LayersController {
     { name: '排球少年區', x: 5, y: 2, width: 3, height: 2, color: 'rgba(54, 162, 235, 0.5)' },
   ]);
 
-  allSeriesAndTags$ = this._tagService.fetchEnd$.pipe(
-    filter((val) => !!val),
-    map(() => {
-      const data: StallSeries[] = [];
-      this._tagService.allSeries.forEach((val, key) => {
-        const cp: StallTag[] = this._tagService.toStallTagArr(key, 'CP');
-        const char: StallTag[] = this._tagService.toStallTagArr(key, 'CHAR');
+  // 作品+標籤
+  fetchEnd = toSignal(this._tagService.fetchEnd$);
+  allSeriesAndTags = computed(() => {
+    if (!this.fetchEnd()) return [];
+    const data: StallSeries[] = [];
+    this._tagService.allSeries.forEach((val, key) => {
+      const cp: StallTag[] = this._tagService.toStallTagArr(key, 'CP');
+      const char: StallTag[] = this._tagService.toStallTagArr(key, 'CHAR');
 
-        data.push({
-          id: key,
-          name: val.seriesName,
-          advanced: {
-            cp: cp,
-            char: char,
-          },
-        });
+      data.push({
+        id: key,
+        name: val.seriesName,
+        advanced: {
+          cp: cp,
+          char: char,
+        },
       });
-      return data;
-    }),
-  );
+    });
+    return data;
+  });
 
   // Computed Signals
   advancedFilterOptions = computed(() => {
@@ -78,19 +77,6 @@ export class LayersController {
       counts[series] = 0;
       for (const key in advancedFilters[series]) {
         counts[series] += advancedFilters[series][key].size;
-      }
-    }
-    return counts;
-  });
-
-  selectedAdvancedTags = signal<AdvancedFilters>({});
-  selectedAdvancedTagsCount2 = computed(() => {
-    const counts: { [category: string]: number } = {};
-    const advancedFilters = this.selectedAdvancedTags();
-    for (const category in advancedFilters) {
-      counts[category] = 0;
-      for (const key in advancedFilters[category]) {
-        counts[category] += advancedFilters[category][key].size;
       }
     }
     return counts;

@@ -55,3 +55,16 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+.fade-in {
+  /* 進場的最終樣式 + 過渡設定 */
+  @starting-style {
+    opacity: 0;
+  }
+  transition: opacity 300ms ease-out;
+  opacity: 1;
+}
+.fade-out {
+  transition: opacity 300ms ease-in;
+  opacity: 0;
+}
