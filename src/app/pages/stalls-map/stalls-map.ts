@@ -31,7 +31,6 @@ import { STALL_CSV_URL } from 'src/app/core/const/google-excel-csv-url';
 import { AreaService } from 'src/app/core/services/state/area-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Area } from 'src/app/core/interfaces/area.interface';
-import { InputSearch } from 'src/app/components/input-search/input-search';
 
 @Component({
   selector: 'app-stalls-map',
@@ -44,7 +43,6 @@ import { InputSearch } from 'src/app/components/input-search/input-search';
     Stall,
     StallGroupArea,
     LayersController,
-    InputSearch,
   ],
   templateUrl: './stalls-map.html',
   styleUrl: './stalls-map.scss',

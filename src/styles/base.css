@@ -39,12 +39,19 @@ h1 {
 }
 
 .legend-container {
+  position: fixed;
+  right: 30px;
+  top: 20px;
+  border: 1px solid #ddd;
+  padding: 10px 16px;
+  border-radius: 1.75rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 15px;
-  margin-bottom: 20px;
+  z-index: 1;
+  background-color: #ffffffbd;
 }
 
 .legend-item {

@@ -28,7 +28,6 @@
   </p>
 
   <div class="search-container">
-    <app-input-search></app-input-search>
     <button #toggleButton id="toggle-magnifier-btn" (click)="toggleMagnifier()">顯示放大鏡</button>
   </div>
 
@@ -70,11 +69,7 @@
     <div>
       @for (area of selectedAreas(); track $index) {
         <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
-          <svg
-            [attr.viewBox]="`0 0 ${mapWidth()} ${mapHeight()}`"
-            style="border: 1px solid #ccc"
-            class="pointer-events-none"
-          >
+          <svg [attr.viewBox]="`0 0 ${mapWidth()} ${mapHeight()}`" class="pointer-events-none">
             <!-- 動態繪製攤位的多邊形 -->
             <polygon
               [attr.points]="area.polygonPoints"

@@ -65,6 +65,15 @@ export class TagService {
     this._selectedAdvancedTagsId.next(newFilters);
   }
 
+  clearAdvancedTag(series: string, type: 'cp' | 'char') {
+    const newFilters = { ...this.selectedAdvancedTagsId };
+    if (newFilters[series]) {
+      newFilters[series][type].clear();
+    }
+
+    this._selectedAdvancedTagsId.next(newFilters);
+  }
+
   processSeries(rawData: Record<string, string>[]) {
     rawData.forEach((rawSeries) => {
       const id = rawSeries['seriesId'];
