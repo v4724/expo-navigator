@@ -4,7 +4,7 @@
  */
 
 import { stallGridRefs } from '../core/const/official-data.js';
-import { StallData } from '../components/stall/stall-.interface.js';
+import { StallData } from '../components/stall/stall.interface.js';
 
 /** Defines the shape of the shared UI state object. */
 export interface UIState {
@@ -32,7 +32,7 @@ export function updateStallClass(
   stallElement: HTMLElement,
   className: string,
   force: boolean,
-  state: UIState
+  state: UIState,
 ) {
   const stallId = stallElement.dataset['stallId'];
   if (!stallId) return;

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { StallDto } from '../../interfaces/stall-dto.interface';
-import { StallData } from 'src/app/components/stall/stall-.interface';
+import { StallData } from 'src/app/components/stall/stall.interface';
 
 @Injectable({
   providedIn: 'root',

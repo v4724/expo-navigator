@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin } from 'rxjs';
-import { StallData } from 'src/app/components/stall/stall-.interface';
+import { StallData } from 'src/app/components/stall/stall.interface';
 import { TooltipService } from './tooltip-service';
 import { stallGridRefs } from '../../const/official-data';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';

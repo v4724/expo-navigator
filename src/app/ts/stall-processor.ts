@@ -8,7 +8,7 @@ import { PromoStall } from '../core/interfaces/promo-stall.interface.js';
 import { StallDto } from '../core/interfaces/stall-dto.interface.js';
 import { stallGridRefs } from '../core/const/official-data.js';
 import DOMPurify from 'dompurify';
-import { StallData } from '../components/stall/stall-.interface.js';
+import { StallData } from '../components/stall/stall.interface.js';
 
 // Convert the stallGridRefs array into a Map for efficient O(1) lookups by stall letter.
 const locateStallMap = new Map(stallGridRefs.map((s) => [s.groupId, s]));
