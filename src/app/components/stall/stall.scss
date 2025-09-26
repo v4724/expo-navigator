@@ -1,0 +1,8 @@
+.stall-area.is-marked::after {
+  content: '★';
+  position: absolute;
+  top: 2px;
+  font-size: 10px;
+  color: purple;
+  width: 100%;
+}

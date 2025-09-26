@@ -10,7 +10,6 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
-import { processStalls } from '../../ts/stall-processor';
 import { stallGridRefs } from '../../core/const/official-data';
 import { Lightbox } from 'src/app/shared/components/lightbox/lightbox';
 import { StallModal } from 'src/app/components/stall-modal/stall-modal';
@@ -20,10 +19,9 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { Magnifier } from 'src/app/components/magnifier/magnifier';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { CommonModule } from '@angular/common';
-import { TooltipService } from 'src/app/core/services/state/tooltip-service';
 import { Stall } from 'src/app/components/stall/stall';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
-import { catchError, EMPTY, finalize, forkJoin, from, Subject, tap } from 'rxjs';
+import { catchError, EMPTY, finalize, first, forkJoin, map, Subject } from 'rxjs';
 
 import { LayersController } from 'src/app/components/layers-controller/layers-controller';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
@@ -126,7 +124,15 @@ export class StallsMap implements OnInit, AfterViewInit {
     }
 
     // --- Asynchronous Resource Loading ---
-    forkJoin([fetchExcelData(STALL_CSV_URL), this.mapImageLoaded])
+    forkJoin([
+      this._stallService.fetchEnd$.pipe(
+        first((val) => !!val),
+        map(() => {
+          return this._stallService.allStalls;
+        }),
+      ),
+      this.mapImageLoaded,
+    ])
       .pipe(
         catchError((error) => {
           console.error('Failed to initialize app:', error);
@@ -139,24 +145,16 @@ export class StallsMap implements OnInit, AfterViewInit {
           this.isInitialLoading.set(false);
         }),
       )
-      .subscribe(([rawData]) => {
-        console.log();
-        if (rawData.length === 0) {
+      .subscribe(([data]) => {
+        if (data.length === 0) {
           this.isInitialError.set(true);
           this.errorMsg = '載入失敗';
           return;
         }
 
-        const allStalls = processStalls(rawData);
-        this._stallService.allStalls = allStalls;
-
         // --- Initialization & Setup ---
         const mobileCheck = this._uiStateService.isSmallScreen();
         this.isMobile.set(mobileCheck);
-
-        // --- UI Rendering ---
-        // this.renderStalls();
-        // renderDebugBorders(this.mapContainer);
       });
   }
 

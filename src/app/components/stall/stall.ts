@@ -10,6 +10,8 @@ import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';
 import { TagService } from 'src/app/core/services/state/tag-service';
 
+import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
+
 @Component({
   selector: 'app-stall',
   imports: [CommonModule],
@@ -27,6 +29,7 @@ export class Stall implements OnInit {
   private _uiStateService = inject(UiStateService);
   private _tooltipService = inject(TooltipService);
   private _tagService = inject(TagService);
+  private _markedStallService = inject(MarkedStallService);
 
   isGroupedMember$ = toObservable(this.stall).pipe(
     map((stall) => {
@@ -38,7 +41,9 @@ export class Stall implements OnInit {
   isSearchMatch = signal<boolean>(false);
   isSeriesMatch = signal<boolean>(false);
   isTagMatch = signal<boolean>(false);
+  isMarked = signal<boolean>(false);
 
+  // 避免拖曳地圖後觸發的 click，用於在拖曳時紀錄狀態
   isPanning = false;
 
   isMatch = computed(() => {
@@ -91,6 +96,15 @@ export class Stall implements OnInit {
       });
       this.isTagMatch.set(isMatch);
       this.updateGroupAreaMatch();
+    });
+
+    this._markedStallService.show$.pipe().subscribe((val) => {
+      if (val) {
+        const isMarked = this._markedStallService.isMarked(this.stall().id);
+        this.isMarked.set(isMarked);
+      } else {
+        this.isMarked.set(false);
+      }
     });
   }
 

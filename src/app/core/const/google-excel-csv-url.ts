@@ -12,3 +12,6 @@ export const TAG_CSV_URL =
 
 export const STALL_CSV_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-6P2J3HQhJvEb5Cl8RnSrceSMUafFXrKwLPa8zqgB64nUDSv0n34qKM12Rc59lonN69n5a-h6SraF/pub?gid=0&single=true&output=csv';
+
+export const MARKED_STALL_CSV_URL =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-6P2J3HQhJvEb5Cl8RnSrceSMUafFXrKwLPa8zqgB64nUDSv0n34qKM12Rc59lonN69n5a-h6SraF/pub?gid=1164838050&single=true&output=csv';

@@ -1,9 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, forkJoin } from 'rxjs';
 import { StallDto } from '../../interfaces/stall-dto.interface';
 import { StallData } from 'src/app/components/stall/stall-.interface';
 import { TooltipService } from './tooltip-service';
 import { stallGridRefs } from '../../const/official-data';
+import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
+import { STALL_CSV_URL } from '../../const/google-excel-csv-url';
+import { processStalls } from 'src/app/ts/stall-processor';
 
 @Injectable({
   providedIn: 'root',
@@ -12,16 +15,28 @@ export class StallService {
   private _allStalls = new BehaviorSubject<StallData[]>([]);
   private _selectedId = new BehaviorSubject<string | null>(null);
   private _allOrigStalls = new BehaviorSubject<StallDto[]>([]);
+  private _fetchEnd = new BehaviorSubject<boolean>(false);
 
   // This set contains rows that are *permanently* grouped on all screen sizes.
   permanentlyGroupedRowIds = new Set(
-    stallGridRefs.filter((r) => r.isGrouped).map((r) => r.groupId)
+    stallGridRefs.filter((r) => r.isGrouped).map((r) => r.groupId),
   );
 
   allStalls$ = this._allStalls.asObservable();
   selectedStallId$ = this._selectedId.asObservable();
+  fetchEnd$ = this._fetchEnd.asObservable();
 
   private _tooltipService = inject(TooltipService);
+
+  constructor() {
+    forkJoin([fetchExcelData(STALL_CSV_URL)])
+      .pipe()
+      .subscribe(([rawData]) => {
+        const stalls = processStalls(rawData);
+        this._allStalls.next(stalls);
+        this._fetchEnd.next(true);
+      });
+  }
 
   get selected(): string | null {
     return this._selectedId.getValue();
@@ -37,9 +52,6 @@ export class StallService {
     this._selectedId.next(id);
   }
 
-  set allStalls(stalls: StallData[]) {
-    this._allStalls.next(stalls);
-  }
   get allStalls() {
     return this._allStalls.getValue();
   }

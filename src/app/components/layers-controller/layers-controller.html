@@ -22,17 +22,19 @@
 
 <!-- Floating Controls Panel -->
 <div
-  class="absolute p-4 top-0 left-0 h-full bg-white bg-opacity-90 backdrop-blur-sm shadow-2xl z-20 w-80 p-4 transform transition-transform duration-300 ease-in-out flex flex-col"
+  class="absolute p-4 top-0 left-0 h-full bg-white bg-opacity-90 backdrop-blur-sm shadow-2xl z-20 w-80 p-3 transform transition-transform duration-300 ease-in-out flex flex-col"
   [class.-translate-x-full]="!showControls()"
 >
-  <div class="overflow-y-auto flex-grow flex flex-col gap-4">
+  <div class="overflow-y-auto flex-grow flex flex-col gap-4 p-1">
     <!-- Tag Filters Section -->
     <app-search-and-filter></app-search-and-filter>
 
+    <!-- Layer Controls Section -->
     <div class="">
       <h2 class="text-xl font-bold text-gray-800">圖層控制</h2>
-      <!-- Layer Controls Section -->
-      <div class="mb-4 border-b pb-2">
+
+      <!-- 場內 only -->
+      <div class="mb-4 border-b pb-2 pr-1">
         <button
           (click)="toggleAreaSection()"
           class="w-full flex justify-between items-center text-left font-semibold text-gray-700"
@@ -78,6 +80,9 @@
           }
         </div>
       </div>
+
+      <!-- 已標記 -->
+      <app-marked-layer></app-marked-layer>
     </div>
   </div>
 </div>

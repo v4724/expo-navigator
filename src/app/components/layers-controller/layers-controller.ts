@@ -4,10 +4,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { AreaService } from 'src/app/core/services/state/area-service';
 import { SearchAndFilter } from '../search-and-filter/search-and-filter';
+import { MarkedLayer } from './marked-layer/marked-layer';
 
 @Component({
   selector: 'app-layers-controller',
-  imports: [CommonModule, MatIconModule, SearchAndFilter],
+  imports: [CommonModule, MatIconModule, SearchAndFilter, MarkedLayer],
   templateUrl: './layers-controller.html',
   styleUrl: './layers-controller.scss',
 })
