@@ -1,0 +1,38 @@
+.modal-title {
+  margin: 0;
+  color: var(--primary-color);
+  font-size: 1.6rem;
+  text-align: left;
+  flex-grow: 1;
+  padding-right: 20px;
+}
+
+.modal-body {
+  text-align: left;
+  overflow-y: auto;
+}
+
+.stall-promo-image {
+  display: block;
+  margin: 0 auto 0 auto;
+  cursor: pointer;
+
+  opacity: 0.5; /* 初始半透明 */
+  filter: blur(4px); /* 初始模糊 */
+  transition:
+    opacity 0.5s ease-in-out,
+    filter 0.5s ease; /* 載入後淡入、關掉模糊 */
+}
+.stall-promo-image.loaded {
+  min-width: unset;
+  min-height: unset;
+  height: auto;
+  // width: auto;
+
+  opacity: 1; /* 完全顯示 */
+  filter: blur(0); /* 關掉模糊 */
+}
+
+.stall-promo-image:hover {
+  opacity: 0.85;
+}

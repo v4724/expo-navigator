@@ -24,11 +24,10 @@ import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-
 import { catchError, EMPTY, finalize, first, forkJoin, map, Subject } from 'rxjs';
 
 import { LayersController } from 'src/app/components/layers-controller/layers-controller';
-import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import { STALL_CSV_URL } from 'src/app/core/const/google-excel-csv-url';
 import { AreaService } from 'src/app/core/services/state/area-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Area } from 'src/app/core/interfaces/area.interface';
+import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 
 @Component({
   selector: 'app-stalls-map',
@@ -55,6 +54,7 @@ export class StallsMap implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
   private _stallService = inject(StallService);
+  private _selectStallService = inject(SelectStallService);
   private _areaService = inject(AreaService);
 
   mapWidth = signal<number>(0);
@@ -210,7 +210,7 @@ export class StallsMap implements OnInit, AfterViewInit {
   }
 
   openModal(stallId: string) {
-    this.stallModal.updateStallInfo(stallId);
+    // this.stallModal.updateStallInfo(stallId);
   }
 
   toggleMagnifier() {
@@ -230,7 +230,7 @@ export class StallsMap implements OnInit, AfterViewInit {
     if (!this.isMobile()) {
       return;
     }
-    if (this._stallService.selected) return;
+    if (this._selectStallService.selected) return;
   }
 }
 

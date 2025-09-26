@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, InputSignal, OnInit, signal } from '@angular/core';
-import { StallData } from './stall-.interface';
+import { StallData } from './stall.interface';
 import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -11,6 +11,7 @@ import { TooltipService } from 'src/app/core/services/state/tooltip-service';
 import { TagService } from 'src/app/core/services/state/tag-service';
 
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
+import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 
 @Component({
   selector: 'app-stall',
@@ -24,6 +25,7 @@ export class Stall implements OnInit {
   hiddenIfGrouped = input();
 
   private _stallService = inject(StallService);
+  private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
   private _miniMapService = inject(DraggableService);
   private _uiStateService = inject(UiStateService);
@@ -51,7 +53,7 @@ export class Stall implements OnInit {
   });
 
   ngOnInit() {
-    this._stallService.selectedStallId$.subscribe((selectedStall) => {
+    this._selectStallService.selectedStallId$.subscribe((selectedStall) => {
       this.isSelected.set(this.stall().id === selectedStall);
     });
 
@@ -148,6 +150,6 @@ export class Stall implements OnInit {
       return;
     }
 
-    this._stallService.selected = this.stall().id;
+    this._selectStallService.selected = this.stall().id;
   }
 }

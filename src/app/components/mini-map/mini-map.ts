@@ -18,7 +18,7 @@ import { StallDto } from 'src/app/core/interfaces/stall-dto.interface';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';
-import { StallData } from '../stall/stall-.interface';
+import { StallData } from '../stall/stall.interface';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { stallGridRefs } from 'src/app/core/const/official-data';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -29,6 +29,7 @@ import { StallGroupGridRef } from 'src/app/core/interfaces/stall-group-grid-ref.
 import { pairwise, startWith } from 'rxjs';
 import { GroupIndicator } from '../group-indicator/group-indicator';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
+import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 
 @Component({
   selector: 'app-mini-map',
@@ -87,13 +88,14 @@ export class MiniMap implements OnInit, AfterViewInit {
   private _tooltipService = inject(TooltipService);
   private _stallModalService = inject(StallModalService);
   private _stallService = inject(StallService);
+  private _selectStallService = inject(SelectStallService);
   private _uiStateService = inject(UiStateService);
   private _stallMapService = inject(StallMapService);
   private _magnifierService = inject(MagnifierService);
   private _renderer = inject(Renderer2);
   private _ngZone = inject(NgZone);
 
-  selectedStall$ = this._stallService.selectedStallId$;
+  selectedStall$ = this._selectStallService.selectedStallId$;
   allStalls$ = this._stallService.allStalls$;
   stallGridRefs = stallGridRefs;
 
@@ -115,7 +117,7 @@ export class MiniMap implements OnInit, AfterViewInit {
       this.scaleMapImgH.set(scaledMapH);
     });
 
-    this._stallService.selectedStallId$
+    this._selectStallService.selectedStallId$
       .pipe(
         startWith(null), // 預設前一個值
         pairwise(),
@@ -173,7 +175,7 @@ export class MiniMap implements OnInit, AfterViewInit {
 
   //
   verticalGroupClicked(row: StallGroupGridRef) {
-    const currId = this._stallService.selected;
+    const currId = this._selectStallService.selected;
     const targetId = row.groupDefaultStallId ? row.groupDefaultStallId : `${row.groupId}01`;
 
     this.updateNavControls(targetId);
@@ -199,10 +201,10 @@ export class MiniMap implements OnInit, AfterViewInit {
     }
 
     if (targetId) {
-      const currId = this._stallService.selected;
+      const currId = this._selectStallService.selected;
       this.updateNavControls(targetId);
       this.updateVerticalStallList(currId, targetId);
-      this._stallService.selected = targetId;
+      this._selectStallService.selected = targetId;
     }
   }
 
@@ -453,7 +455,7 @@ export class MiniMap implements OnInit, AfterViewInit {
   }
 
   updateHighlight() {
-    const stall = this._stallService.selectedStall;
+    const stall = this._selectStallService.selectedStall;
     if (!stall) {
       return;
     }

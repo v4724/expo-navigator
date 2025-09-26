@@ -16,6 +16,15 @@ html {
       density: 0,
     )
   );
+  @include mat.dialog-overrides(
+    (
+      container-elevation-shadow: var(--shadow-xl),
+      container-shape: 12px,
+    )
+  );
+  .mat-mdc-dialog-content {
+    max-height: fit-content;
+  }
 }
 
 body {

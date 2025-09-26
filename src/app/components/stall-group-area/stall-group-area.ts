@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, input, InputSignal, OnInit, signal } from '@angular/core';
 import { debounceTime } from 'rxjs';
 import { StallGroupGridRef } from 'src/app/core/interfaces/stall-group-grid-ref.interface';
+import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 
@@ -14,7 +15,7 @@ import { StallService } from 'src/app/core/services/state/stall-service';
 export class StallGroupArea implements OnInit {
   row: InputSignal<StallGroupGridRef> = input.required();
 
-  private _stallService = inject(StallService);
+  private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
 
   isMatch = signal<boolean>(false);
@@ -34,6 +35,6 @@ export class StallGroupArea implements OnInit {
     if (row.groupDefaultStallId) {
       id = row.groupDefaultStallId;
     }
-    this._stallService.selected = id;
+    this._selectStallService.selected = id;
   }
 }
