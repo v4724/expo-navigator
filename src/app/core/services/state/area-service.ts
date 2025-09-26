@@ -13,15 +13,19 @@ export class AreaService {
 
   private _selectedAreaId = new BehaviorSubject<Set<string>>(new Set());
   private _fetchEnd = new BehaviorSubject<boolean>(false);
+  private _show = new BehaviorSubject<boolean>(false);
 
   selectedAreasId$ = this._selectedAreaId.asObservable();
   fetchEnd$ = this._fetchEnd.asObservable();
+
+  show$ = this._show.asObservable();
 
   constructor() {
     forkJoin([fetchExcelData(AREA_CSV_URL)])
       .pipe()
       .subscribe(([area]) => {
         this._processAreas(area);
+        this._selectAll();
         this._fetchEnd.next(true);
       });
   }
@@ -32,6 +36,10 @@ export class AreaService {
 
   get selectedAreaId() {
     return this._selectedAreaId.getValue();
+  }
+
+  toggleLayer() {
+    this._show.next(!this._show.getValue());
   }
 
   toggleArea(id: string) {
@@ -105,5 +113,10 @@ export class AreaService {
         this._allAreas.set(areaId, area);
       }
     });
+  }
+
+  _selectAll() {
+    const set = new Set(Array.from(this._allAreas.keys()));
+    this._selectedAreaId.next(set);
   }
 }

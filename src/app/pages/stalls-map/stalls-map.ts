@@ -71,6 +71,7 @@ export class StallsMap implements OnInit, AfterViewInit {
   mapImageSrc = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@c6b3cd1/assets/stalls-map.jpg`;
 
   // 場內 only 圖層
+  showAreas = toSignal(this._areaService.show$);
   selectedAreasId = toSignal(this._areaService.selectedAreasId$, {
     initialValue: new Set<string>(),
   });
