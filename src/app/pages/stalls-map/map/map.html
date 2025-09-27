@@ -1,0 +1,76 @@
+<div class="h-full flex items-center justify-center">
+  @if (isInitialLoading() || !mapImgLoaded()) {
+    <div
+      class="absolute top-0 left-0 z-1 size-full flex items-center justify-center bg-gray-200/50"
+    >
+      <mat-icon
+        class="animate-spin"
+        aria-hidden="false"
+        aria-label="auto renew"
+        fontIcon="autorenew"
+      ></mat-icon>
+    </div>
+  } @else if (isInitialError()) {}
+
+  <div #mapContainer class="h-full w-full flex items-center justify-center">
+    <div
+      class="relative max-w-full max-h-full shadow-2xl rounded-lg overflow-hidden"
+      [style.aspect-ratio]="imageAspectRatio()"
+    >
+      <img
+        #mapImage
+        class="w-full h-full object-contain"
+        [src]="mapImgSrc"
+        alt="Neo iComic Echo Venue Map"
+        (load)="onMapImageLoad($event)"
+        (error)="onMapImageError()"
+      />
+
+      <!-- 攤位 -->
+      <div class="">
+        @for (stall of allStalls$ | async; track $index) {
+          <app-stall [stall]="stall" [hiddenIfGrouped]="true" [absolutePosition]="true"></app-stall>
+        }
+      </div>
+
+      <!-- group 攤位 -->
+      <div class="">
+        @for (row of stallGridRefs; track $index) {
+          <app-stall-group-area [row]="row"></app-stall-group-area>
+        }
+      </div>
+
+      <!-- 場內 only 區 -->
+      <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
+        @if (showAreas()) {
+          @for (area of selectedAreas(); track $index) {
+            <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+              <svg [attr.viewBox]="`0 0 ${mapWidth()} ${mapHeight()}`" class="pointer-events-none">
+                <!-- 動態繪製攤位的多邊形 -->
+                <polygon
+                  [attr.points]="area.polygonPoints"
+                  [attr.fill]="area.fillColor"
+                  [attr.opacity]="0.8"
+                  [attr.stroke]="'gray'"
+                  stroke-width="1"
+                />
+                <!-- 文字顯示在 polygon 中心 -->
+                <text
+                  [attr.fill]="area.textColor"
+                  [attr.x]="area.textPointX"
+                  [attr.y]="area.textPointY"
+                  text-anchor="middle"
+                  alignment-baseline="middle"
+                  font-size="16"
+                  style="pointer-events: none"
+                >
+                  {{ area.name }}
+                </text>
+              </svg>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SearchAndFilter } from '../search-and-filter/search-and-filter';
 import { MarkedLayer } from './marked-layer/marked-layer';
 import { OnlyArea } from './only-area/only-area';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { LayersControllerService } from 'src/app/core/services/state/layers-controller-service';
 
 @Component({
   selector: 'app-layers-controller',
@@ -11,9 +13,7 @@ import { OnlyArea } from './only-area/only-area';
   styleUrl: './layers-controller.scss',
 })
 export class LayersController {
-  showControls = signal(true);
+  private _layerControllerService = inject(LayersControllerService);
 
-  toggleControls() {
-    this.showControls.update((v) => !v);
-  }
+  showControls = toSignal(this._layerControllerService.show$);
 }

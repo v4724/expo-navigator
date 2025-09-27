@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { Main } from './layout/main/main';
 import { StallsMap } from './pages/stalls-map/stalls-map';
+import { Layout } from './layout/layout';
 
 export const routes: Routes = [
-  { path: '', component: Main, children: [{ path: '', component: StallsMap }] },
+  { path: '', component: Layout, children: [{ path: '', component: StallsMap }] },
 ];
