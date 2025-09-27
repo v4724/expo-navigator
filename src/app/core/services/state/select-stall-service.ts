@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { StallData } from 'src/app/components/stall/stall.interface';
 import { TooltipService } from './tooltip-service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { StallInfo } from 'src/app/components/stall-info/stall-info';
+import { StallInfo } from 'src/app/components/stall-info-ui/stall-info/stall-info';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +22,7 @@ export class SelectStallService {
     this._selectedId.next(id);
 
     if (id) {
-      this.openDialog();
+      this.openSidenav();
     }
   }
 
@@ -86,5 +86,9 @@ export class SelectStallService {
       this.selected = null;
       this.currDialogRef = null;
     });
+  }
+
+  openSidenav() {
+    // stall-side-nav 聽 select 事件另外處理
   }
 }

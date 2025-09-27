@@ -17,7 +17,21 @@
   </div>
 
   <!-- Map container: will hold the map image and dynamically injected stall areas -->
-  <app-map></app-map>
+  <mat-sidenav-container class="example-container size-full">
+    <mat-sidenav-content>
+      <app-map></app-map>
+    </mat-sidenav-content>
+    <mat-sidenav
+      #sidenav
+      mode="side"
+      [position]="'end'"
+      [fixedInViewport]="true"
+      [fixedTopGap]="52"
+      [fixedBottomGap]="20"
+    >
+      <app-stall-side-nav (close)="sidenav.close()" (open)="sidenav.open()"></app-stall-side-nav>
+    </mat-sidenav>
+  </mat-sidenav-container>
 </div>
 
 <app-tooptip></app-tooptip>

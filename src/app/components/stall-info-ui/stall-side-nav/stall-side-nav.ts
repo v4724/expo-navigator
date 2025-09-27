@@ -1,22 +1,23 @@
-import { Component, inject, model, OnInit, signal, WritableSignal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
-import { StallData } from '../../stall/stall.interface';
-import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, output, signal, WritableSignal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
+import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
-import { CommonModule } from '@angular/common';
+import { StallData } from '../../stall/stall.interface';
+
 @Component({
-  selector: 'app-stall-info',
-  imports: [CommonModule, MatDialogContent],
-  templateUrl: './stall-info.html',
-  styleUrl: './stall-info.scss',
+  selector: 'app-stall-side-nav',
+  imports: [CommonModule],
+  templateUrl: './stall-side-nav.html',
+  styleUrl: './stall-side-nav.scss',
 })
-export class StallInfo implements OnInit {
-  readonly dialogRef = inject(MatDialogRef<StallInfo>);
+export class StallSideNav implements OnInit {
+  open = output<boolean>();
+  close = output<boolean>();
 
   service = inject(SelectStallService);
 
@@ -48,6 +49,7 @@ export class StallInfo implements OnInit {
       this.imageLoaded.set(false);
       this.stall.set(this._selectStallService.selectedStall);
       if (stallId) {
+        this.open.emit(true);
         this.updateStallInfo(stallId);
       }
     });
@@ -97,7 +99,7 @@ export class StallInfo implements OnInit {
     this._selectStallService.clearSelection();
     this._stallModalService.hide();
 
-    this.dialogRef.close();
+    this.close.emit(true);
   }
 
   // --- Image Lightbox Listeners ---

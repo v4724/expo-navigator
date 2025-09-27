@@ -1,14 +1,25 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { Lightbox } from 'src/app/shared/components/lightbox/lightbox';
 import { Tooptip } from 'src/app/shared/components/tooptip/tooptip';
 import { CommonModule } from '@angular/common';
 import { Topbar } from './topbar/topbar';
 import { LayersController } from 'src/app/components/layers-controller/layers-controller';
 import { Map } from './map/map';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { StallSideNav } from 'src/app/components/stall-info-ui/stall-side-nav/stall-side-nav';
 
 @Component({
   selector: 'app-stalls-map',
-  imports: [Lightbox, Tooptip, CommonModule, Topbar, LayersController, Map],
+  imports: [
+    Lightbox,
+    Tooptip,
+    CommonModule,
+    Topbar,
+    LayersController,
+    Map,
+    MatSidenavModule,
+    StallSideNav,
+  ],
   templateUrl: './stalls-map.html',
   styleUrl: './stalls-map.scss',
 })

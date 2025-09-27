@@ -22,6 +22,12 @@ html {
       container-shape: 12px,
     )
   );
+  @include mat.sidenav-overrides(
+    (
+      container-width: 30vw,
+      container-background-color: white,
+    )
+  );
   .mat-mdc-dialog-content {
     max-height: fit-content;
   }
