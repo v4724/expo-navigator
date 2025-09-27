@@ -74,8 +74,6 @@ export class Draggable implements OnDestroy {
       offsetY = this.initY();
     }
 
-    // const offsetX = clientX;
-    // const offsetY = clientY;
     this.initialLensX = offsetX;
     this.initialLensY = offsetY;
     this.targetBgX = offsetX;
@@ -108,7 +106,6 @@ export class Draggable implements OnDestroy {
       this.targetBgX = this.initialLensX + dx;
       this.targetBgY = this.initialLensY + dy;
     }
-    console.debug('onDragMove 移動距離', dx, dy);
     console.debug('onDragMove 移動位置', this.targetBgX, this.targetBgY);
     this.onDragmove.emit(e);
   };

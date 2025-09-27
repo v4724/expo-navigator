@@ -28,7 +28,7 @@ body.body-modal-open {
 
 #app {
   height: 100%;
-  max-width: 90%;
+  /* max-width: 90%; */
   margin: auto;
   padding: 20px;
   text-align: center;

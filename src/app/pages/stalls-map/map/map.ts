@@ -11,12 +11,13 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
-import { BehaviorSubject, catchError, EMPTY, finalize, first, forkJoin, map, Subject } from 'rxjs';
+import { BehaviorSubject, catchError, EMPTY, finalize, first, forkJoin, map } from 'rxjs';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
 import { Stall } from 'src/app/components/stall/stall';
 import { stallGridRefs } from 'src/app/core/const/official-data';
+import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 import { Area } from 'src/app/core/interfaces/area.interface';
 import { AreaService } from 'src/app/core/services/state/area-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
@@ -26,13 +27,14 @@ import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 @Component({
   selector: 'app-map',
-  imports: [CommonModule, Stall, StallGroupArea, MatIcon],
+  imports: [CommonModule, Stall, StallGroupArea, MatIcon, Draggable],
   templateUrl: './map.html',
   styleUrl: './map.scss',
 })
 export class Map implements OnInit, AfterViewInit {
   @ViewChild('mapImage') mapImage!: ElementRef<HTMLImageElement>;
-  @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLImageElement>;
+  @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('mapContent') mapContent!: ElementRef<HTMLDivElement>;
 
   private _stallMapService = inject(StallMapService);
   private _areaService = inject(AreaService);
@@ -47,6 +49,11 @@ export class Map implements OnInit, AfterViewInit {
 
   mapWidth = signal<number>(0);
   mapHeight = signal<number>(0);
+
+  // 縮放、拖曳的計算值
+  translateX = signal(0);
+  translateY = signal(0);
+  scale = signal(1);
 
   mapImgSrc = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@c6b3cd1/assets/stalls-map.jpg`;
   _mapImgLoaded = new BehaviorSubject<boolean>(false);
@@ -84,7 +91,7 @@ export class Map implements OnInit, AfterViewInit {
   });
 
   ngOnInit() {
-    this._mapImgLoaded.pipe().subscribe(() => {
+    this._mapImgLoaded.pipe(first((val) => !!val)).subscribe(() => {
       this._stallMapService.mapImage = this.mapImage.nativeElement;
       this._stallMapService.mapContainer = this.mapContainer.nativeElement;
 
@@ -163,6 +170,81 @@ export class Map implements OnInit, AfterViewInit {
       return;
     }
     if (this._selectStallService.selected) return;
+  }
+
+  onWheel(event: WheelEvent) {
+    event.preventDefault();
+    const zoomIntensity = 0.1;
+    const oldScale = this.scale();
+    let newScale = oldScale + (event.deltaY < 0 ? zoomIntensity : -zoomIntensity);
+    newScale = Math.min(Math.max(newScale, 1), 3);
+
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+
+    // 滑鼠相對於容器的座標 (視窗內位置 - 容器左上角)
+    const offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+
+    // 視圖中心點
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    // 滑鼠相對於視圖中心的位移（像素）
+    const mouseOffsetXFromCenter = offsetX - centerX;
+    const mouseOffsetYFromCenter = offsetY - centerY;
+
+    // 比例差（縮放前後）
+    const scaleDelta = newScale / oldScale;
+
+    // 平移補償，讓滑鼠對應到的內容點不會移動
+    const newTranslateX = this.translateX() - mouseOffsetXFromCenter * (scaleDelta - 1);
+    const newTranslateY = this.translateY() - mouseOffsetYFromCenter * (scaleDelta - 1);
+
+    this.scale.set(newScale);
+    this.setPosition({ x: newTranslateX, y: newTranslateY });
+  }
+
+  setPosition(targetBgXY: TargetXY) {
+    const xy = this.clampedBgXY(targetBgXY);
+
+    if (xy) {
+      this.translateX.set(xy.clampedBgX);
+      this.translateY.set(xy.clampedBgY);
+    }
+  }
+
+  // 限制（Clamp）地圖偏移量
+  clampedBgXY(targetBgXY: TargetXY): { clampedBgX: number; clampedBgY: number } | null {
+    const x = targetBgXY.x;
+    const y = targetBgXY.y;
+
+    const viewW = this.mapContent.nativeElement.offsetWidth;
+    const viewH = this.mapContent.nativeElement.offsetHeight;
+    if (viewW === 0 || viewH === 0) return null;
+
+    const mapImage = this.mapImage.nativeElement;
+    const mapW = mapImage?.offsetWidth ?? 0;
+    const mapH = mapImage?.offsetHeight ?? 0;
+    if (mapW === 0 || mapH === 0) return null;
+
+    // 計算縮放後的地圖大小
+    const scaledMapW = mapW * this.scale();
+    const scaledMapH = mapH * this.scale();
+
+    // 邊界，可拖曳的範圍值
+    const minX = (viewW - scaledMapW) / 2;
+    const minY = (viewH - scaledMapH) / 2;
+    const maxX = (scaledMapW - viewW) / 2;
+    const maxY = (scaledMapH - viewH) / 2;
+
+    // 限制（Clamp）地圖偏移量 x>0: 往左上拖曳、反之往右下
+    const clampedBgX = x > 0 ? Math.min(x, maxX) : Math.max(x, minX);
+    const clampedBgY = y > 0 ? Math.min(y, maxY) : Math.max(y, minY);
+
+    return {
+      clampedBgX,
+      clampedBgY,
+    };
   }
 }
 
