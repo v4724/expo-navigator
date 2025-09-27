@@ -1,38 +1,24 @@
-import { Component, inject, signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, inject, model, OnInit, signal, WritableSignal } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
+import { StallData } from '../../stall/stall.interface';
+import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
-import { MiniMap } from '../mini-map/mini-map';
-import { CommonModule } from '@angular/common';
 import { StallService } from 'src/app/core/services/state/stall-service';
-import { StallData } from '../stall/stall.interface';
-import { map } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
-import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
-
-declare global {
-  interface Window {
-    instgrm?: {
-      Embeds: {
-        process: () => void;
-      };
-    };
-    twttr?: {
-      widgets: {
-        load: (el: HTMLElement) => void;
-      };
-    };
-  }
-}
-
+import { CommonModule } from '@angular/common';
 @Component({
-  selector: 'app-stall-modal',
-  imports: [MiniMap, CommonModule],
-  templateUrl: './stall-modal.html',
-  styleUrl: './stall-modal.scss',
+  selector: 'app-stall-info',
+  imports: [CommonModule, MatDialogContent],
+  templateUrl: './stall-info.html',
+  styleUrl: './stall-info.scss',
 })
-export class StallModal {
-  @ViewChild(MiniMap) miniMap!: MiniMap;
+export class StallInfo implements OnInit {
+  // readonly dialogRef = inject(MatDialogRef<StallInfo>);
+
+  service = inject(SelectStallService);
 
   private _stallModalService = inject(StallModalService);
   private _lightboxService = inject(LightboxService);
@@ -60,10 +46,10 @@ export class StallModal {
     this._selectStallService.selectedStallId$.pipe().subscribe((stallId) => {
       console.debug('stall modal select stall: ', stallId);
       this.imageLoaded.set(false);
-      // this.stall.set(this._selectStallService.selectedStall);
-      // if (stallId) {
-      //   this.updateStallInfo(stallId);
-      // }
+      this.stall.set(this._selectStallService.selectedStall);
+      if (stallId) {
+        this.updateStallInfo(stallId);
+      }
     });
   }
 
@@ -102,12 +88,6 @@ export class StallModal {
 
     this.promoLinks.set(promoLinks);
     if (stall.stallLink) promoLinks.push({ href: stall.stallLink, text: '社團網站' });
-
-    // Show Modal
-    document.body.classList.add('body-modal-open');
-    this._stallModalService.show();
-
-    this.miniMap.updateModalMagnifierView(stall);
   }
   /**
    * Hides the modal and clears any selection.
@@ -116,6 +96,8 @@ export class StallModal {
   closeModal() {
     this._selectStallService.clearSelection();
     this._stallModalService.hide();
+
+    // this.dialogRef.close();
   }
 
   // --- Image Lightbox Listeners ---
