@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-stall-grid-helper',
   imports: [],
   templateUrl: './stall-grid-helper.html',
-  styleUrl: './stall-grid-helper.scss'
+  styleUrl: './stall-grid-helper.scss',
 })
-export class StallGridHelper {
-
-}
+export class StallGridHelper {}
