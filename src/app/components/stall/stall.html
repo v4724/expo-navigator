@@ -1,15 +1,15 @@
 <div
   class="stall-area"
   [class.hidden]="hiddenIfGrouped() && (isGroupedMember$ | async)"
+  [class.invisible]="!showStall()"
   [class.is-selected]="isSelected()"
   [class.is-search-match]="isMatch()"
-  [class.is-marked]="isMarked()"
   [class.has-promo]="stall().hasPromo"
   [style.position]="absolutePosition() ? 'absolute' : 'unset'"
-  [style.top]="absolutePosition() ? stall().coords.top : ''"
-  [style.left]="absolutePosition() ? stall().coords.left : ''"
-  [style.width]="absolutePosition() ? stall().coords.width : '100%'"
-  [style.height]="absolutePosition() ? stall().coords.height : '100%'"
+  [style.top]="absolutePosition() ? `${stall().coords.top}%` : ''"
+  [style.left]="absolutePosition() ? `${stall().coords.left}%` : ''"
+  [style.width]="absolutePosition() ? `${stall().coords.width}%` : '100%'"
+  [style.height]="absolutePosition() ? `${stall().coords.height}%` : '100%'"
   [aria-label]="`Stall: ${stall().stallTitle}`"
   (pointermove)="mousemove()"
   (click)="stallClicked()"
@@ -17,4 +17,18 @@
   (mouseout)="mouseout($event)"
 >
   {{ stall().padNum }}
+</div>
+<div
+  class="absolute text-fuchsia-900 pointer-events-none z-11"
+  [class.invisible]="!showMark() || !isMarked()"
+  [style.position]="absolutePosition() ? 'absolute' : 'unset'"
+  [style.top]="`${markedXY().y}%`"
+  [style.left]="`${markedXY().x}%`"
+>
+  <mat-icon
+    class="!size-2 !text-[10px]"
+    aria-hidden="false"
+    aria-label="Example star icon"
+    fontIcon="star"
+  ></mat-icon>
 </div>

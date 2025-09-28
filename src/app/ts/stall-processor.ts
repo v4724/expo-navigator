@@ -138,10 +138,10 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
         const finalWidth = coordsTemplate.width * stallCnt;
 
         myCoords = {
-          top: `${top}%`,
-          left: `${finalLeft}%`,
-          width: `${finalWidth}%`,
-          height: `${coordsTemplate.height}%`,
+          top: `${top}`,
+          left: `${finalLeft}`,
+          width: `${finalWidth}`,
+          height: `${coordsTemplate.height}`,
         };
 
         myNumericCoords = {
@@ -189,10 +189,10 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
         const finalHeight = coordsTemplate.height * stallCnt;
 
         myCoords = {
-          top: `${finalTop}%`,
-          left: `${coordsTemplate.left}%`,
-          width: `${coordsTemplate.width}%`,
-          height: `${finalHeight}%`,
+          top: `${finalTop}`,
+          left: `${coordsTemplate.left}`,
+          width: `${coordsTemplate.width}`,
+          height: `${finalHeight}`,
         };
 
         myNumericCoords = {

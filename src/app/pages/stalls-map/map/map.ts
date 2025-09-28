@@ -60,6 +60,7 @@ export class Map implements OnInit, AfterViewInit {
   mapImgLoaded$ = this._mapImgLoaded.asObservable();
   mapImgLoaded = toSignal(this._mapImgLoaded);
 
+  // 攤位
   allStalls$ = this._stallService.allStalls$;
   stallGridRefs = stallGridRefs;
 

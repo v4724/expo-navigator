@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, InputSignal, OnInit, signal } from '@angular/core';
 import { StallData } from './stall.interface';
 import { CommonModule } from '@angular/common';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -12,10 +12,12 @@ import { TagService } from 'src/app/core/services/state/tag-service';
 
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
+import { StallLayerService } from 'src/app/core/services/state/stall-layer-service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-stall',
-  imports: [CommonModule],
+  imports: [CommonModule, MatIcon],
   templateUrl: './stall.html',
   styleUrl: './stall.scss',
 })
@@ -32,6 +34,7 @@ export class Stall implements OnInit {
   private _tooltipService = inject(TooltipService);
   private _tagService = inject(TagService);
   private _markedStallService = inject(MarkedStallService);
+  private _stallLayerService = inject(StallLayerService);
 
   isGroupedMember$ = toObservable(this.stall).pipe(
     map((stall) => {
@@ -39,11 +42,30 @@ export class Stall implements OnInit {
     }),
   );
 
+  showStall = toSignal(this._stallLayerService.show$);
+  showMark = toSignal(this._markedStallService.show$);
+
   isSelected = signal<boolean>(false);
   isSearchMatch = signal<boolean>(false);
   isSeriesMatch = signal<boolean>(false);
   isTagMatch = signal<boolean>(false);
   isMarked = signal<boolean>(false);
+
+  markedXY = computed(() => {
+    let x = 0;
+    let y = 0;
+    if (this.absolutePosition()) {
+      let top = Number(this.stall().coords.top);
+      let left = Number(this.stall().coords.left);
+      x = left + Number(this.stall().coords.width) / 3;
+      y = top;
+    }
+
+    return {
+      x,
+      y,
+    };
+  });
 
   // 避免拖曳地圖後觸發的 click，用於在拖曳時紀錄狀態
   isPanning = false;
@@ -98,15 +120,6 @@ export class Stall implements OnInit {
       });
       this.isTagMatch.set(isMatch);
       this.updateGroupAreaMatch();
-    });
-
-    this._markedStallService.show$.pipe().subscribe((val) => {
-      if (val) {
-        const isMarked = this._markedStallService.isMarked(this.stall().id);
-        this.isMarked.set(isMarked);
-      } else {
-        this.isMarked.set(false);
-      }
     });
 
     // 更新 marked 狀態

@@ -5,10 +5,11 @@ import { MarkedLayer } from './marked-layer/marked-layer';
 import { OnlyArea } from './only-area/only-area';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LayersControllerService } from 'src/app/core/services/state/layers-controller-service';
+import { StallsLayer } from './stalls-layer/stalls-layer';
 
 @Component({
   selector: 'app-layers-controller',
-  imports: [CommonModule, MarkedLayer, OnlyArea, SearchAndFilter],
+  imports: [CommonModule, MarkedLayer, OnlyArea, SearchAndFilter, StallsLayer],
   templateUrl: './layers-controller.html',
   styleUrl: './layers-controller.scss',
 })
