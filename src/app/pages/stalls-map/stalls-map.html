@@ -1,21 +1,10 @@
 <!-- header -->
 <app-topbar></app-topbar>
-<div class="absolute top-16 h-[calc(100vh-64px)]">
+<div class="absolute top-14 h-[calc(100vh-64px)]">
   <app-layers-controller></app-layers-controller>
 </div>
 
 <div id="app" class="overflow-hidden">
-  <div class="legend-container">
-    <div class="legend-item"><span class="legend-box legend-default"></span><span>攤位</span></div>
-    <div class="legend-item"><span class="legend-box legend-promo"></span><span>宣傳車</span></div>
-    <div class="legend-item">
-      <span class="legend-box legend-search"></span><span>搜尋結果</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-box legend-selected"></span><span>選擇中</span>
-    </div>
-  </div>
-
   <!-- Map container: will hold the map image and dynamically injected stall areas -->
   <mat-sidenav-container class="example-container size-full">
     <mat-sidenav-content>
@@ -26,7 +15,7 @@
       mode="side"
       [position]="'end'"
       [fixedInViewport]="true"
-      [fixedTopGap]="52"
+      [fixedTopGap]="60"
       [fixedBottomGap]="20"
     >
       <app-stall-side-nav (close)="sidenav.close()" (open)="sidenav.open()"></app-stall-side-nav>

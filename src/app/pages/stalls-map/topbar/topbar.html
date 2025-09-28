@@ -1,14 +1,31 @@
-<div class="fixed top-0 left-0 layout-topbar px-4 z-2">
-  <div class="h-16 flex items-center">
+<div class="fixed top-0 left-0 layout-topbar px-4 z-2 w-full pointer-events-none">
+  <div class="py-2 flex items-center">
     <div class="flex items-center">
       <app-toggle-controller></app-toggle-controller>
-      <mat-icon
-        aria-hidden="false"
-        aria-label="Example home icon"
-        fontIcon="home"
-        class="ml-2"
-      ></mat-icon>
-      <div class="ml-2">NiCE 創·迴響 互動地圖</div>
+      <div class="ml-2 text-lg bg-white/80 py-2 px-4 rounded-full text-gray-600 flex items-center">
+        <mat-icon
+          aria-hidden="false"
+          aria-label="Example home icon"
+          fontIcon="home"
+          class=""
+        ></mat-icon>
+        <div class="ml-2">NiCE 創·迴響 互動地圖</div>
+      </div>
+    </div>
+
+    <div class="legend-container py-2 px-4 top-3 ml-auto">
+      <div class="legend-item">
+        <span class="legend-box legend-default"></span><span>攤位</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-box legend-promo"></span><span>宣傳車</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-box legend-search"></span><span>搜尋結果</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-box legend-selected"></span><span>選擇中</span>
+      </div>
     </div>
   </div>
 </div>

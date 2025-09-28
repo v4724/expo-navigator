@@ -24,10 +24,14 @@
         <img
           [src]="stall()?.stallImg"
           [attr.data-key]="stall()?.id"
+          [attr.key]="stall()?.id"
           [alt]="'Official Promo Image: ' + stall()?.stallTitle"
-          class="stall-promo-image aspect-video relative z-10 object-contain w-lg"
-          [class.opacity]="imageLoaded() ? 1 : 0"
+          class="stall-promo-image aspect-video relative z-10 object-contain w-lg transition-all duration-500"
+          [class.opacity-0]="!imageLoaded()"
+          [class.blur-xs]="!imageLoaded()"
           [class.loaded]="imageLoaded()"
+          [class.opacity-100]="imageLoaded()"
+          [class.blur-none]="imageLoaded()"
           loading="lazy"
           (load)="imageLoaded.set(true)"
         />

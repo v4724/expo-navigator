@@ -1,71 +1,74 @@
 <div class="flex flex-col gap-2">
   <app-input-search></app-input-search>
-  <button
-    (click)="toggleTagSection()"
-    class="w-full flex justify-between items-center text-left font-semibold text-gray-700 mt-1"
-  >
-    <span>攤位標籤</span>
 
-    <mat-icon
-      aria-hidden="false"
-      aria-label="Example home icon"
-      fontIcon="keyboard_arrow_up"
-      class="h-5 w-5 transition-transform"
-      [class.rotate-180]="!isTagSectionOpen()"
-    ></mat-icon>
-  </button>
-  <div
-    class="transition-all duration-300"
-    [class.max-h-0]="!isTagSectionOpen()"
-    [class.max-h-80]="isTagSectionOpen()"
-  >
-    @if (isTagSectionOpen()) {
-      @if (!tagFetchEnd()) {
-        <mat-icon
-          class="animate-spin"
-          aria-hidden="false"
-          aria-label="auto renew"
-          fontIcon="autorenew"
-        ></mat-icon>
+  <div>
+    <button
+      (click)="toggleTagSection()"
+      class="w-full flex justify-between items-center text-left font-semibold text-gray-700 mt-1"
+    >
+      <span>攤位標籤</span>
+
+      <mat-icon
+        aria-hidden="false"
+        aria-label="Example home icon"
+        fontIcon="keyboard_arrow_up"
+        class="h-5 w-5 transition-transform"
+        [class.rotate-180]="!isTagSectionOpen()"
+      ></mat-icon>
+    </button>
+    <div
+      class="transition-all duration-300"
+      [class.max-h-0]="!isTagSectionOpen()"
+      [class.max-h-80]="isTagSectionOpen()"
+    >
+      @if (isTagSectionOpen()) {
+        @if (!tagFetchEnd()) {
+          <mat-icon
+            class="animate-spin"
+            aria-hidden="false"
+            aria-label="auto renew"
+            fontIcon="autorenew"
+          ></mat-icon>
+        }
+        @if (allSeriesAndTags().length) {
+          <div
+            class="mt-2 space-y-2 pl-2 max-h-80 overflow-auto pr-1"
+            animate.enter="fade-in"
+            animate.leave="fade-out"
+          >
+            @for (series of allSeriesAndTags(); track $index) {
+              <div class="flex items-center justify-between">
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    (change)="toggleSeries(series.id)"
+                    [checked]="isSeriesSelected(series.id)"
+                    class="h-4 w-4 rounded accent-purple-500"
+                  />
+                  <span class="text-sm text-gray-600">{{ series.name }}</span>
+                  @if (selectedAdvancedTagsCount()[series.id]) {
+                    <span class="text-xs bg-purple-200 text-purple-800 rounded-full px-2 py-0.5">
+                      {{ selectedAdvancedTagsCount()[series.id] }}
+                    </span>
+                  }
+                </label>
+                <button
+                  (click)="openAdvancedFilterModal(series)"
+                  class="text-gray-500 hover:text-gray-800"
+                >
+                  <mat-icon
+                    [inline]="true"
+                    aria-hidden="false"
+                    aria-label="Example filter icon"
+                    fontIcon="filter_alt"
+                  ></mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
       }
-      @if (allSeriesAndTags().length) {
-        <div
-          class="mt-2 space-y-2 pl-2 max-h-80 overflow-auto pr-1"
-          animate.enter="fade-in"
-          animate.leave="fade-out"
-        >
-          @for (series of allSeriesAndTags(); track $index) {
-            <div class="flex items-center justify-between">
-              <label class="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  (change)="toggleSeries(series.id)"
-                  [checked]="isSeriesSelected(series.id)"
-                  class="h-4 w-4 rounded accent-purple-500"
-                />
-                <span class="text-sm text-gray-600">{{ series.name }}</span>
-                @if (selectedAdvancedTagsCount()[series.id]) {
-                  <span class="text-xs bg-purple-200 text-purple-800 rounded-full px-2 py-0.5">
-                    {{ selectedAdvancedTagsCount()[series.id] }}
-                  </span>
-                }
-              </label>
-              <button
-                (click)="openAdvancedFilterModal(series)"
-                class="text-gray-500 hover:text-gray-800"
-              >
-                <mat-icon
-                  [inline]="true"
-                  aria-hidden="false"
-                  aria-label="Example filter icon"
-                  fontIcon="filter_alt"
-                ></mat-icon>
-              </button>
-            </div>
-          }
-        </div>
-      }
-    }
+    </div>
   </div>
 </div>
 <!-- Advanced Filter Modal -->
