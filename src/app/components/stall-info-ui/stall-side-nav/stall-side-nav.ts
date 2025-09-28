@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, output, signal, WritableSignal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { Component, computed, inject, OnInit, output, signal, WritableSignal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest, first, map } from 'rxjs';
 import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallData } from '../../stall/stall.interface';
+import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-stall-side-nav',
-  imports: [CommonModule],
+  imports: [CommonModule, MatIcon],
   templateUrl: './stall-side-nav.html',
   styleUrl: './stall-side-nav.scss',
 })
@@ -25,34 +27,64 @@ export class StallSideNav implements OnInit {
   private _lightboxService = inject(LightboxService);
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
+  private _markedStallService = inject(MarkedStallService);
 
   show$ = this._stallModalService.showStallModal$;
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
   promoLinks: WritableSignal<PromoLink[]> = signal<PromoLink[]>([]);
   imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
+  isMarkedFetchEnd = toSignal(this._markedStallService.fetchEnd$);
 
-  hasPromoInfo$ = toObservable(this.stall).pipe(
-    map((stall) => {
-      if (stall) {
-        return stall.stallImg || stall.hasPromo;
-      } else {
-        return false;
-      }
-    }),
-  );
+  stall$ = toObservable(this.stall);
+  isMarkedSignal = signal(false);
+
+  hasPromoInfo = computed(() => {
+    const stall = this.stall();
+    if (stall) {
+      return stall.stallImg || stall.hasPromo;
+    } else {
+      return false;
+    }
+  });
 
   defaultAvatar: string = 'https://images.plurk.com/3rbw6tg1lA5dEGpdKTL8j1.png';
 
   ngOnInit() {
     this._selectStallService.selectedStallId$.pipe().subscribe((stallId) => {
       console.debug('stall modal select stall: ', stallId);
+      this.isMarkedSignal.set(false);
       this.imageLoaded.set(false);
-      this.stall.set(this._selectStallService.selectedStall);
-      if (stallId) {
-        this.open.emit(true);
-        this.updateStallInfo(stallId);
-      }
+      requestAnimationFrame(() => {
+        this.stall.set(this._selectStallService.selectedStall);
+        if (stallId) {
+          this.open.emit(true);
+          this.updateStallInfo(stallId);
+        }
+      });
     });
+
+    // 切換 stall 時更新 marked 狀態
+    combineLatest([this.stall$, this._markedStallService.fetchEnd$.pipe(first((val) => !!val))])
+      .pipe()
+      .subscribe(([stall]) => {
+        let isMarked = false;
+        if (stall) {
+          const stallId = stall.id;
+          isMarked = this._markedStallService.isMarked(stallId);
+        }
+        this.isMarkedSignal.set(isMarked);
+      });
+  }
+
+  // 手動更新 marked 狀態
+  toggleBookmark() {
+    const marked = !this.isMarkedSignal();
+    this.isMarkedSignal.set(marked);
+
+    const stall = this.stall();
+    if (stall) {
+      this._markedStallService.update(stall.id, marked);
+    }
   }
 
   /**

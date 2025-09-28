@@ -1,32 +1,41 @@
 <div mat-dialog-title class="modal-header">
   <h2 class="modal-title">{{ stall()?.id }}: {{ stall()?.stallTitle }}</h2>
   <button id="modal-close" aria-label="Close dialog" (click)="closeModal()">&times;</button>
+  <button
+    class="bookmark-btn text-gray-200 rounded-full bg-transparent"
+    [class.active]="isMarkedSignal()"
+    (click)="toggleBookmark()"
+    aria-label="Bookmark"
+  >
+    <mat-icon class="">bookmark_star</mat-icon>
+  </button>
 </div>
 <div>
-  <div class="modal-body" (click)="bodyClicked($event)">
-    @if (!(hasPromoInfo$ | async)) {
+  <div class="p-4" (click)="bodyClicked($event)">
+    @if (stall()?.stallImg) {
+      <div
+        class="relative w-full bg-center bg-cover bg-gray-100 rounded-xl overflow-hidden border border-gray-100"
+        [style.background-image]="'url(' + stall()?.stallImg + ')'"
+      >
+        <!-- 毛玻璃遮罩 -->
+        <div class="absolute inset-0 bg-white/30 backdrop-blur-md rounded-xl"></div>
+
+        <!-- 圖片內容（保持清晰） -->
+        <img
+          [src]="stall()?.stallImg"
+          [attr.data-key]="stall()?.id"
+          [alt]="'Official Promo Image: ' + stall()?.stallTitle"
+          class="stall-promo-image aspect-video relative z-10 object-contain w-lg"
+          [class.opacity]="imageLoaded() ? 1 : 0"
+          [class.loaded]="imageLoaded()"
+          loading="lazy"
+          (load)="imageLoaded.set(true)"
+        />
+      </div>
+    }
+    @if (!hasPromoInfo()) {
       暫無宣傳資訊。
     } @else {
-      @if (stall()?.stallImg) {
-        <div
-          class="relative w-full bg-center bg-cover bg-gray-100 rounded-xl overflow-hidden border border-gray-100"
-          [style.background-image]="'url(' + stall()?.stallImg + ')'"
-        >
-          <!-- 毛玻璃遮罩 -->
-          <div class="absolute inset-0 bg-white/30 backdrop-blur-md rounded-xl"></div>
-
-          <!-- 圖片內容（保持清晰） -->
-          <img
-            [src]="stall()?.stallImg"
-            [attr.data-key]="stall()?.stallImg"
-            [alt]="'Official Promo Image: ' + stall()?.stallTitle"
-            class="stall-promo-image aspect-video relative z-10 object-contain w-lg"
-            [class.loaded]="imageLoaded()"
-            loading="lazy"
-            (load)="imageLoaded.set(true)"
-          />
-        </div>
-      }
       @if (stall()?.stallImg && stall()?.hasPromo) {
         <hr class="promo-section-separator" />
       }

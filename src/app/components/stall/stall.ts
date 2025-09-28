@@ -108,6 +108,12 @@ export class Stall implements OnInit {
         this.isMarked.set(false);
       }
     });
+
+    // 更新 marked 狀態
+    this._markedStallService.sortedMarkedStalls$.pipe().subscribe(() => {
+      const isMarked = this._markedStallService.isMarked(this.stall().id);
+      this.isMarked.set(isMarked);
+    });
   }
 
   updateGroupAreaMatch() {

@@ -53,6 +53,29 @@ export class MarkedStallService {
     this._show.next(!this._show.getValue());
   }
 
+  update(stallId: string, marked: boolean) {
+    if (marked) {
+      const newCat = [...this.markedStalls];
+      const stall = this._stallService.findStall(stallId);
+      if (stall) {
+        newCat.push({ info: stall, stallId, sortedNum: newCat[newCat.length - 1].sortedNum + 1 });
+
+        this._markedIds.add(stallId);
+        this.markedStalls = newCat;
+      }
+    } else {
+      this._markedIds.delete(stallId);
+
+      const newCat = [...this.markedStalls];
+      const find = newCat.find((stall) => stall.stallId === stallId);
+      if (find) {
+        const index = newCat.indexOf(find);
+        newCat.splice(index, 1);
+        this.markedStalls = newCat;
+      }
+    }
+  }
+
   private _processMarkedStall(rawData: Record<string, string>[]) {
     const dtoData: MarkedStallDto[] = [];
     const data: MarkedStall[] = [];

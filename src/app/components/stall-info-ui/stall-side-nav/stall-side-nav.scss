@@ -1,0 +1,19 @@
+.bookmark-btn {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.bookmark-btn.active mat-icon {
+  color: purple;
+  transform: scale(1.2);
+  transition:
+    color 0.3s,
+    transform 0.2s;
+}
