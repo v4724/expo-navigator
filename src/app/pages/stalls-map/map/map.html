@@ -50,7 +50,7 @@
       </div>
 
       <!-- 場內 only 區 -->
-      <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
+      <div class="pointer-events-none">
         @if (showAreas()) {
           @for (area of selectedAreas(); track $index) {
             <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
@@ -59,7 +59,7 @@
                 <polygon
                   [attr.points]="area.polygonPoints"
                   [attr.fill]="area.fillColor"
-                  [attr.opacity]="0.8"
+                  [attr.opacity]="0.5"
                   [attr.stroke]="'gray'"
                   stroke-width="1"
                 />
@@ -70,7 +70,7 @@
                   [attr.y]="area.textPointY"
                   text-anchor="middle"
                   alignment-baseline="middle"
-                  font-size="16"
+                  font-size="8"
                   style="pointer-events: none"
                 >
                   {{ area.name }}

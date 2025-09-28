@@ -95,8 +95,10 @@ export class Map implements OnInit, AfterViewInit {
       this._stallMapService.mapImage = this.mapImage.nativeElement;
       this._stallMapService.mapContainer = this.mapContainer.nativeElement;
 
-      this.mapWidth.set(this.mapImage.nativeElement.offsetWidth);
-      this.mapHeight.set(this.mapImage.nativeElement.offsetHeight);
+      requestAnimationFrame(() => {
+        this.mapWidth.set(this.mapContent.nativeElement.offsetWidth);
+        this.mapHeight.set(this.mapContent.nativeElement.offsetHeight);
+      });
     });
   }
 
