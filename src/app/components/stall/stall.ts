@@ -1,4 +1,15 @@
-import { Component, computed, inject, input, InputSignal, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  InputSignal,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { StallData } from './stall.interface';
 import { CommonModule } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -14,14 +25,15 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallLayerService } from 'src/app/core/services/state/stall-layer-service';
 import { MatIcon } from '@angular/material/icon';
-
 @Component({
   selector: 'app-stall',
   imports: [CommonModule, MatIcon],
   templateUrl: './stall.html',
   styleUrl: './stall.scss',
 })
-export class Stall implements OnInit {
+export class Stall implements OnInit, AfterViewInit {
+  @ViewChild('stallRef') stallRef!: ElementRef<HTMLDivElement>;
+
   stall: InputSignal<StallData> = input.required();
   absolutePosition = input();
   hiddenIfGrouped = input();
@@ -41,6 +53,8 @@ export class Stall implements OnInit {
       return this._stallService.isGroupedMember(stall.id);
     }),
   );
+
+  fontSize = signal<string>('0.5rem');
 
   showStall = toSignal(this._stallLayerService.show$);
   showMark = toSignal(this._markedStallService.show$);
@@ -129,6 +143,13 @@ export class Stall implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    const resizeObserver = new ResizeObserver(() => {
+      this.resizeHandler();
+    });
+    resizeObserver.observe(this.stallRef.nativeElement);
+  }
+
   updateGroupAreaMatch() {
     // If a match is found, record its row ID.
     const groupId = this.stall().id.substring(0, 1);
@@ -170,5 +191,16 @@ export class Stall implements OnInit {
     }
 
     this._selectStallService.selected = this.stall().id;
+  }
+
+  resizeHandler() {
+    const mapH = this._stallMapService.mapImage?.height ?? 0;
+    if (mapH) {
+      const h = (Number(this.stall().coords.height) * mapH) / 100;
+      const fontSize = h * 0.7;
+      this.fontSize.set(`${fontSize}px`);
+    } else {
+      this.fontSize.set('0.5rem');
+    }
   }
 }
