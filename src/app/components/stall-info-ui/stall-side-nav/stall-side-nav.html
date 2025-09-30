@@ -1,6 +1,14 @@
-<div mat-dialog-title class="modal-header">
+<div
+  class="header flex sticky top-0 z-50 bg-white shadow transition-all duration-300 justify-between items-center px-5 py-4"
+>
   <h2 class="modal-title">{{ stall()?.id }}: {{ stall()?.stallTitle }}</h2>
-  <button id="modal-close" aria-label="Close dialog" (click)="closeModal()">&times;</button>
+  <button
+    class="text-2xl flex items-center transition hover:scale-110"
+    aria-label="Close dialog"
+    (click)="closeModal()"
+  >
+    &times;
+  </button>
   <button
     class="bookmark-btn text-gray-200 rounded-full bg-transparent"
     [class.active]="isMarkedSignal()"
