@@ -1,0 +1,22 @@
+:host ::ng-deep {
+  --p-fieldset-legend-background: transparent;
+  --p-fieldset-legend-hover-background: transparent;
+  --p-fieldset-legend-font-weight: 400;
+  --p-fieldset-legend-color: #8b8564;
+  --p-fieldset-legend-padding: 0rem;
+  // --p-fieldset-legend-color: #64748b;
+  // --p-fieldset-legend-hover-color: #334155;
+  --p-fieldset-toggle-icon-hover-color: #334155;
+
+  --p-tabs-tab-padding: 0.5rem;
+  --p-tabs-tablist-background: transparent;
+
+  --p-button-sm-font-size: 0.75rem;
+  --p-button-sm-padding-x: 0.25rem;
+  --p-button-sm-padding-y: 0.25rem;
+
+  --p-panel-toggleable-header-padding: 0rem;
+  --p-panel-header-padding: 0rem;
+  --p-panel-content-padding: 0rem;
+  --p-panel-border-color: transparent;
+}

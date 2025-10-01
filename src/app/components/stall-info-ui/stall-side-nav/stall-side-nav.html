@@ -1,16 +1,17 @@
 <div
-  class="header flex sticky top-0 z-50 bg-white shadow transition-all duration-300 justify-between items-center px-5 py-4"
+  class="header flex sticky top-0 z-20 bg-white shadow transition-all duration-300 w-full items-center px-5 py-4"
 >
-  <h2 class="modal-title">{{ stall()?.id }}: {{ stall()?.stallTitle }}</h2>
+  <h2 class="modal-title mr-auto">{{ stall()?.id }}: {{ stall()?.stallTitle }}</h2>
+  <app-edit-btn></app-edit-btn>
   <button
-    class="text-2xl flex items-center transition hover:scale-110"
+    class="text-base flex items-center transition hover:scale-110"
     aria-label="Close dialog"
     (click)="closeModal()"
   >
-    &times;
+    <mat-icon [inline]="true" class="">close</mat-icon>
   </button>
   <button
-    class="bookmark-btn text-gray-200 rounded-full bg-transparent"
+    class="bookmark-btn text-gray-200 rounded-full bg-transparent transition hover:scale-110"
     [class.active]="isMarkedSignal()"
     (click)="toggleBookmark()"
     aria-label="Bookmark"

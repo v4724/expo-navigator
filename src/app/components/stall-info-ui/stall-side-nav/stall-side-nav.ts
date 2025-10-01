@@ -10,10 +10,11 @@ import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallData } from '../../stall/stall.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { MatIcon } from '@angular/material/icon';
+import { EditBtn } from '../../edit-stall/edit-btn/edit-btn';
 
 @Component({
   selector: 'app-stall-side-nav',
-  imports: [CommonModule, MatIcon],
+  imports: [CommonModule, MatIcon, EditBtn],
   templateUrl: './stall-side-nav.html',
   styleUrl: './stall-side-nav.scss',
 })

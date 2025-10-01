@@ -1,0 +1,278 @@
+<div mat-dialog-title class="py-4 px-6 text-gray-600">
+  <div class="text-lg">編輯攤位資訊：{{ stallForm.get('stallId')?.value }}</div>
+</div>
+<mat-dialog-content>
+  <form [formGroup]="stallForm" class="flex flex-col w-full">
+    <!-- 社團資訊 -->
+    <div class="flex flex-wrap gap-3">
+      <div class="flex flex-col gap-1 w-full md:w-1/2">
+        <p-floatlabel variant="on">
+          <input
+            class="w-full"
+            pInputText
+            type="text"
+            id="stallTitle"
+            placeholder=""
+            formControlName="stallTitle"
+            autocomplete="off"
+          />
+          <label for="stallTitle">社團名稱</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex flex-col gap-1 w-full md:w-1/2">
+        <p-floatlabel variant="on">
+          <input
+            class="w-full"
+            pInputText
+            type="text"
+            id="stallLink"
+            placeholder=""
+            formControlName="stallLink"
+            autocomplete="off"
+          />
+          <label for="stallLink">社團連結</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex flex-col gap-1 w-full">
+        <p-floatlabel variant="on">
+          <input
+            class="w-full"
+            pInputText
+            type="text"
+            id="stallImg"
+            placeholder=""
+            formControlName="stallImg"
+            autocomplete="off"
+          />
+          <label for="stallImg">攤位圖</label>
+        </p-floatlabel>
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- 宣傳車資訊 -->
+    <div formArrayName="promos" class="flex flex-col">
+      <div class="flex items-center justify-center">
+        <div class="relative text-lg">宣傳車資訊</div>
+        <button class="ml-auto" matButton (click)="addPromo()">新增</button>
+      </div>
+      <p-tabs #promoTabs [value]="0" scrollable>
+        <p-tablist>
+          @for (tab of tabList(); track tab; let tabIndex = $index) {
+            <p-tab [value]="tabIndex">
+              <div class="flex gap-1 h-full">
+                @if (tab.icon) {
+                  <p-avatar [image]="tab.icon" shape="circle" />
+                }
+                <div class="flex items-center">
+                  <div class="font-bold whitespace-nowrap flex items-center mx-2">
+                    @if (tab.name) {
+                      {{ tab.name }}
+                    } @else {
+                      宣傳車{{ tabIndex + 1 }}
+                    }
+                  </div>
+                  @if (promoTabs.value() === tabIndex) {
+                    <p-button
+                      icon="pi pi-times"
+                      [rounded]="true"
+                      [text]="true"
+                      size="small"
+                      (click)="removePromo($event, tabIndex)"
+                    />
+                  }
+                </div>
+              </div>
+            </p-tab>
+          }
+        </p-tablist>
+        <p-tabpanels>
+          @for (promo of promos.controls; track promo; let promoIndex = $index) {
+            <p-tabpanel [value]="promoIndex">
+              <div [formGroupName]="promoIndex" class="flex flex-col gap-3 mt-4">
+                <div class="flex flex-col gap-1 w-full md:w-1/2">
+                  <p-floatlabel variant="on">
+                    <input
+                      class="w-full"
+                      pInputText
+                      type="text"
+                      id="name"
+                      formControlName="name"
+                      autocomplete="off"
+                    />
+                    <label for="name">宣傳車名稱</label>
+                  </p-floatlabel>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <p-floatlabel variant="on">
+                    <input
+                      class="w-full"
+                      pInputText
+                      type="text"
+                      id="icon"
+                      formControlName="icon"
+                      autocomplete="off"
+                    />
+                    <label for="icon">icon 網址</label>
+                  </p-floatlabel>
+                </div>
+
+                <!-- 連結 -->
+                <div class="flex flex-col gap-1 mt-2">
+                  <label>宣傳內容</label>
+                  <p-editor
+                    id="html"
+                    formControlName="html"
+                    [style]="{ height: '320px', width: '100%' }"
+                  />
+                </div>
+
+                <!-- 連結 -->
+                <div class="flex flex-col gap-3" formArrayName="links">
+                  <div class="flex justify-center">
+                    <p-fieldset [toggleable]="true" legend="宣傳連結" collapsed class="w-full">
+                      <!-- <ng-template #header>
+                        <div class="flex items-center gap-2">宣傳連結</div>
+                      </ng-template> -->
+                      <div class="pt-3 flex flex-col gap-3 w-full">
+                        @for (
+                          link of getLinks(promoIndex).controls;
+                          let linkIndex = $index;
+                          track link
+                        ) {
+                          <div class="flex gap-3 w-full" [formGroupName]="linkIndex">
+                            <div class="flex flex-col gap-1 w-1/2">
+                              <p-floatlabel variant="on">
+                                <input
+                                  class="w-full"
+                                  pInputText
+                                  type="text"
+                                  [id]="`href-${linkIndex}`"
+                                  formControlName="href"
+                                  autocomplete="off"
+                                />
+                                <label [for]="`href-${linkIndex}`">網址</label>
+                              </p-floatlabel>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                              <p-floatlabel variant="on">
+                                <input
+                                  class="w-full"
+                                  pInputText
+                                  type="text"
+                                  [id]="`text-${linkIndex}`"
+                                  formControlName="text"
+                                  autocomplete="off"
+                                />
+                                <label [for]="`text-${linkIndex}`">顯示文字</label>
+                              </p-floatlabel>
+                            </div>
+                            <button
+                              class="text-base transition hover:scale-110"
+                              (click)="removeLink(promoIndex, linkIndex)"
+                            >
+                              <mat-icon [inline]="true">close</mat-icon>
+                            </button>
+                          </div>
+                        }
+
+                        <div class="flex justify-center items-center">
+                          <button
+                            class="text-sm transition hover:scale-105 flex"
+                            (click)="addLink($event, promoIndex)"
+                          >
+                            <mat-icon
+                              [inline]="true"
+                              aria-hidden="false"
+                              aria-label="auto add"
+                              fontIcon="add"
+                            ></mat-icon>
+                            新增
+                          </button>
+                        </div>
+                      </div>
+                    </p-fieldset>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <div>作品</div>
+                  <div class="flex flex-col flex-wrap gap-2">
+                    @for (series of seriesAndTags().keys(); track series) {
+                      <p-panel [toggleable]="true">
+                        <ng-template #header>
+                          <div class="flex items-center gap-2">
+                            <p-checkbox [binary]="true" [inputId]="series.seriesId" />
+                            <label [for]="series.seriesId"> {{ series.seriesName }} </label>
+                          </div>
+                        </ng-template>
+
+                        <div class="flex flex-col gap-2">
+                          <div class="flex flex-col pl-7 gap-4">
+                            <div class="flex gap-4">
+                              <div class="flex text-nowrap w-6">角色</div>
+                              <div class="flex flex-wrap gap-x-4 gap-y-2">
+                                @for (tag of seriesAndTags().get(series)?.get('CHAR'); track tag) {
+                                  <div>
+                                    <p-checkbox [binary]="true" [inputId]="`tag-${tag.tagId}`" />
+                                    <!-- [(ngModel)]="tag.checked" -->
+                                    <label [for]="`tag-${tag.tagId}`"> {{ tag.tagName }} </label>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                            <div class="flex gap-4">
+                              <div class="flex text-nowrap w-6">CP</div>
+                              <div class="flex flex-wrap gap-x-4 gap-y-2">
+                                @for (tag of seriesAndTags().get(series)?.get('CP'); track tag) {
+                                  <div>
+                                    <p-checkbox [binary]="true" [inputId]="`tag-${tag.tagId}`" />
+                                    <!-- [(ngModel)]="tag.checked" -->
+                                    <label [for]="`tag-${tag.tagId}`"> {{ tag.tagName }} </label>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+
+                            <div class="flex w-full gap-4">
+                              <label class="text-nowrap w-6"> 自訂 </label>
+                              <input
+                                pSize="small"
+                                class="flex-grow"
+                                pInputText
+                                type="text"
+                                placeholder=""
+                                autocomplete="off"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </p-panel>
+                    }
+                  </div>
+                  <div class="flex w-full gap-4">
+                    <label class="text-nowrap w-6"> 自訂 </label>
+                    <input
+                      pSize="small"
+                      class="flex-grow"
+                      pInputText
+                      type="text"
+                      placeholder=""
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button matButton (click)="onClose()">關閉</button>
+  <button matButton (click)="onTempSave()">暫存</button>
+  <button matButton (click)="onSave()">儲存並關閉</button>
+</mat-dialog-actions>
