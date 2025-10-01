@@ -59,7 +59,9 @@ body {
 @import url('./styles/modal.css');
 @import url('./styles/responsive.css');
 
+// 注意順序
 @import 'tailwindcss';
+@import 'primeicons/primeicons.css';
 
 .hidden {
   display: none !important;
