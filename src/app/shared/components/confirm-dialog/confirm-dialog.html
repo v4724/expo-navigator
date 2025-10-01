@@ -1,0 +1,9 @@
+<mat-dialog-content>
+  <p>What's your favorite animal?</p>
+
+  <div>{{ label() }}</div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button matButton (click)="onNoClick()">取消</button>
+  <button matButton [mat-dialog-close]="'CONFIRM'" cdkFocusInitial>確認</button></mat-dialog-actions
+>
