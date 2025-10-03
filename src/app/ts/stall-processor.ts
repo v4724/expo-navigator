@@ -256,6 +256,7 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
         promoTags: parsePromoTags(rawStall['promoTags']),
         series: rawStall['series'].split(';'),
         tags: rawStall['tags'].split(';'),
+        customTags: rawStall['customTags'],
       };
       stallEntry.promoData.push(promo);
       stallEntry.hasPromo = true;

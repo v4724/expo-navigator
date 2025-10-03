@@ -20,4 +20,7 @@ export interface PromoStall {
 
   // 宣傳車 tag
   tags: string[];
+
+  // 宣傳車自訂 tag
+  customTags: string;
 }

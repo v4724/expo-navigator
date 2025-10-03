@@ -1,6 +1,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   inject,
   OnDestroy,
   OnInit,
@@ -41,14 +42,20 @@ import { first } from 'rxjs';
 import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
 import { Checkbox, CheckboxModule } from 'primeng/checkbox';
 import { PanelModule } from 'primeng/panel';
+import { Popover } from 'primeng/popover';
+import { PopoverModule } from 'primeng/popover';
+import { BadgeModule } from 'primeng/badge';
+import { PromoStall } from 'src/app/core/interfaces/promo-stall.interface';
 
 interface MyTab {
   icon: string;
   name: string;
 }
-
+interface StallSeries extends StallSeriesDto {
+  controlName: string;
+}
 interface StallTag extends StallTagDto {
-  checked: boolean;
+  controlName: string;
 }
 
 @Component({
@@ -73,6 +80,8 @@ interface StallTag extends StallTagDto {
     CheckboxModule,
     Checkbox,
     PanelModule,
+    PopoverModule,
+    BadgeModule,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -92,7 +101,24 @@ export class EditStallModal implements OnInit, OnDestroy {
 
   stallForm: FormGroup;
 
-  seriesAndTags = signal<Map<StallSeriesDto, Map<'CHAR' | 'CP', StallTag[]>>>(new Map());
+  seriesAndTags = signal<Map<StallSeries, Map<'CHAR' | 'CP', StallTag[]>>>(new Map());
+
+  seriesArr = computed(() => {
+    return Array.from(this.seriesAndTags().keys());
+  });
+
+  tagsArr = computed(() => {
+    let arr: StallTag[] = [];
+    this.seriesAndTags().forEach((val) => {
+      const char = val.get('CHAR') ?? [];
+      const cp = val.get('CP') ?? [];
+      arr = arr.concat(char).concat(cp);
+    });
+    return arr;
+  });
+
+  // key (seriesId)
+  seriesSeletedTagCnt = signal<{ [key: string]: number }[]>([]);
 
   constructor() {
     this.stallForm = this._fb.group({
@@ -109,14 +135,9 @@ export class EditStallModal implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const stall = this._selectStallService.selectedStall;
-    if (stall) {
-      this.initFormVal(stall);
-      this.updateTabList();
-    }
-
     this.promos.valueChanges.subscribe((result) => {
       this.updateTabList();
+      this.updateSeriesSeletedTagCnt();
     });
 
     this._tagService.fetchEnd$.pipe(first((val) => !!val)).subscribe(() => {
@@ -124,17 +145,33 @@ export class EditStallModal implements OnInit, OnDestroy {
       const tags = Array.from(this._tagService.allTags.values());
       const map = new Map();
       series.forEach((item) => {
-        const charTags = tags.filter(
-          (tag) => tag.seriesId === item.seriesId && tag.tagType === 'CHAR',
-        );
-        const cpTags = tags.filter((tag) => tag.seriesId === item.seriesId && tag.tagType === 'CP');
+        const seriesControl = { ...item, controlName: `series-${item.seriesId}` };
+        const charTags = tags
+          .filter((tag) => tag.seriesId === item.seriesId && tag.tagType === 'CHAR')
+          .map((obj) => {
+            return { ...obj, controlName: `tag-${obj.tagId}` };
+          });
+        const cpTags = tags
+          .filter((tag) => tag.seriesId === item.seriesId && tag.tagType === 'CP')
+          .map((obj) => {
+            return { ...obj, controlName: `tag-${obj.tagId}` };
+          });
         const typeMap = new Map();
         typeMap.set('CHAR', charTags);
         typeMap.set('CP', cpTags);
-        map.set(item, typeMap);
+        map.set(seriesControl, typeMap);
       });
 
       this.seriesAndTags.set(map);
+
+      // 取得標籤列表後再初始化資料
+      const stall = this._selectStallService.selectedStall;
+      if (stall) {
+        console.debug('edit stall', stall);
+        this.initFormVal(stall);
+        this.updateTabList();
+        this.updateSeriesSeletedTagCnt();
+      }
     });
   }
 
@@ -147,55 +184,62 @@ export class EditStallModal implements OnInit, OnDestroy {
       stallImg: stall.stallImg,
       stallLink: stall.stallLink,
     });
-    stall.promoData.forEach((item) => {
-      const promo = this.createPromo();
-      const promoLink = promo.get('links');
-      promo.patchValue({
-        name: item.promoUser,
-        icon: item.promoAvatar,
-        html: item.promoHTML,
-        seriesAndTags: '',
+
+    stall.promoData.forEach((promo: PromoStall) => {
+      const promoGroup = this._createPromoGroup();
+      const promoLink = promoGroup.get('links');
+      const seriesAndTags = promoGroup.get('seriesAndTags');
+
+      // 基本欄位
+      promoGroup.patchValue({
+        name: promo.promoUser,
+        icon: promo.promoAvatar,
+        html: promo.promoHTML,
+        customTags: promo.customTags,
       });
-      item.promoLinks.forEach((link) => {
-        const linkForm = this.createLink();
+
+      // 連結
+      promo.promoLinks.forEach((link) => {
+        const linkForm = this._createLinkGroup();
         linkForm.patchValue({
           href: link.href,
           text: link.text,
         });
-
         if (promoLink) (promoLink as FormArray).push(linkForm);
       });
-      this.promos.push(promo);
+
+      // 標籤
+      const seriesArr = this.seriesArr();
+      const tagsArr = this.tagsArr();
+      const seriesAndTagsVal: { [key: string]: boolean } = {};
+      promo.series.forEach((seriesId: string) => {
+        const obj = seriesArr.find((o) => o.seriesId === seriesId);
+        if (obj) {
+          seriesAndTagsVal[obj.controlName] = true;
+        }
+      });
+      promo.tags.forEach((tagId: string) => {
+        const obj = tagsArr.find((o) => o.tagId === tagId);
+        if (obj) {
+          seriesAndTagsVal[obj.controlName] = true;
+        }
+      });
+      seriesAndTags?.patchValue(seriesAndTagsVal);
+
+      this.promos.push(promoGroup);
     });
   }
 
-  getLinks(promoIndex: number): FormArray {
+  getLinksForm(promoIndex: number): FormArray {
     return this.promos.at(promoIndex).get('links') as FormArray;
   }
 
   addPromo() {
-    this.promos.push(this.createPromo());
+    this.promos.push(this._createPromoGroup());
   }
 
   addLink(e: Event, promoIndex: number) {
-    this.getLinks(promoIndex).push(this.createLink());
-  }
-
-  createPromo() {
-    return this._fb.group({
-      name: [''],
-      icon: [''],
-      links: this._fb.array([]),
-      html: [''],
-      seriesAndTags: [''],
-    });
-  }
-
-  createLink() {
-    return this._fb.group({
-      href: ['', Validators.required],
-      text: ['連結', Validators.required],
-    });
+    this.getLinksForm(promoIndex).push(this._createLinkGroup());
   }
 
   // 移除 宣傳車
@@ -207,9 +251,14 @@ export class EditStallModal implements OnInit, OnDestroy {
 
   // 移除連結
   removeLink(promoIndex: number, linkIndex: number) {
-    this.getLinks(promoIndex).removeAt(linkIndex);
+    this.getLinksForm(promoIndex).removeAt(linkIndex);
   }
 
+  openTags(e: Event, op: Popover, series: StallSeriesDto) {
+    op.toggle(e);
+  }
+
+  // 更新宣傳車分頁
   updateTabList() {
     const tabList: MyTab[] = [];
     this.promos.controls.forEach((promo) => {
@@ -218,6 +267,35 @@ export class EditStallModal implements OnInit, OnDestroy {
       tabList.push({ icon, name });
     });
     this.tabList.set(tabList);
+  }
+
+  // 更新標籤提示數量
+  updateSeriesSeletedTagCnt() {
+    const arr: { [key: string]: number }[] = [];
+    this.promos.controls.forEach((promo, index) => {
+      const promoObj: { [key: string]: number } = {};
+      const val = promo.get('seriesAndTags')?.value;
+      this.seriesArr().forEach((series) => {
+        const seriesControlName = series.controlName;
+        val[seriesControlName];
+      });
+      this.seriesAndTags().forEach((tags, series) => {
+        let cnt = 0;
+        tags.get('CHAR')?.forEach((tag) => {
+          if (val[tag.controlName]) {
+            cnt += 1;
+          }
+        });
+        tags.get('CP')?.forEach((tag) => {
+          if (val[tag.controlName]) {
+            cnt += 1;
+          }
+        });
+        promoObj[series.controlName] = cnt;
+      });
+      arr.push(promoObj);
+    });
+    this.seriesSeletedTagCnt.set(arr);
   }
 
   onTempSave() {
@@ -261,5 +339,41 @@ export class EditStallModal implements OnInit, OnDestroy {
     } else {
       this.dialogRef.close();
     }
+  }
+
+  private _createPromoGroup() {
+    return this._fb.group({
+      name: [''],
+      icon: [''],
+      links: this._fb.array([]),
+      html: [''],
+      seriesAndTags: this._createSeriesAndTagsGroup(),
+      customTags: [''],
+    });
+  }
+
+  private _createLinkGroup() {
+    return this._fb.group({
+      href: ['', Validators.required],
+      text: ['連結', Validators.required],
+    });
+  }
+
+  private _createSeriesAndTagsGroup() {
+    const group: Record<string, any[]> = {};
+    this.seriesAndTags().forEach((val, series) => {
+      group[series.controlName] = [false];
+    });
+
+    this.seriesAndTags().forEach((val) => {
+      val.get('CHAR')?.forEach((tag) => {
+        group[tag.controlName] = [false];
+      });
+      val.get('CP')?.forEach((tag) => {
+        group[tag.controlName] = [false];
+      });
+    });
+
+    return this._fb.group(group);
   }
 }

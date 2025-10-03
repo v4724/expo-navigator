@@ -132,12 +132,9 @@
                 <div class="flex flex-col gap-3" formArrayName="links">
                   <div class="flex justify-center">
                     <p-fieldset [toggleable]="true" legend="宣傳連結" collapsed class="w-full">
-                      <!-- <ng-template #header>
-                        <div class="flex items-center gap-2">宣傳連結</div>
-                      </ng-template> -->
                       <div class="pt-3 flex flex-col gap-3 w-full">
                         @for (
-                          link of getLinks(promoIndex).controls;
+                          link of getLinksForm(promoIndex).controls;
                           let linkIndex = $index;
                           track link
                         ) {
@@ -198,62 +195,79 @@
 
                 <div class="flex flex-col gap-2">
                   <div>作品</div>
-                  <div class="flex flex-col flex-wrap gap-2">
+                  <div class="flex flex-wrap" formGroupName="seriesAndTags">
                     @for (series of seriesAndTags().keys(); track series) {
-                      <p-panel [toggleable]="true">
-                        <ng-template #header>
-                          <div class="flex items-center gap-2">
-                            <p-checkbox [binary]="true" [inputId]="series.seriesId" />
-                            <label [for]="series.seriesId"> {{ series.seriesName }} </label>
+                      <div class="flex items-center gap-2 p-2 w-1/2 md:w-1/4">
+                        <p-checkbox
+                          [formControlName]="series.controlName"
+                          [binary]="true"
+                          [inputId]="series.seriesId"
+                        />
+                        <label
+                          [for]="series.seriesId"
+                          class="text-nowrap overflow-hidden text-ellipsis"
+                        >
+                          {{ series.seriesName }}
+                        </label>
+                        @if (seriesSeletedTagCnt()[promoIndex][series.controlName] > 0) {
+                          <p-badge
+                            [value]="seriesSeletedTagCnt()[promoIndex][series.controlName]"
+                            badgeSize="small"
+                            severity="info"
+                          />
+                        }
+                        <button
+                          (click)="openTags($event, op, series)"
+                          class="text-gray-500 hover:text-gray-800 flex items-center"
+                        >
+                          <mat-icon
+                            [inline]="true"
+                            aria-hidden="false"
+                            aria-label="Example filter icon"
+                            fontIcon="filter_alt"
+                          ></mat-icon>
+                        </button>
+                      </div>
+                      <p-popover #op>
+                        <div class="flex flex-col gap-4 p-2">
+                          <div class="flex gap-4">
+                            <div class="flex text-nowrap w-6">角色</div>
+                            <div class="flex flex-wrap gap-x-4 gap-y-2">
+                              @for (tag of seriesAndTags().get(series)?.get('CHAR'); track tag) {
+                                <div>
+                                  <p-checkbox
+                                    [formControlName]="tag.controlName"
+                                    [binary]="true"
+                                    [inputId]="`${tag.controlName}`"
+                                  />
+                                  <label [for]="`${tag.controlName}`"> {{ tag.tagName }} </label>
+                                </div>
+                              }
+                            </div>
                           </div>
-                        </ng-template>
-
-                        <div class="flex flex-col gap-2">
-                          <div class="flex flex-col pl-7 gap-4">
-                            <div class="flex gap-4">
-                              <div class="flex text-nowrap w-6">角色</div>
-                              <div class="flex flex-wrap gap-x-4 gap-y-2">
-                                @for (tag of seriesAndTags().get(series)?.get('CHAR'); track tag) {
-                                  <div>
-                                    <p-checkbox [binary]="true" [inputId]="`tag-${tag.tagId}`" />
-                                    <!-- [(ngModel)]="tag.checked" -->
-                                    <label [for]="`tag-${tag.tagId}`"> {{ tag.tagName }} </label>
-                                  </div>
-                                }
-                              </div>
-                            </div>
-                            <div class="flex gap-4">
-                              <div class="flex text-nowrap w-6">CP</div>
-                              <div class="flex flex-wrap gap-x-4 gap-y-2">
-                                @for (tag of seriesAndTags().get(series)?.get('CP'); track tag) {
-                                  <div>
-                                    <p-checkbox [binary]="true" [inputId]="`tag-${tag.tagId}`" />
-                                    <!-- [(ngModel)]="tag.checked" -->
-                                    <label [for]="`tag-${tag.tagId}`"> {{ tag.tagName }} </label>
-                                  </div>
-                                }
-                              </div>
-                            </div>
-
-                            <div class="flex w-full gap-4">
-                              <label class="text-nowrap w-6"> 自訂 </label>
-                              <input
-                                pSize="small"
-                                class="flex-grow"
-                                pInputText
-                                type="text"
-                                placeholder=""
-                                autocomplete="off"
-                              />
+                          <div class="flex gap-4">
+                            <div class="flex text-nowrap w-6">CP</div>
+                            <div class="flex flex-wrap gap-x-4 gap-y-2">
+                              @for (tag of seriesAndTags().get(series)?.get('CP'); track tag) {
+                                <div>
+                                  <p-checkbox
+                                    [formControlName]="tag.controlName"
+                                    [binary]="true"
+                                    [inputId]="`${tag.controlName}`"
+                                  />
+                                  <label [for]="`${tag.controlName}`"> {{ tag.tagName }} </label>
+                                </div>
+                              }
                             </div>
                           </div>
                         </div>
-                      </p-panel>
+                      </p-popover>
                     }
                   </div>
                   <div class="flex w-full gap-4">
                     <label class="text-nowrap w-6"> 自訂 </label>
                     <input
+                      formControlName="customTags"
                       pSize="small"
                       class="flex-grow"
                       pInputText
