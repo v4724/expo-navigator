@@ -11,6 +11,7 @@ import { StallData } from '../../stall/stall.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { MatIcon } from '@angular/material/icon';
 import { EditBtn } from '../../edit-stall/edit-btn/edit-btn';
+import { UserService } from 'src/app/core/services/state/user-service';
 
 @Component({
   selector: 'app-stall-side-nav',
@@ -29,6 +30,7 @@ export class StallSideNav implements OnInit {
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
   private _markedStallService = inject(MarkedStallService);
+  private _userService = inject(UserService);
 
   show$ = this._stallModalService.showStallModal$;
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
@@ -38,6 +40,17 @@ export class StallSideNav implements OnInit {
 
   stall$ = toObservable(this.stall);
   isMarkedSignal = signal(false);
+  isLogin = toSignal(this._userService.isLogin$);
+  user = toSignal(this._userService.user$);
+
+  isEditable = computed(() => {
+    const isLogin = this.isLogin();
+    const user = this.user();
+    if (isLogin && user) {
+      return user.stallIds.find((id) => id === this.stall()?.id);
+    }
+    return false;
+  });
 
   hasPromoInfo = computed(() => {
     const stall = this.stall();

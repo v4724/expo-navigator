@@ -17,7 +17,9 @@
       <app-only-area></app-only-area>
 
       <!-- 已標記 -->
-      <app-marked-layer></app-marked-layer>
+      @if (isLogin()) {
+        <app-marked-layer></app-marked-layer>
+      }
     </div>
   </div>
 </div>

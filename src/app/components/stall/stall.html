@@ -2,7 +2,7 @@
   #stallRef
   class="stall-area"
   [class.hidden]="hiddenIfGrouped() && (isGroupedMember$ | async)"
-  [class.invisible]="!showStall()"
+  [class.invisible]="!showStallLayer()"
   [class.is-selected]="isSelected()"
   [class.is-search-match]="isMatch()"
   [class.has-promo]="stall().hasPromo"
@@ -22,7 +22,7 @@
 </div>
 <div
   class="absolute text-fuchsia-900 pointer-events-none z-11"
-  [class.invisible]="!showMark() || !isMarked()"
+  [class.invisible]="!isLogin() || !showMarkLayer() || !isMarked()"
   [style.position]="absolutePosition() ? 'absolute' : 'unset'"
   [style.top]="`${markedXY().y}%`"
   [style.left]="`${markedXY().x}%`"

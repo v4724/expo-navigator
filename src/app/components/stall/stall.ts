@@ -25,6 +25,7 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallLayerService } from 'src/app/core/services/state/stall-layer-service';
 import { MatIcon } from '@angular/material/icon';
+import { UserService } from 'src/app/core/services/state/user-service';
 @Component({
   selector: 'app-stall',
   imports: [CommonModule, MatIcon],
@@ -47,6 +48,7 @@ export class Stall implements OnInit, AfterViewInit {
   private _tagService = inject(TagService);
   private _markedStallService = inject(MarkedStallService);
   private _stallLayerService = inject(StallLayerService);
+  private _userService = inject(UserService);
 
   isGroupedMember$ = toObservable(this.stall).pipe(
     map((stall) => {
@@ -56,8 +58,9 @@ export class Stall implements OnInit, AfterViewInit {
 
   fontSize = signal<string>('0.5rem');
 
-  showStall = toSignal(this._stallLayerService.show$);
-  showMark = toSignal(this._markedStallService.show$);
+  showStallLayer = toSignal(this._stallLayerService.show$);
+  showMarkLayer = toSignal(this._markedStallService.show$);
+  isLogin = toSignal(this._userService.isLogin$);
 
   isSelected = signal<boolean>(false);
   isSearchMatch = signal<boolean>(false);
@@ -138,6 +141,7 @@ export class Stall implements OnInit, AfterViewInit {
 
     // 更新 marked 狀態
     this._markedStallService.sortedMarkedStalls$.pipe().subscribe(() => {
+      const isLogin = this.isLogin();
       const isMarked = this._markedStallService.isMarked(this.stall().id);
       this.isMarked.set(isMarked);
     });

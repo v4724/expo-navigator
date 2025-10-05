@@ -5,6 +5,7 @@ import { MARKED_STALL_CSV_URL } from '../../const/google-excel-csv-url';
 import { MarkedStallDto } from '../../models/marked-stall.model';
 import { StallService } from './stall-service';
 import { MarkedStall } from '../../interfaces/marked-stall.interface';
+import { UserService } from './user-service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,8 +24,15 @@ export class MarkedStallService {
   show$ = this._show.asObservable();
 
   private _stallService = inject(StallService);
+  private _userService = inject(UserService);
 
   constructor() {
+    // TODO
+    this._userService.user$.pipe().subscribe((user) => {
+      const userId = user?.acc;
+      const marked = [];
+    });
+
     forkJoin([
       fetchExcelData(MARKED_STALL_CSV_URL),
       this._stallService.fetchEnd$.pipe(first((val) => !!val)),

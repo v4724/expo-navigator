@@ -6,6 +6,7 @@ import { OnlyArea } from './only-area/only-area';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LayersControllerService } from 'src/app/core/services/state/layers-controller-service';
 import { StallsLayer } from './stalls-layer/stalls-layer';
+import { UserService } from 'src/app/core/services/state/user-service';
 
 @Component({
   selector: 'app-layers-controller',
@@ -15,6 +16,8 @@ import { StallsLayer } from './stalls-layer/stalls-layer';
 })
 export class LayersController {
   private _layerControllerService = inject(LayersControllerService);
+  private _userService = inject(UserService);
 
   showControls = toSignal(this._layerControllerService.show$);
+  isLogin = toSignal(this._userService.isLogin$);
 }

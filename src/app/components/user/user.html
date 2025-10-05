@@ -1,0 +1,53 @@
+<div class="flex gap-2 rounded-full border border-gray-300 py-1 px-4 bg-white/50 text-gray-600">
+  <div
+    class="flex transition hover:bg-gray-300/50 rounded-full pr-3 items-center"
+    (click)="toggle($event)"
+  >
+    <mat-icon>person</mat-icon>
+    @if (isLogin()) {
+      <span>{{ user()?.acc }}</span>
+    } @else {
+      <span>Hi</span>
+    }
+  </div>
+  @if (isLogin()) {
+    <mat-icon [inline]="true" class="self-center transition hover:scale-110" (click)="logout()">
+      logout
+    </mat-icon>
+  }
+</div>
+
+<p-popover #userInfoPopover>
+  <div class="flex flex-col gap-2">
+    <div class="flex gap-2">
+      <div>代號</div>
+      <div>{{ user()?.acc }}</div>
+    </div>
+    <div class="flex gap-2 items-center">
+      <div>攤位編號</div>
+      <div class="flex flex-wrap items-center gap-1">
+        @for (id of user()?.stallIds; track $index) {
+          <div
+            class="rounded-full py-1 px-2 border border-gray-400 transition hover:scale-110 cursor-default"
+            (click)="selectStall(id)"
+          >
+            {{ id }}
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</p-popover>
+
+<p-popover #loginPopover>
+  <div class="flex flex-col gap-4">
+    <div class="flex gap-2 items-center">
+      <div class="">代號</div>
+      <input pInputText [(ngModel)]="acc" type="text" pSize="small" placeholder="" />
+    </div>
+    <div class="flex w-full items-center justify-end">
+      <p-button label="新增" severity="secondary" size="small" variant="text" (click)="create()" />
+      <p-button label="登入" size="small" variant="text" (click)="login()" />
+    </div>
+  </div>
+</p-popover>

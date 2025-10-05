@@ -2,7 +2,9 @@
   class="header flex sticky top-0 z-20 bg-white shadow transition-all duration-300 w-full items-center px-5 py-4"
 >
   <h2 class="modal-title mr-auto">{{ stall()?.id }}: {{ stall()?.stallTitle }}</h2>
-  <app-edit-btn></app-edit-btn>
+  @if (isEditable()) {
+    <app-edit-btn></app-edit-btn>
+  }
   <button
     class="text-base flex items-center transition hover:scale-110"
     aria-label="Close dialog"
