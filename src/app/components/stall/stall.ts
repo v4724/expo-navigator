@@ -99,8 +99,8 @@ export class Stall implements OnInit, AfterViewInit {
     this._stallMapService.inputSearch$.subscribe((searchTerm) => {
       let isMatch = false;
       if (searchTerm !== '') {
-        const hasPromoUserMatch = this.stall().promoData.some((promo) =>
-          promo.promoUser.toLowerCase().includes(searchTerm),
+        const hasPromoTitleMatch = this.stall().promoData.some((promo) =>
+          promo.promoTitle.toLowerCase().includes(searchTerm),
         );
         const hasTagMatch = this.stall().promoTags.some((tag) =>
           tag.toLowerCase().includes(searchTerm),
@@ -109,7 +109,7 @@ export class Stall implements OnInit, AfterViewInit {
         isMatch =
           this.stall().id.toLowerCase().includes(searchTerm) ||
           this.stall().stallTitle.toLowerCase().includes(searchTerm) ||
-          hasPromoUserMatch ||
+          hasPromoTitleMatch ||
           hasTagMatch;
       }
 
@@ -172,12 +172,12 @@ export class Stall implements OnInit, AfterViewInit {
     if (this._uiStateService.isSmallScreen()) return;
 
     const target = e.target as HTMLElement;
-    const promoUsers = this.stall()
-      .promoData?.map((o) => o.promoUser)
+    const promoTitles = this.stall()
+      .promoData?.map((o) => o.promoTitle)
       .filter((value, index, self) => self.indexOf(value) === index)
       .join(',');
     const innerHTML = `<strong>${this.stall().stallTitle}</strong><br><small>${this.stall().id}${
-      promoUsers ? ` / ${promoUsers}` : ''
+      promoTitles ? ` / ${promoTitles}` : ''
     }</small>`;
     this._tooltipService.show(innerHTML, target);
   }

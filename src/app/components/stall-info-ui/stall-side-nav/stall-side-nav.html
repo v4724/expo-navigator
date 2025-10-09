@@ -62,10 +62,10 @@
           <div class="modal-user-info">
             <img
               [src]="item.promoAvatar ? item.promoAvatar : defaultAvatar"
-              [alt]="item.promoUser"
+              [alt]="item.promoTitle"
               class="modal-avatar"
             />
-            <span class="modal-username">{{ item.promoUser }}</span>
+            <span class="modal-username">{{ item.promoTitle }}</span>
           </div>
           @if (item.promoTags && item.promoTags.length > 0) {
             <div class="promo-tags-container">

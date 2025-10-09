@@ -192,7 +192,7 @@ export class EditStallModal implements OnInit, OnDestroy {
 
       // 基本欄位
       promoGroup.patchValue({
-        name: promo.promoUser,
+        name: promo.promoTitle,
         icon: promo.promoAvatar,
         html: promo.promoHTML,
         customTags: promo.customTags,

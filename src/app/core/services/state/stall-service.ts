@@ -4,7 +4,7 @@ import { StallDto } from '../../interfaces/stall-dto.interface';
 import { StallData } from 'src/app/components/stall/stall.interface';
 import { stallGridRefs } from '../../const/official-data';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import { STALL_CSV_URL } from '../../const/google-excel-csv-url';
+import { PROMOTION_CSV_URL, STALL_CSV_URL } from '../../const/google-excel-csv-url';
 import { processStalls } from 'src/app/ts/stall-processor';
 
 @Injectable({
@@ -24,10 +24,10 @@ export class StallService {
   fetchEnd$ = this._fetchEnd.asObservable();
 
   constructor() {
-    forkJoin([fetchExcelData(STALL_CSV_URL)])
+    forkJoin([fetchExcelData(STALL_CSV_URL), fetchExcelData(PROMOTION_CSV_URL)])
       .pipe()
-      .subscribe(([rawData]) => {
-        const stalls = processStalls(rawData);
+      .subscribe(([rawStallData, rawPromoData]) => {
+        const stalls = processStalls(rawStallData, rawPromoData);
         this._allStalls.next(stalls);
         this._fetchEnd.next(true);
       });

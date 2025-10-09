@@ -19,12 +19,12 @@ const locateStallMap = new Map(stallGridRefs.map((s) => [s.groupId, s]));
  * @param linksStr The string to parse.
  * @returns An array of PromoLink objects.
  */
-function parsePromoLinks(promoUser: string, linksStr: string | undefined): PromoLink[] {
+function parsePromoLinks(promoTitle: string, linksStr: string | undefined): PromoLink[] {
   if (!linksStr) return [];
   return linksStr
     .split(';')
     .map((part, index) => {
-      const text = `${promoUser}-宣傳車${index + 1}`;
+      const text = `${promoTitle}-宣傳車${index + 1}`;
       const href = part.trim();
       return { text, href };
     })
@@ -79,20 +79,23 @@ function parsePromoTags(tagsStr: string | undefined): string[] {
  * @param rawData Array of objects parsed from CSV.
  * @returns An array of fully processed StallData objects.
  */
-export function processStalls(rawData: Record<string, string>[]): StallData[] {
+export function processStalls(
+  rawData: Record<string, string>[],
+  rawPromoData: Record<string, string>[],
+): StallData[] {
   // Use a Map to group all data by stall ID. This allows us to merge multiple rows
   // (e.g., one for official data, multiple for promo data) into a single object.
   const stallsMap = new Map<string, StallData>();
 
   rawData.forEach((rawStall) => {
-    const id = rawStall['id'] || rawStall['stallId'];
+    const id = rawStall['id'];
     if (!id) return; // Skip rows without an ID, as they can't be processed.
 
     let stallEntry = stallsMap.get(id);
 
     // If this is the first time we see this stall ID, create the base StallData object.
     if (!stallEntry) {
-      const line = id.substring(0, 1); // e.g., 'A' from 'A01'
+      const line = rawStall['line'];
       const num = parseInt(rawStall['num'], 10);
       const padNum = num.toString().padStart(2, '0');
       const stallCnt = parseInt(rawStall['stallCnt'], 10) || 1; // How many table spaces the stall occupies.
@@ -228,13 +231,17 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
       stallsMap.set(id, stall);
       stallEntry = stall;
     }
+  });
 
+  rawPromoData.forEach((rawPromo) => {
     // --- Promotion Data Aggregation ---
     // If the current row contains promotion data, create a PromoStall object
     // and add it to the stall's promoData array.
-    const promoUser = DOMPurify.sanitize(rawStall['promoUser'] || '');
-    const promoAvatar = DOMPurify.sanitize(rawStall['promoAvatar'] || '');
-    let promoHTML = rawStall['promoHTML'] || '';
+    const id = DOMPurify.sanitize(rawPromo['id'] || '');
+    const stallId = DOMPurify.sanitize(rawPromo['stallId'] || '');
+    const promoTitle = DOMPurify.sanitize(rawPromo['promoTitle'] || '');
+    const promoAvatar = DOMPurify.sanitize(rawPromo['promoAvatar'] || '');
+    let promoHTML = rawPromo['promoHTML'] || '';
     if (promoHTML.includes('iframe') && promoHTML.includes('https://www.facebook.com/plugins')) {
       promoHTML = preserveSizeAttributes(promoHTML);
       promoHTML = DOMPurify.sanitize(promoHTML || '', {
@@ -246,18 +253,20 @@ export function processStalls(rawData: Record<string, string>[]): StallData[] {
       promoHTML = DOMPurify.sanitize(promoHTML || '');
     }
 
-    if (promoUser) {
-      const promo: PromoStall = {
-        stallId: id,
-        promoUser: promoUser,
-        promoAvatar: promoAvatar,
-        promoHTML: promoHTML,
-        promoLinks: parsePromoLinks(promoUser, rawStall['promoLinks']),
-        promoTags: parsePromoTags(rawStall['promoTags']),
-        series: rawStall['series'].split(';'),
-        tags: rawStall['tags'].split(';'),
-        customTags: rawStall['customTags'],
-      };
+    const stallEntry = stallsMap.get(stallId);
+    const promo: PromoStall = {
+      id,
+      stallId,
+      promoTitle: promoTitle,
+      promoAvatar: promoAvatar,
+      promoHTML: promoHTML,
+      promoLinks: parsePromoLinks(promoTitle, rawPromo['promoLinks']),
+      promoTags: parsePromoTags(rawPromo['promoTags']),
+      series: rawPromo['series'].split(';'),
+      tags: rawPromo['tags'].split(';'),
+      customTags: rawPromo['customTags'],
+    };
+    if (stallEntry) {
       stallEntry.promoData.push(promo);
       stallEntry.hasPromo = true;
     }
