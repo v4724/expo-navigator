@@ -19,6 +19,7 @@ import { Stall } from 'src/app/components/stall/stall';
 import { stallGridRefs } from 'src/app/core/const/official-data';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 import { Area } from 'src/app/core/interfaces/area.interface';
+import { PromoService } from 'src/app/core/services/api/promo.service';
 import { AreaService } from 'src/app/core/services/state/area-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -41,6 +42,7 @@ export class Map implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
+  private _promotionService = inject(PromoService);
 
   isMobile: WritableSignal<boolean> = signal<boolean>(false);
   isInitialLoading: WritableSignal<boolean> = signal<boolean>(true);

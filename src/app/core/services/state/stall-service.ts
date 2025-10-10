@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { StallDto } from '../../interfaces/stall-dto.interface';
 import { StallData } from 'src/app/components/stall/stall.interface';
@@ -6,6 +6,7 @@ import { stallGridRefs } from '../../const/official-data';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
 import { PROMOTION_CSV_URL, STALL_CSV_URL } from '../../const/google-excel-csv-url';
 import { processStalls } from 'src/app/ts/stall-processor';
+import { PromoService } from '../api/promo.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,8 @@ export class StallService {
   private _allStalls = new BehaviorSubject<StallData[]>([]);
   private _allOrigStalls = new BehaviorSubject<StallDto[]>([]);
   private _fetchEnd = new BehaviorSubject<boolean>(false);
+
+  private _promoService = inject(PromoService);
 
   // This set contains rows that are *permanently* grouped on all screen sizes.
   permanentlyGroupedRowIds = new Set(
@@ -24,7 +27,7 @@ export class StallService {
   fetchEnd$ = this._fetchEnd.asObservable();
 
   constructor() {
-    forkJoin([fetchExcelData(STALL_CSV_URL), fetchExcelData(PROMOTION_CSV_URL)])
+    forkJoin([fetchExcelData(STALL_CSV_URL), this._promoService.getPromotions()])
       .pipe()
       .subscribe(([rawStallData, rawPromoData]) => {
         const stalls = processStalls(rawStallData, rawPromoData);

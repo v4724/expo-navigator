@@ -9,6 +9,7 @@ import { StallDto } from '../core/interfaces/stall-dto.interface.js';
 import { stallGridRefs } from '../core/const/official-data.js';
 import DOMPurify from 'dompurify';
 import { StallData } from '../components/stall/stall.interface.js';
+import { PromoStallDto } from '../core/models/promo-stall.model.js';
 
 // Convert the stallGridRefs array into a Map for efficient O(1) lookups by stall letter.
 const locateStallMap = new Map(stallGridRefs.map((s) => [s.groupId, s]));
@@ -81,7 +82,7 @@ function parsePromoTags(tagsStr: string | undefined): string[] {
  */
 export function processStalls(
   rawData: Record<string, string>[],
-  rawPromoData: Record<string, string>[],
+  promoData: PromoStallDto[],
 ): StallData[] {
   // Use a Map to group all data by stall ID. This allows us to merge multiple rows
   // (e.g., one for official data, multiple for promo data) into a single object.
@@ -233,15 +234,15 @@ export function processStalls(
     }
   });
 
-  rawPromoData.forEach((rawPromo) => {
+  promoData.forEach((data: PromoStallDto) => {
     // --- Promotion Data Aggregation ---
     // If the current row contains promotion data, create a PromoStall object
     // and add it to the stall's promoData array.
-    const id = DOMPurify.sanitize(rawPromo['id'] || '');
-    const stallId = DOMPurify.sanitize(rawPromo['stallId'] || '');
-    const promoTitle = DOMPurify.sanitize(rawPromo['promoTitle'] || '');
-    const promoAvatar = DOMPurify.sanitize(rawPromo['promoAvatar'] || '');
-    let promoHTML = rawPromo['promoHTML'] || '';
+    const id = data.id;
+    const stallId = data.stallId;
+    const promoTitle = data.promoTitle;
+    const promoAvatar = data.promoAvatar;
+    let promoHTML = data.promoHtml || '';
     if (promoHTML.includes('iframe') && promoHTML.includes('https://www.facebook.com/plugins')) {
       promoHTML = preserveSizeAttributes(promoHTML);
       promoHTML = DOMPurify.sanitize(promoHTML || '', {
@@ -260,11 +261,11 @@ export function processStalls(
       promoTitle: promoTitle,
       promoAvatar: promoAvatar,
       promoHTML: promoHTML,
-      promoLinks: parsePromoLinks(promoTitle, rawPromo['promoLinks']),
-      promoTags: parsePromoTags(rawPromo['promoTags']),
-      series: rawPromo['series'].split(';'),
-      tags: rawPromo['tags'].split(';'),
-      customTags: rawPromo['customTags'],
+      promoLinks: parsePromoLinks(promoTitle, data.promoLinks),
+      promoTags: [],
+      series: data.series.split(';'),
+      tags: data.tags.split(';'),
+      customTags: data.customTags,
     };
     if (stallEntry) {
       stallEntry.promoData.push(promo);
