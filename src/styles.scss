@@ -28,6 +28,11 @@ html {
       container-background-color: white,
     )
   );
+  @include mat.progress-spinner-overrides(
+    (
+      active-indicator-color: #a5a4a9,
+    )
+  );
   .mat-mdc-dialog-content {
     max-height: fit-content;
   }

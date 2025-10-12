@@ -38,7 +38,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { TagService } from 'src/app/core/services/state/tag-service';
-import { first } from 'rxjs';
+import { finalize, first, forkJoin, map, tap } from 'rxjs';
 import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
 import { Checkbox, CheckboxModule } from 'primeng/checkbox';
 import { PanelModule } from 'primeng/panel';
@@ -46,7 +46,11 @@ import { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
 import { BadgeModule } from 'primeng/badge';
 import { PromoStall } from 'src/app/core/interfaces/promo-stall.interface';
-
+import { PromoApiService } from 'src/app/core/services/api/promo-api.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ResponseSnackBar } from 'src/app/shared/components/response-snack-bar/response-snack-bar';
+import { StallService } from 'src/app/core/services/state/stall-service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 interface MyTab {
   icon: string;
   name: string;
@@ -82,6 +86,7 @@ interface StallTag extends StallTagDto {
     PanelModule,
     PopoverModule,
     BadgeModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -91,10 +96,13 @@ export class EditStallModal implements OnInit, OnDestroy {
 
   readonly dialogRef = inject(MatDialogRef<EditStallModal>);
 
+  private readonly _stallService = inject(StallService);
   private readonly _selectStallService = inject(SelectStallService);
   private readonly _dialog = inject(MatDialog);
   private readonly _fb = inject(FormBuilder);
   private readonly _tagService = inject(TagService);
+  private readonly _promoApiService = inject(PromoApiService);
+  private readonly _snackBar = inject(MatSnackBar);
   private readonly _cdr = inject(ChangeDetectorRef);
 
   tabList = signal<MyTab[]>([]);
@@ -120,6 +128,9 @@ export class EditStallModal implements OnInit, OnDestroy {
   // key (seriesId)
   seriesSeletedTagCnt = signal<{ [key: string]: number }[]>([]);
 
+  isTempSaving = signal<boolean>(false);
+  isSaving = signal<boolean>(false);
+
   constructor() {
     this.stallForm = this._fb.group({
       stallId: [''],
@@ -128,6 +139,10 @@ export class EditStallModal implements OnInit, OnDestroy {
       stallLink: [''],
       promos: this._fb.array([]),
     });
+  }
+
+  get stallId() {
+    return this.stallForm.get('stallId')?.getRawValue() as string;
   }
 
   get promos(): FormArray {
@@ -192,9 +207,11 @@ export class EditStallModal implements OnInit, OnDestroy {
 
       // 基本欄位
       promoGroup.patchValue({
+        id: promo.id?.toString(),
+        stallId: promo.stallId,
         name: promo.promoTitle,
         icon: promo.promoAvatar,
-        html: promo.promoHTML,
+        html: promo.promoHtml,
         customTags: promo.customTags,
       });
 
@@ -304,8 +321,33 @@ export class EditStallModal implements OnInit, OnDestroy {
     if (this.stallForm.invalid) {
       return;
     }
-    console.log(this.stallForm.getRawValue());
-    console.log('暫存編輯');
+
+    const updateObs = this._update();
+    if (!updateObs) {
+      return;
+    }
+
+    this.isTempSaving.set(true);
+    updateObs
+      .pipe(
+        finalize(() => {
+          this.isTempSaving.set(false);
+        }),
+      )
+      .subscribe((res) => {
+        const allSuccess = res.every((val) => val === true);
+        if (allSuccess) {
+          this._snackBar.openFromComponent(ResponseSnackBar, {
+            duration: 3000,
+            data: { message: '暫存成功', isError: false },
+          });
+        } else {
+          this._snackBar.openFromComponent(ResponseSnackBar, {
+            duration: 3000,
+            data: { message: '暫存失敗', isError: true },
+          });
+        }
+      });
   }
 
   onSave() {
@@ -314,10 +356,34 @@ export class EditStallModal implements OnInit, OnDestroy {
     if (this.stallForm.invalid) {
       return;
     }
-    console.log(this.stallForm.getRawValue());
-    console.log('儲存編輯');
 
-    this.dialogRef.close();
+    const updateObs = this._update();
+    if (!updateObs) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    updateObs
+      .pipe(
+        finalize(() => {
+          this.isSaving.set(false);
+        }),
+      )
+      .subscribe((res) => {
+        const allSuccess = res.every((val) => val === true);
+        if (allSuccess) {
+          this.dialogRef.close();
+          this._snackBar.openFromComponent(ResponseSnackBar, {
+            duration: 3000,
+            data: { message: '儲存成功', isError: false },
+          });
+        } else {
+          this._snackBar.openFromComponent(ResponseSnackBar, {
+            duration: 3000,
+            data: { message: '儲存失敗', isError: true },
+          });
+        }
+      });
   }
 
   onClose() {
@@ -343,6 +409,8 @@ export class EditStallModal implements OnInit, OnDestroy {
 
   private _createPromoGroup() {
     return this._fb.group({
+      id: [''],
+      stallId: [this._selectStallService.selectedStall?.id || ''],
       name: [''],
       icon: [''],
       links: this._fb.array([]),
@@ -375,5 +443,76 @@ export class EditStallModal implements OnInit, OnDestroy {
     });
 
     return this._fb.group(group);
+  }
+
+  private _update() {
+    const promos = this._getPromoFromForm();
+    console.log('暫存/儲存', promos);
+
+    // TODO: 加上攤位基本資訊編輯
+    // const infoObservable = this._promoApiService.update(promos);
+    const promoObservable = this._promoApiService.update(this.stallId, promos).pipe(
+      map((res) => {
+        if (res.success) {
+          const selectedStall = this._selectStallService.selectedStall;
+          if (selectedStall) {
+            this._stallService.updateStallPromos(selectedStall.id, res.data);
+          }
+          console.info('promo 暫存成功', res);
+        } else {
+          console.error('promo 暫存失敗', res);
+        }
+
+        return res.success;
+      }),
+    );
+
+    const observableArr = [promoObservable];
+    // TODO: 比對資料是否有更動，再決定要不要送出 request
+    // if (isInfoChanged) {
+    //   observableArr.push(infoObservable);
+    // } else if (isPromoChanged) {
+    //   observableArr.push(promoObservable);
+    // }
+
+    if (observableArr.length === 0) {
+      return null;
+    }
+
+    return forkJoin(observableArr);
+  }
+
+  private _getPromoFromForm(): PromoStall[] {
+    const promos = this.promos.getRawValue();
+    promos.forEach((promo: any) => {
+      // 轉換 series, tags 欄位格式
+      const series: string[] = [];
+      const tags: string[] = [];
+      Object.keys(promo.seriesAndTags).forEach((key) => {
+        if (key.startsWith('series-') && promo.seriesAndTags[key]) {
+          series.push(key.replace('series-', ''));
+        } else if (key.startsWith('tag-') && promo.seriesAndTags[key]) {
+          tags.push(key.replace('tag-', ''));
+        }
+      });
+      if (promo.id) {
+        promo.id = Number(promo.id);
+      } else {
+        delete promo.id;
+      }
+      promo.promoTitle = promo.name;
+      promo.promoAvatar = promo.icon;
+      promo.promoHtml = promo.html;
+      promo.promoLinks = promo.links;
+      promo.series = series;
+      promo.tags = tags;
+      delete promo.name;
+      delete promo.icon;
+      delete promo.html;
+      delete promo.links;
+      delete promo.seriesAndTags;
+    });
+
+    return promos;
   }
 }

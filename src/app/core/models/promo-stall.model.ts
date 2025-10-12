@@ -1,7 +1,7 @@
 /** Data from user-submitted promotions, representing a single promotion entry. */
 export interface PromoStallDto {
   /** The ID of the stall this promotion belongs to. */
-  id: number;
+  id?: number;
 
   /** The ID of the stall this promotion belongs to. */
   stallId: string;

@@ -287,6 +287,13 @@
 </mat-dialog-content>
 <mat-dialog-actions>
   <button matButton (click)="onClose()">關閉</button>
-  <button matButton (click)="onTempSave()">暫存</button>
-  <button matButton (click)="onSave()">儲存並關閉</button>
+  <button matButton (click)="onTempSave()" [disabled]="isTempSaving() || isSaving()">
+    <div class="flex items-center gap-2">
+      暫存
+      @if (isTempSaving()) {
+        <mat-spinner diameter="15"></mat-spinner>
+      }
+    </div>
+  </button>
+  <button matButton (click)="onSave()" [disabled]="isTempSaving() || isSaving()">儲存並關閉</button>
 </mat-dialog-actions>

@@ -3,7 +3,7 @@ import { PromoLink } from './promo-link.interface';
 /** Data from user-submitted promotions, representing a single promotion entry. */
 export interface PromoStall {
   /** The ID of the stall this promotion belongs to. */
-  id: number;
+  id?: number;
 
   /** The ID of the stall this promotion belongs to. */
   stallId: string;
@@ -12,7 +12,7 @@ export interface PromoStall {
   /** The URL of the user's avatar image. */
   promoAvatar: string;
   /** The main content of the promotion, can contain HTML. */
-  promoHTML: string;
+  promoHtml: string;
   /** An array of links associated with this specific promotion. */
   promoLinks: PromoLink[];
 
