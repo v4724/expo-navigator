@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import { Popover, PopoverModule } from 'primeng/popover';
@@ -30,6 +30,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class User implements OnInit {
   @ViewChild('userInfoPopover') userInfoPopover!: Popover;
   @ViewChild('loginPopover') loginPopover!: Popover;
+  @ViewChild('loginInput') loginInput!: ElementRef<HTMLInputElement>;
 
   private _userService = inject(UserService);
   private _selectStallService = inject(SelectStallService);
@@ -53,6 +54,10 @@ export class User implements OnInit {
       this.userInfoPopover?.toggle(e);
     } else {
       this.loginPopover?.toggle(e);
+      // 等待 popover DOM 完成顯示後再 focus
+      setTimeout(() => {
+        this.loginInput?.nativeElement?.focus();
+      }, 50);
     }
   }
 
@@ -98,6 +103,7 @@ export class User implements OnInit {
       maxWidth: '400px',
       maxHeight: '400px',
       panelClass: [''],
+      data: { isEdit: true },
     });
   }
 

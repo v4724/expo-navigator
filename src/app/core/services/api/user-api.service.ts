@@ -26,15 +26,15 @@ export class UserApiService {
       .pipe(tap((res) => console.log(res)));
   }
 
-  update(acc: string, user: UserDto): Observable<UpdateResponse<UserDto>> {
+  update(id: number, user: UserDto): Observable<UpdateResponse<UserDto>> {
     return this.http
-      .put<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${acc}`, user)
+      .put<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${id}`, user)
       .pipe(tap((res) => console.log(res)));
   }
 
-  delete(acc: string): Observable<UpdateResponse<UserDto>> {
+  delete(id: number): Observable<UpdateResponse<UserDto>> {
     return this.http
-      .delete<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${acc}`)
+      .delete<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${id}`)
       .pipe(tap((res) => console.log(res)));
   }
 

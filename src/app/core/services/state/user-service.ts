@@ -41,4 +41,8 @@ export class UserService {
     this._isLogin.next(false);
     this._user.next(null);
   }
+
+  update(user: User) {
+    this._user.next(user);
+  }
 }

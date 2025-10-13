@@ -1,5 +1,15 @@
 import { DialogModule } from '@angular/cdk/dialog';
-import { Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  isStandalone,
+  model,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -11,7 +21,7 @@ import { Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ChipModule } from 'primeng/chip';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FloatLabel } from 'primeng/floatlabel';
 import { CommonModule } from '@angular/common';
@@ -20,7 +30,12 @@ import { MatButton } from '@angular/material/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { UserApiService } from 'src/app/core/services/api/user-api.service';
 import { catchError, EMPTY, finalize } from 'rxjs';
+import { UserDto } from 'src/app/core/models/user.model';
+import { UserService } from 'src/app/core/services/state/user-service';
 
+export interface DialogData {
+  isEdit: boolean;
+}
 @Component({
   selector: 'app-create-user-modal',
   imports: [
@@ -39,7 +54,7 @@ import { catchError, EMPTY, finalize } from 'rxjs';
   templateUrl: './create-user-modal.html',
   styleUrl: './create-user-modal.scss',
 })
-export class CreateUserModal {
+export class CreateUserModal implements OnInit {
   popupStyle: { left: string; top: string; width: string } = {
     left: '0px',
     top: '0px',
@@ -48,18 +63,24 @@ export class CreateUserModal {
   @ViewChild('stallIdInput', { static: false }) stallIdInput!: ElementRef<HTMLInputElement>;
 
   readonly dialogRef = inject(MatDialogRef<CreateUserModal>);
+  readonly data = inject<DialogData>(MAT_DIALOG_DATA);
 
   private readonly _fb = inject(FormBuilder);
   private readonly _snackBar = inject(MatSnackBar);
   private readonly _service = inject(StallService);
+  private readonly _userService = inject(UserService);
+  private readonly _userApiService = inject(UserApiService);
 
-  isCreating = signal<boolean>(false);
+  readonly isEdit = model(!!this.data?.isEdit);
+
+  isSubmitting = signal<boolean>(false);
 
   userForm: FormGroup;
   filteredStallIds: string[] = [];
 
   constructor() {
     this.userForm = this._fb.group({
+      id: [''],
       acc: ['', Validators.required],
       stallId: [''],
       isStallOwner: [false],
@@ -69,6 +90,21 @@ export class CreateUserModal {
     // 監聽 stallId 欄位變化
     this.userForm.get('stallId')!.valueChanges.subscribe((value: string) => {
       this.filterStallIds(value);
+    });
+  }
+
+  ngOnInit() {
+    this._userService.user$.pipe().subscribe((user) => {
+      if (this.isEdit() && user) {
+        const stallIdFormArr = this._fb.array(user.stallIds.map((id) => this._fb.control(id)));
+        this.userForm.patchValue({
+          id: user.id,
+          acc: user.acc,
+          isStallOwner: user.isStallOwner,
+        });
+        this.userForm.setControl('stallIds', stallIdFormArr);
+        this.userForm.get('acc')?.disable();
+      }
     });
   }
 
@@ -125,43 +161,81 @@ export class CreateUserModal {
     }
   }
 
-  private _userApiService = inject(UserApiService);
-  onCreate() {
+  onSubmit() {
     this.userForm.markAllAsDirty();
     this.userForm.updateValueAndValidity();
 
     if (this.userForm.valid) {
-      this.isCreating.set(true);
+      this.isSubmitting.set(true);
 
-      console.log('Creating user:', this.userForm.getRawValue());
       const body = this.userForm.getRawValue();
+      const id = body.id;
+      delete body.id;
       delete body.stallId;
+      if (body.stallIds.length === 0) {
+        body.stallIds = [];
+      }
+      console.debug('submit user:', body);
 
-      this._userApiService
-        .create(body)
-        .pipe(
-          catchError((err) => {
-            this._snackBar.open('使用者建立失敗', '伺服器錯誤', { duration: 2000 });
-            console.error(err);
-            return EMPTY;
-          }),
-          finalize(() => {
-            this.isCreating.set(false);
-          }),
-        )
-        .subscribe((res) => {
-          if (res.success) {
-            this._snackBar.open('使用者建立成功', '', { duration: 2000 });
-            this.dialogRef.close();
-          } else {
-            this._snackBar.open('使用者建立失敗', res.errors[0], { duration: 2000 });
-            console.error('Create user failed:', res);
-          }
-        });
+      if (this.isEdit()) {
+        this._update(id, body);
+      } else {
+        this._create(body);
+      }
     }
   }
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  private _update(id: number, body: UserDto) {
+    this._userApiService
+      .update(id, body)
+      .pipe(
+        catchError((err) => {
+          this._snackBar.open('使用者更新失敗', '伺服器錯誤', { duration: 2000 });
+          console.error(err);
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isSubmitting.set(false);
+        }),
+      )
+      .subscribe((res) => {
+        if (res.success) {
+          this._snackBar.open('使用者更新成功', '', { duration: 2000 });
+          body.id = id;
+          this._userService.update(body);
+          this.dialogRef.close();
+        } else {
+          this._snackBar.open('使用者更新失敗', res.errors[0], { duration: 2000 });
+          console.error('Update user failed:', res);
+        }
+      });
+  }
+
+  private _create(body: UserDto) {
+    this._userApiService
+      .create(body)
+      .pipe(
+        catchError((err) => {
+          this._snackBar.open('使用者建立失敗', '伺服器錯誤', { duration: 2000 });
+          console.error(err);
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isSubmitting.set(false);
+        }),
+      )
+      .subscribe((res) => {
+        if (res.success) {
+          this._snackBar.open('使用者建立成功', '', { duration: 2000 });
+          this.dialogRef.close();
+        } else {
+          this._snackBar.open('使用者建立失敗', res.errors[0], { duration: 2000 });
+          console.error('Create user failed:', res);
+        }
+      });
   }
 }

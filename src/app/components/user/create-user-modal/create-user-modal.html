@@ -1,4 +1,6 @@
-<div mat-dialog-title class="py-4 px-6 text-gray-600">新增使用者代號</div>
+<div mat-dialog-title class="py-4 px-6 text-gray-600">
+  {{ isEdit() ? '新增使用者' : '編輯使用者' }}
+</div>
 <mat-dialog-content>
   <form [formGroup]="userForm" class="flex flex-col w-full pt-2">
     <!-- 社團資訊 -->
@@ -81,7 +83,7 @@
 
         <div class="flex gap-2 flex-wrap mt-2">
           @for (stallId of selectedStallIds(); track stallId) {
-            <p-chip [label]="stallId" [removable]="true" (remove)="removeStallId($index)" />
+            <p-chip [label]="stallId" [removable]="true" (onRemove)="removeStallId($index)" />
           }
         </div>
       </div>
@@ -90,5 +92,7 @@
 </mat-dialog-content>
 <mat-dialog-actions>
   <button matButton (click)="onClose()">關閉</button>
-  <button matButton (click)="onCreate()" [disabled]="isCreating()">新增</button>
+  <button matButton (click)="onSubmit()" [disabled]="isSubmitting()">
+    {{ isEdit() ? '儲存' : '新增' }}
+  </button>
 </mat-dialog-actions>

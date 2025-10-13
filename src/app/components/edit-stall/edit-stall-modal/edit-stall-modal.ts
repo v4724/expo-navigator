@@ -22,8 +22,9 @@ import {
   MatDialog,
   MatDialogActions,
   MatDialogContent,
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
+import { ConfirmDialog, DialogData } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatIcon } from '@angular/material/icon';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
