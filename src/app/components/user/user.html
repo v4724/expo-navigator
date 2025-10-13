@@ -20,7 +20,7 @@
 <p-popover #userInfoPopover>
   <div class="flex flex-col gap-2">
     <div class="flex gap-2">
-      <div>代號</div>
+      <div>使用者</div>
       <div>{{ user()?.acc }}</div>
     </div>
     <div class="flex gap-2 items-center">
@@ -36,18 +36,28 @@
         }
       </div>
     </div>
+    <div class="flex w-full items-center justify-end">
+      <p-button label="編輯" severity="secondary" size="small" variant="text" (click)="edit()" />
+      <p-button label="刪除" severity="secondary" size="small" variant="text" (click)="delete()" />
+    </div>
   </div>
 </p-popover>
 
 <p-popover #loginPopover>
   <div class="flex flex-col gap-4">
     <div class="flex gap-2 items-center">
-      <div class="">代號</div>
+      <div class="">使用者</div>
       <input pInputText [(ngModel)]="acc" type="text" pSize="small" placeholder="" />
     </div>
     <div class="flex w-full items-center justify-end">
       <p-button label="新增" severity="secondary" size="small" variant="text" (click)="create()" />
-      <p-button label="登入" size="small" variant="text" (click)="login()" />
+      <p-button
+        label="登入"
+        size="small"
+        variant="text"
+        (click)="login()"
+        [disabled]="acc.length === 0"
+      />
     </div>
   </div>
 </p-popover>

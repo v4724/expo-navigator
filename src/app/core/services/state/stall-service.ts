@@ -19,6 +19,8 @@ export class StallService {
 
   private _promoService = inject(PromoApiService);
 
+  private _validStallIds = new Set<string>();
+
   // This set contains rows that are *permanently* grouped on all screen sizes.
   permanentlyGroupedRowIds = new Set(
     stallGridRefs.filter((r) => r.isGrouped).map((r) => r.groupId),
@@ -35,10 +37,18 @@ export class StallService {
         this._allStalls.next(stalls);
         this._fetchEnd.next(true);
       });
+
+    this.allStalls$.subscribe((stalls) => {
+      this._validStallIds = new Set(stalls.map((s) => s.id));
+    });
   }
 
   get allStalls() {
     return this._allStalls.getValue();
+  }
+
+  get allStallIds() {
+    return this._validStallIds;
   }
 
   findStall(id: string): StallData | undefined {

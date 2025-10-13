@@ -33,6 +33,11 @@ html {
       active-indicator-color: #a5a4a9,
     )
   );
+  @include mat.dialog-overrides(
+    (
+      subhead-size: 1.25rem,
+    )
+  );
   .mat-mdc-dialog-content {
     max-height: fit-content;
   }

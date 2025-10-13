@@ -1,0 +1,94 @@
+<div mat-dialog-title class="py-4 px-6 text-gray-600">新增使用者代號</div>
+<mat-dialog-content>
+  <form [formGroup]="userForm" class="flex flex-col w-full pt-2">
+    <!-- 社團資訊 -->
+    <div class="flex flex-wrap gap-3">
+      <div class="flex flex-col gap-1 w-full">
+        <p-floatlabel variant="on">
+          <input
+            class="w-full"
+            pInputText
+            type="text"
+            id="acc"
+            formControlName="acc"
+            autocomplete="off"
+          />
+          <label for="acc">帳號代號</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex gap-1 w-full">
+        <p-checkbox
+          #isStallOwnerRef
+          formControlName="isStallOwner"
+          [binary]="true"
+          inputId="isStallOwner"
+        />
+        <label for="isStallOwner"> 是否有擺攤 </label>
+      </div>
+
+      <!-- 設定攤位代號 -->
+      <div
+        class="flex flex-col gap-1 w-full mt-2 transition-all duration-300"
+        [ngClass]="{
+          'opacity-0': !userForm.get('isStallOwner')?.value,
+          'opacity-100': userForm.get('isStallOwner')?.value,
+        }"
+        [class.invisible]="!userForm.get('isStallOwner')?.value"
+      >
+        <div class="relative">
+          <p-floatlabel variant="on">
+            <input
+              #stallIdInput
+              class="w-full"
+              pInputText
+              type="text"
+              id="stallId"
+              placeholder="ex: 範01"
+              formControlName="stallId"
+              autocomplete="off"
+              (keydown)="onStallIdKeydown($event)"
+            />
+            <label for="stallId">設定攤位代號</label>
+          </p-floatlabel>
+          <!-- 推薦清單：自訂浮動清單 -->
+          @if (filteredStallIds.length) {
+            <ul
+              [ngStyle]="popupStyle"
+              class=""
+              style="
+                position: fixed;
+                z-index: 10000;
+                background: white;
+                border-radius: 0.5rem;
+                box-shadow: 0 2px 8px #0002;
+                border: 1px solid #eee;
+                max-height: 10rem;
+                overflow: auto;
+              "
+            >
+              @for (id of filteredStallIds; track id) {
+                <li
+                  (mousedown)="addStallId(id)"
+                  style="padding: 0.5rem 1rem; cursor: pointer"
+                  class="hover:bg-gray-100"
+                >
+                  {{ id }}
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="flex gap-2 flex-wrap mt-2">
+          @for (stallId of selectedStallIds(); track stallId) {
+            <p-chip [label]="stallId" [removable]="true" (remove)="removeStallId($index)" />
+          }
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button matButton (click)="onClose()">關閉</button>
+  <button matButton (click)="onCreate()" [disabled]="isCreating()">新增</button>
+</mat-dialog-actions>

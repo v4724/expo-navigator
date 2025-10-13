@@ -9,6 +9,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
+import { CreateUserModal } from './create-user-modal/create-user-modal';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-user',
@@ -30,6 +33,8 @@ export class User implements OnInit {
 
   private _userService = inject(UserService);
   private _selectStallService = inject(SelectStallService);
+  private _dialog = inject(MatDialog);
+  private _snackBar = inject(MatSnackBar);
 
   isLogin = toSignal(this._userService.isLogin$);
   user = toSignal(this._userService.user$);
@@ -41,32 +46,65 @@ export class User implements OnInit {
       this.userInfoPopover?.hide();
       this.loginPopover?.hide();
     });
-
-    this._userService.user$.pipe().subscribe(() => {
-      this.acc = this.user()?.acc ?? '';
-    });
   }
 
   toggle(e: Event) {
     if (this.isLogin()) {
-      this.userInfoPopover.toggle(e);
+      this.userInfoPopover?.toggle(e);
     } else {
-      this.loginPopover.toggle(e);
+      this.loginPopover?.toggle(e);
     }
   }
 
   login() {
-    this._userService.login(this.acc);
+    this._userService
+      .login(this.acc)
+      .pipe()
+      .subscribe((res) => {
+        if (res?.success) {
+          if (res.data === null) {
+            this._snackBar.open('使用者不存在', '', { duration: 2000 });
+          } else {
+            this.acc = '';
+            this.userInfoPopover?.hide();
+          }
+        }
+      });
   }
 
   logout() {
     this._userService.logout();
+    this.userInfoPopover?.hide();
   }
 
-  create() {}
+  create() {
+    this.loginPopover?.hide();
+    this._dialog.open(CreateUserModal, {
+      hasBackdrop: true, // 有底色
+      disableClose: true, // 取消點選背景自動關閉
+      width: '60vw',
+      maxWidth: '400px',
+      maxHeight: '400px',
+      panelClass: [''],
+    });
+  }
+
+  edit() {
+    this.userInfoPopover?.hide();
+    this._dialog.open(CreateUserModal, {
+      hasBackdrop: true, // 有底色
+      disableClose: true, // 取消點選背景自動關閉
+      width: '60vw',
+      maxWidth: '400px',
+      maxHeight: '400px',
+      panelClass: [''],
+    });
+  }
+
+  delete() {}
 
   selectStall(stallId: string) {
     this._selectStallService.selected = stallId;
-    this.userInfoPopover.hide();
+    this.userInfoPopover?.hide();
   }
 }

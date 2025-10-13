@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-
-export interface UserDto {
-  acc: string;
-  isStallOwner: boolean;
-  stallIds: string[];
-}
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, catchError, EMPTY, tap } from 'rxjs';
+import { User } from '../../interfaces/user.interface';
+import { UserApiService } from '../api/user-api.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private _user = new BehaviorSubject<UserDto | null>(null);
+  private readonly _snackBar = inject(MatSnackBar);
+  private _userApiService = inject(UserApiService);
+
+  private _user = new BehaviorSubject<User | null>(null);
   private _isLogin = new BehaviorSubject<boolean>(false);
 
   user$ = this._user.asObservable();
@@ -20,10 +20,21 @@ export class UserService {
   constructor() {}
 
   login(acc: string) {
-    setTimeout(() => {
-      this._isLogin.next(true);
-      this._user.next({ acc, isStallOwner: true, stallIds: ['O02', 'O03'] });
-    }, 500);
+    return this._userApiService.login(acc).pipe(
+      catchError((err) => {
+        this._snackBar.open('使用者建立失敗', '伺服器錯誤', { duration: 2000 });
+        console.error(err);
+        return EMPTY;
+      }),
+      tap((res) => {
+        if (!res.success || res.data === null) {
+          return;
+        }
+        const user = this._userApiService.transformDtoToUser(res.data);
+        this._isLogin.next(true);
+        this._user.next(user);
+      }),
+    );
   }
 
   logout() {
