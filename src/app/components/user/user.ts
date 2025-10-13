@@ -12,6 +12,8 @@ import { SelectStallService } from 'src/app/core/services/state/select-stall-ser
 import { CreateUserModal } from './create-user-modal/create-user-modal';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserApiService } from 'src/app/core/services/api/user-api.service';
+import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-user',
@@ -32,6 +34,7 @@ export class User implements OnInit {
   @ViewChild('loginPopover') loginPopover!: Popover;
   @ViewChild('loginInput') loginInput!: ElementRef<HTMLInputElement>;
 
+  private _userApiService = inject(UserApiService);
   private _userService = inject(UserService);
   private _selectStallService = inject(SelectStallService);
   private _dialog = inject(MatDialog);
@@ -107,7 +110,33 @@ export class User implements OnInit {
     });
   }
 
-  delete() {}
+  delete() {
+    const dialogRef = this._dialog.open(ConfirmDialog, {
+      disableClose: true, // 取消點選背景自動關閉
+      data: {
+        label: '確認刪除該使用者？',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === 'CONFIRM') {
+        console.log('結束編輯');
+        this._userApiService
+          .delete(this.user()?.id!)
+          .pipe()
+          .subscribe((res) => {
+            if (res.success) {
+              this._snackBar.open('使用者刪除成功', '', { duration: 2000 });
+              this._userService.logout();
+              this.userInfoPopover?.hide();
+              // TODO: 刪除該使用者相關資訊(marked stalls)
+            } else {
+              this._snackBar.open('使用者刪除失敗', res.errors[0], { duration: 2000 });
+            }
+          });
+      }
+    });
+  }
 
   selectStall(stallId: string) {
     this._selectStallService.selected = stallId;
