@@ -1,6 +1,6 @@
 <div class="flex gap-2 rounded-full border border-gray-300 py-1 px-4 bg-white/50 text-gray-600">
-  <div
-    class="flex transition hover:bg-gray-300/50 rounded-full pr-3 items-center"
+  <button
+    class="flex transition hover:scale-110 rounded-full pr-3 items-center"
     (click)="toggle($event)"
   >
     <mat-icon>person</mat-icon>
@@ -9,7 +9,7 @@
     } @else {
       <span>Hi</span>
     }
-  </div>
+  </button>
   @if (isLogin()) {
     <mat-icon [inline]="true" class="self-center transition hover:scale-110" (click)="logout()">
       logout

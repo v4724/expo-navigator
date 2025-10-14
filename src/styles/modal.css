@@ -177,7 +177,7 @@
   color: #555;
   padding: 3px 8px;
   border-radius: 12px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 500;
   white-space: nowrap;
   text-wrap: auto;
@@ -203,7 +203,7 @@
   opacity: 0.85;
 }
 
-.promo-html-content .text_holder {
+.promo-html-content {
   text-align: initial;
 }
 
