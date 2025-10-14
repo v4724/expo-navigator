@@ -1,5 +1,6 @@
-<div mat-dialog-title class="py-4 px-6 text-gray-600">
+<div mat-dialog-title class="py-4 px-6 text-gray-600 flex">
   <div class="text-lg">編輯攤位資訊：{{ stallForm.get('stallId')?.value }}</div>
+  <button class="ml-auto transition hover:scale-110" (click)="preview()">預覽</button>
 </div>
 <mat-dialog-content>
   <form [formGroup]="stallForm" class="flex flex-col w-full">
@@ -212,7 +213,7 @@
                   <p-editor
                     id="html"
                     formControlName="html"
-                    [style]="{ height: '320px', width: '100%' }"
+                    [style]="{ height: 'calc(100vh - 400px)', width: '100%' }"
                   />
                 </div>
 

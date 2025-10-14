@@ -6,6 +6,7 @@ import { Topbar } from './topbar/topbar';
 import { LayersController } from 'src/app/components/layers-controller/layers-controller';
 import { Map } from './map/map';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { EditBtn } from 'src/app/components/edit-stall/edit-btn/edit-btn';
 import { StallSideNav } from 'src/app/components/stall-info-ui/stall-side-nav/stall-side-nav';
 
 @Component({
@@ -19,6 +20,7 @@ import { StallSideNav } from 'src/app/components/stall-info-ui/stall-side-nav/st
     Map,
     MatSidenavModule,
     StallSideNav,
+    EditBtn,
   ],
   templateUrl: './stalls-map.html',
   styleUrl: './stalls-map.scss',

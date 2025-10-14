@@ -1,34 +1,44 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, output, signal, WritableSignal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  output,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, first } from 'rxjs';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
-import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallData } from '../../stall/stall.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { MatIcon } from '@angular/material/icon';
-import { EditBtn } from '../../edit-stall/edit-btn/edit-btn';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { TabsModule } from 'primeng/tabs';
 import { AvatarModule } from 'primeng/avatar';
 import { TagService } from 'src/app/core/services/state/tag-service';
 import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-stall-side-nav',
-  imports: [CommonModule, MatIcon, EditBtn, TabsModule, AvatarModule],
+  imports: [CommonModule, MatIcon, TabsModule, AvatarModule],
   templateUrl: './stall-side-nav.html',
   styleUrl: './stall-side-nav.scss',
 })
-export class StallSideNav implements OnInit {
+export class StallSideNav implements OnInit, AfterViewInit {
+  readonly dialogRef = inject(MatDialogRef<StallSideNav>, { optional: true });
+  readonly data = inject<{ stall: StallData }>(MAT_DIALOG_DATA, { optional: true });
+
   open = output<boolean>();
   close = output<boolean>();
 
   Array = Array;
 
-  private _stallModalService = inject(StallModalService);
   private _lightboxService = inject(LightboxService);
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
@@ -36,7 +46,6 @@ export class StallSideNav implements OnInit {
   private _userService = inject(UserService);
   private _tagService = inject(TagService);
 
-  show$ = this._stallModalService.showStallModal$;
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
   imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
   isMarkedFetchEnd = toSignal(this._markedStallService.fetchEnd$);
@@ -103,6 +112,8 @@ export class StallSideNav implements OnInit {
   defaultAvatar: string = 'https://images.plurk.com/3rbw6tg1lA5dEGpdKTL8j1.png';
 
   ngOnInit() {
+    if (this.dialogRef) return;
+
     this._selectStallService.selectedStallId$.pipe().subscribe((stallId) => {
       console.debug('stall modal select stall: ', stallId);
       this.isMarkedSignal.set(false);
@@ -111,7 +122,7 @@ export class StallSideNav implements OnInit {
         this.stall.set(this._selectStallService.selectedStall);
         if (stallId) {
           this.open.emit(true);
-          this.updateStallInfo(stallId);
+          this.initEmbedsContent();
         }
       });
     });
@@ -129,6 +140,12 @@ export class StallSideNav implements OnInit {
       });
   }
 
+  ngAfterViewInit(): void {
+    if (this.dialogRef) {
+      this.stall.set(this.data?.stall);
+    }
+  }
+
   // 手動更新 marked 狀態
   toggleBookmark() {
     const marked = !this.isMarkedSignal();
@@ -142,15 +159,8 @@ export class StallSideNav implements OnInit {
 
   /**
    * Populates and opens the modal for a specific stall.
-   * @param stallId The ID of the stall to display.
-   * @param context An object containing all necessary dependencies.
    */
-  updateStallInfo(stallId: string) {
-    // const { elements, magnifierController, uiState } = context;
-    const stall = this._stallService.findStall(stallId);
-    console.debug('openＭodal stall:', stall);
-    if (!stall) return;
-
+  initEmbedsContent() {
     // 動態嵌入 IG 貼文
     if (window.instgrm) {
       window.instgrm.Embeds.process();
@@ -168,10 +178,12 @@ export class StallSideNav implements OnInit {
    * @param context An object containing all necessary dependencies.
    */
   closeModal() {
-    this._selectStallService.clearSelection();
-    this._stallModalService.hide();
-
-    this.close.emit(true);
+    if (!this.dialogRef) {
+      this._selectStallService.clearSelection();
+      this.close.emit(true);
+    } else {
+      this.dialogRef.close();
+    }
   }
 
   // --- Image Lightbox Listeners ---

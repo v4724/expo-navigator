@@ -19,9 +19,12 @@
         </button>
       }
     </div>
+
     @if (isEditable()) {
-      <app-edit-btn></app-edit-btn>
+      <!-- 投影外部的內容 -->
+      <ng-content select="[editBtn]"></ng-content>
     }
+
     <button
       class="text-base flex items-center transition hover:scale-110"
       aria-label="Close dialog"

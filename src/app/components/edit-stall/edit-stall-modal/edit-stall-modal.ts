@@ -52,6 +52,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ResponseSnackBar } from 'src/app/shared/components/response-snack-bar/response-snack-bar';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { StallSideNav } from '../../stall-info-ui/stall-side-nav/stall-side-nav';
 interface MyTab {
   icon: string;
   name: string;
@@ -332,6 +333,26 @@ export class EditStallModal implements OnInit, OnDestroy {
         },
       );
     }
+  }
+
+  preview() {
+    // TODO getStallFromForm
+    const stall = JSON.parse(JSON.stringify(this._selectStallService.selectedStall));
+
+    const promos = this._getPromoFromForm();
+    stall.promoData = promos;
+
+    console.debug('preview stall', stall);
+
+    this._dialog.open(StallSideNav, {
+      hasBackdrop: true, // 有底色
+      disableClose: true, // 取消點選背景自動關閉
+      width: '30vw', // 同 mat.sidenav-overrides 設定
+      maxWidth: '800px',
+      height: 'calc(100vh - 100px)',
+      panelClass: [''],
+      data: { stall: stall },
+    });
   }
 
   onTempSave() {
