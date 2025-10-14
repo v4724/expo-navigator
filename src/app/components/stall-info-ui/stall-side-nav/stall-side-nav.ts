@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, output, signal, WritableSignal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, first, map } from 'rxjs';
-import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
+import { combineLatest, first } from 'rxjs';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
@@ -12,10 +11,14 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { MatIcon } from '@angular/material/icon';
 import { EditBtn } from '../../edit-stall/edit-btn/edit-btn';
 import { UserService } from 'src/app/core/services/state/user-service';
+import { TabsModule } from 'primeng/tabs';
+import { AvatarModule } from 'primeng/avatar';
+import { TagService } from 'src/app/core/services/state/tag-service';
+import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
 
 @Component({
   selector: 'app-stall-side-nav',
-  imports: [CommonModule, MatIcon, EditBtn],
+  imports: [CommonModule, MatIcon, EditBtn, TabsModule, AvatarModule],
   templateUrl: './stall-side-nav.html',
   styleUrl: './stall-side-nav.scss',
 })
@@ -23,7 +26,7 @@ export class StallSideNav implements OnInit {
   open = output<boolean>();
   close = output<boolean>();
 
-  service = inject(SelectStallService);
+  Array = Array;
 
   private _stallModalService = inject(StallModalService);
   private _lightboxService = inject(LightboxService);
@@ -31,10 +34,10 @@ export class StallSideNav implements OnInit {
   private _selectStallService = inject(SelectStallService);
   private _markedStallService = inject(MarkedStallService);
   private _userService = inject(UserService);
+  private _tagService = inject(TagService);
 
   show$ = this._stallModalService.showStallModal$;
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
-  promoLinks: WritableSignal<PromoLink[]> = signal<PromoLink[]>([]);
   imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
   isMarkedFetchEnd = toSignal(this._markedStallService.fetchEnd$);
 
@@ -52,13 +55,36 @@ export class StallSideNav implements OnInit {
     return false;
   });
 
-  hasPromoInfo = computed(() => {
+  promoViewTagMap = computed(() => {
+    const map = new Map<number, Map<StallSeriesDto, Set<StallTagDto>>>();
     const stall = this.stall();
-    if (stall) {
-      return stall.stallImg || stall.hasPromo;
-    } else {
-      return false;
+    if (!stall) {
+      return map;
     }
+
+    stall.promoData.forEach((promo) => {
+      if (!promo.id) {
+        return;
+      }
+
+      const tagMap = new Map<StallSeriesDto, Set<StallTagDto>>();
+      promo.tags.forEach((subTagKey: string) => {
+        const subTag = this._tagService.getTagById(subTagKey);
+        if (!subTag) return;
+
+        const series = this._tagService.getSeriesById(subTag.seriesId);
+        if (!series) return;
+
+        let seriesEntry = tagMap.get(series);
+        if (!seriesEntry) {
+          tagMap.set(series, new Set([subTag]));
+        } else {
+          seriesEntry.add(subTag);
+        }
+      });
+      map.set(promo.id, tagMap);
+    });
+    return map;
   });
 
   defaultAvatar: string = 'https://images.plurk.com/3rbw6tg1lA5dEGpdKTL8j1.png';
@@ -123,19 +149,6 @@ export class StallSideNav implements OnInit {
         document.getElementsByClassName('modal-wrapper')[0] as HTMLElement,
       );
     }
-
-    const promoLinks = stall.promoData
-      .map((data) => {
-        const links = data.promoLinks.filter((link) => !!link.href);
-        return links;
-      })
-      .filter((links) => {
-        return links.length;
-      })
-      .flat();
-
-    this.promoLinks.set(promoLinks);
-    if (stall.stallLink) promoLinks.push({ href: stall.stallLink, text: '社團網站' });
   }
   /**
    * Hides the modal and clears any selection.
@@ -176,5 +189,9 @@ export class StallSideNav implements OnInit {
 
       this._lightboxService.openImageLightbox(src, target.alt);
     }
+  }
+
+  oenpLink() {
+    window.open(this.stall()?.stallLink, '_target');
   }
 }

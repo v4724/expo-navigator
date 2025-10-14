@@ -18,7 +18,11 @@
       [fixedTopGap]="60"
       [fixedBottomGap]="20"
     >
-      <app-stall-side-nav (close)="sidenav.close()" (open)="sidenav.open()"></app-stall-side-nav>
+      <app-stall-side-nav
+        class="flex flex-col h-full"
+        (close)="sidenav.close()"
+        (open)="sidenav.open()"
+      ></app-stall-side-nav>
     </mat-sidenav>
   </mat-sidenav-container>
 </div>

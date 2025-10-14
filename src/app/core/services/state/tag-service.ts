@@ -129,4 +129,12 @@ export class TagService {
         return { id: tag.tagId, name: tag.tagName };
       });
   }
+
+  getSeriesById(id: string): StallSeriesDto | undefined {
+    return this.allSeries.get(id);
+  }
+
+  getTagById(id: string): StallTagDto | undefined {
+    return this.allTags.get(id);
+  }
 }

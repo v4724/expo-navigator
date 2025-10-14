@@ -1,29 +1,47 @@
-<div
-  class="header flex sticky top-0 z-20 bg-white shadow transition-all duration-300 w-full items-center px-5 py-4"
->
-  <h2 class="modal-title mr-auto">{{ stall()?.id }}: {{ stall()?.stallTitle }}</h2>
-  @if (isEditable()) {
-    <app-edit-btn></app-edit-btn>
-  }
-  <button
-    class="text-base flex items-center transition hover:scale-110"
-    aria-label="Close dialog"
-    (click)="closeModal()"
+<div (click)="bodyClicked($event)" class="flex flex-col flex-grow">
+  <!-- header -->
+  <div
+    class="header flex sticky top-0 z-20 bg-white shadow transition-all duration-300 w-full items-center px-5 py-4"
   >
-    <mat-icon [inline]="true" class="">close</mat-icon>
-  </button>
-  <button
-    class="bookmark-btn text-gray-200 rounded-full bg-transparent transition hover:scale-110"
-    [class.active]="isMarkedSignal()"
-    (click)="toggleBookmark()"
-    aria-label="Bookmark"
-  >
-    <mat-icon class="">bookmark_star</mat-icon>
-  </button>
-</div>
-<div>
-  <div class="p-4" (click)="bodyClicked($event)">
-    @if (stall()?.stallImg) {
+    <div class="flex mr-auto">
+      {{ stall()?.id }}: {{ stall()?.stallTitle }}
+      @if (stall()?.stallLink) {
+        <button
+          class="ml-1 text-base flex items-center transition hover:scale-110 text-gray-400"
+          (click)="oenpLink()"
+        >
+          <mat-icon
+            [inline]="true"
+            aria-hidden="false"
+            aria-label="Example link icon"
+            fontIcon="open_in_new"
+          ></mat-icon>
+        </button>
+      }
+    </div>
+    @if (isEditable()) {
+      <app-edit-btn></app-edit-btn>
+    }
+    <button
+      class="text-base flex items-center transition hover:scale-110"
+      aria-label="Close dialog"
+      (click)="closeModal()"
+    >
+      <mat-icon [inline]="true" class="">close</mat-icon>
+    </button>
+    <button
+      class="bookmark-btn text-gray-200 rounded-full bg-transparent transition hover:scale-110"
+      [class.active]="isMarkedSignal()"
+      (click)="toggleBookmark()"
+      aria-label="Bookmark"
+    >
+      <mat-icon class="">bookmark_star</mat-icon>
+    </button>
+  </div>
+
+  <!-- content -->
+  @if (stall()?.stallImg) {
+    <div class="p-4">
       <div
         class="relative w-full bg-center bg-cover bg-gray-100 rounded-xl overflow-hidden border border-gray-100"
         [style.background-image]="'url(' + stall()?.stallImg + ')'"
@@ -47,43 +65,77 @@
           (load)="imageLoaded.set(true)"
         />
       </div>
-    }
-    @if (!hasPromoInfo()) {
-      暫無宣傳資訊。
-    } @else {
-      @if (stall()?.stallImg && stall()?.hasPromo) {
-        <hr class="promo-section-separator" />
-      }
-      @for (item of stall()?.promoData; track $index) {
-        @if ($index > 0) {
-          <div class="promo-entry-separator"></div>
+    </div>
+  }
+  @if (!this.stall()?.hasPromo) {
+    <div class="p-4 mb-2 flex-grow flex items-center justify-center">暫無宣傳資訊。</div>
+  } @else {
+    <p-tabs #promoTabs [value]="0" scrollable class="flex flex-grow">
+      <p-tablist class="!sticky top-[56px] z-100 border-t-1 border-gray-100">
+        @for (promo of this.stall()?.promoData; track promo; let tabIndex = $index) {
+          <p-tab [value]="tabIndex">
+            <div class="flex gap-1 h-full">
+              @if (promo.promoAvatar) {
+                <p-avatar [image]="promo.promoAvatar" shape="circle" />
+              }
+              <div class="flex items-center">
+                <div class="font-bold whitespace-nowrap flex items-center mx-2">
+                  {{ promo.promoTitle }}
+                </div>
+              </div>
+            </div>
+          </p-tab>
         }
-        <div class="promo-entry">
-          <div class="modal-user-info">
-            <img
-              [src]="item.promoAvatar ? item.promoAvatar : defaultAvatar"
-              [alt]="item.promoTitle"
-              class="modal-avatar"
-            />
-            <span class="modal-username">{{ item.promoTitle }}</span>
-          </div>
-          @if (item.promoTags && item.promoTags.length > 0) {
-            <div class="promo-tags-container">
-              @for (tag of item.promoTags; track $index) {
-                <span class="promo-tag">#{{ tag }}</span>
+      </p-tablist>
+      <p-tabpanels class="flex flex-grow">
+        @for (promo of stall()?.promoData ?? []; track promo; let promoIndex = $index) {
+          <p-tabpanel [value]="promoIndex" class="flex flex-col flex-grow">
+            <div
+              class="promo-entry flex-grow flex flex-col"
+              [ngClass]="{ 'mb-4': promo.promoLinks.length > 0 }"
+            >
+              @if (promo.id && promoViewTagMap().has(promo.id)) {
+                <div class="promo-tags-container">
+                  @let seriesAndTagMap = promoViewTagMap().get(promo.id);
+                  @for (series of Array.from(seriesAndTagMap?.keys() ?? []); track $index) {
+                    <span class="promo-tag">#{{ series.seriesName }}</span>
+
+                    @let tagSet = seriesAndTagMap?.get(series);
+                    @for (tag of tagSet; track $index) {
+                      <span class="promo-tag">#{{ tag.tagName }}</span>
+                    }
+                  }
+                  @if (promo.customTags) {
+                    <span class="promo-tag">#{{ promo.customTags }}</span>
+                  }
+                </div>
+              }
+              @if (promo.promoHtml) {
+                <div class="promo-html-content" [innerHTML]="promo.promoHtml"></div>
+              } @else {
+                <div class="flex-grow flex items-center justify-center ng-star-inserted">
+                  暫無宣傳資訊
+                </div>
               }
             </div>
-          }
-          <div class="promo-html-content" [innerHTML]="item.promoHtml"></div>
-        </div>
-      }
-    }
-  </div>
-  <div id="modal-footer">
-    @for (link of promoLinks(); track $index) {
-      <a [href]="link.href" class="footer-link" target="_blank" rel="noopener noreferrer">{{
-        link.text
-      }}</a>
-    }
-  </div>
+            @if (promo.promoLinks.length > 0) {
+              <div
+                class="flex flex-wrap gap-2 sticky bottom-0 bg-linear-to-t from-white to-transparent w-full pr-3"
+              >
+                @for (link of promo.promoLinks; track $index) {
+                  <a
+                    [href]="link.href"
+                    class="footer-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >{{ link.text }}</a
+                  >
+                }
+              </div>
+            }
+          </p-tabpanel>
+        }
+      </p-tabpanels>
+    </p-tabs>
+  }
 </div>

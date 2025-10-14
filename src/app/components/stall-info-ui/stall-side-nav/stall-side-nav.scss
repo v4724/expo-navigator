@@ -14,3 +14,9 @@
     color 0.3s,
     transform 0.2s;
 }
+
+:host ::ng-deep {
+  .p-tab {
+    padding: 0.5rem 1rem;
+  }
+}

@@ -203,6 +203,10 @@
   opacity: 0.85;
 }
 
+.promo-html-content .text_holder {
+  text-align: initial;
+}
+
 .promo-html-content .text_holder img {
   margin-top: 0px;
   margin-bottom: 0px;
