@@ -58,7 +58,7 @@
         <button class="ml-auto" matButton (click)="addPromo()">新增</button>
       </div>
       <p-tabs #promoTabs [value]="0" scrollable>
-        <p-tablist>
+        <p-tablist class="!sticky top-[-20px] z-100 border-t-1 border-gray-100">
           @for (tab of tabList(); track tab; let tabIndex = $index) {
             <p-tab [value]="tabIndex">
               <div class="flex gap-1 h-full">
@@ -118,7 +118,95 @@
                   </p-floatlabel>
                 </div>
 
-                <!-- 連結 -->
+                <!-- 標籤 -->
+                <div class="flex flex-col gap-2">
+                  <p-fieldset [toggleable]="true" legend="標籤" collapsed class="w-full">
+                    <div>作品</div>
+                    <div class="flex flex-wrap" formGroupName="seriesAndTags">
+                      @for (series of seriesAndTags().keys(); track series) {
+                        <div class="flex items-center gap-2 p-2 w-1/2 md:w-1/4">
+                          <p-checkbox
+                            [formControlName]="series.controlName"
+                            [binary]="true"
+                            [inputId]="series.seriesId.toString()"
+                          />
+                          <label
+                            [for]="series.seriesId.toString()"
+                            class="text-nowrap overflow-hidden text-ellipsis"
+                          >
+                            {{ series.seriesName }}
+                          </label>
+                          @if (seriesSeletedTagCnt()[promoIndex][series.controlName] > 0) {
+                            <p-badge
+                              [value]="seriesSeletedTagCnt()[promoIndex][series.controlName]"
+                              badgeSize="small"
+                              severity="info"
+                            />
+                          }
+                          <button
+                            (click)="openTags($event, op, series)"
+                            class="text-gray-500 hover:text-gray-800 flex items-center"
+                          >
+                            <mat-icon
+                              [inline]="true"
+                              aria-hidden="false"
+                              aria-label="Example filter icon"
+                              fontIcon="filter_alt"
+                            ></mat-icon>
+                          </button>
+                        </div>
+                        <p-popover #op>
+                          <div class="flex flex-col gap-4 p-2">
+                            <div class="flex gap-4">
+                              <div class="flex text-nowrap w-6">角色</div>
+                              <div class="flex flex-wrap gap-x-4 gap-y-2">
+                                @for (tag of seriesAndTags().get(series)?.get('CHAR'); track tag) {
+                                  <div>
+                                    <p-checkbox
+                                      [formControlName]="tag.controlName"
+                                      [binary]="true"
+                                      [inputId]="`${tag.controlName}`"
+                                    />
+                                    <label [for]="`${tag.controlName}`"> {{ tag.tagName }} </label>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                            <div class="flex gap-4">
+                              <div class="flex text-nowrap w-6">CP</div>
+                              <div class="flex flex-wrap gap-x-4 gap-y-2">
+                                @for (tag of seriesAndTags().get(series)?.get('CP'); track tag) {
+                                  <div>
+                                    <p-checkbox
+                                      [formControlName]="tag.controlName"
+                                      [binary]="true"
+                                      [inputId]="`${tag.controlName}`"
+                                    />
+                                    <label [for]="`${tag.controlName}`"> {{ tag.tagName }} </label>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </p-popover>
+                      }
+                    </div>
+                    <div class="flex w-full gap-4">
+                      <label class="text-nowrap w-6"> 自訂 </label>
+                      <input
+                        formControlName="customTags"
+                        pSize="small"
+                        class="flex-grow"
+                        pInputText
+                        type="text"
+                        placeholder=""
+                        autocomplete="off"
+                      />
+                    </div>
+                  </p-fieldset>
+                </div>
+
+                <!-- 宣傳車 -->
                 <div class="flex flex-col gap-1 mt-2">
                   <label>宣傳內容</label>
                   <p-editor
@@ -190,91 +278,6 @@
                         </div>
                       </div>
                     </p-fieldset>
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                  <div>作品</div>
-                  <div class="flex flex-wrap" formGroupName="seriesAndTags">
-                    @for (series of seriesAndTags().keys(); track series) {
-                      <div class="flex items-center gap-2 p-2 w-1/2 md:w-1/4">
-                        <p-checkbox
-                          [formControlName]="series.controlName"
-                          [binary]="true"
-                          [inputId]="series.seriesId.toString()"
-                        />
-                        <label
-                          [for]="series.seriesId.toString()"
-                          class="text-nowrap overflow-hidden text-ellipsis"
-                        >
-                          {{ series.seriesName }}
-                        </label>
-                        @if (seriesSeletedTagCnt()[promoIndex][series.controlName] > 0) {
-                          <p-badge
-                            [value]="seriesSeletedTagCnt()[promoIndex][series.controlName]"
-                            badgeSize="small"
-                            severity="info"
-                          />
-                        }
-                        <button
-                          (click)="openTags($event, op, series)"
-                          class="text-gray-500 hover:text-gray-800 flex items-center"
-                        >
-                          <mat-icon
-                            [inline]="true"
-                            aria-hidden="false"
-                            aria-label="Example filter icon"
-                            fontIcon="filter_alt"
-                          ></mat-icon>
-                        </button>
-                      </div>
-                      <p-popover #op>
-                        <div class="flex flex-col gap-4 p-2">
-                          <div class="flex gap-4">
-                            <div class="flex text-nowrap w-6">角色</div>
-                            <div class="flex flex-wrap gap-x-4 gap-y-2">
-                              @for (tag of seriesAndTags().get(series)?.get('CHAR'); track tag) {
-                                <div>
-                                  <p-checkbox
-                                    [formControlName]="tag.controlName"
-                                    [binary]="true"
-                                    [inputId]="`${tag.controlName}`"
-                                  />
-                                  <label [for]="`${tag.controlName}`"> {{ tag.tagName }} </label>
-                                </div>
-                              }
-                            </div>
-                          </div>
-                          <div class="flex gap-4">
-                            <div class="flex text-nowrap w-6">CP</div>
-                            <div class="flex flex-wrap gap-x-4 gap-y-2">
-                              @for (tag of seriesAndTags().get(series)?.get('CP'); track tag) {
-                                <div>
-                                  <p-checkbox
-                                    [formControlName]="tag.controlName"
-                                    [binary]="true"
-                                    [inputId]="`${tag.controlName}`"
-                                  />
-                                  <label [for]="`${tag.controlName}`"> {{ tag.tagName }} </label>
-                                </div>
-                              }
-                            </div>
-                          </div>
-                        </div>
-                      </p-popover>
-                    }
-                  </div>
-                  <div class="flex w-full gap-4">
-                    <label class="text-nowrap w-6"> 自訂 </label>
-                    <input
-                      formControlName="customTags"
-                      pSize="small"
-                      class="flex-grow"
-                      pInputText
-                      type="text"
-                      placeholder=""
-                      autocomplete="off"
-                    />
                   </div>
                 </div>
               </div>
