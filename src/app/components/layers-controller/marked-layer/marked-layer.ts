@@ -6,6 +6,7 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MarkedStallDto } from 'src/app/core/models/marked-stall.model';
 import { MarkedStall } from 'src/app/core/interfaces/marked-stall.interface';
+import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 
 @Component({
   selector: 'app-marked-layer',
@@ -14,10 +15,11 @@ import { MarkedStall } from 'src/app/core/interfaces/marked-stall.interface';
   styleUrl: './marked-layer.scss',
 })
 export class MarkedLayer implements OnInit {
-  isSectionOpen = signal(true);
+  isSectionOpen = signal(false);
 
   // Helpers
   private _markedStallService = inject(MarkedStallService);
+  private _selectStallService = inject(SelectStallService);
 
   show = toSignal(this._markedStallService.show$);
 
@@ -39,5 +41,9 @@ export class MarkedLayer implements OnInit {
     const newArr = [...this.stalls()];
     moveItemInArray(newArr, event.previousIndex, event.currentIndex);
     this._markedStallService.markedStalls = newArr;
+  }
+
+  selectStall(stallId: string) {
+    this._selectStallService.selected = stallId;
   }
 }

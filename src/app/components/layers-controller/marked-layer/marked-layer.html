@@ -45,9 +45,15 @@
         >
           @for (stall of stalls(); track stall.stallId) {
             <label class="flex items-center space-x-2 example-box" cdkDrag>
-              <span class="text-sm text-gray-600"
-                >{{ stall.stallId }}-{{ stall.info.stallTitle }}</span
+              <span class="text-sm text-gray-600">
+                {{ stall.stallId }}-{{ stall.info.stallTitle }}
+              </span>
+              <button
+                class="transition hover:scale-110 flex items-center"
+                (click)="selectStall(stall.stallId)"
               >
+                <mat-icon inline fontIcon="arrow_outward"></mat-icon>
+              </button>
             </label>
           }
         </div>

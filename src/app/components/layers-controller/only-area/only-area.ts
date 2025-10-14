@@ -13,7 +13,7 @@ import { SearchAndFilter } from '../../search-and-filter/search-and-filter';
 })
 export class OnlyArea {
   // State Signals
-  isAreaSectionOpen = signal(true);
+  isAreaSectionOpen = signal(false);
 
   activeAreas = signal<Set<string>>(new Set());
 
