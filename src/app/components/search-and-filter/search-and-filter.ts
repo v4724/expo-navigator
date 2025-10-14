@@ -67,12 +67,12 @@ export class SearchAndFilter {
     this.isTagSectionOpen.update((v) => !v);
   }
 
-  isSeriesSelected(category: string): boolean {
-    return this._tagService.selectedSeriesId.has(category);
+  isSeriesSelected(seriesId: number): boolean {
+    return this._tagService.selectedSeriesId.has(seriesId);
   }
 
-  toggleSeries(series: string) {
-    this._tagService.toggleSeries(series);
+  toggleSeries(seriesId: number) {
+    this._tagService.toggleSeries(seriesId);
   }
 
   openAdvancedFilterModal(series: StallSeries) {
@@ -86,15 +86,15 @@ export class SearchAndFilter {
     this.currentAdvancedFilterSeries.set(null);
   }
 
-  isAdvancedTagSelected(series: string, key: string, tagId: string): boolean {
-    return this._tagService.selectedAdvancedTagsId[series]?.[key]?.has(tagId) ?? false;
+  isAdvancedTagSelected(seriesId: number, key: string, tagId: number): boolean {
+    return this._tagService.selectedAdvancedTagsId[seriesId]?.[key]?.has(tagId) ?? false;
   }
 
-  toggleAdvancedTag(series: string, key: string, value: string) {
-    this._tagService.toggleAdvancedTag(series, key, value);
+  toggleAdvancedTag(seriesId: number, key: string, tagId: number) {
+    this._tagService.toggleAdvancedTag(seriesId, key, tagId);
   }
 
-  clearTags(series: string, type: 'cp' | 'char') {
-    this._tagService.clearAdvancedTag(series, type);
+  clearTags(seriesId: number, type: 'cp' | 'char') {
+    this._tagService.clearAdvancedTag(seriesId, type);
   }
 }

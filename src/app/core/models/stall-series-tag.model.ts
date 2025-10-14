@@ -1,17 +1,17 @@
 export interface StallSeriesDto {
-  seriesId: string;
+  seriesId: number;
 
   seriesName: string;
 }
 
 export interface StallTagDto {
-  tagId: string;
+  tagId: number;
 
   tagName: string;
 
   tagType: 'CHAR' | 'CP';
 
-  seriesId: string;
+  seriesId: number;
 
   seriesName: string;
 }

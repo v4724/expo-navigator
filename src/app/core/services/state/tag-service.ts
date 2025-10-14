@@ -1,8 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin } from 'rxjs';
-import { StallData } from 'src/app/components/stall/stall.interface';
-import { TooltipService } from './tooltip-service';
-import { stallGridRefs } from '../../const/official-data';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
 import { SERIES_CSV_URL, TAG_CSV_URL } from '../../const/google-excel-csv-url';
 import { StallSeriesDto, StallTagDto } from '../../models/stall-series-tag.model';
@@ -12,10 +9,10 @@ import { AdvancedFilters, StallTag } from '../../interfaces/stall-series-tag.int
   providedIn: 'root',
 })
 export class TagService {
-  allSeries = new Map<string, StallSeriesDto>();
-  allTags = new Map<string, StallTagDto>();
+  allSeries = new Map<number, StallSeriesDto>();
+  allTags = new Map<number, StallTagDto>();
 
-  private _selectedSeriesId = new BehaviorSubject<Set<string>>(new Set());
+  private _selectedSeriesId = new BehaviorSubject<Set<number>>(new Set());
   private _selectedAdvancedTagsId = new BehaviorSubject<AdvancedFilters>({});
 
   selectedSeriesId$ = this._selectedSeriesId.asObservable();
@@ -42,7 +39,7 @@ export class TagService {
     return this._selectedAdvancedTagsId.getValue();
   }
 
-  toggleSeries(series: string) {
+  toggleSeries(series: number) {
     const newCats = new Set(this.selectedSeriesId);
     if (newCats.has(series)) {
       newCats.delete(series);
@@ -52,7 +49,7 @@ export class TagService {
     this._selectedSeriesId.next(newCats);
   }
 
-  toggleAdvancedTag(series: string, key: string, value: string) {
+  toggleAdvancedTag(series: number, key: string, value: number) {
     const newFilters = { ...this.selectedAdvancedTagsId };
     if (!newFilters[series]) newFilters[series] = {};
     if (!newFilters[series][key]) newFilters[series][key] = new Set();
@@ -65,7 +62,7 @@ export class TagService {
     this._selectedAdvancedTagsId.next(newFilters);
   }
 
-  clearAdvancedTag(series: string, type: 'cp' | 'char') {
+  clearAdvancedTag(series: number, type: 'cp' | 'char') {
     const newFilters = { ...this.selectedAdvancedTagsId };
     if (newFilters[series]) {
       newFilters[series][type].clear();
@@ -76,7 +73,7 @@ export class TagService {
 
   processSeries(rawData: Record<string, string>[]) {
     rawData.forEach((rawSeries) => {
-      const id = rawSeries['seriesId'];
+      const id = Number(rawSeries['seriesId']);
       const name = rawSeries['seriesName'];
 
       if (!id || !name) {
@@ -86,7 +83,7 @@ export class TagService {
 
       if (!this.allSeries.has(id)) {
         const series: StallSeriesDto = {
-          seriesId: id,
+          seriesId: Number(id),
           seriesName: name,
         };
         this.allSeries.set(id, series);
@@ -96,10 +93,10 @@ export class TagService {
 
   processTags(rawData: Record<string, string>[]) {
     rawData.forEach((rawSeries) => {
-      const tagId = rawSeries['tagId'];
+      const tagId = Number(rawSeries['tagId']);
       const tagName = rawSeries['tagName'];
       const tagType = rawSeries['tagType'];
-      const seriesId = rawSeries['seriesId'];
+      const seriesId = Number(rawSeries['seriesId']);
       const seriesName = rawSeries['seriesName'];
 
       if (!tagId || !tagName || !tagType || !seriesId) {
@@ -120,7 +117,7 @@ export class TagService {
     });
   }
 
-  toStallTagArr(seriesId: string, tagType: 'CP' | 'CHAR'): StallTag[] {
+  toStallTagArr(seriesId: number, tagType: 'CP' | 'CHAR'): StallTag[] {
     return Array.from(this.allTags.values())
       .filter((tag: StallTagDto) => {
         return tag.seriesId === seriesId && tag.tagType === tagType;
@@ -130,11 +127,11 @@ export class TagService {
       });
   }
 
-  getSeriesById(id: string): StallSeriesDto | undefined {
+  getSeriesById(id: number): StallSeriesDto | undefined {
     return this.allSeries.get(id);
   }
 
-  getTagById(id: string): StallTagDto | undefined {
+  getTagById(id: number): StallTagDto | undefined {
     return this.allTags.get(id);
   }
 }

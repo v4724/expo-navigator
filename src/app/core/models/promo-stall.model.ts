@@ -1,3 +1,5 @@
+import { PromoLink } from '../interfaces/promo-link.interface';
+
 /** Data from user-submitted promotions, representing a single promotion entry. */
 export interface PromoStallDto {
   /** The ID of the stall this promotion belongs to. */
@@ -12,13 +14,13 @@ export interface PromoStallDto {
   /** The main content of the promotion, can contain HTML. */
   promoHtml: string;
   /** An array of links associated with this specific promotion. */
-  promoLinks: string;
+  promoLinks: PromoLink[] | null;
 
   // 宣傳車作品
-  series: string;
+  series: number[] | null;
 
   // 宣傳車 tag
-  tags: string;
+  tags: number[] | null;
 
   // 宣傳車自訂 tag
   customTags: string;

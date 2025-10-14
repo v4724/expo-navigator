@@ -1,5 +1,5 @@
 export interface StallSeries {
-  id: string;
+  id: number;
 
   name: string;
 
@@ -7,7 +7,7 @@ export interface StallSeries {
 }
 
 export interface StallTag {
-  id: string;
+  id: number;
 
   name: string;
 }
@@ -19,7 +19,7 @@ export interface AdvancedData {
 
 // Maps category to its selected advanced filter keys and values
 export interface AdvancedFilters {
-  [series: string]: {
-    [key: string]: Set<string>;
+  [series: number]: {
+    [key: string]: Set<number>;
   };
 }

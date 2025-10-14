@@ -32,9 +32,9 @@ export class PromoApiService {
         promoTitle: promo.promoTitle,
         promoAvatar: promo.promoAvatar,
         promoHtml: promo.promoHtml,
-        promoLinks: promo.promoLinks.map((item) => item.href).join(';'),
-        series: promo.series.join(';'),
-        tags: promo.tags.join(';'),
+        promoLinks: promo.promoLinks,
+        series: promo.series,
+        tags: promo.tags,
         customTags: promo.customTags,
       };
       return dto;
@@ -71,10 +71,9 @@ export class PromoApiService {
       promoTitle: promoTitle,
       promoAvatar: promoAvatar,
       promoHtml: promoHtml,
-      promoLinks: this._parsePromoLinks(promoTitle, dto.promoLinks),
-      promoTags: [],
-      series: dto.series.split(';'),
-      tags: dto.tags.split(';'),
+      promoLinks: dto.promoLinks ?? [],
+      series: dto.series ?? [],
+      tags: dto.tags ?? [],
       customTags: dto.customTags,
     };
 

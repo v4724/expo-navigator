@@ -48,13 +48,7 @@
                 />
                 <span class="modal-username">{{ item.promoTitle }}</span>
               </div>
-              @if (item.promoTags && item.promoTags.length > 0) {
-                <div class="promo-tags-container">
-                  @for (tag of item.promoTags; track $index) {
-                    <span class="promo-tag">#{{ tag }}</span>
-                  }
-                </div>
-              }
+              <!-- TODO tag -->
               <div class="promo-html-content" [innerHTML]="item.promoHtml"></div>
             </div>
           }

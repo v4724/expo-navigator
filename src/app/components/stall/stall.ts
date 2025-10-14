@@ -102,7 +102,7 @@ export class Stall implements OnInit, AfterViewInit {
         const hasPromoTitleMatch = this.stall().promoData.some((promo) =>
           promo.promoTitle.toLowerCase().includes(searchTerm),
         );
-        const hasTagMatch = this.stall().promoTags.some((tag) =>
+        const hasTagMatch = this.stall().filterCustomTags.some((tag) =>
           tag.toLowerCase().includes(searchTerm),
         );
 
@@ -128,9 +128,10 @@ export class Stall implements OnInit, AfterViewInit {
     this._tagService.selectedAdvancedTagsId$.pipe().subscribe((ids) => {
       const isMatch = this.stall().filterTags.some((id) => {
         let isMatch = false;
-        Object.keys(ids).forEach((series) => {
-          Object.keys(ids[series]).forEach((key) => {
-            isMatch = isMatch || ids[series][key].has(id);
+        Object.keys(ids).forEach((seriesId) => {
+          const numId = Number(seriesId);
+          Object.keys(ids[numId] ?? []).forEach((key) => {
+            isMatch = isMatch || ids[numId][key].has(id);
           });
         });
         return isMatch;

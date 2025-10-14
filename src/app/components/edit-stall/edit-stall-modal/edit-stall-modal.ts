@@ -154,6 +154,7 @@ export class EditStallModal implements OnInit, OnDestroy {
     this.promos.valueChanges.subscribe((result) => {
       this.updateTabList();
       this.updateSeriesSeletedTagCnt();
+      this.updateSeriesCheck();
     });
 
     this._tagService.fetchEnd$.pipe(first((val) => !!val)).subscribe(() => {
@@ -187,6 +188,7 @@ export class EditStallModal implements OnInit, OnDestroy {
         this.initFormVal(stall);
         this.updateTabList();
         this.updateSeriesSeletedTagCnt();
+        this.updateSeriesCheck();
       }
     });
   }
@@ -230,13 +232,13 @@ export class EditStallModal implements OnInit, OnDestroy {
       const seriesArr = this.seriesArr();
       const tagsArr = this.tagsArr();
       const seriesAndTagsVal: { [key: string]: boolean } = {};
-      promo.series.forEach((seriesId: string) => {
+      promo.series.forEach((seriesId: number) => {
         const obj = seriesArr.find((o) => o.seriesId === seriesId);
         if (obj) {
           seriesAndTagsVal[obj.controlName] = true;
         }
       });
-      promo.tags.forEach((tagId: string) => {
+      promo.tags.forEach((tagId: number) => {
         const obj = tagsArr.find((o) => o.tagId === tagId);
         if (obj) {
           seriesAndTagsVal[obj.controlName] = true;
@@ -314,6 +316,22 @@ export class EditStallModal implements OnInit, OnDestroy {
       arr.push(promoObj);
     });
     this.seriesSeletedTagCnt.set(arr);
+  }
+
+  updateSeriesCheck() {
+    const currPromoIndex = Number(this.promoTabs?.value());
+    if (Number.isInteger(currPromoIndex)) {
+      Object.keys(this.seriesSeletedTagCnt()[currPromoIndex] ?? []).forEach(
+        (controlName: string) => {
+          const cnt = this.seriesSeletedTagCnt()[currPromoIndex][controlName];
+          const control = this.promos.at(currPromoIndex).get('seriesAndTags')?.get(controlName);
+
+          if (cnt > 0) {
+            control?.patchValue(true, { emitEvent: false });
+          }
+        },
+      );
+    }
   }
 
   onTempSave() {
@@ -487,13 +505,13 @@ export class EditStallModal implements OnInit, OnDestroy {
     const promos = this.promos.getRawValue();
     promos.forEach((promo: any) => {
       // 轉換 series, tags 欄位格式
-      const series: string[] = [];
-      const tags: string[] = [];
+      const series: number[] = [];
+      const tags: number[] = [];
       Object.keys(promo.seriesAndTags).forEach((key) => {
         if (key.startsWith('series-') && promo.seriesAndTags[key]) {
-          series.push(key.replace('series-', ''));
+          series.push(Number(key.replace('series-', '')));
         } else if (key.startsWith('tag-') && promo.seriesAndTags[key]) {
-          tags.push(key.replace('tag-', ''));
+          tags.push(Number(key.replace('tag-', '')));
         }
       });
       if (promo.id) {

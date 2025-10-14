@@ -201,10 +201,10 @@
                         <p-checkbox
                           [formControlName]="series.controlName"
                           [binary]="true"
-                          [inputId]="series.seriesId"
+                          [inputId]="series.seriesId.toString()"
                         />
                         <label
-                          [for]="series.seriesId"
+                          [for]="series.seriesId.toString()"
                           class="text-nowrap overflow-hidden text-ellipsis"
                         >
                           {{ series.seriesName }}

@@ -16,13 +16,11 @@ export interface PromoStall {
   /** An array of links associated with this specific promotion. */
   promoLinks: PromoLink[];
 
-  promoTags: string[];
-
   // 宣傳車作品
-  series: string[];
+  series: number[];
 
   // 宣傳車 tag
-  tags: string[];
+  tags: number[];
 
   // 宣傳車自訂 tag
   customTags: string;

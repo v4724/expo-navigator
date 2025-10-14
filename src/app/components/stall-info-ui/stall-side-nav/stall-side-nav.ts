@@ -45,6 +45,7 @@ export class StallSideNav implements OnInit {
   isMarkedSignal = signal(false);
   isLogin = toSignal(this._userService.isLogin$);
   user = toSignal(this._userService.user$);
+  stallUpdatedAt = toSignal(this._stallService.stallUpdatedAt$);
 
   isEditable = computed(() => {
     const isLogin = this.isLogin();
@@ -62,14 +63,26 @@ export class StallSideNav implements OnInit {
       return map;
     }
 
+    // 編輯攤位時，一併更新前端資料
+    const stallUpdatedAt = this.stallUpdatedAt();
+    if (stallUpdatedAt) {
+      console.log('stallUpdatedAt', stallUpdatedAt);
+    }
+
     stall.promoData.forEach((promo) => {
       if (!promo.id) {
         return;
       }
 
       const tagMap = new Map<StallSeriesDto, Set<StallTagDto>>();
-      promo.tags.forEach((subTagKey: string) => {
-        const subTag = this._tagService.getTagById(subTagKey);
+
+      promo.series.forEach((seriesId: number) => {
+        const series = this._tagService.getSeriesById(seriesId);
+        if (!series) return;
+        tagMap.set(series, new Set());
+      });
+      promo.tags.forEach((subTagId: number) => {
+        const subTag = this._tagService.getTagById(subTagId);
         if (!subTag) return;
 
         const series = this._tagService.getSeriesById(subTag.seriesId);

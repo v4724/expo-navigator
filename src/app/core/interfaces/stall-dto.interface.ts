@@ -26,9 +26,9 @@ export interface StallDto {
   /** An array of all user-submitted promotions associated with this stall. */
   promoData: PromoStall[];
 
-  promoTags: string[];
+  filterTags: number[];
 
-  filterTags: string[];
+  filterSeries: number[];
 
-  filterSeries: string[];
+  filterCustomTags: string[];
 }

@@ -16,6 +16,7 @@ export class StallService {
   private _allStalls = new BehaviorSubject<StallData[]>([]);
   private _allOrigStalls = new BehaviorSubject<StallDto[]>([]);
   private _fetchEnd = new BehaviorSubject<boolean>(false);
+  private _stallUpdatedAt = new BehaviorSubject<number>(-1);
 
   private _promoService = inject(PromoApiService);
 
@@ -28,6 +29,7 @@ export class StallService {
 
   allStalls$ = this._allStalls.asObservable();
   fetchEnd$ = this._fetchEnd.asObservable();
+  stallUpdatedAt$ = this._stallUpdatedAt.asObservable();
 
   constructor() {
     forkJoin([fetchExcelData(STALL_CSV_URL), this._promoService.getPromotions()])
@@ -63,8 +65,31 @@ export class StallService {
     const stall = this.findStall(stallId);
     if (stall) {
       stall.promoData = promos;
+      stall.hasPromo = promos.length > 0;
       this._allStalls.next([...this._allStalls.getValue()]);
+      this._updateFilterSet(stall);
     }
+    this._stallUpdatedAt.next(+new Date());
+  }
+
+  private _updateFilterSet(stall: StallData) {
+    const tags = new Set<number>();
+    stall.promoData.forEach((promo) => {
+      promo.tags.forEach((tag) => tags.add(tag));
+    });
+    stall.filterTags = Array.from(tags);
+
+    const series = new Set<number>();
+    stall.promoData.forEach((promo) => {
+      promo.series.forEach((tag) => series.add(tag));
+    });
+    stall.filterSeries = Array.from(series);
+
+    const customTags = new Set<string>();
+    stall.promoData.forEach((promo) => {
+      customTags.add(promo.customTags);
+    });
+    stall.filterCustomTags = Array.from(customTags);
   }
 
   isGroupedMember(stallId: string) {
@@ -226,9 +251,9 @@ export class StallService {
           stallImg: stallImg,
           stallLink: rawStall['stallLink'] || undefined,
           promoData: [], // Initialize with an empty array for promotions.
-          promoTags: [],
           filterSeries: [],
           filterTags: [],
+          filterCustomTags: [],
           hasPromo: false,
           isSearchMatch: false,
         };
@@ -253,23 +278,7 @@ export class StallService {
 
     // Post-process to collect all unique tags for each stall.
     stallsMap.forEach((stall) => {
-      const uniqueTags = new Set<string>();
-      stall.promoData.forEach((promo) => {
-        promo.promoTags.forEach((tag) => uniqueTags.add(tag));
-      });
-      stall.promoTags = Array.from(uniqueTags);
-
-      const tags = new Set<string>();
-      stall.promoData.forEach((promo) => {
-        promo.tags.forEach((tag) => tags.add(tag));
-      });
-      stall.filterTags = Array.from(tags);
-
-      const series = new Set<string>();
-      stall.promoData.forEach((promo) => {
-        promo.series.forEach((tag) => series.add(tag));
-      });
-      stall.filterSeries = Array.from(series);
+      this._updateFilterSet(stall);
     });
 
     // Convert the Map values back to an array to be used by the application.
