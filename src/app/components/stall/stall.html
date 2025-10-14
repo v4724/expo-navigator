@@ -19,18 +19,20 @@
   (mouseout)="mouseout($event)"
 >
   {{ stall().padNum }}
-</div>
-<div
-  class="absolute text-fuchsia-900 pointer-events-none z-11"
-  [class.invisible]="!isLogin() || !showMarkLayer() || !isMarked()"
-  [style.position]="absolutePosition() ? 'absolute' : 'unset'"
-  [style.top]="`${markedXY().y}%`"
-  [style.left]="`${markedXY().x}%`"
->
-  <mat-icon
-    class="!size-2 !text-[10px]"
-    aria-hidden="false"
-    aria-label="Example star icon"
-    fontIcon="star"
-  ></mat-icon>
+
+  <!-- mark -->
+  @if (isLogin() && showMarkLayer() && isMarked()) {
+    <div
+      class="absolute top-1/3 left-1/2 -translate-x-1/2 pointer-events-none z-[100] h-full"
+      (click)="$event.stopPropagation()"
+      (mouseover)="$event.stopPropagation()"
+    >
+      <mat-icon
+        class="!size-2 !text-[8px] !text-fuchsia-900"
+        aria-hidden="false"
+        aria-label="Example star icon"
+        fontIcon="star"
+      ></mat-icon>
+    </div>
+  }
 </div>

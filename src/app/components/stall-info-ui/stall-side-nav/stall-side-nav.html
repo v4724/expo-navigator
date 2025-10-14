@@ -128,8 +128,9 @@
                     class="footer-link"
                     target="_blank"
                     rel="noopener noreferrer"
-                    >{{ link.text }}</a
                   >
+                    {{ link.text ? link.text : `連結${$index + 1}` }}
+                  </a>
                 }
               </div>
             }

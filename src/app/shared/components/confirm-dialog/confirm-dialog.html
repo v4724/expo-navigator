@@ -1,6 +1,8 @@
-<mat-dialog-title>{{ title() }}</mat-dialog-title>
+<!-- @if (title()) { -->
+<div mat-dialog-title>{{ title() }}</div>
+<!-- } -->
 <mat-dialog-content>
-  <div>{{ label() }}</div>
+  <div class="flex items-center justify-center w-full">{{ label() }}</div>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button matButton (click)="onNoClick()">取消</button>
