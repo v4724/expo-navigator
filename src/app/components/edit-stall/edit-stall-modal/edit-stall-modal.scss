@@ -19,4 +19,11 @@
   --p-panel-header-padding: 0rem;
   --p-panel-content-padding: 0rem;
   --p-panel-border-color: transparent;
+
+  // ckeditor
+  .ck.ck-editor__editable_inline {
+    padding: 0 1.5rem;
+    height: calc(100vh - 400px);
+    overflow: auto;
+  }
 }

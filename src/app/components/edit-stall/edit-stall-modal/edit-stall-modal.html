@@ -210,11 +210,10 @@
                 <!-- 宣傳車 -->
                 <div class="flex flex-col gap-1 mt-2">
                   <label>宣傳內容</label>
-                  <p-editor
-                    id="html"
-                    formControlName="html"
-                    [style]="{ height: 'calc(100vh - 400px)', width: '100%' }"
-                  />
+                  @if (afterEditorInit()) {
+                    <ckeditor formControlName="html" [editor]="Editor" [config]="config">
+                    </ckeditor>
+                  }
                 </div>
 
                 <!-- 連結 -->

@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   computed,
@@ -22,20 +23,18 @@ import {
   MatDialog,
   MatDialogActions,
   MatDialogContent,
-  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { ConfirmDialog, DialogData } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
+import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatIcon } from '@angular/material/icon';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallData } from '../../stall/stall.interface';
 import { MessageModule } from 'primeng/message';
-import { EditorModule } from 'primeng/editor';
 import { FloatLabel } from 'primeng/floatlabel';
 import { FieldsetModule } from 'primeng/fieldset';
 import { Tabs, TabsModule } from 'primeng/tabs';
 import { AvatarModule } from 'primeng/avatar';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { TagService } from 'src/app/core/services/state/tag-service';
@@ -53,6 +52,12 @@ import { ResponseSnackBar } from 'src/app/shared/components/response-snack-bar/r
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { StallSideNav } from '../../stall-info-ui/stall-side-nav/stall-side-nav';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
+
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { EditorConfig } from 'ckeditor5';
+import translations from 'ckeditor5/translations/zh.js';
+
 interface MyTab {
   icon: string;
   name: string;
@@ -76,7 +81,6 @@ interface StallTag extends StallTagDto {
     MatDialogActions,
     MatIcon,
     MessageModule,
-    EditorModule,
     FloatLabel,
     FieldsetModule,
     TabsModule,
@@ -89,11 +93,12 @@ interface StallTag extends StallTagDto {
     PopoverModule,
     BadgeModule,
     MatProgressSpinnerModule,
+    CKEditorModule,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
 })
-export class EditStallModal implements OnInit, OnDestroy {
+export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(Tabs) promoTabs!: Tabs;
 
   readonly dialogRef = inject(MatDialogRef<EditStallModal>);
@@ -105,6 +110,7 @@ export class EditStallModal implements OnInit, OnDestroy {
   private readonly _tagService = inject(TagService);
   private readonly _promoApiService = inject(PromoApiService);
   private readonly _snackBar = inject(MatSnackBar);
+  private readonly _uiStateService = inject(UiStateService);
   private readonly _cdr = inject(ChangeDetectorRef);
 
   tabList = signal<MyTab[]>([]);
@@ -133,6 +139,11 @@ export class EditStallModal implements OnInit, OnDestroy {
   isTempSaving = signal<boolean>(false);
   isSaving = signal<boolean>(false);
 
+  // cdkeditor
+  afterEditorInit = signal<boolean>(false);
+  Editor: any = null;
+  config: EditorConfig = {}; // CKEditor needs the DOM tree before calculating the configuration.
+
   constructor() {
     this.stallForm = this._fb.group({
       stallId: [''],
@@ -152,6 +163,124 @@ export class EditStallModal implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // 動態載入 cdkeditor
+    if (this._uiStateService.isPlatformBrowser()) {
+      // 使用動態匯入，確保只在瀏覽器端載入 CKEditor
+      import('ckeditor5')
+        .then((module) => {
+          this.Editor = module.ClassicEditor;
+          const {
+            Paragraph,
+            Bold,
+            Italic,
+            Font,
+            Alignment,
+            Autoformat,
+            AutoImage, //	允許直接從 URL 貼上圖片。
+            BlockQuote, //建立引言區塊。	'blockQuote'
+            Emoji, //允許插入表情符號。	'emoji'
+            ImageBlock,
+            ImageCaption,
+            ImageInline,
+            ImageInsertViaUrl,
+            ImageResize,
+            ImageStyle,
+            ImageToolbar,
+            Link,
+            LinkImage,
+            List,
+            ListProperties,
+            MediaEmbed,
+            Mention,
+            TextTransformation,
+            TodoList,
+            Underline,
+            SourceEditing,
+          } = module;
+          this.config = {
+            licenseKey: 'GPL', // Or 'GPL'.
+            plugins: [
+              Paragraph,
+              Bold,
+              Italic,
+              Font,
+              Alignment,
+              Autoformat,
+              AutoImage,
+              BlockQuote,
+              Emoji,
+              ImageBlock,
+              ImageCaption,
+              ImageInline,
+              ImageInsertViaUrl,
+              ImageResize,
+              ImageStyle,
+              ImageToolbar, //點選圖片時彈出的工具列。	'imageTextAlternative', 'toggleImageCaption', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
+              Italic,
+              Link,
+              LinkImage,
+              List,
+              ListProperties,
+              MediaEmbed,
+              Mention, // "requiredBy":"EmojiMention"
+              Paragraph,
+              TextTransformation,
+              TodoList,
+              Underline,
+              SourceEditing, // 原始碼
+            ],
+            toolbar: [
+              'SourceEditing',
+              '|',
+              'fontfamily',
+              'fontSize',
+              'fontColor',
+              'fontBackgroundColor',
+              '|',
+              'bold',
+              'italic',
+              'underline',
+              '|',
+              'alignment',
+              'bulletedList',
+              'numberedList',
+              'todoList',
+              'blockQuote',
+              '|',
+              'emoji',
+              'link',
+              'insertImageViaUrl',
+              'mediaEmbed',
+            ],
+            htmlSupport: {
+              allow: [
+                {
+                  name: /.*/,
+                  attributes: true,
+                  classes: true,
+                  styles: true,
+                },
+              ],
+            },
+            image: {
+              toolbar: [
+                'imageStyle:inline',
+                'imageStyle:block',
+                'imageStyle:side',
+                '|',
+                'toggleImageCaption',
+              ],
+            },
+            language: 'zh',
+            translations: [translations],
+          };
+          this.afterEditorInit.set(true);
+        })
+        .catch((err) => {
+          console.error('Failed to load CKEditor:', err);
+        });
+    }
+
     this.promos.valueChanges.subscribe((result) => {
       this.updateTabList();
       this.updateSeriesSeletedTagCnt();
@@ -193,6 +322,8 @@ export class EditStallModal implements OnInit, OnDestroy {
       }
     });
   }
+
+  ngAfterViewInit(): void {}
 
   ngOnDestroy(): void {}
 
@@ -335,6 +466,7 @@ export class EditStallModal implements OnInit, OnDestroy {
     }
   }
 
+  // TODO ckeditor 和 預覽的稍微不一樣，待檢查樣式
   preview() {
     // TODO getStallFromForm
     const stall = JSON.parse(JSON.stringify(this._selectStallService.selectedStall));
@@ -451,7 +583,7 @@ export class EditStallModal implements OnInit, OnDestroy {
     return this._fb.group({
       id: [''],
       stallId: [this._selectStallService.selectedStall?.id || ''],
-      name: [''],
+      name: ['', Validators.required],
       icon: [''],
       links: this._fb.array([]),
       html: [''],
