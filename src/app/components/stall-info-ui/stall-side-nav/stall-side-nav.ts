@@ -23,10 +23,11 @@ import { AvatarModule } from 'primeng/avatar';
 import { TagService } from 'src/app/core/services/state/tag-service';
 import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SafeHtmlPipe } from '../../../shared/pipe/safe-html-pipe';
 
 @Component({
   selector: 'app-stall-side-nav',
-  imports: [CommonModule, MatIcon, TabsModule, AvatarModule],
+  imports: [CommonModule, MatIcon, TabsModule, AvatarModule, SafeHtmlPipe],
   templateUrl: './stall-side-nav.html',
   styleUrl: './stall-side-nav.scss',
 })
@@ -173,6 +174,7 @@ export class StallSideNav implements OnInit, AfterViewInit {
       );
     }
   }
+
   /**
    * Hides the modal and clears any selection.
    * @param context An object containing all necessary dependencies.
@@ -216,6 +218,7 @@ export class StallSideNav implements OnInit, AfterViewInit {
     }
   }
 
+  // 開啟外部連結
   oenpLink() {
     window.open(this.stall()?.stallLink, '_target');
   }

@@ -196,6 +196,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
             TodoList,
             Underline,
             SourceEditing,
+            GeneralHtmlSupport,
           } = module;
           this.config = {
             licenseKey: 'GPL', // Or 'GPL'.
@@ -228,6 +229,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
               TodoList,
               Underline,
               SourceEditing, // 原始碼
+              GeneralHtmlSupport,
             ],
             toolbar: [
               'SourceEditing',

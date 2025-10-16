@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -7,12 +7,15 @@ import { PromoStall } from '../../interfaces/promo-stall.interface';
 import { UpdateResponse } from '../../models/update-response.model';
 import { PromoLink } from '../../interfaces/promo-link.interface';
 import DOMPurify from 'dompurify';
+import { UiStateService } from '../state/ui-state-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PromoApiService {
   private apiUrl = 'https://expo-navigator-worker.v47244724.workers.dev'; // 根據實際 API 路徑調整
+
+  private readonly _uiStateService = inject(UiStateService);
 
   constructor(private http: HttpClient) {}
 
@@ -53,17 +56,7 @@ export class PromoApiService {
     const stallId = dto.stallId;
     const promoTitle = dto.promoTitle;
     const promoAvatar = dto.promoAvatar;
-    let promoHtml = dto.promoHtml || '';
-    if (promoHtml.includes('iframe') && promoHtml.includes('https://www.facebook.com/plugins')) {
-      promoHtml = this._preserveSizeAttributes(promoHtml);
-      promoHtml = DOMPurify.sanitize(promoHtml || '', {
-        ADD_TAGS: ['iframe'],
-        FORBID_TAGS: [], // 確保不會誤封 iframe
-        ALLOWED_URI_REGEXP: /^https:\/\/(www\.)?facebook\.com\/plugins\//i,
-      });
-    } else {
-      promoHtml = DOMPurify.sanitize(promoHtml || '');
-    }
+    const promoHtml = dto.promoHtml || '';
 
     const promo: PromoStall = {
       id,
@@ -96,29 +89,5 @@ export class PromoApiService {
         return { text, href };
       })
       .filter((link): link is PromoLink => link !== null && !!link.text && !!link.href); // Filter out invalid entries.
-  }
-
-  // FB 宣傳車，手動將 width, height 加到 style 上
-  private _preserveSizeAttributes(html: string) {
-    // 建立 DOM 方便取屬性
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-
-    temp.querySelectorAll('iframe').forEach((el: Element) => {
-      const width = el.getAttribute('width');
-      const height = el.getAttribute('height');
-
-      // 如果有 width / height，就加到 style
-      if (width) {
-        (el as HTMLIFrameElement).style.width = `100%`;
-        el.removeAttribute('width');
-      }
-      if (height) {
-        (el as HTMLIFrameElement).style.height = `${height}px`;
-        el.removeAttribute('height');
-      }
-    });
-
-    return temp.innerHTML;
   }
 }
