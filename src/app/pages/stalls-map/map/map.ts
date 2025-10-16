@@ -17,6 +17,7 @@ import { BehaviorSubject, catchError, EMPTY, finalize, first, forkJoin, map } fr
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
 import { Stall } from 'src/app/components/stall/stall';
 import { stallGridRefs } from 'src/app/core/const/official-data';
+import { MAP_URL } from 'src/app/core/const/resource';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 import { Area } from 'src/app/core/interfaces/area.interface';
 import { PromoApiService } from 'src/app/core/services/api/promo-api.service';
@@ -57,7 +58,7 @@ export class Map implements OnInit, AfterViewInit {
   translateY = signal(0);
   scale = signal(1);
 
-  mapImgSrc = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@c6b3cd1/assets/stalls-map.jpg`;
+  mapImgSrc = MAP_URL;
   _mapImgLoaded = new BehaviorSubject<boolean>(false);
   mapImgLoaded$ = this._mapImgLoaded.asObservable();
   mapImgLoaded = toSignal(this._mapImgLoaded);

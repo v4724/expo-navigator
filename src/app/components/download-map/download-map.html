@@ -1,0 +1,25 @@
+<button
+  class="py-2 px-3 border rounded-full bg-white/60 flex items-center text-gray-600 border-gray-300"
+  [matTooltip]="downloadLoading() ? '下載地圖中' : '下載地圖'"
+  matTooltipPosition="right"
+  [disabled]="downloadLoading()"
+  (click)="download()"
+>
+  @if (downloadLoading()) {
+    <mat-icon
+      class="animate-spin"
+      inline
+      aria-hidden="false"
+      aria-label="auto renew"
+      fontIcon="autorenew"
+    ></mat-icon>
+  } @else {
+    <mat-icon
+      class="transition hover:scale-110"
+      inline
+      aria-hidden="false"
+      aria-label="download map"
+      fontIcon="download"
+    ></mat-icon>
+  }
+</button>

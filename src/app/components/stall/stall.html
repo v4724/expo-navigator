@@ -18,21 +18,48 @@
   (mouseover)="mouseover($event)"
   (mouseout)="mouseout($event)"
 >
-  {{ stall().padNum }}
+  {{ stall().padNum.toString() }}
+  <!-- <div class="w-full h-full">
+    <svg class="w-full h-full" viewBox="0 0 24 24">
+      <text
+        x="50%"
+        y="50%"
+        font-size="16"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        fill="currentColor"
+      >
+        {{ stall().padNum.toString() }}
+      </text>
+    </svg>
+  </div> -->
 
   <!-- mark -->
   @if (isLogin() && showMarkLayer() && isMarked()) {
     <div
-      class="absolute top-1/3 left-1/2 -translate-x-1/2 pointer-events-none z-[100] h-full"
+      class="absolute top-2/3 left-1/2 -translate-x-1/2 pointer-events-none z-[100] h-full"
       (click)="$event.stopPropagation()"
       (mouseover)="$event.stopPropagation()"
+      [ngClass]="{ 'h-full': stall().stallCnt, 'w-full': stall().stallCnt === 1 }"
     >
       <mat-icon
         class="!size-2 !text-[8px] !text-fuchsia-900"
         aria-hidden="false"
-        aria-label="Example star icon"
+        aria-label="marked icon"
         fontIcon="star"
       ></mat-icon>
+      <!-- <svg
+        class="w-full h-full"
+        xmlns="http://www.w3.org/2000/svg"
+        height="24px"
+        viewBox="0 -960 960 960"
+        width="24px"
+        fill="currentColor"
+      >
+        <path
+          d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z"
+        />
+      </svg> -->
     </div>
   }
 </div>

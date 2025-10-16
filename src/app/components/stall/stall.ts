@@ -142,17 +142,18 @@ export class Stall implements OnInit, AfterViewInit {
 
     // 更新 marked 狀態
     this._markedStallService.sortedMarkedStalls$.pipe().subscribe(() => {
-      const isLogin = this.isLogin();
       const isMarked = this._markedStallService.isMarked(this.stall().id);
       this.isMarked.set(isMarked);
     });
   }
 
   ngAfterViewInit(): void {
-    const resizeObserver = new ResizeObserver(() => {
-      this.resizeHandler();
-    });
-    resizeObserver.observe(this.stallRef.nativeElement);
+    if (this._uiStateService.isPlatformBrowser()) {
+      const resizeObserver = new ResizeObserver(() => {
+        this.resizeHandler();
+      });
+      resizeObserver.observe(this.stallRef.nativeElement);
+    }
   }
 
   updateGroupAreaMatch() {
@@ -203,7 +204,7 @@ export class Stall implements OnInit, AfterViewInit {
     if (mapH) {
       const h = (Number(this.stall().coords.height) * mapH) / 100;
       const fontSize = h * 0.7;
-      this.fontSize.set(`${fontSize}px`);
+      this.fontSize.set(`${Math.round(fontSize)}px`);
     } else {
       this.fontSize.set('0.5rem');
     }
