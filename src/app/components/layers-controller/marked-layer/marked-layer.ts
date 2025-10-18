@@ -6,25 +6,34 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
+import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { EditBtn } from '../../edit-marked-list/edit-btn/edit-btn';
+import { UserService } from 'src/app/core/services/state/user-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-marked-layer',
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, EditBtn],
   templateUrl: './marked-layer.html',
   styleUrl: './marked-layer.scss',
 })
 export class MarkedLayer implements OnInit {
   isSectionOpen = signal(false);
+  isCreating = signal(false);
 
   // Helpers
-  private _markedStallService = inject(MarkedStallService);
+  private _markedListService = inject(MarkedStallService);
+  private _markedListApiService = inject(MarkedListApiService);
   private _selectStallService = inject(SelectStallService);
+  private _userService = inject(UserService);
+  private _snackBar = inject(MatSnackBar);
 
-  show = toSignal(this._markedStallService.layerShown$);
+  show = toSignal(this._markedListService.layerShown$);
 
   // data
-  fetchEnd = toSignal(this._markedStallService.fetchEnd$);
-  allList = toSignal(this._markedStallService.markedList$, { initialValue: [] });
+  fetchEnd = toSignal(this._markedListService.fetchEnd$);
+  allList = toSignal(this._markedListService.markedList$, { initialValue: [] });
 
   ngOnInit(): void {}
 
@@ -33,21 +42,65 @@ export class MarkedLayer implements OnInit {
   }
 
   toggleLayer() {
-    this._markedStallService.toggleLayer();
+    this._markedListService.toggleLayer();
   }
 
   toggleList(list: MarkedList) {
     console.log(list);
     list.show = !list.show;
-    this._markedStallService.toggleList(list);
+    this._markedListService.toggleList(list);
   }
 
-  editList(list: MarkedList) {}
+  create() {
+    const user = this._userService.user;
+    if (!user) {
+      return;
+    }
+
+    const body = {
+      userId: user.id,
+      listName: `書籤${this.allList().length + 1}`,
+      icon: '',
+      iconColor: '',
+      isDefaultColor: true,
+      list: [],
+    };
+    this.isCreating.set(true);
+    this._markedListApiService
+      .create(body)
+      .pipe(
+        finalize(() => {
+          this.isCreating.set(false);
+        }),
+      )
+      .subscribe((res) => {
+        if (res.success) {
+          this._snackBar.open('書籤新增成功', '', { duration: 2000 });
+          const id = res.data.id;
+          this._markedListService.add({ ...body, id });
+        } else {
+          this._snackBar.open('書籤新增失敗', res.errors[0], { duration: 2000 });
+        }
+      });
+  }
+
+  deleteList(list: MarkedList) {
+    list.isDeleting = true;
+    this._markedListApiService.delete(list.id).subscribe((res) => {
+      if (res.success) {
+        this._snackBar.open('書籤刪除成功', '', { duration: 2000 });
+        this._markedListService.delete(list.id);
+      } else {
+        list.isDeleting = false;
+        this._snackBar.open('書籤刪除失敗', res.errors[0], { duration: 2000 });
+      }
+    });
+  }
 
   drop(event: CdkDragDrop<MarkedList[]>) {
     const newArr = [...this.allList()];
     moveItemInArray(newArr, event.previousIndex, event.currentIndex);
-    this._markedStallService.allList = newArr;
+    this._markedListService.allList = newArr;
   }
 
   selectStall(stallId: string) {

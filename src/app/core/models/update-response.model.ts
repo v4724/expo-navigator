@@ -11,3 +11,14 @@ export interface FetchResponse<T> {
   errors: string[];
   data: T;
 }
+
+export interface CreateResponse {
+  success: boolean;
+  errors: string[];
+  data: { id: number };
+}
+
+export interface Response {
+  success: boolean;
+  errors: string[];
+}

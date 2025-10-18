@@ -22,7 +22,7 @@
   </div>
 
   <div
-    class="transition-all duration-300 overflow-y-auto pl-2 mt-2"
+    class="transition-all duration-300 overflow-y-auto pl-2"
     [class.max-h-0]="!isSectionOpen()"
     [class.max-h-80]="isSectionOpen()"
   >
@@ -36,7 +36,7 @@
         ></mat-icon>
       }
       @if (allList().length) {
-        <div class="flex flex-col">
+        <div class="flex flex-col mt-2">
           @for (list of allList(); track $index) {
             <div class="w-full flex items-center py-1">
               <input
@@ -56,19 +56,43 @@
               <div class="w-full flex items-center text-left text-gray-700 pr-1">
                 <span class="flex text-nowrap pl-1 pr-2">{{ list.listName }}</span>
                 <div>({{ list.list.length }})</div>
-                <button class="ml-auto transition hover:scale-110" (click)="editList(list)">
-                  <mat-icon
-                    inline
-                    aria-hidden="false"
-                    aria-label="Example home icon"
-                    fontIcon="edit"
-                  ></mat-icon>
-                </button>
+                <div class="flex gap-1 items-center ml-auto">
+                  <button
+                    class="transition hover:scale-110 flex items-center text-gray-400"
+                    (click)="deleteList(list)"
+                    [disabled]="list.isDeleting"
+                  >
+                    <mat-icon
+                      [ngClass]="{ 'animate-spin': list.isDeleting }"
+                      inline
+                      aria-hidden="false"
+                      aria-label="delete icon"
+                      [fontIcon]="list.isDeleting ? 'autorenew' : 'delete'"
+                    ></mat-icon>
+                  </button>
+                  <app-edit-marked-list-btn [disabled]="list.isDeleting" [data]="list">
+                  </app-edit-marked-list-btn>
+                </div>
               </div>
             </div>
           }
         </div>
       }
+      <div
+        class="w-full px-2 mt-1 border border-gray-300 rounded-full flex items-center justify-center overflow-hidden"
+        (click)="create()"
+      >
+        <button class="flex items-center" [disabled]="isCreating()">
+          <mat-icon
+            class="flex w-auto"
+            [ngClass]="{ 'animate-spin': isCreating() }"
+            inline
+            aria-hidden="false"
+            aria-label="add marked list"
+            [fontIcon]="isCreating() ? 'autorenew' : 'add'"
+          ></mat-icon>
+        </button>
+      </div>
     }
   </div>
 </div>

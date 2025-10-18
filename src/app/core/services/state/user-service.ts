@@ -21,6 +21,10 @@ export class UserService {
 
   constructor() {}
 
+  get user() {
+    return this._user.getValue();
+  }
+
   login(acc: string) {
     return this._userApiService.login(acc).pipe(
       catchError((err) => {

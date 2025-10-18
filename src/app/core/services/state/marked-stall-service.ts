@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { MarkedListDto } from '../../models/marked-stall.model';
+import { MarkedListDto, MarkedListUpdateDto } from '../../models/marked-stall.model';
 import { StallService } from './stall-service';
 import { MarkedList } from '../../interfaces/marked-stall.interface';
 import { UserService } from './user-service';
@@ -19,7 +19,7 @@ export class MarkedStallService {
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   private _show = new BehaviorSubject<boolean>(false);
 
-  // 快速查詢 攤位有沒有被加在清單上 <stallId, Set<listId>>
+  // 快速查詢用 攤位有沒有被加在清單上 <stallId, Set<listId>>
   private _markedMapByStallId = new BehaviorSubject<Map<string, Set<number>>>(new Map());
 
   private _toggleList = new Subject<MarkedList>();
@@ -68,26 +68,45 @@ export class MarkedStallService {
     this._toggleList.next(list);
   }
 
-  update(stallId: string, marked: boolean) {
-    // TODO
-    // if (marked) {
-    //   const newCat = [...this.allList];
-    //   const stall = this._stallService.findStall(stallId);
-    //   if (stall) {
-    //     newCat.push({ info: stall, stallId, sortedNum: newCat[newCat.length - 1].sortedNum + 1 });
-    //     this._markedIds.add(stallId);
-    //     this.allList = newCat;
-    //   }
-    // } else {
-    //   this._markedIds.delete(stallId);
-    //   const newCat = [...this.allList];
-    //   const find = newCat.find((stall) => stall.stallId === stallId);
-    //   if (find) {
-    //     const index = newCat.indexOf(find);
-    //     newCat.splice(index, 1);
-    //     this.allList = newCat;
-    //   }
-    // }
+  add(data: MarkedListDto) {
+    this.allList = [...this.allList, this.dtoToMarkedList(data)];
+
+    this._updateInnerMap();
+  }
+
+  // TODO 單一筆 stall
+  updateMarkedStall(stallId: string, listId: number, marked: boolean) {}
+
+  update(data: MarkedListUpdateDto) {
+    const id = data.id;
+    const orig = this._quickMapByListId.get(id);
+    if (orig) {
+      orig.listName = data.listName;
+      orig.icon = data.icon;
+      orig.iconColor = data.iconColor;
+      orig.list = data.list
+        .map((stallId) => {
+          const find = this._stallService.findStall(stallId);
+          if (find) {
+            return find;
+          }
+          return null;
+        })
+        .filter((item) => !!item);
+
+      this._updateInnerMap();
+    }
+  }
+
+  delete(id: number) {
+    const find = this.allList.find((list) => list.id === id);
+    if (find) {
+      const findIndex = this.allList.indexOf(find);
+      this.allList.splice(findIndex, 1);
+    }
+    this.allList = [...this.allList];
+
+    this._updateInnerMap();
   }
 
   private _processMarkedList(dtoData: MarkedListDto[]) {
@@ -109,10 +128,10 @@ export class MarkedStallService {
     allList.forEach((item: MarkedList) => {
       const listId = item.id;
       item.list.forEach((stall) => {
-        let markEntry: Set<number> | undefined = markedMapByStallId.get(stall.stallId);
+        let markEntry: Set<number> | undefined = markedMapByStallId.get(stall.id);
         if (!markEntry) {
           markEntry = new Set();
-          markedMapByStallId.set(stall.stallId, markEntry);
+          markedMapByStallId.set(stall.id, markEntry);
         }
         markEntry.add(listId);
       });
@@ -129,10 +148,7 @@ export class MarkedStallService {
       .map((stallId) => {
         const stallInfo = this._stallService.findStall(stallId);
         if (stallInfo) {
-          return {
-            stallId,
-            stallInfo,
-          };
+          return stallInfo;
         }
         return null;
       })
@@ -142,6 +158,7 @@ export class MarkedStallService {
       ...dto,
       list,
       show: true,
+      isDeleting: false,
     };
   }
 }

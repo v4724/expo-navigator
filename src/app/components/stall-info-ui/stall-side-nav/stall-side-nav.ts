@@ -147,14 +147,15 @@ export class StallSideNav implements OnInit, AfterViewInit {
     }
   }
 
-  // 手動更新 marked 狀態
+  // TODO 手動更新 marked 狀態
   toggleBookmark() {
     const marked = !this.isMarkedSignal();
     this.isMarkedSignal.set(marked);
 
     const stall = this.stall();
+    const listId = 1;
     if (stall) {
-      this._markedStallService.update(stall.id, marked);
+      this._markedStallService.updateMarkedStall(stall.id, listId, marked);
     }
   }
 

@@ -1,0 +1,95 @@
+<div mat-dialog-title class="py-4 px-6 text-gray-600 flex">
+  <div class="text-lg">編輯書籤</div>
+</div>
+<mat-dialog-content class="flex flex-1">
+  <form [formGroup]="editForm" class="flex flex-col w-full flex-1">
+    <!-- 社團資訊 -->
+    <div class="flex flex-wrap gap-3">
+      <div class="flex flex-col gap-1 w-full md:w-1/2">
+        <p-floatlabel variant="on">
+          <input
+            class="w-full"
+            pInputText
+            type="text"
+            id="listName"
+            placeholder=""
+            formControlName="listName"
+            autocomplete="off"
+          />
+          <label for="listName">名稱</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex flex-col gap-1 w-full md:w-1/2">
+        <p-floatlabel variant="on">
+          <input
+            class="w-full"
+            pInputText
+            type="text"
+            id="icon"
+            placeholder=""
+            formControlName="icon"
+            autocomplete="off"
+          />
+          <label for="icon">樣式</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex flex-col gap-1 w-full md:w-1/2">
+        <label for="iconColor">顏色</label>
+        <!-- 預設顏色清單 -->
+        <div class="flex gap-2">
+          @for (color of presetColorsList; track $index) {
+            <div
+              class="icon-color size-6 rounded-[6px]"
+              [ngClass]="{
+                'outline-1 outline-offset-2 outline-cyan-500':
+                  color === iconColor && isDefaultColor,
+              }"
+              (click)="clickDefaultColor(color)"
+              [style.background-color]="color"
+            ></div>
+          }
+          <div class="flex ml-2 items-center gap-1">
+            <label for="iconColor">自訂:</label>
+            <p-colorPicker
+              #colorPicker
+              class="icon-color rounded-[6px]"
+              formControlName="colorPickerVal"
+              [ngClass]="{
+                'outline-1 outline-offset-2 outline-cyan-500':
+                  colorPickerVal === iconColor && !isDefaultColor,
+              }"
+              (click)="clickCustomizeColor()"
+              (onChange)="onColorPickerChange($event)"
+            ></p-colorPicker>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- 宣傳車資訊 -->
+    <!-- 設定攤位代號 -->
+    <div class="flex flex-col gap-1 w-full mt-2 transition-all duration-300">
+      <app-stall-filter-input
+        formControlName="stallId"
+        [showTitle]="true"
+        (onSelect)="onFilterSelect($event)"
+      ></app-stall-filter-input>
+
+      <div class="flex gap-2 flex-wrap mt-2">
+        @for (stall of selectedStalls; track stall.id) {
+          <p-chip
+            [label]="`${stall.id}-${stall.stallTitle}`"
+            [removable]="true"
+            (onRemove)="remove($index)"
+          />
+        }
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button matButton (click)="onClose()">關閉</button>
+  <button matButton (click)="onSave()" [disabled]="isTempSaving() || isSaving()">儲存</button>
+</mat-dialog-actions>
