@@ -1,24 +1,28 @@
 <div
   #stallRef
-  class="stall-area"
-  [class.hidden]="hiddenIfGrouped() && (isGroupedMember$ | async)"
-  [class.invisible]="!showStallLayer()"
-  [class.is-selected]="isSelected()"
-  [class.is-search-match]="isMatch()"
-  [class.has-promo]="stall().hasPromo"
+  class=""
   [style.position]="absolutePosition() ? 'absolute' : 'unset'"
   [style.top]="absolutePosition() ? `${stall().coords.top}%` : ''"
   [style.left]="absolutePosition() ? `${stall().coords.left}%` : ''"
   [style.width]="absolutePosition() ? `${stall().coords.width}%` : '100%'"
   [style.height]="absolutePosition() ? `${stall().coords.height}%` : '100%'"
-  [style.font-size]="fontSize()"
   [aria-label]="`Stall: ${stall().stallTitle}`"
-  (pointermove)="mousemove()"
-  (click)="stallClicked()"
-  (mouseover)="mouseover($event)"
-  (mouseout)="mouseout($event)"
 >
-  {{ stall().padNum.toString() }}
+  <div
+    class="stall-area w-full h-full"
+    [class.hidden]="hiddenIfGrouped() && (isGroupedMember$ | async)"
+    [class.invisible]="!showStallLayer()"
+    [style.font-size]="fontSize()"
+    [class.has-promo]="stall().hasPromo"
+    [class.is-selected]="isSelected()"
+    [class.is-search-match]="isMatch()"
+    (pointermove)="mousemove()"
+    (click)="stallClicked()"
+    (mouseover)="mouseover($event)"
+    (mouseout)="mouseout($event)"
+  >
+    {{ stall().padNum.toString() }}
+  </div>
   <!-- <div class="w-full h-full">
     <svg class="w-full h-full" viewBox="0 0 24 24">
       <text
@@ -35,19 +39,27 @@
   </div> -->
 
   <!-- mark -->
-  @if (isLogin() && showMarkLayer() && isMarked()) {
+  @if (isLogin() && showMarkLayer() && allMarkedList()?.length) {
     <div
-      class="absolute top-2/3 left-1/2 -translate-x-1/2 pointer-events-none z-[100] h-full"
+      class="absolute top-full left-1/2 -translate-x-1/2 pointer-events-none z-[100] w-full flex flex-wrap justify-center"
       (click)="$event.stopPropagation()"
       (mouseover)="$event.stopPropagation()"
-      [ngClass]="{ 'h-full': stall().stallCnt, 'w-full': stall().stallCnt === 1 }"
     >
-      <mat-icon
-        class="!size-2 !text-[8px] !text-fuchsia-900"
-        aria-hidden="false"
-        aria-label="marked icon"
-        fontIcon="star"
-      ></mat-icon>
+      @for (item of allMarkedList(); track $index) {
+        @if (item.show && isMarkedSet().has(item.id)) {
+          <div class="flex items-center justify-center">
+            <mat-icon
+              inline
+              class="!text-fuchsia-900"
+              aria-hidden="false"
+              aria-label="marked icon"
+              [fontIcon]="item.icon || 'star'"
+              [style.font-size]="iconSize()"
+              [style.line-height]="iconSize()"
+            ></mat-icon>
+          </div>
+        }
+      }
       <!-- <svg
         class="w-full h-full"
         xmlns="http://www.w3.org/2000/svg"

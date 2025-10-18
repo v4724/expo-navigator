@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { FetchResponse, UpdateResponse } from '../../models/update-response.model';
-import { UserDto } from '../../models/user.model';
+import { UpdateUserDto, UserDto } from '../../models/user.model';
 import { User } from '../../interfaces/user.interface';
 
 @Injectable({
@@ -47,7 +47,7 @@ export class UserApiService {
     };
   }
 
-  transfornToDto(user: User): UserDto {
+  transformToDto(user: User): UpdateUserDto {
     return {
       id: user.id,
       acc: user.acc,

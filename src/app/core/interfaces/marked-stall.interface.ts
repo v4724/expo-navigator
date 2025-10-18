@@ -1,6 +1,8 @@
 import { StallData } from 'src/app/components/stall/stall.interface';
-import { MarkedStallDto } from '../models/marked-stall.model';
+import { MarkedListDto } from '../models/marked-stall.model';
 
-export interface MarkedStall extends MarkedStallDto {
-  info: StallData;
+export interface MarkedList extends Omit<MarkedListDto, 'list'> {
+  list: { stallId: string; stallInfo: StallData }[];
+
+  show: boolean;
 }

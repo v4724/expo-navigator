@@ -1,5 +1,7 @@
-export interface MarkedStallDto {
-  stallId: string;
-
-  sortedNum: number;
+export interface MarkedListDto {
+  id: number;
+  userId: number;
+  icon: string;
+  listName: string;
+  list: string[];
 }

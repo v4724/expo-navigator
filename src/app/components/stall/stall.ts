@@ -46,7 +46,7 @@ export class Stall implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _tooltipService = inject(TooltipService);
   private _tagService = inject(TagService);
-  private _markedStallService = inject(MarkedStallService);
+  private _markedListService = inject(MarkedStallService);
   private _stallLayerService = inject(StallLayerService);
   private _userService = inject(UserService);
 
@@ -57,16 +57,23 @@ export class Stall implements OnInit, AfterViewInit {
   );
 
   fontSize = signal<string>('0.5rem');
+  iconSize = signal<string>('0.25rem');
 
   showStallLayer = toSignal(this._stallLayerService.show$);
-  showMarkLayer = toSignal(this._markedStallService.show$);
+  showMarkLayer = toSignal(this._markedListService.layerShown$);
+  allMarkedList = toSignal(this._markedListService.markedList$);
   isLogin = toSignal(this._userService.isLogin$);
+
+  // 開關書籤圖層
+  toggleList = toSignal(this._markedListService.toggleList$);
+
+  // 書籤清單查詢
+  markedMapByStallId = toSignal(this._markedListService.markedMapByStallId$);
 
   isSelected = signal<boolean>(false);
   isSearchMatch = signal<boolean>(false);
   isSeriesMatch = signal<boolean>(false);
   isTagMatch = signal<boolean>(false);
-  isMarked = signal<boolean>(false);
 
   markedXY = computed(() => {
     let x = 0;
@@ -87,8 +94,20 @@ export class Stall implements OnInit, AfterViewInit {
   // 避免拖曳地圖後觸發的 click，用於在拖曳時紀錄狀態
   isPanning = false;
 
+  // 符合搜尋
   isMatch = computed(() => {
     return this.isSearchMatch() || this.isSeriesMatch() || this.isTagMatch();
+  });
+
+  // 快速查詢書籤
+  isMarkedSet = computed(() => {
+    const set = this.markedMapByStallId()?.get(this.stall().id);
+
+    if (!set) {
+      return new Set();
+    }
+
+    return set;
   });
 
   ngOnInit() {
@@ -138,12 +157,6 @@ export class Stall implements OnInit, AfterViewInit {
       });
       this.isTagMatch.set(isMatch);
       this.updateGroupAreaMatch();
-    });
-
-    // 更新 marked 狀態
-    this._markedStallService.sortedMarkedStalls$.pipe().subscribe(() => {
-      const isMarked = this._markedStallService.isMarked(this.stall().id);
-      this.isMarked.set(isMarked);
     });
   }
 
@@ -205,8 +218,10 @@ export class Stall implements OnInit, AfterViewInit {
       const h = (Number(this.stall().coords.height) * mapH) / 100;
       const fontSize = h * 0.7;
       this.fontSize.set(`${Math.round(fontSize)}px`);
+      this.iconSize.set(`${Math.round(fontSize * 0.6)}px`);
     } else {
       this.fontSize.set('0.5rem');
+      this.iconSize.set('0.25rem');
     }
   }
 }

@@ -3,6 +3,7 @@ import { BehaviorSubject, catchError, EMPTY, tap } from 'rxjs';
 import { User } from '../../interfaces/user.interface';
 import { UserApiService } from '../api/user-api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MarkedStallService } from './marked-stall-service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class UserService {
   private readonly _snackBar = inject(MatSnackBar);
   private _userApiService = inject(UserApiService);
+  private _markedStallService = inject(MarkedStallService);
 
   private _user = new BehaviorSubject<User | null>(null);
   private _isLogin = new BehaviorSubject<boolean>(false);
@@ -31,6 +33,8 @@ export class UserService {
           return;
         }
         const user = this._userApiService.transformDtoToUser(res.data);
+        this._markedStallService.initAfterLogin(res.data.markedList ?? []);
+
         this._isLogin.next(true);
         this._user.next(user);
       }),

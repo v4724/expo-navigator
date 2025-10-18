@@ -1,127 +1,147 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, first, forkJoin } from 'rxjs';
-import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import { MARKED_STALL_CSV_URL } from '../../const/google-excel-csv-url';
-import { MarkedStallDto } from '../../models/marked-stall.model';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { MarkedListDto } from '../../models/marked-stall.model';
 import { StallService } from './stall-service';
-import { MarkedStall } from '../../interfaces/marked-stall.interface';
+import { MarkedList } from '../../interfaces/marked-stall.interface';
 import { UserService } from './user-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MarkedStallService {
-  private _origData: MarkedStallDto[] = [];
+  private _origData: MarkedListDto[] = [];
   private _markedIds = new Set<string>();
 
+  private _quickMapByListId = new Map<number, MarkedList>();
+
   // sorted
-  private _sortedMarkedStalls = new BehaviorSubject<MarkedStall[]>([]);
+  private _markedList = new BehaviorSubject<MarkedList[]>([]);
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   private _show = new BehaviorSubject<boolean>(false);
 
-  sortedMarkedStalls$ = this._sortedMarkedStalls.asObservable();
+  // 快速查詢 攤位有沒有被加在清單上 <stallId, Set<listId>>
+  private _markedMapByStallId = new BehaviorSubject<Map<string, Set<number>>>(new Map());
+
+  private _toggleList = new Subject<MarkedList>();
+
   fetchEnd$ = this._fetchEnd.asObservable();
-  show$ = this._show.asObservable();
+  markedList$ = this._markedList.asObservable();
+  markedMapByStallId$ = this._markedMapByStallId.asObservable();
+
+  layerShown$ = this._show.asObservable();
+  toggleList$ = this._toggleList.asObservable();
 
   private _stallService = inject(StallService);
-  private _userService = inject(UserService);
 
   constructor() {
-    // TODO
-    this._userService.user$.pipe().subscribe((user) => {
-      const userId = user?.acc;
-      const marked = [];
+    this.markedList$.subscribe(() => {
+      this._updateInnerMap();
     });
-
-    forkJoin([
-      fetchExcelData(MARKED_STALL_CSV_URL),
-      this._stallService.fetchEnd$.pipe(first((val) => !!val)),
-    ])
-      .pipe()
-      .subscribe(([rawData]) => {
-        this._processMarkedStall(rawData);
-        this._updateSet();
-        this._fetchEnd.next(true);
-      });
   }
 
-  get markedStalls(): MarkedStall[] {
-    return this._sortedMarkedStalls.getValue();
+  initAfterLogin(dto: MarkedListDto[]) {
+    this._processMarkedList(dto);
+    this._fetchEnd.next(true);
   }
 
-  set markedStalls(data: MarkedStall[]) {
-    this._sortedMarkedStalls.next(data);
+  get allList(): MarkedList[] {
+    return this._markedList.getValue();
+  }
+
+  set allList(data: MarkedList[]) {
+    this._markedList.next(data);
   }
 
   isMarked(stallId: string): boolean {
-    return this._markedIds.has(stallId);
+    return Array.from(this._markedMapByStallId.getValue().get(stallId) ?? [])
+      .map((listId: number) => {
+        return !!this._quickMapByListId.get(listId)?.show;
+      })
+      .some((shown) => !!shown);
   }
 
   toggleLayer() {
     this._show.next(!this._show.getValue());
   }
 
-  update(stallId: string, marked: boolean) {
-    if (marked) {
-      const newCat = [...this.markedStalls];
-      const stall = this._stallService.findStall(stallId);
-      if (stall) {
-        newCat.push({ info: stall, stallId, sortedNum: newCat[newCat.length - 1].sortedNum + 1 });
-
-        this._markedIds.add(stallId);
-        this.markedStalls = newCat;
-      }
-    } else {
-      this._markedIds.delete(stallId);
-
-      const newCat = [...this.markedStalls];
-      const find = newCat.find((stall) => stall.stallId === stallId);
-      if (find) {
-        const index = newCat.indexOf(find);
-        newCat.splice(index, 1);
-        this.markedStalls = newCat;
-      }
-    }
+  toggleList(list: MarkedList) {
+    this._toggleList.next(list);
   }
 
-  private _processMarkedStall(rawData: Record<string, string>[]) {
-    const dtoData: MarkedStallDto[] = [];
-    const data: MarkedStall[] = [];
-    rawData.forEach((rawSeries) => {
-      const stallId = rawSeries['stallId'];
-      const sortedNum = rawSeries['sortedNum'];
+  update(stallId: string, marked: boolean) {
+    // TODO
+    // if (marked) {
+    //   const newCat = [...this.allList];
+    //   const stall = this._stallService.findStall(stallId);
+    //   if (stall) {
+    //     newCat.push({ info: stall, stallId, sortedNum: newCat[newCat.length - 1].sortedNum + 1 });
+    //     this._markedIds.add(stallId);
+    //     this.allList = newCat;
+    //   }
+    // } else {
+    //   this._markedIds.delete(stallId);
+    //   const newCat = [...this.allList];
+    //   const find = newCat.find((stall) => stall.stallId === stallId);
+    //   if (find) {
+    //     const index = newCat.indexOf(find);
+    //     newCat.splice(index, 1);
+    //     this.allList = newCat;
+    //   }
+    // }
+  }
 
-      const dto: MarkedStallDto = {
-        stallId,
-        sortedNum: Number(sortedNum),
-      };
-      const markedStall = this.toMarkedStall(dto);
-
-      dtoData.push(dto);
-      markedStall && data.push(markedStall);
-    });
-
-    data.sort((a, b) => {
-      return a.sortedNum - b.sortedNum;
-    });
+  private _processMarkedList(dtoData: MarkedListDto[]) {
+    const data: MarkedList[] = dtoData
+      .map((dto) => {
+        return this.dtoToMarkedList(dto);
+      })
+      .filter((item) => !!item);
 
     this._origData = dtoData;
-    this._sortedMarkedStalls.next(data);
+    this._markedList.next(data);
   }
 
-  private _updateSet() {
-    this._markedIds = new Set(this.markedStalls.map((stall) => stall.stallId));
+  private _updateInnerMap() {
+    const allList = this.allList;
+    const markedMapByStallId = new Map<string, Set<number>>();
+    const quickMapByListId = new Map<number, MarkedList>();
+
+    allList.forEach((item: MarkedList) => {
+      const listId = item.id;
+      item.list.forEach((stall) => {
+        let markEntry: Set<number> | undefined = markedMapByStallId.get(stall.stallId);
+        if (!markEntry) {
+          markEntry = new Set();
+          markedMapByStallId.set(stall.stallId, markEntry);
+        }
+        markEntry.add(listId);
+      });
+
+      quickMapByListId.set(listId, item);
+    });
+
+    this._quickMapByListId = quickMapByListId;
+    this._markedMapByStallId.next(markedMapByStallId);
   }
 
-  toMarkedStall(data: MarkedStallDto): MarkedStall | null {
-    const stallInfo = this._stallService.findStall(data.stallId);
+  dtoToMarkedList(dto: MarkedListDto): MarkedList {
+    const list = dto.list
+      .map((stallId) => {
+        const stallInfo = this._stallService.findStall(stallId);
+        if (stallInfo) {
+          return {
+            stallId,
+            stallInfo,
+          };
+        }
+        return null;
+      })
+      .filter((stall) => !!stall);
 
-    if (stallInfo) {
-      return {
-        ...data,
-        info: stallInfo,
-      };
-    }
-    return null;
+    return {
+      ...dto,
+      list,
+      show: true,
+    };
   }
 }

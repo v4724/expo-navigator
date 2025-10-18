@@ -4,13 +4,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { MarkedStallDto } from 'src/app/core/models/marked-stall.model';
-import { MarkedStall } from 'src/app/core/interfaces/marked-stall.interface';
+import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 
 @Component({
   selector: 'app-marked-layer',
-  imports: [CommonModule, MatIconModule, CdkDropList, CdkDrag],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './marked-layer.html',
   styleUrl: './marked-layer.scss',
 })
@@ -21,11 +20,11 @@ export class MarkedLayer implements OnInit {
   private _markedStallService = inject(MarkedStallService);
   private _selectStallService = inject(SelectStallService);
 
-  show = toSignal(this._markedStallService.show$);
+  show = toSignal(this._markedStallService.layerShown$);
 
   // data
   fetchEnd = toSignal(this._markedStallService.fetchEnd$);
-  stalls = toSignal(this._markedStallService.sortedMarkedStalls$, { initialValue: [] });
+  allList = toSignal(this._markedStallService.markedList$, { initialValue: [] });
 
   ngOnInit(): void {}
 
@@ -37,10 +36,18 @@ export class MarkedLayer implements OnInit {
     this._markedStallService.toggleLayer();
   }
 
-  drop(event: CdkDragDrop<MarkedStall[]>) {
-    const newArr = [...this.stalls()];
+  toggleList(list: MarkedList) {
+    console.log(list);
+    list.show = !list.show;
+    this._markedStallService.toggleList(list);
+  }
+
+  editList(list: MarkedList) {}
+
+  drop(event: CdkDragDrop<MarkedList[]>) {
+    const newArr = [...this.allList()];
     moveItemInArray(newArr, event.previousIndex, event.currentIndex);
-    this._markedStallService.markedStalls = newArr;
+    this._markedStallService.allList = newArr;
   }
 
   selectStall(stallId: string) {
