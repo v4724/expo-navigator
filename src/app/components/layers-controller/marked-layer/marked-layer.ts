@@ -62,7 +62,10 @@ export class MarkedLayer implements OnInit {
       listName: `書籤${this.allList().length + 1}`,
       icon: '',
       iconColor: '',
-      isDefaultColor: true,
+      cusIcon: '',
+      cusIconColor: '',
+      isCusIcon: false,
+      isCusIconColor: false,
       list: [],
     };
     this.isCreating.set(true);

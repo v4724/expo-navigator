@@ -1,11 +1,11 @@
 <div mat-dialog-title class="py-4 px-6 text-gray-600 flex">
   <div class="text-lg">編輯書籤</div>
 </div>
-<mat-dialog-content class="flex flex-1">
-  <form [formGroup]="editForm" class="flex flex-col w-full flex-1">
+<mat-dialog-content>
+  <form [formGroup]="editForm" class="flex flex-col w-full h-[calc(100vh-260px)]">
     <!-- 社團資訊 -->
     <div class="flex flex-wrap gap-3">
-      <div class="flex flex-col gap-1 w-full md:w-1/2">
+      <div class="flex flex-col gap-1 w-full">
         <p-floatlabel variant="on">
           <input
             class="w-full"
@@ -19,48 +19,90 @@
           <label for="listName">名稱</label>
         </p-floatlabel>
       </div>
-      <div class="flex flex-col gap-1 w-full md:w-1/2">
-        <p-floatlabel variant="on">
-          <input
-            class="w-full"
-            pInputText
-            type="text"
-            id="icon"
-            placeholder=""
-            formControlName="icon"
-            autocomplete="off"
-          />
-          <label for="icon">樣式</label>
-        </p-floatlabel>
-      </div>
-      <div class="flex flex-col gap-1 w-full md:w-1/2">
-        <label for="iconColor">顏色</label>
-        <!-- 預設顏色清單 -->
-        <div class="flex gap-2">
-          @for (color of presetColorsList; track $index) {
-            <div
-              class="icon-color size-6 rounded-[6px]"
-              [ngClass]="{
-                'outline-1 outline-offset-2 outline-cyan-500':
-                  color === iconColor && isDefaultColor,
-              }"
-              (click)="clickDefaultColor(color)"
-              [style.background-color]="color"
-            ></div>
-          }
-          <div class="flex ml-2 items-center gap-1">
-            <label for="iconColor">自訂:</label>
-            <p-colorPicker
-              #colorPicker
-              class="icon-color rounded-[6px]"
-              formControlName="colorPickerVal"
-              [ngClass]="{
-                'outline-1 outline-offset-2 outline-cyan-500':
-                  colorPickerVal === iconColor && !isDefaultColor,
-              }"
-              (click)="clickCustomizeColor()"
-              (onChange)="onColorPickerChange($event)"
-            ></p-colorPicker>
+      <div class="flex w-full items-center gap-6">
+        <div
+          class="rounded-md border border-solid border-gray-400 flex items-center justify-center size-20"
+        >
+          <mat-icon [style.color]="iconColor" [fontIcon]="icon"></mat-icon>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-3 w-full">
+            <label class="flex items-center text-nowrap">圖示</label>
+            <div class="flex gap-2 flex-wrap items-center">
+              <!-- 預設圖示清單 -->
+              @for (iconName of presetIconList; track $index) {
+                <button
+                  class="icon-name size-6 rounded-[6px] transition hover:scale-110"
+                  (click)="clickDefaultIcon(iconName)"
+                >
+                  <mat-icon [fontIcon]="iconName"></mat-icon>
+                </button>
+              }
+              <!-- 自訂圖示 -->
+              <div class="flex ml-2 items-center gap-1">
+                <p-checkbox formControlName="isCusIcon" [binary]="true" inputId="isCusIcon" />
+                <mat-icon [fontIcon]="cusIcon"></mat-icon>
+                <p-floatlabel variant="on">
+                  <input
+                    class="w-full"
+                    pInputText
+                    type="text"
+                    id="cusIcon"
+                    placeholder="ex: auto_awesome"
+                    formControlName="cusIcon"
+                    autocomplete="off"
+                  />
+                  <label for="cusIcon">自訂圖示</label>
+                </p-floatlabel>
+                <button class="flex items-center" (click)="openFontIconRef()">
+                  <mat-icon
+                    inline
+                    aria-hidden="false"
+                    aria-label="open_in_new"
+                    fontIcon="open_in_new"
+                    matTooltip="自訂圖示來源"
+                  ></mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-3 w-full">
+            <label class="flex items-center text-nowrap">顏色</label>
+            <div class="flex gap-2 flex-wrap w-full items-center">
+              <!-- 預設顏色清單 -->
+              @for (color of presetColorsList; track $index) {
+                <button
+                  class="icon-color size-6 rounded-[6px] transition hover:scale-110"
+                  (click)="clickDefaultIconColor(color)"
+                  [style.background-color]="color"
+                ></button>
+              }
+              <!-- 自訂顏色 -->
+              <div class="flex ml-2 items-center gap-1 w-[250px]">
+                <p-checkbox
+                  formControlName="isCusIconColor"
+                  [binary]="true"
+                  inputId="isCusIconColor"
+                />
+                <p-colorPicker
+                  #colorPicker
+                  class="icon-color rounded-[6px]"
+                  formControlName="cusIconColor"
+                ></p-colorPicker>
+                <p-floatlabel variant="on">
+                  <input
+                    class="w-full"
+                    pInputText
+                    type="text"
+                    id="cusIconColorInput"
+                    placeholder="ex: #000000"
+                    formControlName="cusIconColorInput"
+                    autocomplete="off"
+                  />
+                  <label for="cusIconColorInput">自訂顏色</label>
+                </p-floatlabel>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -35,8 +35,12 @@ import { StallData } from '../../stall/stall.interface';
 import { Chip } from 'primeng/chip';
 import { InputTextModule } from 'primeng/inputtext';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
-import { ColorPicker, ColorPickerChangeEvent, ColorPickerModule } from 'primeng/colorpicker';
+import { ColorPicker, ColorPickerModule } from 'primeng/colorpicker';
 import { CommonModule } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { CheckboxModule } from 'primeng/checkbox';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 
 interface DialogData {
   list: MarkedList;
@@ -56,6 +60,10 @@ interface DialogData {
     InputTextModule,
     ColorPickerModule,
     CommonModule,
+    MatIcon,
+    CheckboxModule,
+    MatTooltip,
+    MatButtonModule,
   ],
   templateUrl: './edit-marked-list-modal.html',
   styleUrl: './edit-marked-list-modal.scss',
@@ -87,14 +95,29 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     '#ff00ff',
   ];
 
+  fontIconUrl =
+    'https://fonts.google.com/icons?icon.size=24&icon.color=%231f1f1f&icon.set=Material+Icons&icon.style=Filled';
+  defaultIcon = 'star';
+  presetIconList: string[] = [
+    this.defaultIcon,
+    'favorite',
+    'room',
+    'bedtime',
+    'cruelty_free',
+    'push_pin',
+  ];
+
   constructor() {
     this.editForm = this._fb.group({
       id: [''],
       listName: ['', Validators.required],
       icon: [''],
       iconColor: [''],
-      colorPickerVal: ['#000000'],
-      isDefaultColor: [true],
+      cusIcon: ['auto_awesome'],
+      cusIconColor: ['#000000'],
+      cusIconColorInput: ['#000000'],
+      isCusIcon: [false],
+      isCusIconColor: [false],
       stallId: [''],
       list: this._fb.array([]),
     });
@@ -104,16 +127,28 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     return this.editForm.get('id')?.getRawValue() as number;
   }
 
+  get icon(): string {
+    return this.editForm.get('icon')?.getRawValue() ?? '';
+  }
+
+  get cusIcon(): string {
+    return this.editForm.get('cusIcon')?.getRawValue() ?? '';
+  }
+
+  get isCusIcon(): boolean {
+    return this.editForm.get('isCusIcon')?.getRawValue();
+  }
+
   get iconColor(): string {
     return this.editForm.get('iconColor')?.getRawValue() ?? '';
   }
 
-  get colorPickerVal(): string {
-    return this.editForm.get('colorPickerVal')?.getRawValue() ?? '';
+  get cusIconColor(): string {
+    return this.editForm.get('cusIconColor')?.getRawValue() ?? '';
   }
 
-  get isDefaultColor(): boolean {
-    return this.editForm.get('isDefaultColor')?.getRawValue();
+  get isCusIconColor(): boolean {
+    return this.editForm.get('isCusIconColor')?.getRawValue();
   }
 
   get list(): FormArray {
@@ -125,6 +160,8 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   }
   ngOnInit(): void {
     this.initFormVal(this.data.list);
+    this.initIconEvent();
+    this.initIconColorEvent();
   }
 
   ngAfterViewInit(): void {}
@@ -135,10 +172,13 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     this.editForm.patchValue({
       id: item.id,
       listName: item.listName,
-      icon: item.icon,
+      icon: item.icon || this.defaultIcon,
       iconColor: item.iconColor || this.defaultColor,
-      colorPickerVal: item.isDefaultColor ? '#000000' : item.iconColor,
-      isDefaultColor: item.isDefaultColor,
+      cusIcon: item.isCusIcon ? item.cusIcon : 'auto_awesome',
+      cusIconColor: item.isCusIconColor ? item.iconColor : '#000000',
+      cusIconColorInput: item.isCusIconColor ? item.iconColor : '#000000',
+      isCusIcon: item.isCusIcon ? item.isCusIcon : false,
+      isCusIconColor: item.isCusIconColor,
     });
 
     item.list.forEach((item) => {
@@ -146,22 +186,62 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  clickDefaultColor(color: string) {
+  initIconEvent() {
+    this.editForm.get('isCusIcon')?.valueChanges.subscribe((val) => {
+      if (val) {
+        this.editForm.get('icon')?.setValue(this.cusIcon);
+      } else {
+        this.editForm.get('icon')?.setValue(this.defaultIcon);
+      }
+    });
+
+    this.editForm.get('cusIcon')?.valueChanges.subscribe((val) => {
+      val = val.trim();
+      if (this.isCusIcon) {
+        this.editForm.get('icon')?.setValue(val);
+      }
+    });
+  }
+
+  initIconColorEvent() {
+    this.editForm.get('isCusIconColor')?.valueChanges.subscribe((val) => {
+      let color = '';
+      if (val) {
+        color = this.cusIconColor;
+      } else {
+        color = this.defaultColor;
+      }
+      this.editForm.get('iconColor')?.setValue(color);
+    });
+
+    this.editForm.get('cusIconColor')?.valueChanges.subscribe((val) => {
+      val = val.trim();
+      console.log('???', val, this.isCusIcon);
+      if (this.isCusIconColor) {
+        this.editForm.get('iconColor')?.setValue(val);
+      }
+      this.editForm.get('cusIconColorInput')?.setValue(val, { emitEvent: false });
+    });
+
+    this.editForm.get('cusIconColorInput')?.valueChanges.subscribe((val) => {
+      val = val.trim();
+
+      if (this.isCusIconColor) {
+        this.editForm.get('iconColor')?.setValue(val);
+      }
+      this.editForm.get('cusIconColor')?.setValue(val, { emitEvent: false });
+    });
+  }
+
+  clickDefaultIcon(icon: string) {
+    this.editForm.get('icon')?.setValue(icon);
+    this.editForm.get('isCusIcon')?.setValue(false, { emitEvent: false });
+  }
+
+  clickDefaultIconColor(color: string) {
     this.editForm.get('iconColor')?.setValue(color);
-    this.editForm.get('isDefaultColor')?.setValue(true);
-
+    this.editForm.get('isCusIconColor')?.setValue(false, { emitEvent: false });
     this.colorPicker?.hide();
-  }
-
-  clickCustomizeColor() {
-    this.editForm.get('iconColor')?.setValue(this.colorPickerVal);
-    this.editForm.get('isDefaultColor')?.setValue(false);
-  }
-
-  onColorPickerChange(e: ColorPickerChangeEvent) {
-    if (typeof e.value === 'string') {
-      this.editForm.get('iconColor')?.setValue(e.value);
-    }
   }
 
   onFilterSelect(stall: StallData) {
@@ -227,6 +307,10 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  openFontIconRef() {
+    window.open(this.fontIconUrl, '_target');
+  }
+
   // TODO
   private _update() {
     const data = this._getDataFromForm();
@@ -249,7 +333,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
 
     rawValue.list = rawValue.list.map((stall: StallData) => stall.id);
     delete rawValue.stallId;
-    delete rawValue.colorPickerVal;
+    delete rawValue.cusIconColorInput;
 
     return rawValue as MarkedListUpdateDto;
   }

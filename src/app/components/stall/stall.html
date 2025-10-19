@@ -50,9 +50,9 @@
           <div class="flex items-center justify-center">
             <mat-icon
               inline
-              class="!text-fuchsia-900"
               aria-hidden="false"
               aria-label="marked icon"
+              [style.color]="item.iconColor"
               [fontIcon]="item.icon || 'star'"
               [style.font-size]="iconSize()"
               [style.line-height]="iconSize()"

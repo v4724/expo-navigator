@@ -3,7 +3,10 @@ export interface MarkedListDto {
   userId: number;
   icon: string;
   iconColor: string;
-  isDefaultColor: boolean;
+  cusIcon: string;
+  cusIconColor: string;
+  isCusIcon: boolean;
+  isCusIconColor: boolean;
   listName: string;
   list: string[];
 }

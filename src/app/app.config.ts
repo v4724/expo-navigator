@@ -32,10 +32,14 @@ export const appConfig: ApplicationConfig = {
       const matIconRegistry = inject(MatIconRegistry);
       // 設定預設字體集
       matIconRegistry.setDefaultFontSetClass(
-        'material-symbols',
-        'material-symbols-rounded',
-        'material-symbols-sharp',
-        'material-symbols-outlined',
+        'material-icons',
+        // 'material-icons-rounded',
+        // 'material-icons-sharp',
+        // 'material-icons-outlined',
+        // 'material-symbols',
+        // 'material-symbols-rounded',
+        // 'material-symbols-sharp',
+        // 'material-symbols-outlined',
         'mat-ligature-font',
       );
     }),
