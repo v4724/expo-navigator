@@ -44,7 +44,7 @@ export class PromoApiService {
     });
 
     return this.http
-      .post<UpdateResponse<PromoStallDto>>(`${this.apiUrl}/api/promos/${stallId}`, data)
+      .put<UpdateResponse<PromoStallDto>>(`${this.apiUrl}/api/promos/${stallId}`, data)
       .pipe(tap((res) => console.log(res)));
   }
 

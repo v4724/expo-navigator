@@ -53,11 +53,11 @@ export class MarkedStallService {
   }
 
   isMarked(stallId: string): boolean {
-    return Array.from(this._markedMapByStallId.getValue().get(stallId) ?? [])
-      .map((listId: number) => {
-        return !!this._quickMapByListId.get(listId)?.show;
-      })
-      .some((shown) => !!shown);
+    const size = this._markedMapByStallId.getValue().get(stallId)?.size;
+    if (size) {
+      return size > 0;
+    }
+    return false;
   }
 
   toggleLayer() {

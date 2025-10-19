@@ -38,11 +38,39 @@
       <button
         class="bookmark-btn text-gray-200 rounded-full bg-transparent transition hover:scale-110"
         [class.active]="isMarkedSignal()"
-        (click)="toggleBookmark()"
+        (click)="markedListPopover.toggle($event)"
         aria-label="Bookmark"
       >
         <mat-icon class="">bookmark_star</mat-icon>
       </button>
+
+      <p-popover #markedListPopover>
+        <div class="flex flex-col gap-2">
+          @for (list of allMarkedList(); track $index) {
+            <div class="flex items-center gap-2">
+              <mat-icon inline [style.color]="list.iconColor" [fontIcon]="list.icon"></mat-icon>
+              <div class="mr-auto">{{ list.listName }}</div>
+              @if (markedMapByStallId()?.get(stallId())?.has(list.id)) {
+                <p-button
+                  label="移除"
+                  severity="secondary"
+                  size="small"
+                  variant="text"
+                  (click)="removeFromMarkedList(list)"
+                />
+              } @else {
+                <p-button
+                  label="加入"
+                  severity="secondary"
+                  size="small"
+                  variant="text"
+                  (click)="addToMarkedList(list)"
+                />
+              }
+            </div>
+          }
+        </div>
+      </p-popover>
     }
   </div>
 

@@ -674,7 +674,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       } else {
         delete promo.id;
       }
-      promo.promoTitle = promo.name;
+      promo.promoTitle = promo.name.toString();
       promo.promoAvatar = promo.icon;
       promo.promoHtml = promo.html;
       promo.promoLinks = promo.links;

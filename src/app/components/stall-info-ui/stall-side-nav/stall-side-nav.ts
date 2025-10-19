@@ -24,10 +24,21 @@ import { TagService } from 'src/app/core/services/state/tag-service';
 import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SafeHtmlPipe } from '../../../shared/pipe/safe-html-pipe';
+import { PopoverModule } from 'primeng/popover';
+import { ButtonModule } from 'primeng/button';
+import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 
 @Component({
   selector: 'app-stall-side-nav',
-  imports: [CommonModule, MatIcon, TabsModule, AvatarModule, SafeHtmlPipe],
+  imports: [
+    CommonModule,
+    MatIcon,
+    TabsModule,
+    AvatarModule,
+    SafeHtmlPipe,
+    PopoverModule,
+    ButtonModule,
+  ],
   templateUrl: './stall-side-nav.html',
   styleUrl: './stall-side-nav.scss',
 })
@@ -49,6 +60,8 @@ export class StallSideNav implements OnInit, AfterViewInit {
 
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
   imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
+  allMarkedList = toSignal(this._markedStallService.markedList$);
+  markedMapByStallId = toSignal(this._markedStallService.markedMapByStallId$);
   isMarkedFetchEnd = toSignal(this._markedStallService.fetchEnd$);
 
   stall$ = toObservable(this.stall);
@@ -110,6 +123,10 @@ export class StallSideNav implements OnInit, AfterViewInit {
     return map;
   });
 
+  stallId = computed(() => {
+    return this.stall()?.id ?? '';
+  });
+
   defaultAvatar: string = 'https://images.plurk.com/3rbw6tg1lA5dEGpdKTL8j1.png';
 
   ngOnInit() {
@@ -144,18 +161,6 @@ export class StallSideNav implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     if (this.dialogRef) {
       this.stall.set(this.data?.stall);
-    }
-  }
-
-  // TODO 手動更新 marked 狀態
-  toggleBookmark() {
-    const marked = !this.isMarkedSignal();
-    this.isMarkedSignal.set(marked);
-
-    const stall = this.stall();
-    const listId = 1;
-    if (stall) {
-      this._markedStallService.updateMarkedStall(stall.id, listId, marked);
     }
   }
 
@@ -223,4 +228,10 @@ export class StallSideNav implements OnInit, AfterViewInit {
   oenpLink() {
     window.open(this.stall()?.stallLink, '_target');
   }
+
+  // TODO
+  removeFromMarkedList(list: MarkedList) {}
+
+  // TODO
+  addToMarkedList(list: MarkedList) {}
 }
