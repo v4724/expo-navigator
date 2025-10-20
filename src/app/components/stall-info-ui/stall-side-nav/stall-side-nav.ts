@@ -14,7 +14,7 @@ import { combineLatest, first } from 'rxjs';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
-import { StallData } from '../../stall/stall.interface';
+import { StallData } from '../../../core/interfaces/stall.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { MatIcon } from '@angular/material/icon';
 import { UserService } from 'src/app/core/services/state/user-service';

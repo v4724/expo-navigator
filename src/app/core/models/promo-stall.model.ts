@@ -25,3 +25,5 @@ export interface PromoStallDto {
   // 宣傳車自訂 tag
   customTags: string;
 }
+
+export interface UpdatePromoStallDto extends PromoStallDto {}

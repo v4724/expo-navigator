@@ -8,7 +8,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { PromoLink } from 'src/app/core/interfaces/promo-link.interface';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { MiniMap } from '../../mini-map/mini-map';
-import { StallData } from '../../stall/stall.interface';
+import { StallData } from '../../../core/interfaces/stall.interface';
 
 declare global {
   interface Window {

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { StallService } from './stall-service';
 import { BehaviorSubject } from 'rxjs';
-import { StallData } from 'src/app/components/stall/stall.interface';
+import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { TooltipService } from './tooltip-service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { StallInfo } from 'src/app/components/stall-info-ui/stall-info/stall-info';

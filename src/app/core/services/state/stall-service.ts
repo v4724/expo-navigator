@@ -1,13 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin } from 'rxjs';
-import { StallDto } from '../../interfaces/stall-dto.interface';
-import { StallData } from 'src/app/components/stall/stall.interface';
+import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { stallGridRefs } from '../../const/official-data';
-import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import { PROMOTION_CSV_URL, STALL_CSV_URL } from '../../const/google-excel-csv-url';
 import { PromoApiService } from '../api/promo-api.service';
 import { PromoStall } from '../../interfaces/promo-stall.interface';
 import { PromoStallDto } from '../../models/promo-stall.model';
+import { StallApiService } from '../api/stall-api.service';
+import { StallDto, UpdateStallDto } from '../../models/stall.model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +17,7 @@ export class StallService {
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   private _stallUpdatedAt = new BehaviorSubject<number>(-1);
 
+  private _stallApiService = inject(StallApiService);
   private _promoService = inject(PromoApiService);
 
   private _validStallIds = new Set<string>();
@@ -32,10 +32,11 @@ export class StallService {
   stallUpdatedAt$ = this._stallUpdatedAt.asObservable();
 
   constructor() {
-    forkJoin([fetchExcelData(STALL_CSV_URL), this._promoService.getPromotions()])
+    this._stallApiService
+      .fetch()
       .pipe()
-      .subscribe(([rawStallData, rawPromoData]) => {
-        const stalls = this._processStalls(rawStallData, rawPromoData);
+      .subscribe((rawStallData) => {
+        const stalls = this._processStalls(rawStallData);
         this._allStalls.next(stalls);
         this._fetchEnd.next(true);
       });
@@ -57,7 +58,25 @@ export class StallService {
     return this._allStalls.getValue().find((stall) => stall.id === id);
   }
 
-  updateStallInfo(stallId: string, data: StallData) {}
+  afterUpdateTrigger(stallId: string) {
+    const stall = this.findStall(stallId);
+    if (stall) {
+      this._allStalls.next([...this._allStalls.getValue()]);
+      this._updateFilterSet(stall);
+    }
+
+    this._stallUpdatedAt.next(+new Date());
+  }
+
+  updateStallInfo(stallId: string, data: UpdateStallDto) {
+    const stall = this.findStall(stallId);
+    if (stall) {
+      stall.stallTitle = data.stallTitle;
+      stall.stallImg = data.stallImg;
+      stall.stallLink = data.stallLink;
+    }
+  }
+
   updateStallPromos(stallId: string, data: PromoStallDto[]) {
     const promos: PromoStall[] = data.map((dto) => {
       return this._promoService.transformDtoToPromo(dto);
@@ -66,10 +85,7 @@ export class StallService {
     if (stall) {
       stall.promoData = promos;
       stall.hasPromo = promos.length > 0;
-      this._allStalls.next([...this._allStalls.getValue()]);
-      this._updateFilterSet(stall);
     }
-    this._stallUpdatedAt.next(+new Date());
   }
 
   private _updateFilterSet(stall: StallData) {
@@ -105,10 +121,7 @@ export class StallService {
    * @param rawData Array of objects parsed from CSV.
    * @returns An array of fully processed StallData objects.
    */
-  private _processStalls(
-    rawData: Record<string, string>[],
-    promoData: PromoStallDto[],
-  ): StallData[] {
+  private _processStalls(rawData: StallDto[]): StallData[] {
     // Convert the stallGridRefs array into a Map for efficient O(1) lookups by stall letter.
     const locateStallMap = new Map(stallGridRefs.map((s) => [s.groupId, s]));
 
@@ -117,21 +130,21 @@ export class StallService {
     const stallsMap = new Map<string, StallData>();
 
     rawData.forEach((rawStall) => {
-      const id = rawStall['id'];
+      const id = rawStall.id;
       if (!id) return; // Skip rows without an ID, as they can't be processed.
 
       let stallEntry = stallsMap.get(id);
 
       // If this is the first time we see this stall ID, create the base StallData object.
       if (!stallEntry) {
-        const line = rawStall['line'];
-        const num = parseInt(rawStall['num'], 10);
-        const padNum = num.toString().padStart(2, '0');
-        const stallCnt = parseInt(rawStall['stallCnt'], 10) || 1; // How many table spaces the stall occupies.
-        const locateStall = locateStallMap.get(line); // Get the template coordinates for this row/column.
+        const stallZone = rawStall.stallZone;
+        const stallNum = rawStall.stallNum;
+        const padNum = stallNum.toString().padStart(2, '0');
+        const stallCnt = rawStall.stallCnt; // How many table spaces the stall occupies.
+        const locateStall = locateStallMap.get(stallZone); // Get the template coordinates for this row/column.
 
         // If we can't find a template or the number is invalid, we can't calculate a position.
-        if (!locateStall || isNaN(num)) {
+        if (!locateStall || isNaN(stallNum)) {
           console.warn(`Could not calculate position for stall ID: ${id}. Skipping base creation.`);
           return;
         }
@@ -142,21 +155,27 @@ export class StallService {
         let myNumericCoords: NonNullable<StallData['numericCoords']>;
 
         // Most stalls are in horizontal rows, calculate position from right to left.
-        if (line !== '狗' && line !== '雞' && line !== '猴' && line !== '特' && line !== '商') {
-          const numInBlock = num > 36 ? 72 - num : num;
+        if (
+          stallZone !== '狗' &&
+          stallZone !== '雞' &&
+          stallZone !== '猴' &&
+          stallZone !== '特' &&
+          stallZone !== '商'
+        ) {
+          const numInBlock = stallNum > 36 ? 72 - stallNum : stallNum;
           // There are visual gaps in the numbering on the map, account for them.
           let gapSize = 0;
           let top = coordsTemplate.top;
           let left = coordsTemplate.left;
 
-          if (num > 24 && num <= 48) {
+          if (stallNum > 24 && stallNum <= 48) {
             gapSize = 1.75;
-          } else if (num <= 12 || num >= 61) {
+          } else if (stallNum <= 12 || stallNum >= 61) {
             gapSize = 0;
           } else {
             gapSize = 0.9;
           }
-          if (num > 36) {
+          if (stallNum > 36) {
             top = top - coordsTemplate.height - 0.25;
             left = coordsTemplate.left - (numInBlock % 72) * coordsTemplate.width - gapSize;
           } else {
@@ -184,30 +203,30 @@ export class StallService {
           };
         } else {
           // Handle the few vertical columns.
-          let tempNum = num;
+          let tempNum = stallNum;
           let gapSize = 0;
-          if (line === '狗') {
-            if (num >= 4 && num < 16) {
+          if (stallZone === '狗') {
+            if (stallNum >= 4 && stallNum < 16) {
               tempNum = 3;
               gapSize = 0.8;
-            } else if (num >= 16) {
-              tempNum = num - 12;
+            } else if (stallNum >= 16) {
+              tempNum = stallNum - 12;
               gapSize = 0.4;
             }
-          } else if (line === '雞') {
-            if (num >= 4 && num < 21) {
+          } else if (stallZone === '雞') {
+            if (stallNum >= 4 && stallNum < 21) {
               tempNum = 3;
               gapSize = 0.8;
-            } else if (num >= 21) {
-              tempNum = num - 17;
+            } else if (stallNum >= 21) {
+              tempNum = stallNum - 17;
               gapSize = 0.4;
             }
-          } else if (line === '猴') {
-            if (num >= 4 && num < 23) {
+          } else if (stallZone === '猴') {
+            if (stallNum >= 4 && stallNum < 23) {
               tempNum = 3;
               gapSize = 0.8;
-            } else if (num >= 23) {
-              tempNum = num - 19;
+            } else if (stallNum >= 23) {
+              tempNum = stallNum - 19;
               gapSize = 0.5;
             }
           } else {
@@ -240,39 +259,29 @@ export class StallService {
         if (stallImg && stallImg.startsWith('assets/2025/')) {
           stallImg = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@d24cd07/${stallImg}`;
         }
+        const promoData = rawStall.promotion.map((data) => {
+          return this._promoService.transformDtoToPromo(data);
+        });
         const stall = {
           id: id,
-          num: num,
+          stallZone,
+          stallNum,
           padNum,
           stallCnt: stallCnt,
-          coords: myCoords,
-          numericCoords: myNumericCoords,
           stallTitle: rawStall['stallTitle'] || 'N/A',
           stallImg: stallImg,
           stallLink: rawStall['stallLink'] || undefined,
-          promoData: [], // Initialize with an empty array for promotions.
+          coords: myCoords,
+          numericCoords: myNumericCoords,
+          promoData: promoData || [],
+          hasPromo: !!(promoData || []).length,
           filterSeries: [],
           filterTags: [],
           filterCustomTags: [],
-          hasPromo: false,
           isSearchMatch: false,
         };
         stallsMap.set(id, stall);
         stallEntry = stall;
-      }
-    });
-
-    promoData.forEach((data: PromoStallDto) => {
-      // --- Promotion Data Aggregation ---
-      // If the current row contains promotion data, create a PromoStall object
-      // and add it to the stall's promoData array.
-      const stallId = data.stallId;
-
-      const stallEntry = stallsMap.get(stallId);
-      const promo: PromoStall = this._promoService.transformDtoToPromo(data);
-      if (stallEntry) {
-        stallEntry.promoData.push(promo);
-        stallEntry.hasPromo = true;
       }
     });
 

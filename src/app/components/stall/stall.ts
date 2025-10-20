@@ -10,7 +10,7 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { StallData } from './stall.interface';
+import { StallData } from '../../core/interfaces/stall.interface';
 import { CommonModule } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';

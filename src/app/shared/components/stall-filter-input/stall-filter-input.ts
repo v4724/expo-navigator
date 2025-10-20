@@ -3,8 +3,7 @@ import { Component, forwardRef, inject, input, OnInit, output } from '@angular/c
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { Stall } from 'src/app/components/stall/stall';
-import { StallData } from 'src/app/components/stall/stall.interface';
+import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { StallService } from 'src/app/core/services/state/stall-service';
 
 @Component({

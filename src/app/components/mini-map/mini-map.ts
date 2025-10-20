@@ -14,11 +14,10 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { allGroupIds } from 'src/app/core/const/row-id';
-import { StallDto } from 'src/app/core/interfaces/stall-dto.interface';
 import { StallModalService } from 'src/app/core/services/state/stall-modal-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';
-import { StallData } from '../stall/stall.interface';
+import { StallData } from '../../core/interfaces/stall.interface';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { stallGridRefs } from 'src/app/core/const/official-data';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -30,6 +29,7 @@ import { pairwise, startWith } from 'rxjs';
 import { GroupIndicator } from '../group-indicator/group-indicator';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
+import { StallDto } from 'src/app/core/models/stall.model';
 
 @Component({
   selector: 'app-mini-map',
@@ -239,9 +239,9 @@ export class MiniMap implements OnInit, AfterViewInit {
       // Up (▲) action is num + 1, Down (▼) action is num - 1.
       let upStallId = undefined;
       let upStep = 1;
-      while (stall.num + upStep <= 34) {
+      while (stall.stallNum + upStep <= 34) {
         const findId = navigableStalls.find(
-          (s) => s.id.startsWith(rowId) && s.num === stall.num + upStep,
+          (s) => s.id.startsWith(rowId) && s.stallNum === stall.stallNum + upStep,
         )?.id;
         if (findId) {
           upStallId = findId;
@@ -251,9 +251,9 @@ export class MiniMap implements OnInit, AfterViewInit {
       }
       let downStallId = undefined;
       let downStep = -1;
-      while (stall.num + downStep > 0) {
+      while (stall.stallNum + downStep > 0) {
         const findId = navigableStalls.find(
-          (s) => s.id.startsWith(rowId) && s.num === stall.num + downStep,
+          (s) => s.id.startsWith(rowId) && s.stallNum === stall.stallNum + downStep,
         )?.id;
         if (findId) {
           downStallId = findId;
@@ -332,7 +332,7 @@ export class MiniMap implements OnInit, AfterViewInit {
 
       const stallsInRow = allStalls
         .filter((s) => s.id.startsWith(rowId))
-        .sort((a, b) => b.num - a.num); // Sort numerically descending
+        .sort((a, b) => b.stallNum - a.stallNum); // Sort numerically descending
       console.debug('stallsInRow', stallsInRow);
       this.verticalStallGroup.set(stallsInRow);
       this.verticalStallGroupHidden.set(false);
@@ -406,7 +406,7 @@ export class MiniMap implements OnInit, AfterViewInit {
    * @param bgY The target vertical background position.
    * @param stall The stall being centered on, if any, to ensure accurate row indicator display.
    */
-  setModalMapPosition(targetBgXY: TargetXY, stall?: StallDto) {
+  setModalMapPosition(targetBgXY: TargetXY, stall?: StallData) {
     const bgX = targetBgXY.x;
     const bgY = targetBgXY.y;
     const zoomFactor = this._uiStateService.zoomFactor();
@@ -477,7 +477,7 @@ export class MiniMap implements OnInit, AfterViewInit {
    * @param currentBgY The current vertical background position of the map.
    * @param stall The currently selected stall, if any.
    */
-  private _updateModalRowIndicator(currentBgX: number, currentBgY: number, stall?: StallDto) {
+  private _updateModalRowIndicator(currentBgX: number, currentBgY: number, stall?: StallData) {
     const mapImage = this._stallMapService.mapImage;
 
     let closestRowData: (typeof stallGridRefs)[0] | null = null;
@@ -550,7 +550,7 @@ export class MiniMap implements OnInit, AfterViewInit {
    * @param searchTerm The current value from the search input.
    * @returns An array of StallData objects that match the search.
    */
-  private _getNavigableStalls(): StallDto[] {
+  private _getNavigableStalls(): StallData[] {
     return this._stallService.allStalls;
   }
 
@@ -562,12 +562,12 @@ export class MiniMap implements OnInit, AfterViewInit {
    * @returns The ID of the adjacent stall, or null if none exists.
    */
   private _getAdjacentStallId = (
-    currentStall: StallDto,
-    navigableStalls: StallDto[],
+    currentStall: StallData,
+    navigableStalls: StallData[],
     direction: 'up' | 'down' | 'left' | 'right',
   ): string | null => {
     const currentLine = currentStall.id.substring(0, 1);
-    const currentNum = currentStall.num;
+    const currentNum = currentStall.stallNum;
     const isCurrentVertical = ['狗', '雞', '猴', '特', '商'].includes(currentLine);
     const currentRowIndex = allGroupIds.indexOf(currentLine);
 
@@ -589,7 +589,7 @@ export class MiniMap implements OnInit, AfterViewInit {
       let targetNum = currentNum + directionStep;
       while (targetNum >= 1 && targetNum <= 72) {
         const foundStallInRow = navigableStalls.find(
-          (s) => s.id.startsWith(currentLine) && s.num === targetNum,
+          (s) => s.id.startsWith(currentLine) && s.stallNum === targetNum,
         );
         if (foundStallInRow) return foundStallInRow.id;
 
@@ -610,26 +610,26 @@ export class MiniMap implements OnInit, AfterViewInit {
         const targetRowId = allGroupIds[targetRowIndex];
         const stallsInTargetRow = navigableStalls.filter((s) => s.id.startsWith(targetRowId));
         if (stallsInTargetRow.length > 0) {
-          let targetStall: StallDto | undefined;
+          let targetStall: StallData | undefined;
 
           // If navigating from a vertical row, connect to the top/bottom of the next row.
           if (isCurrentVertical) {
             if (direction === 'down') {
               // Moving DOWN from a vertical row (e.g., 狗 -> 雞).
               // Land on the stall with the HIGHEST number in the target row (the top-most stall).
-              targetStall = stallsInTargetRow.sort((a, b) => b.num - a.num)[0];
+              targetStall = stallsInTargetRow.sort((a, b) => b.stallNum - a.stallNum)[0];
             } else {
               // direction === 'up'
               // Moving UP from a vertical row (e.g., 雞 -> 狗).
               // Land on the stall with the LOWEST number in the target row (the bottom-most stall).
-              targetStall = stallsInTargetRow.sort((a, b) => a.num - b.num)[0];
+              targetStall = stallsInTargetRow.sort((a, b) => a.stallNum - b.stallNum)[0];
             }
           } else {
             // Default behavior: find the stall with the closest number.
-            targetStall = stallsInTargetRow.find((s) => s.num === currentNum);
+            targetStall = stallsInTargetRow.find((s) => s.stallNum === currentNum);
             if (!targetStall) {
               targetStall = stallsInTargetRow.sort(
-                (a, b) => Math.abs(a.num - currentNum) - Math.abs(b.num - currentNum),
+                (a, b) => Math.abs(a.stallNum - currentNum) - Math.abs(b.stallNum - currentNum),
               )[0];
             }
           }

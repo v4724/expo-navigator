@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { PromoStallDto } from '../../models/promo-stall.model';
+import { PromoStallDto, UpdatePromoStallDto } from '../../models/promo-stall.model';
 import { PromoStall } from '../../interfaces/promo-stall.interface';
 import { UpdateResponse } from '../../models/update-response.model';
 import { PromoLink } from '../../interfaces/promo-link.interface';
@@ -27,7 +27,10 @@ export class PromoApiService {
     );
   }
 
-  update(stallId: string, promos: PromoStall[]): Observable<UpdateResponse<PromoStallDto>> {
+  update(
+    stallId: string,
+    promos: UpdatePromoStallDto[],
+  ): Observable<UpdateResponse<PromoStallDto>> {
     const data = promos.map((promo) => {
       const dto: PromoStallDto = {
         ...(promo.id && { id: promo.id }),

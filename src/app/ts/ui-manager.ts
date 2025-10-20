@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { stallGridRefs } from '../core/const/official-data.js';
-import { StallData } from '../components/stall/stall.interface.js';
-
 /** Defines the shape of the shared UI state object. */
 export interface UIState {
   selectedStallElement: HTMLElement | null;

@@ -28,7 +28,7 @@ import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-
 import { InputTextModule } from 'primeng/inputtext';
 import { MatIcon } from '@angular/material/icon';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
-import { StallData } from '../../stall/stall.interface';
+import { StallData } from '../../../core/interfaces/stall.interface';
 import { MessageModule } from 'primeng/message';
 import { FloatLabel } from 'primeng/floatlabel';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -57,6 +57,11 @@ import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { EditorConfig } from 'ckeditor5';
 import translations from 'ckeditor5/translations/zh.js';
+import { StallApiService } from 'src/app/core/services/api/stall-api.service';
+import { UpdateStallDto } from 'src/app/core/models/stall.model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { isEqual } from 'lodash-es';
+import { PromoStallDto, UpdatePromoStallDto } from 'src/app/core/models/promo-stall.model';
 
 interface MyTab {
   icon: string;
@@ -109,13 +114,16 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _fb = inject(FormBuilder);
   private readonly _tagService = inject(TagService);
   private readonly _promoApiService = inject(PromoApiService);
+  private readonly _stallApiService = inject(StallApiService);
   private readonly _snackBar = inject(MatSnackBar);
   private readonly _uiStateService = inject(UiStateService);
   private readonly _cdr = inject(ChangeDetectorRef);
 
-  tabList = signal<MyTab[]>([]);
-
   stallForm: FormGroup;
+
+  selectedStallId = toSignal(this._selectStallService.selectedStallId$);
+
+  tabList = signal<MyTab[]>([]);
 
   seriesAndTags = signal<Map<StallSeries, Map<'CHAR' | 'CP', StallTag[]>>>(new Map());
 
@@ -470,10 +478,12 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
 
   // TODO ckeditor 和 預覽的稍微不一樣，待檢查樣式
   preview() {
-    // TODO getStallFromForm
     const stall = JSON.parse(JSON.stringify(this._selectStallService.selectedStall));
-
+    const { stallTitle, stallImg, stallLink } = this._getStallFromForm();
     const promos = this._getPromoFromForm();
+    stall.stallTitle = stallTitle;
+    stall.stallImg = stallImg;
+    stall.stallLink = stallLink;
     stall.promoData = promos;
 
     console.debug('preview stall', stall);
@@ -492,6 +502,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   onTempSave() {
     this.stallForm.markAllAsDirty();
     this.stallForm.updateValueAndValidity();
+    console.debug(this.stallForm, this.stallForm.invalid);
     if (this.stallForm.invalid) {
       return;
     }
@@ -620,34 +631,41 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private _update() {
+    const stall = this._getStallFromForm();
     const promos = this._getPromoFromForm();
-    console.log('暫存/儲存', promos);
+    console.debug('暫存/儲存', promos);
 
-    // TODO: 加上攤位基本資訊編輯
-    // const infoObservable = this._promoApiService.update(promos);
+    const infoObservable = this._stallApiService.update(this.stallId, stall).pipe(
+      map((res) => {
+        if (res.success) {
+          this._stallService.updateStallInfo(this.stallId, stall);
+          console.info('stall 暫存/儲存成功', res);
+        } else {
+          console.error('stall 暫存/儲存失敗', res);
+        }
+      }),
+    );
     const promoObservable = this._promoApiService.update(this.stallId, promos).pipe(
       map((res) => {
         if (res.success) {
-          const selectedStall = this._selectStallService.selectedStall;
-          if (selectedStall) {
-            this._stallService.updateStallPromos(selectedStall.id, res.data);
-          }
-          console.info('promo 暫存成功', res);
+          this._stallService.updateStallPromos(this.stallId, res.data);
+          console.info('promo 暫存/儲存成功', res);
         } else {
-          console.error('promo 暫存失敗', res);
+          console.error('promo 暫存/儲存失敗', res);
         }
 
         return res.success;
       }),
     );
 
-    const observableArr = [promoObservable];
-    // TODO: 比對資料是否有更動，再決定要不要送出 request
-    // if (isInfoChanged) {
-    //   observableArr.push(infoObservable);
-    // } else if (isPromoChanged) {
-    //   observableArr.push(promoObservable);
-    // }
+    // 比對資料是否有更動，再決定要不要送出 request
+    const observableArr = [];
+    if (!isEqual(this._origStall(), stall)) {
+      observableArr.push(infoObservable);
+    }
+    if (!isEqual(this._origPromos(), promos)) {
+      observableArr.push(promoObservable);
+    }
 
     if (observableArr.length === 0) {
       return null;
@@ -656,7 +674,18 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     return forkJoin(observableArr);
   }
 
-  private _getPromoFromForm(): PromoStall[] {
+  private _getStallFromForm(): UpdateStallDto {
+    const { stallTitle, stallImg, stallLink } = this.stallForm.getRawValue();
+    const dto = {
+      stallTitle: stallTitle,
+      stallImg: stallImg || '',
+      stallLink: stallLink || '',
+    };
+
+    return dto;
+  }
+
+  private _getPromoFromForm(): UpdatePromoStallDto[] {
     const promos = this.promos.getRawValue();
     promos.forEach((promo: any) => {
       // 轉換 series, tags 欄位格式
@@ -688,5 +717,24 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     });
 
     return promos;
+  }
+
+  private _origStall(): UpdateStallDto | null {
+    const stall = this._selectStallService.selectedStall;
+    if (!stall) return null;
+
+    const { stallTitle, stallImg, stallLink } = stall;
+    return {
+      stallTitle: stallTitle,
+      stallImg: stallImg || '',
+      stallLink: stallLink || '',
+    };
+  }
+
+  private _origPromos(): PromoStallDto[] {
+    const stall = this._selectStallService.selectedStall;
+    if (!stall) return [];
+
+    return stall.promoData;
   }
 }

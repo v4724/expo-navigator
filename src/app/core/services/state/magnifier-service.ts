@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { StallData } from 'src/app/components/stall/stall.interface';
 
 @Injectable({
   providedIn: 'root',

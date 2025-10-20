@@ -1,6 +1,6 @@
 import { Component, inject, model, OnInit, signal, WritableSignal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
-import { StallData } from '../../stall/stall.interface';
+import { StallData } from '../../../core/interfaces/stall.interface';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
