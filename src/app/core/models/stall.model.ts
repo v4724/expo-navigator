@@ -42,4 +42,6 @@ export interface UpdateStallDto {
   stallLink?: string;
 }
 
-export interface UpdateStallDtoWithPromo extends StallDto {}
+export interface UpdateStallDtoWithPromo extends UpdateStallDto {
+  promotion: PromoStallDto[];
+}

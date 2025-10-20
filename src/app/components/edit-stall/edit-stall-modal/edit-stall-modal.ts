@@ -38,7 +38,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { TagService } from 'src/app/core/services/state/tag-service';
-import { finalize, first, forkJoin, map, tap } from 'rxjs';
+import { finalize, first, map, of } from 'rxjs';
 import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
 import { Checkbox, CheckboxModule } from 'primeng/checkbox';
 import { PanelModule } from 'primeng/panel';
@@ -58,7 +58,7 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { EditorConfig } from 'ckeditor5';
 import translations from 'ckeditor5/translations/zh.js';
 import { StallApiService } from 'src/app/core/services/api/stall-api.service';
-import { UpdateStallDto } from 'src/app/core/models/stall.model';
+import { UpdateStallDto, UpdateStallDtoWithPromo } from 'src/app/core/models/stall.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { isEqual } from 'lodash-es';
 import { PromoStallDto, UpdatePromoStallDto } from 'src/app/core/models/promo-stall.model';
@@ -507,28 +507,22 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const updateObs = this._update();
-    if (!updateObs) {
-      return;
-    }
-
     this.isTempSaving.set(true);
-    updateObs
+    this._update()
       .pipe(
         finalize(() => {
           this.isTempSaving.set(false);
         }),
       )
-      .subscribe((res) => {
-        const allSuccess = res.every((val) => val === true);
-        if (allSuccess) {
+      .subscribe((res: any) => {
+        if (res.success) {
           this._snackBar.openFromComponent(ResponseSnackBar, {
-            duration: 3000,
+            duration: 2000,
             data: { message: '暫存成功', isError: false },
           });
         } else {
           this._snackBar.openFromComponent(ResponseSnackBar, {
-            duration: 3000,
+            duration: 2000,
             data: { message: '暫存失敗', isError: true },
           });
         }
@@ -548,15 +542,14 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isSaving.set(true);
-    updateObs
+    this._update()
       .pipe(
         finalize(() => {
           this.isSaving.set(false);
         }),
       )
-      .subscribe((res) => {
-        const allSuccess = res.every((val) => val === true);
-        if (allSuccess) {
+      .subscribe((res: any) => {
+        if (res.success) {
           this.dialogRef.close();
           this._snackBar.openFromComponent(ResponseSnackBar, {
             duration: 3000,
@@ -633,49 +626,33 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   private _update() {
     const stall = this._getStallFromForm();
     const promos = this._getPromoFromForm();
-    console.debug('暫存/儲存', promos);
 
-    const infoObservable = this._stallApiService.update(this.stallId, stall).pipe(
+    const isStallEqual = isEqual(this._origStall(), stall);
+    const isPromosEqual = isEqual(this._origPromos(), promos);
+    console.debug('raw value', this.stallForm.getRawValue());
+    console.debug('isStallEqual', isStallEqual, this._origStall(), stall);
+    console.debug('isPromosEqual', isPromosEqual, this._origPromos(), promos);
+    if (isStallEqual && isPromosEqual) {
+      return of();
+    }
+    const data = { ...stall, promotion: promos } as UpdateStallDtoWithPromo;
+    console.debug('暫存/儲存', data);
+    return this._stallApiService.updateStallwithPromo(this.stallId, data).pipe(
       map((res) => {
         if (res.success) {
-          this._stallService.updateStallInfo(this.stallId, stall);
-          console.info('stall 暫存/儲存成功', res);
+          this._stallService.updateStall(this.stallId, res.data);
+          console.info('暫存/儲存成功', res);
         } else {
-          console.error('stall 暫存/儲存失敗', res);
-        }
-      }),
-    );
-    const promoObservable = this._promoApiService.update(this.stallId, promos).pipe(
-      map((res) => {
-        if (res.success) {
-          this._stallService.updateStallPromos(this.stallId, res.data);
-          console.info('promo 暫存/儲存成功', res);
-        } else {
-          console.error('promo 暫存/儲存失敗', res);
+          console.error('暫存/儲存失敗', res);
         }
 
         return res.success;
       }),
     );
-
-    // 比對資料是否有更動，再決定要不要送出 request
-    const observableArr = [];
-    if (!isEqual(this._origStall(), stall)) {
-      observableArr.push(infoObservable);
-    }
-    if (!isEqual(this._origPromos(), promos)) {
-      observableArr.push(promoObservable);
-    }
-
-    if (observableArr.length === 0) {
-      return null;
-    }
-
-    return forkJoin(observableArr);
   }
 
   private _getStallFromForm(): UpdateStallDto {
-    const { stallTitle, stallImg, stallLink } = this.stallForm.getRawValue();
+    const { stallId, stallTitle, stallImg, stallLink } = this.stallForm.getRawValue();
     const dto = {
       stallTitle: stallTitle,
       stallImg: stallImg || '',

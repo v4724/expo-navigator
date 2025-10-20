@@ -58,34 +58,23 @@ export class StallService {
     return this._allStalls.getValue().find((stall) => stall.id === id);
   }
 
-  afterUpdateTrigger(stallId: string) {
-    const stall = this.findStall(stallId);
-    if (stall) {
-      this._allStalls.next([...this._allStalls.getValue()]);
-      this._updateFilterSet(stall);
-    }
-
-    this._stallUpdatedAt.next(+new Date());
-  }
-
-  updateStallInfo(stallId: string, data: UpdateStallDto) {
+  updateStall(stallId: string, data: StallDto) {
     const stall = this.findStall(stallId);
     if (stall) {
       stall.stallTitle = data.stallTitle;
       stall.stallImg = data.stallImg;
       stall.stallLink = data.stallLink;
-    }
-  }
 
-  updateStallPromos(stallId: string, data: PromoStallDto[]) {
-    const promos: PromoStall[] = data.map((dto) => {
-      return this._promoService.transformDtoToPromo(dto);
-    });
-    const stall = this.findStall(stallId);
-    if (stall) {
+      const promos: PromoStall[] = data.promotion.map((dto) => {
+        return this._promoService.transformDtoToPromo(dto);
+      });
       stall.promoData = promos;
       stall.hasPromo = promos.length > 0;
+
+      this._allStalls.next([...this._allStalls.getValue()]);
+      this._updateFilterSet(stall);
     }
+    this._stallUpdatedAt.next(+new Date());
   }
 
   private _updateFilterSet(stall: StallData) {
