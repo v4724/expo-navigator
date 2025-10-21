@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { LayersControllerService } from 'src/app/core/services/state/layers-controller-service';
+
+import { LeftSidebarService } from 'src/app/core/services/state/left-sidebar-service';
 
 @Component({
   selector: 'app-toggle-controller',
@@ -8,9 +9,9 @@ import { LayersControllerService } from 'src/app/core/services/state/layers-cont
   styleUrl: './toggle-controller.scss',
 })
 export class ToggleController {
-  private _layerControllerService = inject(LayersControllerService);
+  private _leftSidebarService = inject(LeftSidebarService);
 
   toggle() {
-    this._layerControllerService.toggle();
+    this._leftSidebarService.toggle('layerControl');
   }
 }

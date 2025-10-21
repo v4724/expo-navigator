@@ -26,6 +26,7 @@ import { SelectStallService } from 'src/app/core/services/state/select-stall-ser
 import { StallLayerService } from 'src/app/core/services/state/stall-layer-service';
 import { MatIcon } from '@angular/material/icon';
 import { UserService } from 'src/app/core/services/state/user-service';
+import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 @Component({
   selector: 'app-stall',
   imports: [CommonModule, MatIcon],
@@ -42,6 +43,7 @@ export class Stall implements OnInit, AfterViewInit {
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
+  private _searchAndFilterService = inject(SearchAndFilterService);
   private _miniMapService = inject(DraggableService);
   private _uiStateService = inject(UiStateService);
   private _tooltipService = inject(TooltipService);
@@ -115,9 +117,9 @@ export class Stall implements OnInit, AfterViewInit {
       this.isSelected.set(this.stall().id === selectedStall);
     });
 
-    this._stallMapService.inputSearch$.subscribe((searchTerm) => {
+    this._searchAndFilterService.inputSearch$.subscribe((searchTerm) => {
       let isMatch = false;
-      if (searchTerm !== '') {
+      if (!!searchTerm) {
         const hasPromoTitleMatch = this.stall().promoData.some((promo) =>
           promo.promoTitle.toLowerCase().includes(searchTerm),
         );

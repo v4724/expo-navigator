@@ -7,14 +7,12 @@ import { BehaviorSubject, Subject } from 'rxjs';
 export class StallMapService {
   private _mapImage = new BehaviorSubject<HTMLImageElement | null>(null);
   private _mapContainer = new BehaviorSubject<HTMLElement | null>(null);
-  private _inputSearch = new BehaviorSubject<string>('');
   private _matchStallsId = new BehaviorSubject<Map<string, Set<string>>>(
     new Map<string, Set<string>>(),
   );
 
   mapImage$ = this._mapImage.asObservable();
   mapContainer$ = this._mapContainer.asObservable();
-  inputSearch$ = this._inputSearch.asObservable();
   matchStallsId$ = this._matchStallsId.asObservable();
 
   set mapImage(el: HTMLImageElement) {
@@ -23,10 +21,6 @@ export class StallMapService {
 
   set mapContainer(el: HTMLElement) {
     this._mapContainer.next(el);
-  }
-
-  set inputSearch(input: string) {
-    this._inputSearch.next(input);
   }
 
   updateMatchStallsId(groupId: string, stallId: string, isMatch: boolean) {

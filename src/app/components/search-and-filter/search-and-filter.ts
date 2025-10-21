@@ -9,10 +9,11 @@ import {
 } from 'src/app/core/interfaces/stall-series-tag.interface';
 import { TagService } from 'src/app/core/services/state/tag-service';
 import { InputSearch } from './input-search/input-search';
+import { ResultListBtn } from './result-list-btn/result-list-btn';
 
 @Component({
   selector: 'app-search-and-filter',
-  imports: [CommonModule, MatIconModule, InputSearch],
+  imports: [CommonModule, MatIconModule, InputSearch, ResultListBtn],
   templateUrl: './search-and-filter.html',
   styleUrl: './search-and-filter.scss',
 })

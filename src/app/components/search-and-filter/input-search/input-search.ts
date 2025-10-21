@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
-import { StallMapService } from 'src/app/core/services/state/stall-map-service';
+import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 
 @Component({
   selector: 'app-input-search',
@@ -10,10 +10,10 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 export class InputSearch {
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
-  private _stallMapService = inject(StallMapService);
+  private _searchAndFilterService = inject(SearchAndFilterService);
 
   input() {
     const searchTerm = this.searchInput.nativeElement.value.toLowerCase().trim();
-    this._stallMapService.inputSearch = searchTerm;
+    this._searchAndFilterService.inputSearch = searchTerm;
   }
 }
