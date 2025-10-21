@@ -18,7 +18,7 @@
 </div>
 
 <p-popover #userInfoPopover>
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-2 max-w-sm">
     <div class="flex gap-2">
       <div>使用者</div>
       <div>{{ user()?.acc }}</div>
@@ -44,7 +44,7 @@
 </p-popover>
 
 <p-popover #loginPopover>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4 max-w-sm">
     <div class="flex gap-2 items-center">
       <div class="">使用者</div>
       <input #loginInput pInputText [(ngModel)]="acc" type="text" pSize="small" placeholder="" />
