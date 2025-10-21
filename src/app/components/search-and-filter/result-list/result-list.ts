@@ -10,6 +10,7 @@ import { SearchAndFilterService } from 'src/app/core/services/state/search-and-f
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { SeriesPipe } from '../../../shared/pipe/series-pipe';
 import { MatIcon } from '@angular/material/icon';
+import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 
 @Component({
   selector: 'app-result-list',
@@ -22,6 +23,7 @@ export class ResultList implements OnInit {
   private _searchAndFilterService = inject(SearchAndFilterService);
   private _leftSidebarService = inject(LeftSidebarService);
   private _selectStallService = inject(SelectStallService);
+  private _stallMapService = inject(StallMapService);
 
   showControls = toSignal(
     this._leftSidebarService.show$.pipe(
@@ -36,6 +38,9 @@ export class ResultList implements OnInit {
 
   selectAndFocus(stall: StallData) {
     this._selectStallService.selected = stall.id;
+    setTimeout(() => {
+      this._stallMapService.focusStall(stall.id);
+    }, 100);
   }
 
   back() {

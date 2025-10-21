@@ -20,7 +20,7 @@ import { stallGridRefs } from 'src/app/core/const/official-data';
 import { MAP_URL } from 'src/app/core/const/resource';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 import { Area } from 'src/app/core/interfaces/area.interface';
-import { PromoApiService } from 'src/app/core/services/api/promo-api.service';
+import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { AreaService } from 'src/app/core/services/state/area-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -43,7 +43,6 @@ export class Map implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
-  private _promotionService = inject(PromoApiService);
 
   isMobile: WritableSignal<boolean> = signal<boolean>(false);
   isInitialLoading: WritableSignal<boolean> = signal<boolean>(true);
@@ -94,6 +93,9 @@ export class Map implements OnInit, AfterViewInit {
     return data;
   });
 
+  // 自動定位置中
+  autoFocusing = signal<boolean>(false);
+
   ngOnInit() {
     this._mapImgLoaded.pipe(first((val) => !!val)).subscribe(() => {
       this._stallMapService.mapImage = this.mapImage.nativeElement;
@@ -102,6 +104,18 @@ export class Map implements OnInit, AfterViewInit {
       requestAnimationFrame(() => {
         this.mapWidth.set(this.mapContent.nativeElement.offsetWidth);
         this.mapHeight.set(this.mapContent.nativeElement.offsetHeight);
+      });
+    });
+
+    this._stallMapService.focus$.subscribe((stallId) => {
+      const stallData = this._stallService.findStall(stallId);
+
+      this.autoFocusing.set(true);
+      requestAnimationFrame(() => {
+        stallData && this.focus(stallData);
+        setTimeout(() => {
+          this.autoFocusing.set(false);
+        }, 300);
       });
     });
   }
@@ -238,9 +252,11 @@ export class Map implements OnInit, AfterViewInit {
     const scaledMapH = mapH * this.scale();
 
     // 邊界，可拖曳的範圍值
+    // 假設左側元件寬度
+    const sidebarW = 310;
     const minX = (viewW - scaledMapW) / 2;
     const minY = (viewH - scaledMapH) / 2;
-    const maxX = (scaledMapW - viewW) / 2;
+    const maxX = (scaledMapW - viewW) / 2 + sidebarW;
     const maxY = (scaledMapH - viewH) / 2;
 
     // 限制（Clamp）地圖偏移量 x>0: 往左上拖曳、反之往右下
@@ -251,6 +267,69 @@ export class Map implements OnInit, AfterViewInit {
       clampedBgX,
       clampedBgY,
     };
+  }
+
+  focus(stall: StallData) {
+    if (!stall || !this.mapImage || !this.mapContent) return;
+
+    if (this.scale() < 2) {
+      const targetScale = Math.max(this.scale(), 2);
+      this.scale.set(targetScale);
+    }
+
+    const mapEl = this.mapImage.nativeElement;
+    const viewEl = this.mapContent.nativeElement;
+
+    const mapW = mapEl.naturalWidth || mapEl.offsetWidth;
+    const mapH = mapEl.naturalHeight || mapEl.offsetHeight;
+    const viewW = viewEl.offsetWidth;
+    const viewH = viewEl.offsetHeight;
+    if (mapW === 0 || mapH === 0 || viewW === 0 || viewH === 0) return;
+
+    // 將百分比座標轉換為地圖實際座標
+    const stallLeft = (parseFloat(stall.coords.left) / 100) * mapW;
+    const stallTop = (parseFloat(stall.coords.top) / 100) * mapH;
+    const stallWidth = (parseFloat(stall.coords.width) / 100) * mapW;
+    const stallHeight = (parseFloat(stall.coords.height) / 100) * mapH;
+
+    const stallCenterX = stallLeft + stallWidth / 2;
+    const stallCenterY = stallTop + stallHeight / 2;
+
+    const scale = this.scale();
+
+    // 畫面中心（容器內的視圖中心點）
+    const viewCenterX = viewW / 2;
+    const viewCenterY = viewH / 2;
+
+    // 地圖縮放後尺寸
+    const scaledMapW = mapW * scale;
+    const scaledMapH = mapH * scale;
+
+    // 攤位在縮放後地圖的座標
+    const scaledStallX = stallCenterX * scale;
+    const scaledStallY = stallCenterY * scale;
+
+    // 當前平移
+    const currentX = this.translateX();
+    const currentY = this.translateY();
+
+    // 攤位目前在畫面上的位置
+    const screenX = scaledStallX + currentX;
+    const screenY = scaledStallY + currentY;
+
+    // 檢查是否已在畫面中
+    const margin = 50;
+    const isInside =
+      screenX > margin && screenY > margin && screenX < viewW - margin && screenY < viewH - margin;
+
+    if (isInside) return;
+
+    // 將攤位置中（相對於地圖中心）
+    const newTranslateX = viewCenterX - scaledStallX;
+    const newTranslateY = viewCenterY - scaledStallY;
+
+    // 應用 clamp 限制（避免地圖超出畫面邊界）
+    this.setPosition({ x: newTranslateX, y: newTranslateY });
   }
 }
 

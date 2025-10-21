@@ -10,10 +10,12 @@ export class StallMapService {
   private _matchStallsId = new BehaviorSubject<Map<string, Set<string>>>(
     new Map<string, Set<string>>(),
   );
+  private _focus = new BehaviorSubject<string>('');
 
   mapImage$ = this._mapImage.asObservable();
   mapContainer$ = this._mapContainer.asObservable();
   matchStallsId$ = this._matchStallsId.asObservable();
+  focus$ = this._focus.asObservable();
 
   set mapImage(el: HTMLImageElement) {
     this._mapImage.next(el);
@@ -46,5 +48,9 @@ export class StallMapService {
 
   get mapImage(): HTMLImageElement | null {
     return this._mapImage.getValue();
+  }
+
+  focusStall(stallId: string) {
+    this._focus.next(stallId);
   }
 }
