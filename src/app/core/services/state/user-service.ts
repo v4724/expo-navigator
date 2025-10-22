@@ -19,7 +19,13 @@ export class UserService {
   user$ = this._user.asObservable();
   isLogin$ = this._isLogin.asObservable();
 
-  constructor() {}
+  constructor() {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr) as User;
+      this.login(user.acc).subscribe();
+    }
+  }
 
   get user() {
     return this._user.getValue();
@@ -28,7 +34,7 @@ export class UserService {
   login(acc: string) {
     return this._userApiService.login(acc).pipe(
       catchError((err) => {
-        this._snackBar.open('使用者建立失敗', '伺服器錯誤', { duration: 2000 });
+        this._snackBar.open('使用者登入失敗', '伺服器錯誤', { duration: 2000 });
         console.error(err);
         return EMPTY;
       }),
@@ -42,12 +48,17 @@ export class UserService {
         this._isLogin.next(true);
         this._user.next(user);
       }),
+      tap(() => {
+        const user = this._user.getValue();
+        localStorage.setItem('user', JSON.stringify(user));
+      }),
     );
   }
 
   logout() {
     this._isLogin.next(false);
     this._user.next(null);
+    localStorage.removeItem('user');
   }
 
   update(user: User) {
