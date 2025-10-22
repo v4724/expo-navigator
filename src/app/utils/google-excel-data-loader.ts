@@ -114,7 +114,7 @@ export async function fetchExcelData(googleSheetCSVUrl: string): Promise<Record<
   }
 
   // --- Second Attempt (Fallback): Without Timestamp ---
-  console.log('Attempting fallback fetch without cache-busting timestamp.');
+  console.debug('Attempting fallback fetch without cache-busting timestamp.');
   try {
     const fallbackResponse = await fetch(googleSheetCSVUrl);
     if (!fallbackResponse.ok) {

@@ -21,7 +21,7 @@ export class PromoApiService {
 
   getPromotions(): Observable<PromoStallDto[]> {
     return this.http.get<{ result: { data: PromoStallDto[] } }>(`${this.apiUrl}/api/promos`).pipe(
-      tap((res) => console.log(res)),
+      tap((res) => console.debug(res)),
       // 只回傳 data 陣列
       map((res: { result: { data: PromoStallDto[] } }) => res.result.data),
     );
@@ -48,7 +48,7 @@ export class PromoApiService {
 
     return this.http
       .put<UpdateResponse<PromoStallDto>>(`${this.apiUrl}/api/promos/${stallId}`, data)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   transformDtoToPromo(dto: PromoStallDto): PromoStall {

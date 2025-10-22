@@ -15,7 +15,7 @@ export class StallApiService {
 
   fetch(): Observable<StallDto[]> {
     return this.http.get<FetchResponse<StallDto[]>>(`${this.apiUrl}/api/stalls`).pipe(
-      tap((res) => console.log(res)),
+      tap((res) => console.debug(res)),
       map((res) => res.data),
     );
   }
@@ -23,7 +23,7 @@ export class StallApiService {
   update(id: string, dto: UpdateStallDto): Observable<Response> {
     return this.http
       .put<Response>(`${this.apiUrl}/api/stall/${id}`, dto)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   updateStallwithPromo(
@@ -32,7 +32,7 @@ export class StallApiService {
   ): Observable<UpdateResponse<StallDto>> {
     return this.http
       .put<UpdateResponse<StallDto>>(`${this.apiUrl}/api/stallWithPromo/${id}`, dto)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   // transformDtoToStall(dto: UserDto): User {

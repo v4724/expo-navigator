@@ -17,25 +17,25 @@ export class UserApiService {
   login(acc: string): Observable<FetchResponse<UserDto>> {
     return this.http
       .get<FetchResponse<UserDto>>(`${this.apiUrl}/api/user/${acc}`)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   create(user: UserDto): Observable<CreateResponse> {
     return this.http
       .post<CreateResponse>(`${this.apiUrl}/api/user`, user)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   update(id: number, user: UserDto): Observable<UpdateResponse<UserDto>> {
     return this.http
       .put<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${id}`, user)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   delete(id: number): Observable<UpdateResponse<UserDto>> {
     return this.http
       .delete<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${id}`)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   transformDtoToUser(dto: UserDto): User {

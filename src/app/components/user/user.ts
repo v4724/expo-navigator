@@ -120,7 +120,7 @@ export class User implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result === 'CONFIRM') {
-        console.log('結束編輯');
+        console.debug('結束編輯');
         this._userApiService
           .delete(this.user()?.id!)
           .pipe()

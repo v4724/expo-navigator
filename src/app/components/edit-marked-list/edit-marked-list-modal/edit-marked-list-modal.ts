@@ -216,7 +216,6 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
 
     this.editForm.get('cusIconColor')?.valueChanges.subscribe((val) => {
       val = val.trim();
-      console.log('???', val, this.isCusIcon);
       if (this.isCusIconColor) {
         this.editForm.get('iconColor')?.setValue(val);
       }
@@ -298,7 +297,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
       dialogRef.afterClosed().subscribe((result) => {
         console.debug('The dialog was closed');
         if (result === 'CONFIRM') {
-          console.log('結束編輯');
+          console.debug('結束編輯');
           this.dialogRef.close();
         }
       });
@@ -311,7 +310,6 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     window.open(this.fontIconUrl, '_target');
   }
 
-  // TODO
   private _update() {
     const data = this._getDataFromForm();
     const id = this.id;

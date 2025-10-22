@@ -272,7 +272,7 @@ export class MiniMap implements OnInit, AfterViewInit {
         downStallId = this._getAdjacentStallId(stall, navigableStalls, 'down');
       }
 
-      console.log('vertical navIds', upStallId, downStallId);
+      console.debug('vertical navIds', upStallId, downStallId);
       this.upDisabled.set(!upStallId);
       this.downDisabled.set(!downStallId);
       this.navControlsTarget.up.id = upStallId ?? '';
@@ -296,7 +296,7 @@ export class MiniMap implements OnInit, AfterViewInit {
         left: this._getAdjacentStallId(stall, navigableStalls, 'left'),
         right: this._getAdjacentStallId(stall, navigableStalls, 'right'),
       };
-      console.log('navIds', navIds);
+      console.debug('navIds', navIds);
       this.upDisabled.set(!navIds.up);
       this.downDisabled.set(!navIds.down);
       this.leftDisabled.set(!navIds.left);
