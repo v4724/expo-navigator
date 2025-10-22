@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserApiService } from 'src/app/core/services/api/user-api.service';
 import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
+import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 
 @Component({
   selector: 'app-user',
@@ -37,6 +38,7 @@ export class User implements OnInit {
   private _userApiService = inject(UserApiService);
   private _userService = inject(UserService);
   private _selectStallService = inject(SelectStallService);
+  private _stallMapService = inject(StallMapService);
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
 
@@ -92,7 +94,8 @@ export class User implements OnInit {
       disableClose: true, // 取消點選背景自動關閉
       width: '60vw',
       maxWidth: '400px',
-      maxHeight: '400px',
+      minHeight: '200px',
+      maxHeight: '90vh',
       panelClass: [''],
     });
   }
@@ -104,7 +107,8 @@ export class User implements OnInit {
       disableClose: true, // 取消點選背景自動關閉
       width: '60vw',
       maxWidth: '400px',
-      maxHeight: '400px',
+      minHeight: '200px',
+      maxHeight: '90vh',
       panelClass: [''],
       data: { isEdit: true },
     });
@@ -129,7 +133,6 @@ export class User implements OnInit {
               this._snackBar.open('使用者刪除成功', '', { duration: 2000 });
               this._userService.logout();
               this.userInfoPopover?.hide();
-              // TODO: 刪除該使用者相關資訊(marked stalls)
             } else {
               this._snackBar.open('使用者刪除失敗', res.errors[0], { duration: 2000 });
             }
@@ -138,8 +141,11 @@ export class User implements OnInit {
     });
   }
 
-  selectStall(stallId: string) {
+  selectAndFocus(stallId: string) {
     this._selectStallService.selected = stallId;
     this.userInfoPopover?.hide();
+    setTimeout(() => {
+      this._stallMapService.focusStall(stallId);
+    }, 100);
   }
 }

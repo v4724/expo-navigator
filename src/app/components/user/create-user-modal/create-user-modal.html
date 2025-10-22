@@ -37,52 +37,13 @@
         }"
         [class.invisible]="!userForm.get('isStallOwner')?.value"
       >
-        <div class="relative">
-          <p-floatlabel variant="on">
-            <input
-              #stallIdInput
-              class="w-full"
-              pInputText
-              type="text"
-              id="stallId"
-              placeholder="ex: 範01"
-              formControlName="stallId"
-              autocomplete="off"
-              (keydown)="onStallIdKeydown($event)"
-            />
-            <label for="stallId">設定攤位代號</label>
-          </p-floatlabel>
-          <!-- 推薦清單：自訂浮動清單 -->
-          @if (filteredStallIds.length) {
-            <ul
-              [ngStyle]="popupStyle"
-              class=""
-              style="
-                position: fixed;
-                z-index: 10000;
-                background: white;
-                border-radius: 0.5rem;
-                box-shadow: 0 2px 8px #0002;
-                border: 1px solid #eee;
-                max-height: 10rem;
-                overflow: auto;
-              "
-            >
-              @for (id of filteredStallIds; track id) {
-                <li
-                  (mousedown)="addStallId(id)"
-                  style="padding: 0.5rem 1rem; cursor: pointer"
-                  class="hover:bg-gray-100"
-                >
-                  {{ id }}
-                </li>
-              }
-            </ul>
-          }
-        </div>
+        <app-stall-filter-input
+          formControlName="stallId"
+          (onSelect)="onFilterSelect($event)"
+        ></app-stall-filter-input>
 
         <div class="flex gap-2 flex-wrap mt-2">
-          @for (stallId of selectedStallIds(); track stallId) {
+          @for (stallId of selectedStallIds; track stallId) {
             <p-chip [label]="stallId" [removable]="true" (onRemove)="removeStallId($index)" />
           }
         </div>

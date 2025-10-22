@@ -32,6 +32,8 @@ import { UserApiService } from 'src/app/core/services/api/user-api.service';
 import { catchError, EMPTY, finalize } from 'rxjs';
 import { UserDto } from 'src/app/core/models/user.model';
 import { UserService } from 'src/app/core/services/state/user-service';
+import { StallData } from 'src/app/core/interfaces/stall.interface';
+import { StallFilterInput } from 'src/app/shared/components/stall-filter-input/stall-filter-input';
 
 export interface DialogData {
   isEdit: boolean;
@@ -50,6 +52,7 @@ export interface DialogData {
     InputTextModule,
     MatDialogModule,
     ReactiveFormsModule,
+    StallFilterInput,
   ],
   templateUrl: './create-user-modal.html',
   styleUrl: './create-user-modal.scss',
@@ -111,7 +114,7 @@ export class CreateUserModal implements OnInit {
   filterStallIds(input: string) {
     const keyword = (input || '').toLowerCase();
     this.filteredStallIds = Array.from(this._service.allStallIds).filter(
-      (id) => id.toLowerCase().includes(keyword) && !this.selectedStallIds().includes(id),
+      (id) => id.toLowerCase().includes(keyword) && !this.selectedStallIds.includes(id),
     );
     this.updatePopupPosition();
   }
@@ -127,7 +130,11 @@ export class CreateUserModal implements OnInit {
     }
   }
 
-  selectedStallIds(): string[] {
+  get stallIds(): FormArray {
+    return this.userForm.get('stallIds') as FormArray;
+  }
+
+  get selectedStallIds(): string[] {
     return this.userForm.get('stallIds')?.value ?? [];
   }
 
@@ -135,7 +142,7 @@ export class CreateUserModal implements OnInit {
     const input = stallId || this.userForm.get('stallId')?.value?.trim();
     if (!input) return;
     const validStallIds = this._service.allStallIds;
-    const selected = this.selectedStallIds();
+    const selected = this.selectedStallIds;
 
     if (!validStallIds.has(input)) {
       this._snackBar.open('此攤位代號不存在', '', { duration: 2000 });
@@ -161,6 +168,14 @@ export class CreateUserModal implements OnInit {
     }
   }
 
+  onFilterSelect(stall: StallData) {
+    const list = this.selectedStallIds;
+    if (list.includes(stall.id)) {
+      return;
+    }
+    this.stallIds.push(this._fb.control(stall.id));
+  }
+
   onSubmit() {
     this.userForm.markAllAsDirty();
     this.userForm.updateValueAndValidity();
@@ -172,7 +187,7 @@ export class CreateUserModal implements OnInit {
       const id = body.id;
       delete body.id;
       delete body.stallId;
-      if (body.stallIds.length === 0) {
+      if (!body.isStallOwner) {
         body.stallIds = [];
       }
       console.debug('submit user:', body);
