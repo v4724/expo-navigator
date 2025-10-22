@@ -1,14 +1,15 @@
-<div (click)="bodyClicked($event)" class="flex flex-col flex-grow">
+<div (click)="!isPreview() && bodyClicked($event)" class="flex flex-col flex-grow">
   <!-- header -->
   <div
     class="header flex sticky top-0 z-20 bg-white shadow transition-all duration-300 w-full items-center px-5 py-4"
   >
+    <!-- 標題 -->
     <div class="flex mr-auto items-center h-6">
       {{ stall()?.id }}: {{ stall()?.stallTitle }}
       @if (stall()?.stallLink) {
         <button
           class="ml-1 text-base flex items-center transition hover:scale-110 text-gray-400"
-          (click)="oenpLink()"
+          (click)="!isPreview() && oenpLink()"
         >
           <mat-icon
             [inline]="true"
@@ -38,34 +39,52 @@
       <button
         class="bookmark-btn text-gray-200 rounded-full bg-transparent transition hover:scale-110"
         [class.active]="isMarkedSignal()"
-        (click)="markedListPopover.toggle($event)"
+        (click)="!isPreview() && markedListPopover.toggle($event)"
         aria-label="Bookmark"
       >
         <mat-icon class="">bookmark_star</mat-icon>
       </button>
 
       <p-popover #markedListPopover>
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-2 w-[150px]">
           @for (list of allMarkedList(); track $index) {
             <div class="flex items-center gap-2">
               <mat-icon inline [style.color]="list.iconColor" [fontIcon]="list.icon"></mat-icon>
               <div class="mr-auto">{{ list.listName }}</div>
-              @if (markedMapByStallId()?.get(stallId())?.has(list.id)) {
-                <p-button
-                  label="移除"
-                  severity="secondary"
-                  size="small"
-                  variant="text"
+              @if (list.isUpdating) {
+                <button class="flex items-center text-gray-400" disabled>
+                  <mat-icon
+                    class="animate-spin"
+                    inline
+                    aria-hidden="false"
+                    aria-label="autorenew icon"
+                    fontIcon="autorenew"
+                  ></mat-icon>
+                </button>
+              } @else if (markedMapByStallId()?.get(stallId())?.has(list.id)) {
+                <button
+                  class="flex items-center text-gray-400 transition hover:scale-110 hover:text-gray-700"
                   (click)="removeFromMarkedList(list)"
-                />
+                >
+                  <mat-icon
+                    inline
+                    aria-hidden="false"
+                    aria-label="remove icon"
+                    fontIcon="clear"
+                  ></mat-icon>
+                </button>
               } @else {
-                <p-button
-                  label="加入"
-                  severity="secondary"
-                  size="small"
-                  variant="text"
+                <button
+                  class="flex items-center text-gray-400 transition hover:scale-110 hover:text-gray-600"
                   (click)="addToMarkedList(list)"
-                />
+                >
+                  <mat-icon
+                    inline
+                    aria-hidden="false"
+                    aria-label="add icon"
+                    fontIcon="add"
+                  ></mat-icon>
+                </button>
               }
             </div>
           }

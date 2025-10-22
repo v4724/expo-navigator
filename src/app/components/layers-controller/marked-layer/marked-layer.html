@@ -61,17 +61,17 @@
                   <button
                     class="transition hover:scale-110 flex items-center text-gray-400"
                     (click)="deleteList(list)"
-                    [disabled]="list.isDeleting"
+                    [disabled]="list.isUpdating"
                   >
                     <mat-icon
-                      [ngClass]="{ 'animate-spin': list.isDeleting }"
+                      [ngClass]="{ 'animate-spin': list.isUpdating }"
                       inline
                       aria-hidden="false"
                       aria-label="delete icon"
-                      [fontIcon]="list.isDeleting ? 'autorenew' : 'delete'"
+                      [fontIcon]="list.isUpdating ? 'autorenew' : 'delete'"
                     ></mat-icon>
                   </button>
-                  <app-edit-marked-list-btn [disabled]="list.isDeleting" [data]="list">
+                  <app-edit-marked-list-btn [disabled]="list.isUpdating" [data]="list">
                   </app-edit-marked-list-btn>
                 </div>
               </div>

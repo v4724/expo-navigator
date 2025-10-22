@@ -10,7 +10,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, first } from 'rxjs';
+import { combineLatest, finalize, first } from 'rxjs';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
@@ -27,6 +27,7 @@ import { SafeHtmlPipe } from '../../../shared/pipe/safe-html-pipe';
 import { PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
+import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
 
 @Component({
   selector: 'app-stall-side-nav',
@@ -44,7 +45,9 @@ import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 })
 export class StallSideNav implements OnInit, AfterViewInit {
   readonly dialogRef = inject(MatDialogRef<StallSideNav>, { optional: true });
-  readonly data = inject<{ stall: StallData }>(MAT_DIALOG_DATA, { optional: true });
+  readonly data = inject<{ stall: StallData; isPreview: boolean }>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
 
   open = output<boolean>();
   close = output<boolean>();
@@ -54,15 +57,17 @@ export class StallSideNav implements OnInit, AfterViewInit {
   private _lightboxService = inject(LightboxService);
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
-  private _markedStallService = inject(MarkedStallService);
+  private _markedListService = inject(MarkedStallService);
+  private _markedListApiService = inject(MarkedListApiService);
   private _userService = inject(UserService);
   private _tagService = inject(TagService);
 
+  isPreview = signal(this.data?.isPreview);
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
   imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
-  allMarkedList = toSignal(this._markedStallService.markedList$);
-  markedMapByStallId = toSignal(this._markedStallService.markedMapByStallId$);
-  isMarkedFetchEnd = toSignal(this._markedStallService.fetchEnd$);
+  allMarkedList = toSignal(this._markedListService.markedList$);
+  markedMapByStallId = toSignal(this._markedListService.markedMapByStallId$);
+  isMarkedFetchEnd = toSignal(this._markedListService.fetchEnd$);
 
   stall$ = toObservable(this.stall);
   isMarkedSignal = signal(false);
@@ -89,7 +94,7 @@ export class StallSideNav implements OnInit, AfterViewInit {
     // 編輯攤位時，一併更新前端資料
     const stallUpdatedAt = this.stallUpdatedAt();
     if (stallUpdatedAt) {
-      console.log('stallUpdatedAt', stallUpdatedAt);
+      console.debug('stallUpdatedAt', stallUpdatedAt);
     }
 
     stall.promoData.forEach((promo) => {
@@ -146,13 +151,13 @@ export class StallSideNav implements OnInit, AfterViewInit {
     });
 
     // 切換 stall 時更新 marked 狀態
-    combineLatest([this.stall$, this._markedStallService.fetchEnd$.pipe(first((val) => !!val))])
+    combineLatest([this.stall$, this._markedListService.fetchEnd$.pipe(first((val) => !!val))])
       .pipe()
       .subscribe(([stall]) => {
         let isMarked = false;
         if (stall) {
           const stallId = stall.id;
-          isMarked = this._markedStallService.isMarked(stallId);
+          isMarked = this._markedListService.isMarked(stallId);
         }
         this.isMarkedSignal.set(isMarked);
       });
@@ -229,9 +234,44 @@ export class StallSideNav implements OnInit, AfterViewInit {
     window.open(this.stall()?.stallLink, '_target');
   }
 
-  // TODO
-  removeFromMarkedList(list: MarkedList) {}
+  removeFromMarkedList(data: MarkedList) {
+    const dto = this._markedListApiService.transformToDto(data);
 
-  // TODO
-  addToMarkedList(list: MarkedList) {}
+    const index = dto.list.indexOf(this.stallId());
+    dto.list.splice(index, 1);
+
+    data.isUpdating = true;
+    this._markedListApiService
+      .update(data.id, dto)
+      .pipe(
+        finalize(() => {
+          data.isUpdating = false;
+        }),
+      )
+      .subscribe((res) => {
+        if (res.success) {
+          this._markedListService.update(dto);
+        }
+      });
+  }
+
+  addToMarkedList(data: MarkedList) {
+    const dto = this._markedListApiService.transformToDto(data);
+
+    dto.list.push(this.stallId());
+
+    data.isUpdating = true;
+    this._markedListApiService
+      .update(data.id, dto)
+      .pipe(
+        finalize(() => {
+          data.isUpdating = false;
+        }),
+      )
+      .subscribe((res) => {
+        if (res.success) {
+          this._markedListService.update(dto);
+        }
+      });
+  }
 }

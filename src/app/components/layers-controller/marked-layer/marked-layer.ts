@@ -46,7 +46,6 @@ export class MarkedLayer implements OnInit {
   }
 
   toggleList(list: MarkedList) {
-    console.log(list);
     list.show = !list.show;
     this._markedListService.toggleList(list);
   }
@@ -88,13 +87,13 @@ export class MarkedLayer implements OnInit {
   }
 
   deleteList(list: MarkedList) {
-    list.isDeleting = true;
+    list.isUpdating = true;
     this._markedListApiService.delete(list.id).subscribe((res) => {
       if (res.success) {
         this._snackBar.open('書籤刪除成功', '', { duration: 2000 });
         this._markedListService.delete(list.id);
       } else {
-        list.isDeleting = false;
+        list.isUpdating = false;
         this._snackBar.open('書籤刪除失敗', res.errors[0], { duration: 2000 });
       }
     });

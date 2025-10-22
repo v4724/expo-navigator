@@ -495,7 +495,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       maxWidth: '800px',
       height: 'calc(100vh - 100px)',
       panelClass: [''],
-      data: { stall: stall },
+      data: { stall: stall, isPreview: true },
     });
   }
 
@@ -576,7 +576,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       dialogRef.afterClosed().subscribe((result) => {
         console.debug('The dialog was closed');
         if (result === 'CONFIRM') {
-          console.log('結束編輯');
+          console.debug('結束編輯');
           this.dialogRef.close();
         }
       });

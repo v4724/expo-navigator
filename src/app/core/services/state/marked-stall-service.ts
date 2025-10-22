@@ -74,9 +74,6 @@ export class MarkedStallService {
     this._updateInnerMap();
   }
 
-  // TODO 單一筆 stall
-  updateMarkedStall(stallId: string, listId: number, marked: boolean) {}
-
   update(data: MarkedListUpdateDto) {
     const id = data.id;
     const orig = this._quickMapByListId.get(id);
@@ -158,7 +155,7 @@ export class MarkedStallService {
       ...dto,
       list,
       show: true,
-      isDeleting: false,
+      isUpdating: false,
     };
   }
 }

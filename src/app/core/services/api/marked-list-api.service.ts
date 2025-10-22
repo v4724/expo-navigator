@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { CreateResponse, Response } from '../../models/update-response.model';
 import { MarkedListCreateDto, MarkedListUpdateDto } from '../../models/marked-stall.model';
+import { MarkedList } from '../../interfaces/marked-stall.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -16,19 +17,19 @@ export class MarkedListApiService {
   create(dto: MarkedListCreateDto): Observable<CreateResponse> {
     return this.http
       .post<CreateResponse>(`${this.apiUrl}/api/markedList`, dto)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   update(id: number, dto: MarkedListUpdateDto): Observable<Response> {
     return this.http
       .put<Response>(`${this.apiUrl}/api/markedList/${id}`, dto)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   delete(id: number): Observable<Response> {
     return this.http
       .delete<Response>(`${this.apiUrl}/api/markedList/${id}`)
-      .pipe(tap((res) => console.log(res)));
+      .pipe(tap((res) => console.debug(res)));
   }
 
   // transformDtoToUser(dto: MarkedListDto): MarkedList {
@@ -40,12 +41,11 @@ export class MarkedListApiService {
   //   };
   // }
 
-  // transformToDto(user: MarkedList): MarkedListDto {
-  //   return {
-  //     id: user.id,
-  //     acc: user.acc,
-  //     isStallOwner: user.isStallOwner,
-  //     stallIds: user.stallIds,
-  //   };
-  // }
+  transformToDto(orig: MarkedList): MarkedListUpdateDto {
+    const { show, isUpdating, list, ...data } = orig;
+
+    const dto = { ...data, list: orig.list.map((stall) => stall.id) };
+
+    return dto;
+  }
 }
