@@ -10,7 +10,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, finalize, first } from 'rxjs';
+import { combineLatest, distinctUntilChanged, finalize, first } from 'rxjs';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
@@ -137,7 +137,7 @@ export class StallSideNav implements OnInit, AfterViewInit {
   ngOnInit() {
     if (this.dialogRef) return;
 
-    this._selectStallService.selectedStallId$.pipe().subscribe((stallId) => {
+    this._selectStallService.selectedStallId$.pipe(distinctUntilChanged()).subscribe((stallId) => {
       console.debug('stall modal select stall: ', stallId);
       this.isMarkedSignal.set(false);
       this.imageLoaded.set(false);
