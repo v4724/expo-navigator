@@ -67,11 +67,15 @@ export class PromoApiService {
       promoTitle: promoTitle,
       promoAvatar: promoAvatar,
       promoHtml: promoHtml,
-      promoLinks: dto.promoLinks ?? [],
-      series: dto.series ?? [],
-      tags: dto.tags ?? [],
+      promoLinks: dto.promoLinks || [],
+      series: dto.series || [],
+      tags: dto.tags || [],
       customTags: dto.customTags,
     };
+
+    if (typeof promo.promoLinks === 'string') {
+      promo.promoLinks = [{ href: promo.promoLinks, text: '' }];
+    }
 
     return promo;
   }

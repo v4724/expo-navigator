@@ -1,5 +1,5 @@
 <div
-  class="stall-area stall-group-area"
+  class="absolute stall-area stall-group-area"
   [ngClass]="{
     'mobile-only-group': !zone().isGrouped,
   }"
@@ -9,7 +9,38 @@
   [style.width]="`${zone().groupDef.boundingBox.right - zone().groupDef.boundingBox.left}%`"
   [style.height]="`${zone().groupDef.boundingBox.bottom - zone().groupDef.boundingBox.top}%`"
   [aria-label]="`Row: ${zone().zoneId}`"
-  (click)="stallGroupClicked()"
+  (click)="stallGroupClicked(popover, $event, anchor)"
 >
   {{ zone().zoneId }}
+  <div #anchor class="absolute right-[-7px]" [style.top]="popoverAnchorTop()"></div>
 </div>
+
+<p-popover #popover (onShow)="onPopoverShow()">
+  <div
+    class="flex items-center gap-1"
+    [class.flex-col]="direction() === 'bottom' || direction() === 'top'"
+  >
+    <div class="color-gray-600 text-base font-semibold">
+      {{ zone().zoneId }}
+    </div>
+    <div
+      class="stall-group-popover flex gap-1 pr-2 h-[300px] overflow-auto"
+      [class.flex-col]="direction() === 'bottom' || direction() === 'top'"
+      [class.flex-row-reverse]="direction() === 'right'"
+      [class.flex-col-reverse]="direction() === 'bottom'"
+    >
+      @for (stall of stalls(); track $index) {
+        <div
+          class="stall-area size-7 !text-base rounded-sm"
+          [class.has-promo]="stall.hasPromo"
+          [class.is-selected]="stall.id === selectedId()"
+          [class.is-search-match]="matchStallIds().has(stall.id)"
+          (click)="stallClicked(stall)"
+          [pTooltip]="stall.stallTitle"
+        >
+          {{ stall.padNum }}
+        </div>
+      }
+    </div>
+  </div>
+</p-popover>

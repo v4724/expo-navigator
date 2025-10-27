@@ -2,3 +2,13 @@
 .mobile-only-group {
   display: none;
 }
+
+::ng-deep {
+  .p-popover:has(.stall-group-popover)::before,
+  .p-popover:has(.stall-group-popover)::after {
+    left: auto !important;
+    right: 100% !important;
+    top: var(--arrow-top, 10%) !important; /* 預設 10% */
+    transform: translateY(-50%) rotate(270deg) !important;
+  }
+}

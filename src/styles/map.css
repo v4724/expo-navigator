@@ -1,7 +1,6 @@
 /* --- Stall Area Styles --- */
 /* Base class for all interactive areas */
 .stall-area {
-  position: absolute;
   background-color: rgba(255, 226, 101, 0.95); /* Default Yellowish tint */
   border: 1px solid transparent;
   cursor: pointer;

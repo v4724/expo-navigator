@@ -9,7 +9,7 @@
   [aria-label]="`Stall: ${stall().stallTitle}`"
 >
   <div
-    class="stall-area w-full h-full"
+    class="absolute stall-area w-full h-full"
     [class.hidden]="hiddenIfGrouped() && isGroupedMember()"
     [class.invisible]="!showStallLayer()"
     [style.font-size]="fontSize()"
