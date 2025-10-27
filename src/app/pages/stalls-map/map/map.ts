@@ -16,7 +16,6 @@ import { MatIcon } from '@angular/material/icon';
 import { BehaviorSubject, catchError, EMPTY, finalize, first, forkJoin, map } from 'rxjs';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
 import { Stall } from 'src/app/components/stall/stall';
-import { stallGridRefs } from 'src/app/core/const/official-data';
 import { MAP_URL } from 'src/app/core/const/resource';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 import { Area } from 'src/app/core/interfaces/area.interface';
@@ -64,7 +63,13 @@ export class Map implements OnInit, AfterViewInit {
 
   // 攤位
   allStalls$ = this._stallService.allStalls$;
-  stallGridRefs = stallGridRefs;
+  stallZoneDef = toSignal(
+    this._stallService.stallZoneDef$.pipe(
+      map((def) => {
+        return Array.from(def.values() ?? []);
+      }),
+    ),
+  );
 
   // 圖片比例
   private imageHeightToWidthRatio = signal<number>(0);
@@ -287,10 +292,10 @@ export class Map implements OnInit, AfterViewInit {
     if (mapW === 0 || mapH === 0 || viewW === 0 || viewH === 0) return;
 
     // 將百分比座標轉換為地圖實際座標
-    const stallLeft = (parseFloat(stall.coords.left) / 100) * mapW;
-    const stallTop = (parseFloat(stall.coords.top) / 100) * mapH;
-    const stallWidth = (parseFloat(stall.coords.width) / 100) * mapW;
-    const stallHeight = (parseFloat(stall.coords.height) / 100) * mapH;
+    const stallLeft = (stall.coords.left / 100) * mapW;
+    const stallTop = (stall.coords.top / 100) * mapH;
+    const stallWidth = (stall.coords.width / 100) * mapW;
+    const stallHeight = (stall.coords.height / 100) * mapH;
 
     const stallCenterX = stallLeft + stallWidth / 2;
     const stallCenterY = stallTop + stallHeight / 2;
@@ -333,19 +338,19 @@ export class Map implements OnInit, AfterViewInit {
   }
 }
 
-function renderDebugBorders(mapContainer: HTMLElement) {
-  stallGridRefs.forEach((row) => {
-    const borderEl = document.createElement('div');
-    borderEl.className = 'debug-border';
-    borderEl.style.top = `${row.boundingBox.top}%`;
-    borderEl.style.left = `${row.boundingBox.left}%`;
-    borderEl.style.width = `${row.boundingBox.right - row.boundingBox.left}%`;
-    borderEl.style.height = `${row.boundingBox.bottom - row.boundingBox.top}%`;
+// function renderDebugBorders(mapContainer: HTMLElement) {
+//   stallGridRefs.forEach((row) => {
+//     const borderEl = document.createElement('div');
+//     borderEl.className = 'debug-border';
+//     borderEl.style.top = `${row.boundingBox.top}%`;
+//     borderEl.style.left = `${row.boundingBox.left}%`;
+//     borderEl.style.width = `${row.boundingBox.right - row.boundingBox.left}%`;
+//     borderEl.style.height = `${row.boundingBox.bottom - row.boundingBox.top}%`;
 
-    const label = document.createElement('span');
-    label.textContent = row.groupId;
-    borderEl.appendChild(label);
+//     const label = document.createElement('span');
+//     label.textContent = row.zoneId;
+//     borderEl.appendChild(label);
 
-    mapContainer.appendChild(borderEl);
-  });
-}
+//     mapContainer.appendChild(borderEl);
+//   });
+// }

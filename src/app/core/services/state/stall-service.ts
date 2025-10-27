@@ -1,12 +1,18 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
-import { stallGridRefs } from '../../const/official-data';
 import { PromoApiService } from '../api/promo-api.service';
 import { PromoStall } from '../../interfaces/promo-stall.interface';
-import { PromoStallDto } from '../../models/promo-stall.model';
 import { StallApiService } from '../api/stall-api.service';
-import { StallDto, UpdateStallDto } from '../../models/stall.model';
+import { StallDto } from '../../models/stall.model';
+import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
+import {
+  StallGroupRule,
+  StallGridDef,
+  StallRule,
+  StallRuleDirectionType,
+} from '../../interfaces/stall-def.interface';
+import { STALL_GRID_DEF, STALL_ZONE_DEF } from '../../const/google-excel-csv-url';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +22,7 @@ export class StallService {
   private _allOrigStalls = new BehaviorSubject<StallDto[]>([]);
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   private _stallUpdatedAt = new BehaviorSubject<number>(-1);
+  private _stallZoneDef = new BehaviorSubject<Map<string, StallGridDef>>(new Map());
 
   private _stallApiService = inject(StallApiService);
   private _promoService = inject(PromoApiService);
@@ -23,19 +30,23 @@ export class StallService {
   private _validStallIds = new Set<string>();
 
   // This set contains rows that are *permanently* grouped on all screen sizes.
-  permanentlyGroupedRowIds = new Set(
-    stallGridRefs.filter((r) => r.isGrouped).map((r) => r.groupId),
-  );
+  permanentlyGroupedRowIds = new Set();
+  groupDef = new Map<string, StallGroupRule>();
 
   allStalls$ = this._allStalls.asObservable();
   fetchEnd$ = this._fetchEnd.asObservable();
   stallUpdatedAt$ = this._stallUpdatedAt.asObservable();
+  stallZoneDef$ = this._stallZoneDef.asObservable();
 
   constructor() {
-    this._stallApiService
-      .fetch()
+    forkJoin([
+      this._stallApiService.fetch(),
+      fetchExcelData(STALL_GRID_DEF),
+      fetchExcelData(STALL_ZONE_DEF),
+    ])
       .pipe()
-      .subscribe((rawStallData) => {
+      .subscribe(([rawStallData, gridDefs, zoneDefs]) => {
+        this._processDefs(gridDefs, zoneDefs);
         const stalls = this._processStalls(rawStallData);
         this._allStalls.next(stalls);
         this._fetchEnd.next(true);
@@ -97,10 +108,95 @@ export class StallService {
     stall.filterCustomTags = Array.from(customTags);
   }
 
-  isGroupedMember(stallId: string) {
+  isGroupedMember(stall: StallData) {
     // Stalls that are members of a permanently grouped row are hidden on the main map (on all screen sizes).
-    const rowId = stallId.substring(0, 1);
+    const rowId = stall.stallZone;
     return this.permanentlyGroupedRowIds.has(rowId);
+  }
+
+  private _processDefs(
+    stallDefRawData: Record<string, string>[],
+    zoneDefRawData: Record<string, string>[],
+  ) {
+    const permanentlyGroupedRowIds = new Set<string>();
+    const groups = new Map<string, StallGroupRule>();
+    zoneDefRawData.forEach((group) => {
+      const zoneId = group['zone_id'];
+      const isGrouped = Boolean(group['is_grouped']);
+      const defaultGroupStallId = group['default_group_stall_id'];
+      const skipStart = Number(group['skip_start']);
+      const skipEnd = Number(group['skip_end']);
+      const top = Number(group['bounding_box_top']);
+      const left = Number(group['bounding_box_left']);
+      const bottom = Number(group['bounding_box_bottom']);
+      const right = Number(group['bounding_box_right']);
+      const g: StallGroupRule = {
+        isGrouped,
+        defaultStallId: defaultGroupStallId,
+        skipStart,
+        skipEnd,
+        boundingBox: {
+          top,
+          left,
+          bottom,
+          right,
+        },
+      };
+      groups.set(zoneId, g);
+      if (isGrouped) {
+        permanentlyGroupedRowIds.add(zoneId);
+      }
+    });
+
+    const stallZoneDefs = new Map<string, StallGridDef>();
+    stallDefRawData.forEach((rawSeries) => {
+      const zoneId = rawSeries['zone_id'];
+      const start = Number(rawSeries['anchor_stall_start']);
+      const end = Number(rawSeries['anchor_stall_end']);
+      const blockStallCnt = Number(rawSeries['block_stall_cnt']);
+      const blockGap = Number(rawSeries['block_gap']);
+      const direction = rawSeries['direction'];
+      const width = Number(rawSeries['stall_width']);
+      const height = Number(rawSeries['stall_height']);
+      const top = Number(rawSeries['anchor_stall_rect_top']);
+      const left = Number(rawSeries['anchor_stall_rect_left']);
+
+      let entry = stallZoneDefs.get(zoneId);
+      if (!entry) {
+        const group = groups.get(zoneId);
+        if (!group) {
+          console.error(`defs 缺少區域${zoneId} 的 group 定義`);
+          return;
+        }
+        const def: StallGridDef = {
+          zoneId,
+          isGrouped: group.isGrouped,
+          stallDefs: [],
+          groupDef: group,
+        };
+        entry = def;
+        stallZoneDefs.set(zoneId, def);
+      }
+
+      const stallRule: StallRule = {
+        start,
+        end,
+        blockStallCnt,
+        blockGap,
+        width,
+        height,
+        anchorRect: {
+          top,
+          left,
+        },
+        direction: direction as StallRuleDirectionType,
+      };
+      entry.stallDefs.push(stallRule);
+    });
+
+    this.permanentlyGroupedRowIds = permanentlyGroupedRowIds;
+    this._stallZoneDef.next(stallZoneDefs);
+    this.groupDef = groups;
   }
 
   /**
@@ -112,7 +208,7 @@ export class StallService {
    */
   private _processStalls(rawData: StallDto[]): StallData[] {
     // Convert the stallGridRefs array into a Map for efficient O(1) lookups by stall letter.
-    const locateStallMap = new Map(stallGridRefs.map((s) => [s.groupId, s]));
+    const stallZoneDef = this._stallZoneDef.getValue();
 
     // Use a Map to group all data by stall ID. This allows us to merge multiple rows
     // (e.g., one for official data, multiple for promo data) into a single object.
@@ -130,118 +226,90 @@ export class StallService {
         const stallNum = rawStall.stallNum;
         const padNum = stallNum.toString().padStart(2, '0');
         const stallCnt = rawStall.stallCnt; // How many table spaces the stall occupies.
-        const locateStall = locateStallMap.get(stallZone); // Get the template coordinates for this row/column.
+        const locateStall = stallZoneDef.get(stallZone); // Get the template coordinates for this row/column.
 
         // If we can't find a template or the number is invalid, we can't calculate a position.
         if (!locateStall || isNaN(stallNum)) {
-          console.warn(`Could not calculate position for stall ID: ${id}. Skipping base creation.`);
+          console.warn(
+            `Could not find defination for stall ID: ${id}. Skipping base creation. ${stallZone}, ${locateStall}, ${stallNum}`,
+          );
           return;
         }
 
         // --- Coordinate Calculation ---
-        const coordsTemplate = locateStall.anchorStallRect;
+        const stallDef = locateStall.stallDefs.find((def) => {
+          return stallNum >= def.start && stallNum <= def.end;
+        });
+        if (!stallDef) {
+          console.warn(
+            `Could not calculate position for stall ID: ${id}. Skipping base creation. ${stallZone}, ${locateStall}, ${stallNum}`,
+          );
+          return;
+        }
+        let top = stallDef.anchorRect.top;
+        let left = stallDef.anchorRect.left;
+        const start = stallDef.start;
+        const end = stallDef.end;
+        const width = stallDef.width;
+        const height = stallDef.height;
+        const direction = stallDef.direction;
+        const blockGap = stallDef.blockGap;
+        const blockStallCnt = stallDef.blockStallCnt;
         let myCoords: NonNullable<StallData['coords']>;
-        let myNumericCoords: NonNullable<StallData['numericCoords']>;
 
         // Most stalls are in horizontal rows, calculate position from right to left.
-        if (
-          stallZone !== '狗' &&
-          stallZone !== '雞' &&
-          stallZone !== '猴' &&
-          stallZone !== '特' &&
-          stallZone !== '商'
-        ) {
-          const numInBlock = stallNum > 36 ? 72 - stallNum : stallNum;
-          // There are visual gaps in the numbering on the map, account for them.
-          let gapSize = 0;
-          let top = coordsTemplate.top;
-          let left = coordsTemplate.left;
+        let skipStallNum = stallNum - start;
+        const currBlockGap = blockGap * Math.floor((stallNum - start) / blockStallCnt);
 
-          if (stallNum > 24 && stallNum <= 48) {
-            gapSize = 1.75;
-          } else if (stallNum <= 12 || stallNum >= 61) {
-            gapSize = 0;
-          } else {
-            gapSize = 0.9;
+        const zoneDef = locateStall.groupDef;
+        const isGrouped = zoneDef.isGrouped;
+        const skipStart = zoneDef.skipStart;
+        const skipEnd = zoneDef.skipEnd;
+        if (isGrouped) {
+          if (stallNum >= skipStart && stallNum <= skipEnd) {
+            skipStallNum = skipStart;
+          } else if (stallNum > skipEnd) {
+            skipStallNum = stallNum - (skipEnd - skipStart);
           }
-          if (stallNum > 36) {
-            top = top - coordsTemplate.height - 0.25;
-            left = coordsTemplate.left - (numInBlock % 72) * coordsTemplate.width - gapSize;
-          } else {
-            left = coordsTemplate.left - (numInBlock - 1) * coordsTemplate.width - gapSize;
-            if (stallCnt > 1) {
-              left -= (stallCnt - 1) * coordsTemplate.width;
-            }
-          }
-
-          const finalLeft = parseFloat(left.toFixed(2));
-          const finalWidth = coordsTemplate.width * stallCnt;
-
-          myCoords = {
-            top: `${top}`,
-            left: `${finalLeft}`,
-            width: `${finalWidth}`,
-            height: `${coordsTemplate.height}`,
-          };
-
-          myNumericCoords = {
-            top: top,
-            left: finalLeft,
-            width: finalWidth,
-            height: coordsTemplate.height,
-          };
-        } else {
-          // Handle the few vertical columns.
-          let tempNum = stallNum;
-          let gapSize = 0;
-          if (stallZone === '狗') {
-            if (stallNum >= 4 && stallNum < 16) {
-              tempNum = 3;
-              gapSize = 0.8;
-            } else if (stallNum >= 16) {
-              tempNum = stallNum - 12;
-              gapSize = 0.4;
-            }
-          } else if (stallZone === '雞') {
-            if (stallNum >= 4 && stallNum < 21) {
-              tempNum = 3;
-              gapSize = 0.8;
-            } else if (stallNum >= 21) {
-              tempNum = stallNum - 17;
-              gapSize = 0.4;
-            }
-          } else if (stallZone === '猴') {
-            if (stallNum >= 4 && stallNum < 23) {
-              tempNum = 3;
-              gapSize = 0.8;
-            } else if (stallNum >= 23) {
-              tempNum = stallNum - 19;
-              gapSize = 0.5;
-            }
-          } else {
-          }
-          let top = coordsTemplate.top - coordsTemplate.height * (tempNum - 1) - gapSize;
-          if (stallCnt > 1) {
-            top -= (stallCnt - 1) * coordsTemplate.height;
-          }
-
-          const finalTop = parseFloat(top.toFixed(2));
-          const finalHeight = coordsTemplate.height * stallCnt;
-
-          myCoords = {
-            top: `${finalTop}`,
-            left: `${coordsTemplate.left}`,
-            width: `${coordsTemplate.width}`,
-            height: `${finalHeight}`,
-          };
-
-          myNumericCoords = {
-            top: finalTop,
-            left: coordsTemplate.left,
-            width: coordsTemplate.width,
-            height: finalHeight,
-          };
+          // top = top - height * (tempNum - 1) - gapSize;
         }
+
+        let stallWidth = width;
+        let stallHeight = height;
+        switch (direction) {
+          case 'right':
+            left = left - skipStallNum * width - currBlockGap;
+            if (stallCnt > 1) {
+              left -= (stallCnt - 1) * width;
+            }
+            stallWidth = width * stallCnt;
+            break;
+          case 'left':
+            left = left + skipStallNum * width + currBlockGap;
+            stallWidth = width * stallCnt;
+            break;
+          case 'top':
+            top = top + skipStallNum * height + currBlockGap;
+            stallHeight = height * stallCnt;
+            break;
+          case 'bottom':
+            top = top - skipStallNum * height - currBlockGap;
+            if (stallCnt > 1) {
+              top -= (stallCnt - 1) * height;
+            }
+            stallHeight = height * stallCnt;
+            break;
+        }
+
+        const finalLeft = parseFloat(left.toFixed(2));
+        const finalTop = parseFloat(top.toFixed(2));
+
+        myCoords = {
+          top: finalTop,
+          left: finalLeft,
+          width: stallWidth,
+          height: stallHeight,
+        };
 
         // Create the new entry in the map.
         let stallImg = rawStall['stallImg'] || undefined;
@@ -261,7 +329,6 @@ export class StallService {
           stallImg: stallImg,
           stallLink: rawStall['stallLink'] || undefined,
           coords: myCoords,
-          numericCoords: myNumericCoords,
           promoData: promoData || [],
           hasPromo: !!(promoData || []).length,
           filterSeries: [],

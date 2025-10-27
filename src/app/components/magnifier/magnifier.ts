@@ -11,7 +11,6 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { stallGridRefs } from 'src/app/core/const/official-data';
 import { allGroupIds } from 'src/app/core/const/row-id';
 import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -23,6 +22,8 @@ import { StallGroupArea } from '../stall-group-area/stall-group-area';
 import { GroupIndicator } from '../group-indicator/group-indicator';
 import { After } from 'v8';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-magnifier',
@@ -54,7 +55,9 @@ export class Magnifier implements AfterViewInit {
   scaleMapImgH = signal<number>(0);
 
   allStalls$ = this._stallService.allStalls$;
-  stallGridRefs = stallGridRefs;
+  stallGridRefs = toSignal(
+    this._stallService.stallZoneDef$.pipe(map((def) => Array.from(def.values()) ?? [])),
+  );
 
   constructor() {
     this.zoomFactor = this._uiStateService.isSmallScreen() ? 3.5 : 2.5; // Use a higher zoom for mobile.
@@ -163,20 +166,20 @@ export class Magnifier implements AfterViewInit {
       return;
     }
 
-    let closestRowData: (typeof stallGridRefs)[0] | null = null;
+    let closestRowData = null;
     let minDistanceSq = Infinity;
 
     // Find the row that is geometrically closest to the magnifier's center. This prevents flickering in aisles.
-    for (const row of stallGridRefs) {
+    for (const row of this.stallGridRefs() ?? []) {
       const dx = Math.max(
-        row.boundingBox.left - lensCenterX_pct,
+        row.groupDef.boundingBox.left - lensCenterX_pct,
         0,
-        lensCenterX_pct - row.boundingBox.right,
+        lensCenterX_pct - row.groupDef.boundingBox.right,
       );
       const dy = Math.max(
-        row.boundingBox.top - lensCenterY_pct,
+        row.groupDef.boundingBox.top - lensCenterY_pct,
         0,
-        lensCenterY_pct - row.boundingBox.bottom,
+        lensCenterY_pct - row.groupDef.boundingBox.bottom,
       );
       const distanceSq = dx * dx + dy * dy;
 
@@ -187,8 +190,8 @@ export class Magnifier implements AfterViewInit {
     }
 
     if (closestRowData) {
-      const currentIndex = allGroupIds.indexOf(closestRowData.groupId);
-      const current = closestRowData.groupId;
+      const currentIndex = allGroupIds.indexOf(closestRowData.zoneId);
+      const current = closestRowData.zoneId;
       const prev = currentIndex > 0 ? allGroupIds[currentIndex - 1] : '';
       const next = currentIndex < allGroupIds.length - 1 ? allGroupIds[currentIndex + 1] : '';
       this._magnifierService.setRowIndicator(prev, current, next);

@@ -39,10 +39,10 @@
               [absolutePosition]="true"
             ></app-stall>
           }
-          @for (row of stallGridRefs; track $index) {
+          @for (zone of stallGridRefs() ?? []; track $index) {
             <app-stall-group-area
-              [row]="row"
-              (click)="verticalGroupClicked(row)"
+              [zone]="zone"
+              (click)="verticalGroupClicked(zone)"
             ></app-stall-group-area>
           }
           <div

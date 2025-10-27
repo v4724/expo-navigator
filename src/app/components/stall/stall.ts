@@ -52,11 +52,10 @@ export class Stall implements OnInit, AfterViewInit {
   private _stallLayerService = inject(StallLayerService);
   private _userService = inject(UserService);
 
-  isGroupedMember$ = toObservable(this.stall).pipe(
-    map((stall) => {
-      return this._stallService.isGroupedMember(stall.id);
-    }),
-  );
+  isGroupedMember = computed(() => {
+    const stall = this.stall();
+    return this._stallService.isGroupedMember(stall);
+  });
 
   fontSize = signal<string>('0.5rem');
   iconSize = signal<string>('0.25rem');

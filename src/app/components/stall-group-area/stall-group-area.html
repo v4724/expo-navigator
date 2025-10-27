@@ -1,15 +1,15 @@
 <div
   class="stall-area stall-group-area"
   [ngClass]="{
-    'mobile-only-group': !row().isGrouped,
+    'mobile-only-group': !zone().isGrouped,
   }"
   [class.is-search-match]="isMatch()"
-  [style.top]="`${row().boundingBox.top}%`"
-  [style.left]="`${row().boundingBox.left}%`"
-  [style.width]="`${row().boundingBox.right - row().boundingBox.left}%`"
-  [style.height]="`${row().boundingBox.bottom - row().boundingBox.top}%`"
-  [aria-label]="`Row: ${row().groupId}`"
+  [style.top]="`${zone().groupDef.boundingBox.top}%`"
+  [style.left]="`${zone().groupDef.boundingBox.left}%`"
+  [style.width]="`${zone().groupDef.boundingBox.right - zone().groupDef.boundingBox.left}%`"
+  [style.height]="`${zone().groupDef.boundingBox.bottom - zone().groupDef.boundingBox.top}%`"
+  [aria-label]="`Row: ${zone().zoneId}`"
   (click)="stallGroupClicked()"
 >
-  {{ row().groupId }}
+  {{ zone().zoneId }}
 </div>

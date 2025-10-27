@@ -20,8 +20,8 @@
       @for (stall of allStalls$ | async; track $index) {
         <app-stall [stall]="stall" [absolutePosition]="true" [hiddenIfGrouped]="true"></app-stall>
       }
-      @for (row of stallGridRefs; track $index) {
-        <app-stall-group-area [row]="row"></app-stall-group-area>
+      @for (zone of stallGridRefs() ?? []; track $index) {
+        <app-stall-group-area [zone]="zone"></app-stall-group-area>
       }
     </div>
   </div>

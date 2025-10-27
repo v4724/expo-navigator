@@ -19,17 +19,19 @@ import { StallService } from 'src/app/core/services/state/stall-service';
 import { TooltipService } from 'src/app/core/services/state/tooltip-service';
 import { StallData } from '../../core/interfaces/stall.interface';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
-import { stallGridRefs } from 'src/app/core/const/official-data';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { MagnifierService } from 'src/app/core/services/state/magnifier-service';
 import { StallGroupArea } from '../stall-group-area/stall-group-area';
 import { Stall } from '../stall/stall';
-import { StallGroupGridRef } from 'src/app/core/interfaces/stall-group-grid-ref.interface';
-import { pairwise, startWith } from 'rxjs';
+
+import { map, pairwise, startWith } from 'rxjs';
 import { GroupIndicator } from '../group-indicator/group-indicator';
 import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallDto } from 'src/app/core/models/stall.model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { initial } from 'lodash-es';
+import { StallGridDef } from 'src/app/core/interfaces/stall-def.interface';
 
 @Component({
   selector: 'app-mini-map',
@@ -97,7 +99,13 @@ export class MiniMap implements OnInit, AfterViewInit {
 
   selectedStall$ = this._selectStallService.selectedStallId$;
   allStalls$ = this._stallService.allStalls$;
-  stallGridRefs = stallGridRefs;
+  stallGridRefs = toSignal(
+    this._stallService.stallZoneDef$.pipe(
+      map((def) => {
+        return Array.from(def.values() ?? []);
+      }),
+    ),
+  );
 
   ngOnInit(): void {
     this._stallMapService.mapImage$.pipe().subscribe((el) => {
@@ -174,9 +182,11 @@ export class MiniMap implements OnInit, AfterViewInit {
   }
 
   //
-  verticalGroupClicked(row: StallGroupGridRef) {
+  verticalGroupClicked(zone: StallGridDef) {
     const currId = this._selectStallService.selected;
-    const targetId = row.groupDefaultStallId ? row.groupDefaultStallId : `${row.groupId}01`;
+    const targetId = zone.groupDef.defaultStallId
+      ? zone.groupDef.defaultStallId
+      : `${zone.zoneId}01`;
 
     this.updateNavControls(targetId);
     this.updateVerticalStallList(currId, targetId);
@@ -381,7 +391,7 @@ export class MiniMap implements OnInit, AfterViewInit {
         return;
       }
 
-      const { left, top, width, height } = stall.numericCoords;
+      const { left, top, width, height } = stall.coords;
       if ([left, top, width, height].some((v) => typeof v !== 'number')) {
         console.error('Could not parse stall coordinates for modal magnifier:', stall.coords);
 
@@ -480,12 +490,12 @@ export class MiniMap implements OnInit, AfterViewInit {
   private _updateModalRowIndicator(currentBgX: number, currentBgY: number, stall?: StallData) {
     const mapImage = this._stallMapService.mapImage;
 
-    let closestRowData: (typeof stallGridRefs)[0] | null = null;
+    let closestRowData = null;
 
     if (stall) {
       // Priority 1: Use the provided stall's data for 100% accuracy.
       const rowId = stall.id.substring(0, 1);
-      closestRowData = stallGridRefs.find((r) => r.groupId === rowId) ?? null;
+      closestRowData = (this.stallGridRefs() ?? []).find((r) => r.zoneId === rowId) ?? null;
     } else {
       // Priority 2 (Fallback for panning): Use geometric calculation based on view center.
       const zoomFactor = this._uiStateService.zoomFactor();
@@ -505,22 +515,22 @@ export class MiniMap implements OnInit, AfterViewInit {
 
       let minDistanceSq = Infinity;
 
-      for (const row of stallGridRefs) {
+      for (const zone of Array.from(this.stallGridRefs()?.values() ?? [])) {
         const dx = Math.max(
-          row.boundingBox.left - lensCenterX_pct,
+          zone.groupDef.boundingBox.left - lensCenterX_pct,
           0,
-          lensCenterX_pct - row.boundingBox.right,
+          lensCenterX_pct - zone.groupDef.boundingBox.right,
         );
         const dy = Math.max(
-          row.boundingBox.top - lensCenterY_pct,
+          zone.groupDef.boundingBox.top - lensCenterY_pct,
           0,
-          lensCenterY_pct - row.boundingBox.bottom,
+          lensCenterY_pct - zone.groupDef.boundingBox.bottom,
         );
         const distanceSq = dx * dx + dy * dy;
 
         if (distanceSq < minDistanceSq) {
           minDistanceSq = distanceSq;
-          closestRowData = row;
+          closestRowData = zone;
         }
       }
     }
@@ -528,12 +538,12 @@ export class MiniMap implements OnInit, AfterViewInit {
     // 在 raf 要用 ngZone 強制更新畫面
     this._ngZone.run(() => {
       // 更新多個值
-      if (closestRowData && closestRowData.groupId === '範') {
+      if (closestRowData && closestRowData.zoneId === '範') {
         this._magnifierService.setRowIndicator('', '', '');
       } else {
         if (closestRowData) {
-          const currentIndex = allGroupIds.indexOf(closestRowData.groupId);
-          const curr = closestRowData.groupId;
+          const currentIndex = allGroupIds.indexOf(closestRowData.zoneId);
+          const curr = closestRowData.zoneId;
           const prev = currentIndex > 0 ? allGroupIds[currentIndex - 1] : '';
           const next = currentIndex < allGroupIds.length - 1 ? allGroupIds[currentIndex + 1] : '';
           this._magnifierService.setRowIndicator(prev, curr, next);
