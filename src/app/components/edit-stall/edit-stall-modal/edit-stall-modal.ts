@@ -17,7 +17,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogRef,
   MatDialog,
@@ -81,7 +80,6 @@ interface StallTag extends StallTagDto {
     CommonModule,
     ReactiveFormsModule,
     InputTextModule,
-    MatButtonModule,
     MatDialogContent,
     MatDialogActions,
     MatIcon,
@@ -646,7 +644,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
           console.error('暫存/儲存失敗', res);
         }
 
-        return res.success;
+        return res;
       }),
     );
   }

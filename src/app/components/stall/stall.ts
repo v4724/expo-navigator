@@ -27,9 +27,11 @@ import { StallLayerService } from 'src/app/core/services/state/stall-layer-servi
 import { MatIcon } from '@angular/material/icon';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
+import { TooltipModule } from 'primeng/tooltip';
+
 @Component({
   selector: 'app-stall',
-  imports: [CommonModule, MatIcon],
+  imports: [CommonModule, MatIcon, TooltipModule],
   templateUrl: './stall.html',
   styleUrl: './stall.scss',
 })

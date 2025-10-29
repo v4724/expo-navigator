@@ -16,10 +16,8 @@
     [class.has-promo]="stall().hasPromo"
     [class.is-selected]="isSelected()"
     [class.is-search-match]="isMatch()"
-    (pointermove)="mousemove()"
     (click)="stallClicked()"
-    (mouseover)="mouseover($event)"
-    (mouseout)="mouseout($event)"
+    [pTooltip]="stall().stallTitle"
   >
     {{ stall().padNum.toString() }}
   </div>

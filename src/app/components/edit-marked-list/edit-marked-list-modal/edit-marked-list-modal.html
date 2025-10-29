@@ -132,6 +132,12 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button matButton (click)="onClose()">關閉</button>
-  <button matButton (click)="onSave()" [disabled]="isTempSaving() || isSaving()">儲存</button>
+  <p-button label="關閉" size="small" variant="text" severity="secondary" (click)="onClose()" />
+  <p-button
+    label="儲存"
+    size="small"
+    variant="text"
+    (click)="onSave()"
+    [disabled]="isTempSaving() || isSaving()"
+  />
 </mat-dialog-actions>

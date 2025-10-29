@@ -11,9 +11,35 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
+import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import { provideHttpClient } from '@angular/common/http';
 import { MatIconRegistry } from '@angular/material/icon';
+
+const MyPreset = definePreset(Aura, {
+  semantic: {
+    colorScheme: {
+      light: {
+        primary: {
+          50: '{slate.50}',
+          100: '{slate.200}',
+          200: '{slate.400}',
+          300: '{slate.500}',
+          400: '{slate.600}',
+          500: '{slate.700}',
+          600: '{slate.700}',
+          700: '{slate.700}',
+          800: '{slate.700}',
+          900: '{slate.700}',
+          950: '{slate.700}',
+        },
+      },
+      dark: {
+        //...
+      },
+    },
+  },
+});
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,7 +47,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Aura,
+        preset: MyPreset,
       },
     }),
     provideBrowserGlobalErrorListeners(),

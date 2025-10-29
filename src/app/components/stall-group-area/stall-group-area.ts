@@ -17,11 +17,11 @@ import { Popover } from 'primeng/popover';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatTooltip } from '@angular/material/tooltip';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-stall-group-area',
-  imports: [CommonModule, Popover, MatTooltip],
+  imports: [CommonModule, Popover, TooltipModule],
   templateUrl: './stall-group-area.html',
   styleUrl: './stall-group-area.scss',
 })
@@ -79,14 +79,6 @@ export class StallGroupArea implements OnInit {
   }
 
   stallGroupClicked(popover: Popover, e: Event, target: HTMLDivElement) {
-    const zone = this.zone();
-
-    let id = `${zone.zoneId}01`;
-    if (zone.groupDef.defaultStallId) {
-      id = zone.groupDef.defaultStallId;
-    }
-    this._selectStallService.selected = id;
-
     const clickTarget = e.target as HTMLDivElement;
     if (clickTarget) {
       const rect = clickTarget.getBoundingClientRect();

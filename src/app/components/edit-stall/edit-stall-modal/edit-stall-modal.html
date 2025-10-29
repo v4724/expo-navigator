@@ -56,7 +56,14 @@
     <div formArrayName="promos" class="flex flex-col">
       <div class="flex items-center justify-center">
         <div class="relative text-lg">宣傳車資訊</div>
-        <button class="ml-auto" matButton (click)="addPromo()">新增</button>
+        <p-button
+          class="ml-auto"
+          label="新增"
+          severity="warn"
+          size="small"
+          variant="text"
+          (click)="addPromo()"
+        />
       </div>
       <p-tabs #promoTabs [value]="0" scrollable>
         <p-tablist class="!sticky top-[-20px] z-100 border-t-1 border-gray-100">
@@ -193,7 +200,7 @@
                       }
                     </div>
                     <div class="flex w-full gap-4">
-                      <label class="text-nowrap w-6"> 自訂 </label>
+                      <label class="flex items-center text-nowrap w-6"> 自訂 </label>
                       <input
                         formControlName="customTags"
                         pSize="small"
@@ -289,14 +296,27 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button matButton (click)="onClose()">關閉</button>
-  <button matButton (click)="onTempSave()" [disabled]="isTempSaving() || isSaving()">
-    <div class="flex items-center gap-2">
-      暫存
-      @if (isTempSaving()) {
-        <mat-spinner diameter="15"></mat-spinner>
-      }
-    </div>
-  </button>
-  <button matButton (click)="onSave()" [disabled]="isTempSaving() || isSaving()">儲存並關閉</button>
+  <div class="flex gap-2">
+    <p-button label="關閉" severity="secondary" size="small" variant="text" (click)="onClose()" />
+    <p-button
+      size="small"
+      variant="text"
+      (click)="onTempSave()"
+      [disabled]="isTempSaving() || isSaving()"
+    >
+      <div class="flex items-center gap-2">
+        暫存
+        @if (isTempSaving()) {
+          <mat-spinner diameter="15"></mat-spinner>
+        }
+      </div>
+    </p-button>
+    <p-button
+      label="儲存並關閉"
+      size="small"
+      variant="text"
+      (click)="onSave()"
+      [disabled]="isTempSaving() || isSaving()"
+    />
+  </div>
 </mat-dialog-actions>

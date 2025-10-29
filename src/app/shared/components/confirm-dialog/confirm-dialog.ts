@@ -1,5 +1,4 @@
 import { Component, inject, model, OnInit, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -8,6 +7,7 @@ import {
   MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
+import { ButtonModule } from 'primeng/button';
 
 export interface DialogData {
   title?: string;
@@ -15,7 +15,7 @@ export interface DialogData {
 }
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+  imports: [ButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
   templateUrl: './confirm-dialog.html',
   styleUrl: './confirm-dialog.scss',
 })

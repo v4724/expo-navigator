@@ -5,6 +5,12 @@
   <div class="flex items-center justify-center w-full">{{ label() }}</div>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button matButton (click)="onNoClick()">取消</button>
-  <button matButton [mat-dialog-close]="'CONFIRM'" cdkFocusInitial>確認</button></mat-dialog-actions
->
+  <p-button
+    [mat-dialog-close]="'CONFIRM'"
+    label="確認"
+    size="small"
+    variant="text"
+    cdkFocusInitial
+  />
+  <p-button label="取消" severity="secondary" size="small" variant="text" (click)="onNoClick()" />
+</mat-dialog-actions>

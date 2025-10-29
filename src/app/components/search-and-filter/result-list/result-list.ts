@@ -33,6 +33,7 @@ export class ResultList implements OnInit {
     ),
   );
   results = toSignal(this._searchAndFilterService.filterStalls$);
+  isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
 
   ngOnInit(): void {}
 

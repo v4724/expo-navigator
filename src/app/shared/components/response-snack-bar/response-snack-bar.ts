@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_SNACK_BAR_DATA,
   MatSnackBarAction,
@@ -7,10 +6,11 @@ import {
   MatSnackBarLabel,
   MatSnackBarRef,
 } from '@angular/material/snack-bar';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-response-snack-bar',
-  imports: [MatButtonModule, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction],
+  imports: [ButtonModule, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction],
   templateUrl: './response-snack-bar.html',
   styleUrl: './response-snack-bar.scss',
 })

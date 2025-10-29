@@ -13,9 +13,11 @@ import { TagService } from './tag-service';
 export class SearchAndFilterService {
   private _inputSearch = new BehaviorSubject<string | null>(null);
   private _filterStalls = new BehaviorSubject<StallData[]>([]);
+  private _isFiltering = new BehaviorSubject<boolean>(false);
 
   inputSearch$ = this._inputSearch.asObservable();
   filterStalls$ = this._filterStalls.asObservable();
+  isFiltering$ = this._isFiltering.asObservable();
 
   private _tagService = inject(TagService);
   private _stallService = inject(StallService);
@@ -71,6 +73,10 @@ export class SearchAndFilterService {
         });
         console.debug('filter stalls', filter);
         this.filterStalls = filter;
+
+        const isFiltering =
+          !!searchTerm || seriesIds.size > 0 || Object.keys(advancedFilter).length > 0;
+        this._isFiltering.next(isFiltering);
       });
   }
 }

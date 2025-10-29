@@ -26,7 +26,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { FloatLabel } from 'primeng/floatlabel';
 import { CommonModule } from '@angular/common';
 import { StallService } from 'src/app/core/services/state/stall-service';
-import { MatButton } from '@angular/material/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { UserApiService } from 'src/app/core/services/api/user-api.service';
 import { catchError, EMPTY, finalize } from 'rxjs';
@@ -43,7 +42,6 @@ export interface DialogData {
   imports: [
     ButtonModule,
     CheckboxModule,
-    MatButton,
     ChipModule,
     CommonModule,
     DialogModule,

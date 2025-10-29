@@ -40,7 +40,7 @@ import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MatTooltip } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
+import { ButtonModule } from 'primeng/button';
 
 interface DialogData {
   list: MarkedList;
@@ -63,7 +63,7 @@ interface DialogData {
     MatIcon,
     CheckboxModule,
     MatTooltip,
-    MatButtonModule,
+    ButtonModule,
   ],
   templateUrl: './edit-marked-list-modal.html',
   styleUrl: './edit-marked-list-modal.scss',

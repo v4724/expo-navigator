@@ -52,8 +52,12 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button matButton (click)="onClose()">關閉</button>
-  <button matButton (click)="onSubmit()" [disabled]="isSubmitting()">
-    {{ isEdit() ? '儲存' : '新增' }}
-  </button>
+  <p-button
+    [label]="isEdit() ? '儲存' : '新增'"
+    size="small"
+    variant="text"
+    (click)="onSubmit()"
+    [disabled]="isSubmitting()"
+  />
+  <p-button label="關閉" severity="secondary" size="small" variant="text" (click)="onClose()" />
 </mat-dialog-actions>
