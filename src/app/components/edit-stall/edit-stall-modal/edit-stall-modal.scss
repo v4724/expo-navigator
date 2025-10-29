@@ -1,4 +1,4 @@
-:host ::ng-deep {
+::ng-deep {
   --p-fieldset-legend-background: transparent;
   --p-fieldset-legend-hover-background: transparent;
   --p-fieldset-legend-font-weight: 400;
@@ -25,5 +25,9 @@
     padding: 0 1.5rem;
     height: calc(100vh - 400px);
     overflow: auto;
+  }
+
+  .preview-stall-dialog .p-dialog-content {
+    padding: 0px;
   }
 }

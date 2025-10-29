@@ -97,6 +97,7 @@ interface StallTag extends StallTagDto {
     BadgeModule,
     MatProgressSpinnerModule,
     CKEditorModule,
+    StallSideNav,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -117,6 +118,8 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _cdr = inject(ChangeDetectorRef);
 
   visible = false;
+  previewVisible = false;
+  previewStall = undefined;
 
   stallForm: FormGroup;
 
@@ -476,17 +479,8 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     stall.stallLink = stallLink;
     stall.promoData = promos;
 
-    console.debug('preview stall', stall);
-
-    this._dialog.open(StallSideNav, {
-      hasBackdrop: true, // 有底色
-      disableClose: true, // 取消點選背景自動關閉
-      width: '30vw', // 同 mat.sidenav-overrides 設定
-      maxWidth: '800px',
-      height: 'calc(100vh - 100px)',
-      panelClass: [''],
-      data: { stall: stall, isPreview: true },
-    });
+    this.previewVisible = true;
+    this.previewStall = stall;
   }
 
   show() {

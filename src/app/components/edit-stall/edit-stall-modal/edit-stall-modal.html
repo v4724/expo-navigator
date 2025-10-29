@@ -334,3 +334,20 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<p-dialog
+  [(visible)]="previewVisible"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [showHeader]="false"
+  [style]="{ width: '30vw', maxWidth: '800px', overflow: 'hidden' }"
+  [styleClass]="'preview-stall-dialog'"
+  [appendTo]="'body'"
+>
+  <app-stall-side-nav
+    [isPreview]="true"
+    [previewStall]="previewStall"
+    (close)="previewVisible = false"
+  ></app-stall-side-nav>
+</p-dialog>

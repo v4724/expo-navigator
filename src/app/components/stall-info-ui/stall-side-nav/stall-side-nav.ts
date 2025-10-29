@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   inject,
+  input,
   OnInit,
   output,
   signal,
@@ -28,6 +29,7 @@ import { PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
+import { Stall } from '../../stall/stall';
 
 @Component({
   selector: 'app-stall-side-nav',
@@ -44,10 +46,9 @@ import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.
   styleUrl: './stall-side-nav.scss',
 })
 export class StallSideNav implements OnInit, AfterViewInit {
-  readonly dialogRef = inject(MatDialogRef<StallSideNav>, { optional: true });
-  readonly data = inject<{ stall: StallData; isPreview: boolean }>(MAT_DIALOG_DATA, {
-    optional: true,
-  });
+  isPreview = input();
+  previewStall = input<StallData>();
+  previewStall$ = toObservable(this.previewStall);
 
   open = output<boolean>();
   close = output<boolean>();
@@ -62,7 +63,6 @@ export class StallSideNav implements OnInit, AfterViewInit {
   private _userService = inject(UserService);
   private _tagService = inject(TagService);
 
-  isPreview = signal(this.data?.isPreview);
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
   imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
   allMarkedList = toSignal(this._markedListService.markedList$);
@@ -135,7 +135,13 @@ export class StallSideNav implements OnInit, AfterViewInit {
   defaultAvatar: string = 'https://images.plurk.com/3rbw6tg1lA5dEGpdKTL8j1.png';
 
   ngOnInit() {
-    if (this.dialogRef) return;
+    if (this.isPreview()) {
+      this.previewStall$.subscribe((stall) => {
+        if (stall) {
+          this.stall.set(stall);
+        }
+      });
+    }
 
     this._selectStallService.selectedStallId$.pipe(distinctUntilChanged()).subscribe((stallId) => {
       console.debug('stall modal select stall: ', stallId);
@@ -163,11 +169,7 @@ export class StallSideNav implements OnInit, AfterViewInit {
       });
   }
 
-  ngAfterViewInit(): void {
-    if (this.dialogRef) {
-      this.stall.set(this.data?.stall);
-    }
-  }
+  ngAfterViewInit(): void {}
 
   /**
    * Populates and opens the modal for a specific stall.
@@ -191,12 +193,10 @@ export class StallSideNav implements OnInit, AfterViewInit {
    * @param context An object containing all necessary dependencies.
    */
   closeModal() {
-    if (!this.dialogRef) {
+    if (!this.isPreview()) {
       this._selectStallService.clearSelection();
-      this.close.emit(true);
-    } else {
-      this.dialogRef.close();
     }
+    this.close.emit(true);
   }
 
   // --- Image Lightbox Listeners ---
