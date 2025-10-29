@@ -61,6 +61,7 @@ import { UpdateStallDto, UpdateStallDtoWithPromo } from 'src/app/core/models/sta
 import { toSignal } from '@angular/core/rxjs-interop';
 import { isEqual } from 'lodash-es';
 import { PromoStallDto, UpdatePromoStallDto } from 'src/app/core/models/promo-stall.model';
+import { Dialog } from 'primeng/dialog';
 
 interface MyTab {
   icon: string;
@@ -80,8 +81,7 @@ interface StallTag extends StallTagDto {
     CommonModule,
     ReactiveFormsModule,
     InputTextModule,
-    MatDialogContent,
-    MatDialogActions,
+    Dialog,
     MatIcon,
     MessageModule,
     FloatLabel,
@@ -102,9 +102,8 @@ interface StallTag extends StallTagDto {
   styleUrl: './edit-stall-modal.scss',
 })
 export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(Dialog) dialog!: Dialog;
   @ViewChild(Tabs) promoTabs!: Tabs;
-
-  readonly dialogRef = inject(MatDialogRef<EditStallModal>);
 
   private readonly _stallService = inject(StallService);
   private readonly _selectStallService = inject(SelectStallService);
@@ -116,6 +115,8 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _snackBar = inject(MatSnackBar);
   private readonly _uiStateService = inject(UiStateService);
   private readonly _cdr = inject(ChangeDetectorRef);
+
+  visible = false;
 
   stallForm: FormGroup;
 
@@ -318,16 +319,6 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       });
 
       this.seriesAndTags.set(map);
-
-      // 取得標籤列表後再初始化資料
-      const stall = this._selectStallService.selectedStall;
-      if (stall) {
-        console.debug('edit stall', stall);
-        this.initFormVal(stall);
-        this.updateTabList();
-        this.updateSeriesSeletedTagCnt();
-        this.updateSeriesCheck();
-      }
     });
   }
 
@@ -342,6 +333,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       stallImg: stall.stallImg,
       stallLink: stall.stallLink,
     });
+    this.promos.clear();
 
     stall.promoData.forEach((promo: PromoStall) => {
       const promoGroup = this._createPromoGroup();
@@ -497,6 +489,20 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  show() {
+    this.visible = true;
+
+    // 取得標籤列表後再初始化資料
+    const stall = this._selectStallService.selectedStall;
+    if (stall) {
+      console.debug('edit stall', stall);
+      this.initFormVal(stall);
+      this.updateTabList();
+      this.updateSeriesSeletedTagCnt();
+      this.updateSeriesCheck();
+    }
+  }
+
   onTempSave() {
     this.stallForm.markAllAsDirty();
     this.stallForm.updateValueAndValidity();
@@ -548,7 +554,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe((res: any) => {
         if (res.success) {
-          this.dialogRef.close();
+          this.visible = false;
           this._snackBar.openFromComponent(ResponseSnackBar, {
             duration: 3000,
             data: { message: '儲存成功', isError: false },
@@ -575,11 +581,11 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
         console.debug('The dialog was closed');
         if (result === 'CONFIRM') {
           console.debug('結束編輯');
-          this.dialogRef.close();
+          this.visible = false;
         }
       });
     } else {
-      this.dialogRef.close();
+      this.visible = false;
     }
   }
 
