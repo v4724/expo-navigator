@@ -226,16 +226,7 @@ export class Map implements OnInit, AfterViewInit {
     const newTranslateY = this.translateY() - mouseOffsetYFromCenter * (scaleDelta - 1);
 
     this.scale.set(newScale);
-    this.setPosition({ x: newTranslateX, y: newTranslateY });
-  }
-
-  setPosition(targetBgXY: TargetXY) {
-    const xy = this.clampedBgXY(targetBgXY);
-
-    if (xy) {
-      this.translateX.set(xy.clampedBgX);
-      this.translateY.set(xy.clampedBgY);
-    }
+    this._setPosition({ x: newTranslateX, y: newTranslateY });
   }
 
   // 限制（Clamp）地圖偏移量
@@ -283,12 +274,15 @@ export class Map implements OnInit, AfterViewInit {
     }
 
     const mapEl = this.mapImage.nativeElement;
-    const viewEl = this.mapContent.nativeElement;
+    const viewEl = this.mapContainer.nativeElement;
 
-    const mapW = mapEl.naturalWidth || mapEl.offsetWidth;
-    const mapH = mapEl.naturalHeight || mapEl.offsetHeight;
+    const mapW = mapEl.offsetWidth * this.scale();
+    const mapH = mapEl.offsetHeight * this.scale();
     const viewW = viewEl.offsetWidth;
     const viewH = viewEl.offsetHeight;
+
+    console.debug('mapWH', mapW, mapH);
+    console.debug('viewWH', viewW, viewH);
     if (mapW === 0 || mapH === 0 || viewW === 0 || viewH === 0) return;
 
     // 將百分比座標轉換為地圖實際座標
@@ -300,41 +294,104 @@ export class Map implements OnInit, AfterViewInit {
     const stallCenterX = stallLeft + stallWidth / 2;
     const stallCenterY = stallTop + stallHeight / 2;
 
-    const scale = this.scale();
+    console.debug('orig stall position on screen', stallCenterX, stallCenterY);
+
+    // 目前平移 XY
+    const translateX = this.translateX();
+    const translateY = this.translateY();
 
     // 畫面中心（容器內的視圖中心點）
     const viewCenterX = viewW / 2;
     const viewCenterY = viewH / 2;
 
-    // 地圖縮放後尺寸
-    const scaledMapW = mapW * scale;
-    const scaledMapH = mapH * scale;
+    // 地圖縮放後中心
+    const scaledMapCenterX = mapW / 2;
+    const scaledMapCenterY = mapH / 2;
 
     // 攤位在縮放後地圖的座標
-    const scaledStallX = stallCenterX * scale;
-    const scaledStallY = stallCenterY * scale;
-
-    // 當前平移
-    const currentX = this.translateX();
-    const currentY = this.translateY();
+    const scaledStallX = stallCenterX;
+    const scaledStallY = stallCenterY;
 
     // 攤位目前在畫面上的位置
-    const screenX = scaledStallX + currentX;
-    const screenY = scaledStallY + currentY;
+    const screenX = stallCenterX;
+    const screenY = stallCenterY;
+    console.debug('scale stall position on screen', screenX, screenY);
 
     // 檢查是否已在畫面中
-    const margin = 50;
     const isInside =
-      screenX > margin && screenY > margin && screenX < viewW - margin && screenY < viewH - margin;
+      screenX > scaledMapCenterX - viewCenterX - translateX &&
+      screenY > scaledMapCenterY - viewCenterY - translateY &&
+      screenX < scaledMapCenterX + viewCenterX - translateX &&
+      screenY < scaledMapCenterY + viewCenterY - translateY;
+
+    console.debug('isInside', isInside);
+    console.debug(
+      'isInside',
+      screenX,
+      '>',
+      scaledMapCenterX,
+      '-',
+      viewCenterX,
+      '-',
+      translateX,
+      screenX > scaledMapCenterX - viewCenterX - translateX,
+    );
+    console.debug(
+      'isInside',
+      screenY,
+      '>',
+      scaledMapCenterY,
+      '-',
+      viewCenterY,
+      '-',
+      translateY,
+      screenY > scaledMapCenterY - viewCenterY - translateY,
+    );
+    console.debug(
+      'isInside',
+      screenX,
+      '<',
+      scaledMapCenterX,
+      '+',
+      viewCenterX,
+      '+',
+      translateX,
+      screenX < scaledMapCenterX + viewCenterX + translateX,
+    );
+    console.debug(
+      'isInside',
+      screenY,
+      '<',
+      scaledMapCenterY,
+      '+',
+      viewCenterY,
+      '+',
+      translateY,
+      screenY < scaledMapCenterY + viewCenterY + translateY,
+    );
 
     if (isInside) return;
 
     // 將攤位置中（相對於地圖中心）
-    const newTranslateX = viewCenterX - scaledStallX;
-    const newTranslateY = viewCenterY - scaledStallY;
+    const newTranslateX = scaledMapCenterX - scaledStallX;
+    const newTranslateY = scaledMapCenterY - scaledStallY;
+
+    console.debug('orig focus position');
+    console.debug(newTranslateX, scaledMapCenterX, '-', scaledStallX);
+    console.debug(newTranslateY, scaledMapCenterY, '-', scaledStallY);
 
     // 應用 clamp 限制（避免地圖超出畫面邊界）
-    this.setPosition({ x: newTranslateX, y: newTranslateY });
+    this._setPosition({ x: newTranslateX, y: newTranslateY });
+  }
+
+  _setPosition(targetBgXY: TargetXY) {
+    const xy = this.clampedBgXY(targetBgXY);
+
+    console.debug('set map position', xy);
+    if (xy) {
+      this.translateX.set(xy.clampedBgX);
+      this.translateY.set(xy.clampedBgY);
+    }
   }
 }
 

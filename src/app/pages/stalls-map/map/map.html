@@ -29,7 +29,7 @@
       [initX]="translateX()"
       [initY]="translateY()"
       [initVal]="true"
-      (dragAnimationLoop)="setPosition($event)"
+      (dragAnimationLoop)="_setPosition($event)"
     >
       <img
         #mapImage
