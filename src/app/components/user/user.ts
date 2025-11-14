@@ -126,7 +126,7 @@ export class User implements OnInit {
       if (result === 'CONFIRM') {
         console.debug('結束編輯');
         this._userApiService
-          .delete(this.user()?.id!)
+          .delete(this.user()?.id!, this.user()?.acc!)
           .pipe()
           .subscribe((res) => {
             if (res.success) {

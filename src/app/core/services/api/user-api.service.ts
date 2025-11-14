@@ -32,9 +32,9 @@ export class UserApiService {
       .pipe(tap((res) => console.debug(res)));
   }
 
-  delete(id: number): Observable<UpdateResponse<UserDto>> {
+  delete(id: number, acc: string): Observable<UpdateResponse<UserDto>> {
     return this.http
-      .delete<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${id}`)
+      .delete<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${id}`, { body: { acc } })
       .pipe(tap((res) => console.debug(res)));
   }
 

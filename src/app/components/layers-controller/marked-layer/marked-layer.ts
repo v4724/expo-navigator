@@ -30,6 +30,7 @@ export class MarkedLayer implements OnInit {
   private _snackBar = inject(MatSnackBar);
 
   show = toSignal(this._markedListService.layerShown$);
+  user = toSignal(this._userService.user$);
 
   // data
   fetchEnd = toSignal(this._markedListService.fetchEnd$);
@@ -69,7 +70,7 @@ export class MarkedLayer implements OnInit {
     };
     this.isCreating.set(true);
     this._markedListApiService
-      .create(body)
+      .create(this.user()?.acc!, body)
       .pipe(
         finalize(() => {
           this.isCreating.set(false);
@@ -88,7 +89,7 @@ export class MarkedLayer implements OnInit {
 
   deleteList(list: MarkedList) {
     list.isUpdating = true;
-    this._markedListApiService.delete(list.id).subscribe((res) => {
+    this._markedListApiService.delete(list.id, this.user()?.acc!).subscribe((res) => {
       if (res.success) {
         this._snackBar.open('書籤刪除成功', '', { duration: 2000 });
         this._markedListService.delete(list.id);

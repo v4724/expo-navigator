@@ -242,7 +242,7 @@ export class StallSideNav implements OnInit, AfterViewInit {
 
     data.isUpdating = true;
     this._markedListApiService
-      .update(data.id, dto)
+      .update(data.id, this.user()?.acc!, dto)
       .pipe(
         finalize(() => {
           data.isUpdating = false;
@@ -262,7 +262,7 @@ export class StallSideNav implements OnInit, AfterViewInit {
 
     data.isUpdating = true;
     this._markedListApiService
-      .update(data.id, dto)
+      .update(data.id, this.user()?.acc!, dto)
       .pipe(
         finalize(() => {
           data.isUpdating = false;

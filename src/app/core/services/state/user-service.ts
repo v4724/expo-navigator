@@ -23,7 +23,9 @@ export class UserService {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       const user = JSON.parse(userStr) as User;
-      this.login(user.acc).subscribe();
+      if (!!user && user !== null) {
+        this.login(user.acc).subscribe();
+      }
     }
   }
 

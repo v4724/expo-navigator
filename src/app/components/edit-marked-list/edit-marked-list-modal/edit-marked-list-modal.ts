@@ -41,6 +41,8 @@ import { MatIcon } from '@angular/material/icon';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ButtonModule } from 'primeng/button';
+import { UserService } from 'src/app/core/services/state/user-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 interface DialogData {
   list: MarkedList;
@@ -76,12 +78,14 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly _markedListService = inject(MarkedStallService);
   private readonly _markedListApiService = inject(MarkedListApiService);
+  private readonly _userService = inject(UserService);
   private readonly _dialog = inject(MatDialog);
   private readonly _fb = inject(FormBuilder);
   private readonly _snackBar = inject(MatSnackBar);
 
   editForm: FormGroup;
 
+  user = toSignal(this._userService.user$);
   isTempSaving = signal<boolean>(false);
   isSaving = signal<boolean>(false);
 
@@ -315,7 +319,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     const id = this.id;
     console.debug('儲存', data);
 
-    const observable = this._markedListApiService.update(id, data).pipe(
+    const observable = this._markedListApiService.update(id, this.user()?.acc!, data).pipe(
       tap((res) => {
         if (res.success) {
           this._markedListService.update(data);
