@@ -1,12 +1,32 @@
-import { Component, signal } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { isPlatform } from '@ionic/core';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, IonApp, IonRouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('expo-navigator');
+
+  isMobileSize = signal<boolean>(true);
+
+  ngOnInit() {
+    this.loadAppropriateComponent();
+  }
+
+  loadAppropriateComponent() {
+    // const isMobileWidth = window?.innerWidth <= 425;
+    const isMobileWidth = false;
+    const isMobilePlatform = typeof window !== 'undefined' && isPlatform('mobile');
+    const isMobile = isMobileWidth || isMobilePlatform;
+    this.isMobileSize.set(isMobile);
+  }
+
+  @HostListener('window:resize') onResize() {
+    this.loadAppropriateComponent();
+  }
 }

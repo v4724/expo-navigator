@@ -16,6 +16,8 @@ import Aura from '@primeuix/themes/aura';
 import { provideHttpClient } from '@angular/common/http';
 import { MatIconRegistry } from '@angular/material/icon';
 
+import { provideIonicAngular } from '@ionic/angular/standalone';
+
 const MyPreset = definePreset(Aura, {
   semantic: {
     colorScheme: {
@@ -50,6 +52,7 @@ const MyPreset = definePreset(Aura, {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideIonicAngular(), // 初始化 Ionic
     provideHttpClient(),
     provideAnimationsAsync(),
     providePrimeNG({

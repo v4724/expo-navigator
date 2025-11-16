@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { StallsMap } from '../pages/stalls-map/stalls-map';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet],
+  imports: [StallsMap],
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })

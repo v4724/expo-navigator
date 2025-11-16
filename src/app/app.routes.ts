@@ -1,9 +1,22 @@
 import { Routes } from '@angular/router';
-import { StallsMap } from './pages/stalls-map/stalls-map';
-import { Layout } from './layout/layout';
 import { GridHelper } from './pages/grid-helper/grid-helper';
+import { isPlatform } from '@ionic/core';
 
 export const routes: Routes = [
-  { path: '', component: Layout, children: [{ path: '', component: StallsMap }] },
+  {
+    path: '',
+    loadComponent: () =>
+      isMobileDevice()
+        ? import('./device/mobile/home/home').then((m) => m.Home)
+        : import('./layout/layout').then((m) => m.Layout),
+  },
   { path: 'grid-helper', component: GridHelper },
 ];
+
+function isMobileDevice() {
+  const isMobilePlatform = typeof window !== 'undefined' && isPlatform('mobile');
+  let isMobileWidth = false;
+  const isMobileSize = isMobileWidth || isMobilePlatform;
+
+  return isMobileSize;
+}

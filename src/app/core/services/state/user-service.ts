@@ -4,6 +4,7 @@ import { User } from '../../interfaces/user.interface';
 import { UserApiService } from '../api/user-api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MarkedStallService } from './marked-stall-service';
+import { UiStateService } from './ui-state-service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ export class UserService {
   private readonly _snackBar = inject(MatSnackBar);
   private _userApiService = inject(UserApiService);
   private _markedStallService = inject(MarkedStallService);
+  private _uiStateService = inject(UiStateService);
 
   private _user = new BehaviorSubject<User | null>(null);
   private _isLogin = new BehaviorSubject<boolean>(false);
@@ -20,11 +22,21 @@ export class UserService {
   isLogin$ = this._isLogin.asObservable();
 
   constructor() {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr) as User;
-      if (!!user && user !== null) {
-        this.login(user.acc).subscribe();
+    this.initUser();
+  }
+  private initUser() {
+    // 只在瀏覽器環境操作 localStorage
+    if (this._uiStateService.isPlatformBrowser()) {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr) as User;
+          if (user) {
+            this.login(user.acc).subscribe();
+          }
+        } catch (e) {
+          console.error('Failed to parse user from localStorage', e);
+        }
       }
     }
   }

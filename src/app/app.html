@@ -1,3 +1,7 @@
-<main>
-  <router-outlet />
-</main>
+<ion-app>
+  @if (isMobileSize()) {
+    <ion-router-outlet></ion-router-outlet>
+  } @else {
+    <router-outlet />
+  }
+</ion-app>
