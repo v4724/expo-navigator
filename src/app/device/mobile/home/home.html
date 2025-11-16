@@ -23,7 +23,15 @@
   <ion-toolbar>
     <ion-buttons class="flex flex-row justify-between">
       <ion-button class="w-1/3">Button</ion-button>
-      <ion-button class="w-1/3" id="marked-list-sheet-trigger" expand="block">書籤</ion-button>
+
+      <ion-button
+        class="w-1/3"
+        [ngClass]="{ hidden: !isLogin() }"
+        id="marked-list-sheet-trigger"
+        expand="block"
+        >書籤</ion-button
+      >
+
       <ion-button class="w-1/3" id="control-layers-sheet-trigger" expand="block"> 圖層 </ion-button>
 
       <app-marked-list-sheet> </app-marked-list-sheet>

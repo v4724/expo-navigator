@@ -19,27 +19,29 @@
           <label for="listName">名稱</label>
         </p-floatlabel>
       </div>
-      <div class="flex w-full items-center gap-6">
+      <div class="flex flex-col md:flex-row w-full items-center gap-2 md:gap-6">
         <div
           class="rounded-md border border-solid border-gray-400 flex items-center justify-center size-20"
         >
           <mat-icon [style.color]="iconColor" [fontIcon]="icon"></mat-icon>
         </div>
-        <div class="flex flex-col gap-2">
-          <div class="flex gap-3 w-full">
+        <div class="flex flex-col gap-3 md:gap-2">
+          <div class="flex flex-col md:flex-row gap-1 md:gap-3 w-full">
             <label class="flex items-center text-nowrap">圖示</label>
-            <div class="flex gap-2 flex-wrap items-center">
+            <div class="flex gap-4 gap-y-2 flex-wrap items-center">
               <!-- 預設圖示清單 -->
-              @for (iconName of presetIconList; track $index) {
-                <button
-                  class="icon-name size-6 rounded-[6px] transition hover:scale-110"
-                  (click)="clickDefaultIcon(iconName)"
-                >
-                  <mat-icon [fontIcon]="iconName"></mat-icon>
-                </button>
-              }
+              <div class="flex gap-2">
+                @for (iconName of presetIconList; track $index) {
+                  <button
+                    class="icon-name size-6 rounded-[6px] transition hover:scale-110"
+                    (click)="clickDefaultIcon(iconName)"
+                  >
+                    <mat-icon [fontIcon]="iconName"></mat-icon>
+                  </button>
+                }
+              </div>
               <!-- 自訂圖示 -->
-              <div class="flex ml-2 items-center gap-1">
+              <div class="flex flex-wrap md:flex-nowrap items-center gap-1 gap-y-3">
                 <p-checkbox formControlName="isCusIcon" [binary]="true" inputId="isCusIcon" />
                 <mat-icon [fontIcon]="cusIcon"></mat-icon>
                 <p-floatlabel variant="on">
@@ -66,19 +68,22 @@
               </div>
             </div>
           </div>
-          <div class="flex gap-3 w-full">
+
+          <div class="flex flex-col md:flex-row gap-1 md:gap-3 w-full">
             <label class="flex items-center text-nowrap">顏色</label>
-            <div class="flex gap-2 flex-wrap w-full items-center">
+            <div class="flex gap-4 gap-y-3 flex-wrap w-full items-center">
               <!-- 預設顏色清單 -->
-              @for (color of presetColorsList; track $index) {
-                <button
-                  class="icon-color size-6 rounded-[6px] transition hover:scale-110"
-                  (click)="clickDefaultIconColor(color)"
-                  [style.background-color]="color"
-                ></button>
-              }
+              <div class="flex gap-2">
+                @for (color of presetColorsList; track $index) {
+                  <button
+                    class="icon-color size-6 rounded-[6px] transition hover:scale-110"
+                    (click)="clickDefaultIconColor(color)"
+                    [style.background-color]="color"
+                  ></button>
+                }
+              </div>
               <!-- 自訂顏色 -->
-              <div class="flex ml-2 items-center gap-1 w-[250px]">
+              <div class="flex items-center gap-1 gap-y-3">
                 <p-checkbox
                   formControlName="isCusIconColor"
                   [binary]="true"
