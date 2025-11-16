@@ -6,15 +6,13 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
-import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { EditBtn } from '../../edit-marked-list/edit-btn/edit-btn';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { CreateMarkedListBtn } from 'src/app/shared/components/marked-list/create-marked-list-btn/create-marked-list-btn';
+import { BookmarkList } from 'src/app/shared/components/marked-list/bookmark-list/bookmark-list';
 
 @Component({
   selector: 'app-marked-layer',
-  imports: [CommonModule, MatIconModule, EditBtn, CreateMarkedListBtn],
+  imports: [CommonModule, MatIconModule, CreateMarkedListBtn, BookmarkList],
   templateUrl: './marked-layer.html',
   styleUrl: './marked-layer.scss',
 })
@@ -23,16 +21,13 @@ export class MarkedLayer implements OnInit {
 
   // Helpers
   private _markedListService = inject(MarkedStallService);
-  private _markedListApiService = inject(MarkedListApiService);
   private _selectStallService = inject(SelectStallService);
   private _userService = inject(UserService);
-  private _snackBar = inject(MatSnackBar);
 
   show = toSignal(this._markedListService.layerShown$);
   user = toSignal(this._userService.user$);
 
   // data
-  fetchEnd = toSignal(this._markedListService.fetchEnd$);
   allList = toSignal(this._markedListService.markedList$, { initialValue: [] });
 
   ngOnInit(): void {}
@@ -43,24 +38,6 @@ export class MarkedLayer implements OnInit {
 
   toggleLayer() {
     this._markedListService.toggleLayer();
-  }
-
-  toggleList(list: MarkedList) {
-    list.show = !list.show;
-    this._markedListService.toggleList(list);
-  }
-
-  deleteList(list: MarkedList) {
-    list.isUpdating = true;
-    this._markedListApiService.delete(list.id, this.user()?.acc!).subscribe((res) => {
-      if (res.success) {
-        this._snackBar.open('書籤刪除成功', '', { duration: 2000 });
-        this._markedListService.delete(list.id);
-      } else {
-        list.isUpdating = false;
-        this._snackBar.open('書籤刪除失敗', res.errors[0], { duration: 2000 });
-      }
-    });
   }
 
   drop(event: CdkDragDrop<MarkedList[]>) {

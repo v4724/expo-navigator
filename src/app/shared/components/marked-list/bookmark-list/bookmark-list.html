@@ -1,0 +1,52 @@
+@if (!fetchEnd()) {
+  <mat-icon
+    class="animate-spin"
+    aria-hidden="false"
+    aria-label="auto renew"
+    fontIcon="autorenew"
+  ></mat-icon>
+}
+@if (allList().length) {
+  <div class="flex flex-col mt-2">
+    @for (list of allList(); track $index) {
+      <div class="w-full flex items-center py-1">
+        <input
+          type="checkbox"
+          [checked]="list.show"
+          (change)="toggleList(list)"
+          class="h-4 w-4 rounded mr-2 accent-purple-800"
+        />
+        <button class="flex items-center">
+          <mat-icon
+            inline
+            aria-hidden="false"
+            aria-label="auto renew"
+            [style.color]="list.iconColor"
+            [fontIcon]="list.icon || 'star'"
+          ></mat-icon>
+        </button>
+        <div class="w-full flex items-center text-left text-gray-700 pr-1">
+          <span class="flex text-nowrap pl-1 pr-2">{{ list.listName }}</span>
+          <div>({{ list.list.length }})</div>
+          <div class="flex gap-1 items-center ml-auto">
+            <button
+              class="transition hover:scale-110 flex items-center text-gray-400"
+              (click)="deleteList(list)"
+              [disabled]="list.isUpdating"
+            >
+              <mat-icon
+                [ngClass]="{ 'animate-spin': list.isUpdating }"
+                inline
+                aria-hidden="false"
+                aria-label="delete icon"
+                [fontIcon]="list.isUpdating ? 'autorenew' : 'delete'"
+              ></mat-icon>
+            </button>
+            <app-edit-marked-list-btn [disabled]="list.isUpdating" [data]="list">
+            </app-edit-marked-list-btn>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
