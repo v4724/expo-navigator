@@ -1,0 +1,15 @@
+<div
+  class="w-full px-2 mt-1 border border-gray-300 rounded-full flex items-center justify-center overflow-hidden"
+  (click)="create()"
+>
+  <button class="flex items-center" [disabled]="isCreating()">
+    <mat-icon
+      class="flex w-auto"
+      [ngClass]="{ 'animate-spin': isCreating() }"
+      inline
+      aria-hidden="false"
+      aria-label="add marked list"
+      [fontIcon]="isCreating() ? 'autorenew' : 'add'"
+    ></mat-icon>
+  </button>
+</div>

@@ -10,17 +10,16 @@ import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EditBtn } from '../../edit-marked-list/edit-btn/edit-btn';
 import { UserService } from 'src/app/core/services/state/user-service';
-import { finalize } from 'rxjs';
+import { CreateMarkedListBtn } from 'src/app/shared/components/marked-list/create-marked-list-btn/create-marked-list-btn';
 
 @Component({
   selector: 'app-marked-layer',
-  imports: [CommonModule, MatIconModule, EditBtn],
+  imports: [CommonModule, MatIconModule, EditBtn, CreateMarkedListBtn],
   templateUrl: './marked-layer.html',
   styleUrl: './marked-layer.scss',
 })
 export class MarkedLayer implements OnInit {
   isSectionOpen = signal(false);
-  isCreating = signal(false);
 
   // Helpers
   private _markedListService = inject(MarkedStallService);
@@ -49,42 +48,6 @@ export class MarkedLayer implements OnInit {
   toggleList(list: MarkedList) {
     list.show = !list.show;
     this._markedListService.toggleList(list);
-  }
-
-  create() {
-    const user = this._userService.user;
-    if (!user) {
-      return;
-    }
-
-    const body = {
-      userId: user.id,
-      listName: `書籤${this.allList().length + 1}`,
-      icon: '',
-      iconColor: '',
-      cusIcon: '',
-      cusIconColor: '',
-      isCusIcon: false,
-      isCusIconColor: false,
-      list: [],
-    };
-    this.isCreating.set(true);
-    this._markedListApiService
-      .create(this.user()?.acc!, body)
-      .pipe(
-        finalize(() => {
-          this.isCreating.set(false);
-        }),
-      )
-      .subscribe((res) => {
-        if (res.success) {
-          this._snackBar.open('書籤新增成功', '', { duration: 2000 });
-          const id = res.data.id;
-          this._markedListService.add({ ...body, id });
-        } else {
-          this._snackBar.open('書籤新增失敗', res.errors[0], { duration: 2000 });
-        }
-      });
   }
 
   deleteList(list: MarkedList) {
