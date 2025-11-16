@@ -5,18 +5,37 @@
   [breakpoints]="[0, 0.25, 0.5, 0.75]"
 >
   <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title class="pl-4">圖層</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modal.dismiss()">Close</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
     <ion-content>
-      <ion-list>
-        <ion-item>
-          <ion-avatar slot="start">
-            <ion-img src="https://i.pravatar.cc/300?u=b"></ion-img>
-          </ion-avatar>
-          <ion-label>
-            <h2>Connor Smith</h2>
-            <p>Sales Rep</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
+      <div class="p-4 flex flex-col gap-2">
+        <!-- 攤位 -->
+        <app-stalls-layer></app-stalls-layer>
+
+        <!-- 場內 only -->
+        <app-only-area></app-only-area>
+
+        <!-- 書籤 -->
+        <div class="w-full flex items-center">
+          <input
+            type="checkbox"
+            [checked]="show()"
+            (change)="toggleLayer()"
+            class="h-4 w-4 rounded mr-2 accent-purple-800"
+          />
+          <button
+            class="w-full flex justify-between items-center text-left font-semibold text-gray-700"
+          >
+            <span>書籤</span>
+          </button>
+        </div>
+      </div>
     </ion-content>
   </ng-template>
 </ion-modal>
