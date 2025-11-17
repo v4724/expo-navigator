@@ -17,51 +17,50 @@
           <ion-icon slot="icon-only" name="close" aria-hidden="true"></ion-icon>
         </ion-button>
       </div>
-      <ion-list>
-        <ion-item>
-          <ion-avatar slot="start">
-            <ion-img src="https://i.pravatar.cc/300?u=b"></ion-img>
-          </ion-avatar>
-          <ion-label>
-            <h2>Connor Smith</h2>
-            <p>Sales Rep</p>
-          </ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-avatar slot="start">
-            <ion-img src="https://i.pravatar.cc/300?u=a"></ion-img>
-          </ion-avatar>
-          <ion-label>
-            <h2>Daniel Smith</h2>
-            <p>Product Designer</p>
-          </ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-avatar slot="start">
-            <ion-img src="https://i.pravatar.cc/300?u=d"></ion-img>
-          </ion-avatar>
-          <ion-label>
-            <h2>Greg Smith</h2>
-            <p>Director of Operations</p>
-          </ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-avatar slot="start">
-            <ion-img src="https://i.pravatar.cc/300?u=e"></ion-img>
-          </ion-avatar>
-          <ion-label>
-            <h2>Zoey Smith</h2>
-            <p>CEO</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
+      <div class="flex flex-col h-9/10 items-center justify-center">
+        <div class="flex w-full justify-center">user icon</div>
+        @if (isLogin()) {
+          <div class="flex flex-col gap-2 px-4">
+            <div class="flex justify-center">嗨！{{ user()?.acc }}</div>
+            <div class="flex flex-col gap-2">
+              <div class="flex">攤位編號</div>
+              <div class="flex flex-wrap items-center gap-1 gap-y-2">
+                @for (id of user()?.stallIds; track $index) {
+                  <div
+                    class="rounded-full py-1 px-2 border border-gray-400 transition hover:scale-110 cursor-default"
+                    (click)="selectAndFocus(id)"
+                  >
+                    {{ id }}
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="flex flex-col gap-2 px-4">
+            <input
+              #loginInput
+              pInputText
+              [(ngModel)]="acc"
+              type="text"
+              pSize="small"
+              placeholder=""
+            />
+          </div>
+        }
+      </div>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
         <ion-buttons class="flex flex-row justify-between">
-          <ion-button class="w-1/3">刪除</ion-button>
-          <ion-button class="w-1/3">編輯</ion-button>
-          <ion-button class="w-1/3"> 登出 </ion-button>
+          @if (isLogin()) {
+            <ion-button class="w-1/3" (click)="delete()">刪除</ion-button>
+            <ion-button class="w-1/3" (click)="edit()">編輯</ion-button>
+            <ion-button class="w-1/3" (click)="logout()"> 登出 </ion-button>
+          } @else {
+            <ion-button class="w-full" (click)="create()">新增</ion-button>
+            <ion-button class="w-full" (click)="login()">登入</ion-button>
+          }
         </ion-buttons>
       </ion-toolbar>
     </ion-footer>
