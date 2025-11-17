@@ -17,6 +17,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { MatIconRegistry } from '@angular/material/icon';
 
 import { provideIonicAngular } from '@ionic/angular/standalone';
+import { DialogService } from 'primeng/dynamicdialog';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -79,5 +80,6 @@ export const appConfig: ApplicationConfig = {
         'mat-ligature-font',
       );
     }),
+    DialogService,
   ],
 };

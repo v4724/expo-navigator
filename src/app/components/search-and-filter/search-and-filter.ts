@@ -11,6 +11,8 @@ import { TagService } from 'src/app/core/services/state/tag-service';
 import { InputSearch } from './input-search/input-search';
 import { ResultListBtn } from './result-list-btn/result-list-btn';
 
+import { AdvancedSeriesTagService } from './advanced-series-tag/advanced-series-tag-service';
+
 @Component({
   selector: 'app-search-and-filter',
   imports: [CommonModule, MatIconModule, InputSearch, ResultListBtn],
@@ -19,10 +21,9 @@ import { ResultListBtn } from './result-list-btn/result-list-btn';
 })
 export class SearchAndFilter {
   private _tagService = inject(TagService);
+  private _advancedSTService = inject(AdvancedSeriesTagService);
 
   isTagSectionOpen = signal(true);
-  isAdvancedFilterModalOpen = signal(false);
-  currentAdvancedFilterSeries = signal<StallSeries | null>(null);
 
   // 作品 + 標籤
   tagFetchEnd = toSignal(this._tagService.fetchEnd$);
@@ -43,11 +44,6 @@ export class SearchAndFilter {
       });
     });
     return data;
-  });
-
-  // Computed Signals
-  advancedFilterOptions = computed(() => {
-    return this.currentAdvancedFilterSeries();
   });
 
   selectedAdvancedTagsId = toSignal(this._tagService.selectedAdvancedTagsId$, { initialValue: {} });
@@ -78,24 +74,7 @@ export class SearchAndFilter {
 
   openAdvancedFilterModal(series: StallSeries) {
     if (!series.advanced) return;
-    this.currentAdvancedFilterSeries.set(series);
-    this.isAdvancedFilterModalOpen.set(true);
-  }
 
-  closeAdvancedFilterModal() {
-    this.isAdvancedFilterModalOpen.set(false);
-    this.currentAdvancedFilterSeries.set(null);
-  }
-
-  isAdvancedTagSelected(seriesId: number, key: string, tagId: number): boolean {
-    return this._tagService.selectedAdvancedTagsId[seriesId]?.[key]?.has(tagId) ?? false;
-  }
-
-  toggleAdvancedTag(seriesId: number, key: string, tagId: number) {
-    this._tagService.toggleAdvancedTag(seriesId, key, tagId);
-  }
-
-  clearTags(seriesId: number, type: 'cp' | 'char') {
-    this._tagService.clearAdvancedTag(seriesId, type);
+    this._advancedSTService.show(series);
   }
 }
