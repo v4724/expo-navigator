@@ -8,13 +8,10 @@ import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { CreateUserModal } from './create-user-modal/create-user-modal';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserApiService } from 'src/app/core/services/api/user-api.service';
-import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
-import { StallMapService } from 'src/app/core/services/state/stall-map-service';
+import { UserInfoPopover } from 'src/app/shared/components/user/user-info-popover/user-info-popover';
 
 @Component({
   selector: 'app-user',
@@ -26,19 +23,17 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
     PopoverModule,
     CheckboxModule,
     ButtonModule,
+    UserInfoPopover,
   ],
   templateUrl: './user.html',
   styleUrl: './user.scss',
 })
 export class User implements OnInit {
-  @ViewChild('userInfoPopover') userInfoPopover!: Popover;
+  @ViewChild('userInfoPopover') userInfoPopover!: UserInfoPopover;
   @ViewChild('loginPopover') loginPopover!: Popover;
   @ViewChild('loginInput') loginInput!: ElementRef<HTMLInputElement>;
 
-  private _userApiService = inject(UserApiService);
   private _userService = inject(UserService);
-  private _selectStallService = inject(SelectStallService);
-  private _stallMapService = inject(StallMapService);
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
 
@@ -98,54 +93,5 @@ export class User implements OnInit {
       maxHeight: '90vh',
       panelClass: [''],
     });
-  }
-
-  edit() {
-    this.userInfoPopover?.hide();
-    this._dialog.open(CreateUserModal, {
-      hasBackdrop: true, // 有底色
-      disableClose: true, // 取消點選背景自動關閉
-      width: '60vw',
-      maxWidth: '400px',
-      minHeight: '200px',
-      maxHeight: '90vh',
-      panelClass: [''],
-      data: { isEdit: true },
-    });
-  }
-
-  delete() {
-    const dialogRef = this._dialog.open(ConfirmDialog, {
-      disableClose: true, // 取消點選背景自動關閉
-      data: {
-        label: '確認刪除該使用者？',
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === 'CONFIRM') {
-        console.debug('結束編輯');
-        this._userApiService
-          .delete(this.user()?.id!, this.user()?.acc!)
-          .pipe()
-          .subscribe((res) => {
-            if (res.success) {
-              this._snackBar.open('使用者刪除成功', '', { duration: 2000 });
-              this._userService.logout();
-              this.userInfoPopover?.hide();
-            } else {
-              this._snackBar.open('使用者刪除失敗', res.errors[0], { duration: 2000 });
-            }
-          });
-      }
-    });
-  }
-
-  selectAndFocus(stallId: string) {
-    this._selectStallService.selected = stallId;
-    this.userInfoPopover?.hide();
-    setTimeout(() => {
-      this._stallMapService.focusStall(stallId);
-    }, 100);
   }
 }
