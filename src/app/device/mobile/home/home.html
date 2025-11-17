@@ -1,7 +1,12 @@
 <ion-content class="ion-padding">
   <div class="flex flex-col h-full">
     <div class="flex">
-      <ion-searchbar placeholder="Search" (click)="toSearch()"></ion-searchbar>
+      <ion-searchbar
+        placeholder="搜尋攤位編號、名稱、作者或標籤..."
+        show-clear-button="never"
+        (click)="toSearch()"
+        [value]="currSearchTerm()"
+      ></ion-searchbar>
       <div class="flex items-center pr-1">
         <ion-button
           class="ml-auto"
@@ -22,17 +27,27 @@
 <ion-footer>
   <ion-toolbar>
     <ion-buttons class="flex flex-row justify-between">
-      <ion-button class="w-1/3">Button</ion-button>
+      <ion-button class="" [ngClass]="{ 'w-1/2': !isLogin(), 'w-1/3': isLogin() }">
+        Button
+      </ion-button>
 
       <ion-button
-        class="w-1/3"
-        [ngClass]="{ hidden: !isLogin() }"
+        class=""
+        [ngClass]="{ 'hidden w-1/2': !isLogin(), 'w-1/3': isLogin() }"
         id="marked-list-sheet-trigger"
         expand="block"
-        >書籤</ion-button
       >
+        書籤
+      </ion-button>
 
-      <ion-button class="w-1/3" id="control-layers-sheet-trigger" expand="block"> 圖層 </ion-button>
+      <ion-button
+        class=""
+        [ngClass]="{ 'w-1/2': !isLogin(), 'w-1/3': isLogin() }"
+        id="control-layers-sheet-trigger"
+        expand="block"
+      >
+        圖層
+      </ion-button>
 
       <app-marked-list-sheet> </app-marked-list-sheet>
       <app-control-layers-sheet> </app-control-layers-sheet>

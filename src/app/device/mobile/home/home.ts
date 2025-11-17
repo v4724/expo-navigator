@@ -18,6 +18,7 @@ import { UserModal } from '../components/user-modal/user-modal';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { CommonModule } from '@angular/common';
+import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 
 @Component({
   selector: 'app-home',
@@ -40,9 +41,11 @@ import { CommonModule } from '@angular/common';
 })
 export class Home {
   private _userService = inject(UserService);
+  private _searchAndFilterService = inject(SearchAndFilterService);
   private router = inject(Router);
 
   isLogin = toSignal(this._userService.isLogin$);
+  currSearchTerm = toSignal(this._searchAndFilterService.inputSearch$);
 
   constructor() {
     addIcons({ person });

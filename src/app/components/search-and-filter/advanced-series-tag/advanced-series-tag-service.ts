@@ -18,6 +18,7 @@ export class AdvancedSeriesTagService {
       baseZIndex: 10000,
       closable: true,
       modal: true,
+      dismissableMask: true,
     });
   }
 }
