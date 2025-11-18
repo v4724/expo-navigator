@@ -1,6 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { isPlatform } from '@ionic/core';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +10,7 @@ export class UiStateService {
   private _showUiState = new BehaviorSubject<boolean>(false);
   showUiState$ = this._showUiState.asObservable();
 
+  // 避免 SSR 錯誤
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   isPlatformBrowser() {
@@ -25,6 +27,13 @@ export class UiStateService {
       return mobileCheck;
     }
 
+    return false;
+  }
+
+  isMobile() {
+    if (this.isPlatformBrowser()) {
+      return isPlatform('mobile');
+    }
     return false;
   }
 

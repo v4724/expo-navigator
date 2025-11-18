@@ -55,6 +55,8 @@ export class Map implements OnInit, AfterViewInit {
   translateX = signal(0);
   translateY = signal(0);
   scale = signal(1);
+  maxScale = signal(3);
+  focusScale = signal(3);
 
   mapImgSrc = MAP_URL;
   _mapImgLoaded = new BehaviorSubject<boolean>(false);
@@ -102,6 +104,9 @@ export class Map implements OnInit, AfterViewInit {
   autoFocusing = signal<boolean>(false);
 
   ngOnInit() {
+    this.maxScale.set(this._uiStateService.isMobile() ? 6 : 3);
+    this.focusScale.set(this._uiStateService.isMobile() ? 5 : 2);
+
     this._mapImgLoaded.pipe(first((val) => !!val)).subscribe(() => {
       this._stallMapService.mapImage = this.mapImage.nativeElement;
       this._stallMapService.mapContainer = this.mapContainer.nativeElement;
@@ -202,7 +207,7 @@ export class Map implements OnInit, AfterViewInit {
     const zoomIntensity = 0.1;
     const oldScale = this.scale();
     let newScale = oldScale + (event.deltaY < 0 ? zoomIntensity : -zoomIntensity);
-    newScale = Math.min(Math.max(newScale, 1), 3);
+    newScale = Math.min(Math.max(newScale, 1), this.maxScale());
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
 
@@ -210,11 +215,11 @@ export class Map implements OnInit, AfterViewInit {
     const offsetX = event.clientX - rect.left;
     const offsetY = event.clientY - rect.top;
 
-    // 視圖中心點
+    // 可視範圍中心點
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    // 滑鼠相對於視圖中心的位移（像素）
+    // 滑鼠相對於可視範圍中心的位移（像素）
     const mouseOffsetXFromCenter = offsetX - centerX;
     const mouseOffsetYFromCenter = offsetY - centerY;
 
@@ -249,9 +254,11 @@ export class Map implements OnInit, AfterViewInit {
 
     // 邊界，可拖曳的範圍值
     // 假設左側元件寬度
+    const viewElH = this.mapContainer.nativeElement.offsetHeight;
     const sidebarW = 310;
+    const mobileStallInfoH = this._uiStateService.isMobile() ? viewElH / 4 : 0;
     const minX = (viewW - scaledMapW) / 2;
-    const minY = (viewH - scaledMapH) / 2;
+    const minY = (viewH - scaledMapH) / 2 - mobileStallInfoH;
     const maxX = (scaledMapW - viewW) / 2 + sidebarW;
     const maxY = (scaledMapH - viewH) / 2;
 
@@ -265,11 +272,12 @@ export class Map implements OnInit, AfterViewInit {
     };
   }
 
+  // 將指定攤位置中於畫面
   focus(stall: StallData) {
     if (!stall || !this.mapImage || !this.mapContent) return;
 
-    if (this.scale() < 2) {
-      const targetScale = Math.max(this.scale(), 2);
+    if (this.scale() < this.focusScale()) {
+      const targetScale = Math.max(this.scale(), this.focusScale());
       this.scale.set(targetScale);
     }
 
@@ -279,7 +287,7 @@ export class Map implements OnInit, AfterViewInit {
     const mapW = mapEl.offsetWidth * this.scale();
     const mapH = mapEl.offsetHeight * this.scale();
     const viewW = viewEl.offsetWidth;
-    const viewH = viewEl.offsetHeight;
+    const viewH = this._uiStateService.isMobile() ? viewEl.offsetHeight / 2 : viewEl.offsetHeight;
 
     console.debug('mapWH', mapW, mapH);
     console.debug('viewWH', viewW, viewH);
@@ -373,8 +381,9 @@ export class Map implements OnInit, AfterViewInit {
     if (isInside) return;
 
     // 將攤位置中（相對於地圖中心）
+    const centerY = this._uiStateService.isMobile() ? scaledMapCenterY / 2 : scaledMapCenterY;
     const newTranslateX = scaledMapCenterX - scaledStallX;
-    const newTranslateY = scaledMapCenterY - scaledStallY;
+    const newTranslateY = centerY - scaledStallY;
 
     console.debug('orig focus position');
     console.debug(newTranslateX, scaledMapCenterX, '-', scaledStallX);
