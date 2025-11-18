@@ -1,8 +1,5 @@
 import { Routes } from '@angular/router';
-import { GridHelper } from './pages/grid-helper/grid-helper';
 import { isPlatform } from '@ionic/core';
-import { Search } from './device/mobile/pages/search/search';
-import { EditMarkedList } from './device/mobile/pages/edit-marked-list/edit-marked-list';
 
 export const routes: Routes = [
   {
@@ -12,9 +9,21 @@ export const routes: Routes = [
         ? import('./device/mobile/home/home').then((m) => m.Home)
         : import('./layout/layout').then((m) => m.Layout),
   },
-  { path: 'grid-helper', component: GridHelper },
-  { path: 'mobile-search', component: Search },
-  { path: 'mobile-edit-marked-list', component: EditMarkedList },
+  {
+    path: 'grid-helper',
+    loadComponent: () => import('./pages/grid-helper/grid-helper').then((m) => m.GridHelper),
+  },
+  {
+    path: 'mobile-search',
+    loadComponent: () => import('./device/mobile/pages/search/search').then((m) => m.Search),
+  },
+  {
+    path: 'mobile-edit-marked-list',
+    loadComponent: () =>
+      import('./device/mobile/pages/edit-marked-list/edit-marked-list').then(
+        (m) => m.EditMarkedList,
+      ),
+  },
 ];
 
 function isMobileDevice() {

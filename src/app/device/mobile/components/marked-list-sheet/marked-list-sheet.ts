@@ -2,11 +2,6 @@ import { Component } from '@angular/core';
 import {
   IonModal,
   IonContent,
-  IonList,
-  IonAvatar,
-  IonLabel,
-  IonImg,
-  IonItem,
   IonHeader,
   IonToolbar,
   IonTitle,
@@ -21,11 +16,6 @@ import { BookmarkList } from 'src/app/shared/components/marked-list/bookmark-lis
   imports: [
     IonModal,
     IonContent,
-    IonList,
-    IonAvatar,
-    IonLabel,
-    IonImg,
-    IonItem,
     IonHeader,
     IonToolbar,
     IonTitle,

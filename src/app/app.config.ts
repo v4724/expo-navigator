@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideEnvironmentInitializer,
   provideZonelessChangeDetection,
@@ -51,8 +52,20 @@ const MyPreset = definePreset(Aura, {
   },
 });
 
+export function loadCloudflareScript() {
+  return () => {
+    const token = (window as any).__CF_TOKEN__; // 從環境或 window 取得
+    const script = document.createElement('script');
+    script.defer = true;
+    script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    script.setAttribute('data-cf-beacon', JSON.stringify({ token }));
+    document.head.appendChild(script);
+  };
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAppInitializer(loadCloudflareScript()),
     provideIonicAngular(), // 初始化 Ionic
     provideHttpClient(),
     provideAnimationsAsync(),
