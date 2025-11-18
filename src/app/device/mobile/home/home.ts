@@ -19,6 +19,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { CommonModule } from '@angular/common';
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
+import { Stall } from 'src/app/components/stall/stall';
+import { StallInfoSheet } from '../components/stall-info-sheet/stall-info-sheet';
 
 @Component({
   selector: 'app-home',
@@ -35,6 +37,7 @@ import { SearchAndFilterService } from 'src/app/core/services/state/search-and-f
     MarkedListSheet,
     ControlLayersSheet,
     UserModal,
+    StallInfoSheet,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
