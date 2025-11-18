@@ -19,6 +19,8 @@ import { MatIconRegistry } from '@angular/material/icon';
 
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { DialogService } from 'primeng/dynamicdialog';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -54,6 +56,9 @@ const MyPreset = definePreset(Aura, {
 
 export function loadCloudflareScript() {
   return () => {
+    const platformId = inject(PLATFORM_ID);
+    if (!isPlatformBrowser(platformId)) return;
+
     const token = (window as any).__CF_TOKEN__; // 從環境或 window 取得
     const script = document.createElement('script');
     script.defer = true;
