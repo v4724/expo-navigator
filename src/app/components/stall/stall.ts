@@ -12,8 +12,8 @@ import {
 } from '@angular/core';
 import { StallData } from '../../core/interfaces/stall.interface';
 import { CommonModule } from '@angular/common';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { DraggableService } from 'src/app/core/services/state/draggable-service';
@@ -161,16 +161,19 @@ export class Stall implements OnInit, AfterViewInit {
       this.isTagMatch.set(isMatch);
       this.updateGroupAreaMatch();
     });
-  }
 
-  ngAfterViewInit(): void {
-    if (this._uiStateService.isPlatformBrowser()) {
-      const resizeObserver = new ResizeObserver(() => {
+    this._stallMapService.mapContentWH$
+      .pipe(
+        filter(({ w, h }) => {
+          return !!w && !!h;
+        }),
+      )
+      .subscribe(() => {
         this.resizeHandler();
       });
-      resizeObserver.observe(this.stallRef.nativeElement);
-    }
   }
+
+  ngAfterViewInit(): void {}
 
   updateGroupAreaMatch() {
     // If a match is found, record its row ID.
@@ -216,7 +219,7 @@ export class Stall implements OnInit, AfterViewInit {
   }
 
   resizeHandler() {
-    const mapH = this._stallMapService.mapImage?.height ?? 0;
+    const mapH = this._stallMapService.mapContentWH.h;
     if (mapH) {
       const h = (Number(this.stall().coords.height) * mapH) / 100;
       const fontSize = h * 0.7;

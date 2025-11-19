@@ -6,6 +6,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 })
 export class StallMapService {
   private _mapImage = new BehaviorSubject<HTMLImageElement | null>(null);
+  private _mapContentWH = new BehaviorSubject<{ w: number; h: number }>({ w: 0, h: 0 });
   private _mapContainer = new BehaviorSubject<HTMLElement | null>(null);
   private _matchStallsId = new BehaviorSubject<Map<string, Set<string>>>(
     new Map<string, Set<string>>(),
@@ -13,12 +14,17 @@ export class StallMapService {
   private _focus = new BehaviorSubject<string>('');
 
   mapImage$ = this._mapImage.asObservable();
+  mapContentWH$ = this._mapContentWH.asObservable();
   mapContainer$ = this._mapContainer.asObservable();
   matchStallsId$ = this._matchStallsId.asObservable();
   focus$ = this._focus.asObservable();
 
   set mapImage(el: HTMLImageElement) {
     this._mapImage.next(el);
+  }
+
+  set mapContentWH({ w, h }: { w: number; h: number }) {
+    this._mapContentWH.next({ w, h });
   }
 
   set mapContainer(el: HTMLElement) {
@@ -44,6 +50,10 @@ export class StallMapService {
 
   get mapContainer(): HTMLElement | null {
     return this._mapContainer.getValue();
+  }
+
+  get mapContentWH(): { w: number; h: number } {
+    return this._mapContentWH.getValue();
   }
 
   get mapImage(): HTMLImageElement | null {

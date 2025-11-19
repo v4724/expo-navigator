@@ -1,3 +1,4 @@
+import { CdkDragEnd, CdkDragMove, CdkDragStart, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -17,7 +18,7 @@ import { BehaviorSubject, catchError, EMPTY, finalize, first, forkJoin, map } fr
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
 import { Stall } from 'src/app/components/stall/stall';
 import { MAP_URL } from 'src/app/core/const/resource';
-import { Draggable, TargetXY } from 'src/app/core/directives/draggable';
+import { TargetXY } from 'src/app/core/directives/draggable';
 import { Area } from 'src/app/core/interfaces/area.interface';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { AreaService } from 'src/app/core/services/state/area-service';
@@ -28,7 +29,7 @@ import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 @Component({
   selector: 'app-map',
-  imports: [CommonModule, Stall, StallGroupArea, MatIcon, Draggable],
+  imports: [CommonModule, Stall, StallGroupArea, MatIcon, DragDropModule],
   templateUrl: './map.html',
   styleUrl: './map.scss',
 })
@@ -52,11 +53,13 @@ export class Map implements OnInit, AfterViewInit {
   mapHeight = signal<number>(0);
 
   // 縮放、拖曳的計算值
-  translateX = signal(0);
-  translateY = signal(0);
   scale = signal(1);
   maxScale = signal(3);
   focusScale = signal(3);
+  freePosition = { x: 0, y: 0 }; // cdkDragFreeDragPosition 來源
+  private dragStartPointer = { x: 0, y: 0 };
+  private dragStartPos = { x: 0, y: 0 };
+  private firstMove = true;
 
   mapImgSrc = MAP_URL;
   _mapImgLoaded = new BehaviorSubject<boolean>(false);
@@ -112,8 +115,14 @@ export class Map implements OnInit, AfterViewInit {
       this._stallMapService.mapContainer = this.mapContainer.nativeElement;
 
       requestAnimationFrame(() => {
-        this.mapWidth.set(this.mapContent.nativeElement.offsetWidth);
-        this.mapHeight.set(this.mapContent.nativeElement.offsetHeight);
+        const w = this.mapContent.nativeElement.offsetWidth;
+        const h = this.mapContent.nativeElement.offsetHeight;
+        this.mapWidth.set(w);
+        this.mapHeight.set(h);
+        this._stallMapService.mapContentWH = {
+          w,
+          h,
+        };
       });
     });
 
@@ -204,7 +213,7 @@ export class Map implements OnInit, AfterViewInit {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    const zoomIntensity = 0.1;
+    const zoomIntensity = this._uiStateService.isMobile() ? 0.5 : 0.1;
     const oldScale = this.scale();
     let newScale = oldScale + (event.deltaY < 0 ? zoomIntensity : -zoomIntensity);
     newScale = Math.min(Math.max(newScale, 1), this.maxScale());
@@ -227,49 +236,11 @@ export class Map implements OnInit, AfterViewInit {
     const scaleDelta = newScale / oldScale;
 
     // 平移補償，讓滑鼠對應到的內容點不會移動
-    const newTranslateX = this.translateX() - mouseOffsetXFromCenter * (scaleDelta - 1);
-    const newTranslateY = this.translateY() - mouseOffsetYFromCenter * (scaleDelta - 1);
+    const newTranslateX = this.freePosition.x - mouseOffsetXFromCenter * (scaleDelta - 1);
+    const newTranslateY = this.freePosition.y - mouseOffsetYFromCenter * (scaleDelta - 1);
 
     this.scale.set(newScale);
     this._setPosition({ x: newTranslateX, y: newTranslateY });
-  }
-
-  // 限制（Clamp）地圖偏移量
-  clampedBgXY(targetBgXY: TargetXY): { clampedBgX: number; clampedBgY: number } | null {
-    const x = targetBgXY.x;
-    const y = targetBgXY.y;
-
-    const viewW = this.mapContent.nativeElement.offsetWidth;
-    const viewH = this.mapContent.nativeElement.offsetHeight;
-    if (viewW === 0 || viewH === 0) return null;
-
-    const mapImage = this.mapImage.nativeElement;
-    const mapW = mapImage?.offsetWidth ?? 0;
-    const mapH = mapImage?.offsetHeight ?? 0;
-    if (mapW === 0 || mapH === 0) return null;
-
-    // 計算縮放後的地圖大小
-    const scaledMapW = mapW * this.scale();
-    const scaledMapH = mapH * this.scale();
-
-    // 邊界，可拖曳的範圍值
-    // 假設左側元件寬度
-    const viewElH = this.mapContainer.nativeElement.offsetHeight;
-    const sidebarW = 310;
-    const mobileStallInfoH = this._uiStateService.isMobile() ? viewElH / 4 : 0;
-    const minX = (viewW - scaledMapW) / 2;
-    const minY = (viewH - scaledMapH) / 2 - mobileStallInfoH;
-    const maxX = (scaledMapW - viewW) / 2 + sidebarW;
-    const maxY = (scaledMapH - viewH) / 2;
-
-    // 限制（Clamp）地圖偏移量 x>0: 往左上拖曳、反之往右下
-    const clampedBgX = x > 0 ? Math.min(x, maxX) : Math.max(x, minX);
-    const clampedBgY = y > 0 ? Math.min(y, maxY) : Math.max(y, minY);
-
-    return {
-      clampedBgX,
-      clampedBgY,
-    };
   }
 
   // 將指定攤位置中於畫面
@@ -305,8 +276,8 @@ export class Map implements OnInit, AfterViewInit {
     console.debug('orig stall position on screen', stallCenterX, stallCenterY);
 
     // 目前平移 XY
-    const translateX = this.translateX();
-    const translateY = this.translateY();
+    const translateX = this.freePosition.x;
+    const translateY = this.freePosition.y;
 
     // 畫面中心（容器內的視圖中心點）
     const viewCenterX = viewW / 2;
@@ -382,8 +353,8 @@ export class Map implements OnInit, AfterViewInit {
 
     // 將攤位置中（相對於地圖中心）
     const centerY = this._uiStateService.isMobile() ? scaledMapCenterY / 2 : scaledMapCenterY;
-    const newTranslateX = scaledMapCenterX - scaledStallX;
-    const newTranslateY = centerY - scaledStallY;
+    const newTranslateX = (scaledMapCenterX - scaledStallX) / this.scale();
+    const newTranslateY = (centerY - scaledStallY) / this.scale();
 
     console.debug('orig focus position');
     console.debug(newTranslateX, scaledMapCenterX, '-', scaledStallX);
@@ -393,14 +364,74 @@ export class Map implements OnInit, AfterViewInit {
     this._setPosition({ x: newTranslateX, y: newTranslateY });
   }
 
-  _setPosition(targetBgXY: TargetXY) {
-    const xy = this.clampedBgXY(targetBgXY);
+  _setPosition(newTranslateXY: TargetXY) {
+    const { x, y } = this.clampPosition(newTranslateXY.x, newTranslateXY.y);
 
-    console.debug('set map position', xy);
-    if (xy) {
-      this.translateX.set(xy.clampedBgX);
-      this.translateY.set(xy.clampedBgY);
+    console.debug('set map position', x, y);
+    this.freePosition = {
+      x,
+      y,
+    };
+  }
+
+  onDragStarted(event: CdkDragStart) {
+    this.firstMove = true;
+  }
+
+  onDragMoved(event: CdkDragMove) {
+    if (this.firstMove) {
+      this.dragStartPointer = {
+        x: event.pointerPosition.x,
+        y: event.pointerPosition.y,
+      };
+      this.dragStartPos = { ...this.freePosition };
+      this.firstMove = false;
     }
+
+    const s = this.scale();
+    const dx = (event.pointerPosition.x - this.dragStartPointer.x) / s;
+    const dy = (event.pointerPosition.y - this.dragStartPointer.y) / s;
+
+    const origX = this.dragStartPos.x + dx;
+    const origY = this.dragStartPos.y + dy;
+
+    this._setPosition({ x: origX, y: origY });
+  }
+
+  onDragEnded(event: CdkDragEnd) {
+    // 可以在這裡做最後修正或發送位置
+  }
+
+  // 中心點 0,0 限制拖曳範圍
+  private clampPosition(x: number, y: number): { x: number; y: number } {
+    const content = this.mapContent.nativeElement;
+
+    const mapWidth = content.offsetWidth;
+    const mapHeight = content.offsetHeight;
+
+    // 計算縮放後的地圖大小
+    const s = this.scale();
+    const displayWidth = mapWidth * s;
+    const displayHeight = mapHeight * s;
+
+    const cw = content.offsetWidth;
+    const ch = content.offsetHeight;
+
+    // 邊界，可拖曳的範圍值
+    // 假設左側元件寬度
+    const viewElH = this.mapContainer.nativeElement.offsetHeight;
+    const sidebarW = 310;
+    const mobileStallInfoH = this._uiStateService.isMobile() ? viewElH / 4 : 0;
+    let minX = (cw - displayWidth) / 2 / s;
+    let maxX = ((displayWidth - cw) / 2 + sidebarW) / s;
+    let minY = ((ch - displayHeight) / 2 - mobileStallInfoH) / s;
+    let maxY = (displayHeight - ch) / 2 / s;
+
+    // x > 0 (往右方拖曳，地圖往右平移)
+    x = x > 0 ? Math.min(x, maxX) : Math.max(x, minX);
+    y = y > 0 ? Math.min(y, maxY) : Math.max(y, minY);
+
+    return { x, y };
   }
 }
 
