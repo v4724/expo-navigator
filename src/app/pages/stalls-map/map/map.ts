@@ -452,7 +452,8 @@ export class Map implements OnInit, AfterViewInit {
       event.preventDefault();
       const currentDistance = this.getDistance(event.touches);
       const scaleChange = currentDistance / this.initialDistance;
-      this.scale.set(this.initialScale * scaleChange);
+      let newScale = Math.min(Math.max(this.initialScale * scaleChange, 1), this.maxScale());
+      this.scale.set(newScale);
       this.draggableDiv.nativeElement.style.transform = `scale(${this.scale})`;
     }
   }
