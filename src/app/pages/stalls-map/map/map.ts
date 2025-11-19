@@ -433,6 +433,42 @@ export class Map implements OnInit, AfterViewInit {
 
     return { x, y };
   }
+
+  @ViewChild('draggableDiv') draggableDiv!: ElementRef<HTMLDivElement>;
+
+  private initialDistance = 0;
+  private initialScale = 1;
+
+  onTouchStart(event: TouchEvent) {
+    if (event.touches.length === 2) {
+      event.preventDefault(); // 阻止滾動
+      this.initialDistance = this.getDistance(event.touches);
+      this.initialScale = this.scale();
+    }
+  }
+
+  onTouchMove(event: TouchEvent) {
+    if (event.touches.length === 2) {
+      event.preventDefault();
+      const currentDistance = this.getDistance(event.touches);
+      const scaleChange = currentDistance / this.initialDistance;
+      this.scale.set(this.initialScale * scaleChange);
+      this.draggableDiv.nativeElement.style.transform = `scale(${this.scale})`;
+    }
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    if (event.touches.length < 2) {
+      this.initialDistance = 0;
+    }
+  }
+
+  private getDistance(touches: TouchList): number {
+    const [touch1, touch2] = [touches[0], touches[1]];
+    const dx = touch2.clientX - touch1.clientX;
+    const dy = touch2.clientY - touch1.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 }
 
 // function renderDebugBorders(mapContainer: HTMLElement) {
