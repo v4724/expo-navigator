@@ -420,7 +420,7 @@ export class Map implements OnInit, AfterViewInit {
     // 邊界，可拖曳的範圍值
     // 假設左側元件寬度
     const viewElH = this.mapContainer.nativeElement.offsetHeight;
-    const sidebarW = 310;
+    const sidebarW = this._uiStateService.isMobile() ? 0 : 310;
     const mobileStallInfoH = this._uiStateService.isMobile() ? viewElH / 4 : 0;
     let minX = (cw - displayWidth) / 2 / s;
     let maxX = ((displayWidth - cw) / 2 + sidebarW) / s;
