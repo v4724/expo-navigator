@@ -1,0 +1,61 @@
+<ion-modal
+  #modal
+  [expandToScroll]="false"
+  [initialBreakpoint]="0.75"
+  [breakpoints]="[0, 0.5, 0.75, 1]"
+  [backdropDismiss]="false"
+  [backdropBreakpoint]="0.5"
+>
+  <ng-template>
+    <ion-content class="mt-2 border-t rounded-t-lg border-gray-300/50 overflow-hidden">
+      <div class="sticky top-0 z-1 p-4 pr-2 pb-3 flex shadow bg-white">
+        <ion-title class="">搜尋列表</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modal.dismiss()"><ion-icon name="close"></ion-icon></ion-button>
+        </ion-buttons>
+      </div>
+      <div class="p-4 flex flex-col gap-2">
+        @if (results()?.length === 0) {
+          <div class="flex-1 flex items-center justify-center">無查詢結果</div>
+        }
+
+        @for (item of results(); track $index) {
+          @if ($index > 0) {
+            <p-divider></p-divider>
+          }
+          <div
+            class="flex items-center w-full gap-4 transition hover:scale-102 hover:cursor-pointer"
+            (click)="selectAndFocus(item)"
+          >
+            <div
+              class="shrink w-[100px] h-[100px] rounded-lg border border-gray-400 overflow-hidden"
+            >
+              @if (item.stallImg) {
+                <img class="w-full h-full object-cover object-center" [src]="item.stallImg" />
+              }
+            </div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div>{{ item.id }}-{{ item.stallTitle }}</div>
+              <div class="flex flex-wrap">
+                @for (promo of item.promoData; track $index) {
+                  @if ($index > 0) {
+                    /
+                  }
+                  {{ promo.promoTitle }}
+                }
+              </div>
+              <div class="flex flex-wrap gap-1 text-[10px]">
+                @for (series of item.filterSeries; track $index) {
+                  <span class="promo-tag inline-flex"> #{{ series | seriesPipe }} </span>
+                }
+                @if (item.filterCustomTags) {
+                  <span class="promo-tag"> #{{ item.filterCustomTags }} </span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

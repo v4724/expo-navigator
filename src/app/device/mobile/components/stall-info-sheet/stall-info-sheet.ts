@@ -24,9 +24,17 @@ export class StallInfoSheet implements OnInit {
         distinctUntilChanged(),
       )
       .subscribe((id) => {
-        this.modal.present().then(() => {
-          this.modal.setCurrentBreakpoint(0.5);
-        });
+        if (this.modal.isOpen) {
+          this.modal.dismiss().then(() => {
+            this.modal.present().then(() => {
+              this.modal.setCurrentBreakpoint(0.5);
+            });
+          });
+        } else {
+          this.modal.present().then(() => {
+            this.modal.setCurrentBreakpoint(0.5);
+          });
+        }
         if (id) {
           setTimeout(() => {
             this._stallMapService.focusStall(id);

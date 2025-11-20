@@ -434,8 +434,6 @@ export class Map implements OnInit, AfterViewInit {
     return { x, y };
   }
 
-  @ViewChild('draggableDiv') draggableDiv!: ElementRef<HTMLDivElement>;
-
   private initialDistance = 0;
   private initialScale = 1;
 
@@ -454,7 +452,6 @@ export class Map implements OnInit, AfterViewInit {
       const scaleChange = currentDistance / this.initialDistance;
       let newScale = Math.min(Math.max(this.initialScale * scaleChange, 1), this.maxScale());
       this.scale.set(newScale);
-      this.draggableDiv.nativeElement.style.transform = `scale(${this.scale})`;
     }
   }
 

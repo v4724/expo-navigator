@@ -2,12 +2,12 @@
   #modal
   [expandToScroll]="false"
   [initialBreakpoint]="0.5"
-  [breakpoints]="[0, 0.25, 0.5, 1]"
+  [breakpoints]="[0, 0.25, 0.5, 0.75, 1]"
   [backdropDismiss]="false"
   [backdropBreakpoint]="0.5"
 >
   <ng-template>
-    <ion-content class="border-t rounded-t-lg border-gray-600/50 overflow-hidden">
+    <ion-content class="border-t rounded-t-lg border-gray-300/50 overflow-hidden">
       <app-stall-side-nav (close)="close()"></app-stall-side-nav>
     </ion-content>
   </ng-template>

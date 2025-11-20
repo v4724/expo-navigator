@@ -19,8 +19,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { CommonModule } from '@angular/common';
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
-import { Stall } from 'src/app/components/stall/stall';
 import { StallInfoSheet } from '../components/stall-info-sheet/stall-info-sheet';
+import { Button } from 'primeng/button';
+import { SearchResultListSheet } from '../components/search-result-list-sheet/search-result-list-sheet';
 
 @Component({
   selector: 'app-home',
@@ -38,6 +39,8 @@ import { StallInfoSheet } from '../components/stall-info-sheet/stall-info-sheet'
     ControlLayersSheet,
     UserModal,
     StallInfoSheet,
+    SearchResultListSheet,
+    Button,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
@@ -48,7 +51,11 @@ export class Home {
   private router = inject(Router);
 
   isLogin = toSignal(this._userService.isLogin$);
+
+  // 搜尋
+  isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
   currSearchTerm = toSignal(this._searchAndFilterService.inputSearch$);
+  results = toSignal(this._searchAndFilterService.filterStalls$);
 
   constructor() {
     addIcons({ person });

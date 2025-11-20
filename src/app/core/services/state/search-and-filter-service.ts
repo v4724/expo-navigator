@@ -2,9 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { StallService } from './stall-service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
-import { TooltipService } from './tooltip-service';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { StallInfo } from 'src/app/components/stall-info-ui/stall-info/stall-info';
 import { TagService } from './tag-service';
 
 @Injectable({
@@ -14,10 +11,12 @@ export class SearchAndFilterService {
   private _inputSearch = new BehaviorSubject<string | null>(null);
   private _filterStalls = new BehaviorSubject<StallData[]>([]);
   private _isFiltering = new BehaviorSubject<boolean>(false);
+  private _hasFilter = new BehaviorSubject<boolean>(false);
 
   inputSearch$ = this._inputSearch.asObservable();
   filterStalls$ = this._filterStalls.asObservable();
   isFiltering$ = this._isFiltering.asObservable();
+  hasFilter$ = this._hasFilter.asObservable();
 
   private _tagService = inject(TagService);
   private _stallService = inject(StallService);
@@ -74,9 +73,15 @@ export class SearchAndFilterService {
         console.debug('filter stalls', filter);
         this.filterStalls = filter;
 
-        const isFiltering =
-          !!searchTerm || seriesIds.size > 0 || Object.keys(advancedFilter).length > 0;
+        const hasFilter = Object.keys(advancedFilter).some((seriesId) => {
+          const numId = Number(seriesId);
+          const hasAdvancedFilter =
+            advancedFilter[numId]['cp'].size > 0 || advancedFilter[numId]['char'].size > 0;
+          return hasAdvancedFilter;
+        });
+        const isFiltering = !!searchTerm || seriesIds.size > 0 || hasFilter;
         this._isFiltering.next(isFiltering);
+        this._hasFilter.next(hasFilter);
       });
   }
 }
