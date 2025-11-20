@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, filter, Subject } from 'rxjs';
 import { MarkedListDto, MarkedListUpdateDto } from '../../models/marked-stall.model';
 import { StallService } from './stall-service';
 import { MarkedList } from '../../interfaces/marked-stall.interface';
@@ -40,7 +40,13 @@ export class MarkedStallService {
   }
 
   initAfterLogin(dto: MarkedListDto[]) {
-    this._processMarkedList(dto);
+    if (this._stallService.fetchEnd) {
+      this._processMarkedList(dto);
+    } else {
+      this._stallService.fetchEnd$.pipe(filter((val) => !!val)).subscribe(() => {
+        this._processMarkedList(dto);
+      });
+    }
     this._fetchEnd.next(true);
   }
 

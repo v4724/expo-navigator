@@ -65,6 +65,10 @@ export class StallService {
     return this._validStallIds;
   }
 
+  get fetchEnd() {
+    return this._fetchEnd.getValue();
+  }
+
   findStall(id: string): StallData | undefined {
     return this._allStalls.getValue().find((stall) => stall.id === id);
   }
