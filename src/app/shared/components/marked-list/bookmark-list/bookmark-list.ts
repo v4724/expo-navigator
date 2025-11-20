@@ -8,10 +8,14 @@ import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { UserService } from 'src/app/core/services/state/user-service';
+import { AccordionModule } from 'primeng/accordion';
+import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
+import { StallMapService } from 'src/app/core/services/state/stall-map-service';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-bookmark-list',
-  imports: [CommonModule, MatIconModule, EditBtn],
+  imports: [CommonModule, MatIconModule, EditBtn, AccordionModule, ButtonModule],
   templateUrl: './bookmark-list.html',
   styleUrl: './bookmark-list.scss',
 })
@@ -19,18 +23,28 @@ export class BookmarkList {
   private _userService = inject(UserService);
   private _markedListService = inject(MarkedStallService);
   private _markedListApiService = inject(MarkedListApiService);
+  private _selectStallService = inject(SelectStallService);
+  private _stallMapService = inject(StallMapService);
   private _snackBar = inject(MatSnackBar);
 
   user = toSignal(this._userService.user$);
   fetchEnd = toSignal(this._markedListService.fetchEnd$);
   allList = toSignal(this._markedListService.markedList$, { initialValue: [] });
 
+  selectAndFocus(stallId: string) {
+    this._selectStallService.selected = stallId;
+    setTimeout(() => {
+      this._stallMapService.focusStall(stallId);
+    }, 100);
+  }
+
   toggleList(list: MarkedList) {
     list.show = !list.show;
     this._markedListService.toggleList(list);
   }
 
-  deleteList(list: MarkedList) {
+  deleteList(e: Event, list: MarkedList) {
+    e.stopPropagation();
     list.isUpdating = true;
     this._markedListApiService.delete(list.id, this.user()?.acc!).subscribe((res) => {
       if (res.success) {

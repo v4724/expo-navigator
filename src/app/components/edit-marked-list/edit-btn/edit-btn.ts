@@ -18,7 +18,8 @@ export class EditBtn {
 
   currDialogRef: MatDialogRef<any> | null = null;
 
-  openEditModal() {
+  openEditModal(e: Event) {
+    e.stopPropagation();
     const dialogRef = this._dialog.open(EditMarkedListModal, {
       hasBackdrop: true, // 有底色
       disableClose: true, // 取消點選背景自動關閉
