@@ -3,7 +3,6 @@ import {
   IonModal,
   IonContent,
   IonIcon,
-  IonToolbar,
   IonTitle,
   IonButtons,
   IonButton,
@@ -20,17 +19,7 @@ import { close } from 'ionicons/icons';
 
 @Component({
   selector: 'app-search-result-list-sheet',
-  imports: [
-    IonModal,
-    IonContent,
-    IonIcon,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonButton,
-    Divider,
-    SeriesPipe,
-  ],
+  imports: [IonModal, IonContent, IonIcon, IonTitle, IonButtons, IonButton, Divider, SeriesPipe],
   templateUrl: './search-result-list-sheet.html',
   styleUrl: './search-result-list-sheet.scss',
 })

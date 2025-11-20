@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import {
-  IonIcon,
   IonToolbar,
   IonSearchbar,
   IonContent,
@@ -27,7 +26,6 @@ import { SearchResultListSheet } from '../components/search-result-list-sheet/se
   selector: 'app-home',
   imports: [
     CommonModule,
-    IonIcon,
     IonToolbar,
     IonSearchbar,
     IonContent,

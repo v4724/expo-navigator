@@ -15,6 +15,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close } from 'ionicons/icons';
+import { Avatar } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { CreateUserModal } from 'src/app/components/user/create-user-modal/create-user-modal';
@@ -37,6 +38,7 @@ import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-
     IonFooter,
     IonToolbar,
     IonButtons,
+    Avatar,
   ],
   templateUrl: './user-modal.html',
   styleUrl: './user-modal.scss',

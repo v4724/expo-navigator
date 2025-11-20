@@ -1,5 +1,7 @@
 <button
-  class="p-2 border rounded-full bg-white/60 flex items-center text-gray-600 border-gray-300"
+  class="p-2 border rounded-full bg-white/60 flex items-center border-gray-300"
+  [ngClass]="{ 'text-gray-300 pointer-none': !isFiltering(), 'text-gray-600': isFiltering() }"
+  [disabled]="!isFiltering()"
   (click)="openEditModal()"
   aria-label="list modal"
 >

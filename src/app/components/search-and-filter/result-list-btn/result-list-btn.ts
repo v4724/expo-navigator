@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { LeftSidebarService } from 'src/app/core/services/state/left-sidebar-service';
+import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-result-list-btn',
@@ -14,8 +16,11 @@ import { LeftSidebarService } from 'src/app/core/services/state/left-sidebar-ser
 export class ResultListBtn {
   private readonly _dialog = inject(MatDialog);
   private readonly _leftSidebarService = inject(LeftSidebarService);
+  private readonly _searchAndFilterService = inject(SearchAndFilterService);
 
   currDialogRef: MatDialogRef<any> | null = null;
+
+  isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
 
   openEditModal() {
     this._openSidebar();

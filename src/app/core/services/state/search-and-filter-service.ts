@@ -76,7 +76,7 @@ export class SearchAndFilterService {
         const hasFilter = Object.keys(advancedFilter).some((seriesId) => {
           const numId = Number(seriesId);
           const hasAdvancedFilter =
-            advancedFilter[numId]['cp'].size > 0 || advancedFilter[numId]['char'].size > 0;
+            advancedFilter[numId]['cp']?.size > 0 || advancedFilter[numId]['char']?.size > 0;
           return hasAdvancedFilter;
         });
         const isFiltering = !!searchTerm || seriesIds.size > 0 || hasFilter;
