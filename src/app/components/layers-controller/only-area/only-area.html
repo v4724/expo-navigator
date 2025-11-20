@@ -1,10 +1,10 @@
 <div class="mb-4 border-b pb-2 pr-1">
-  <div class="w-full flex items-center">
+  <div class="w-full flex items-center gap-x-2">
     <input
       type="checkbox"
       [checked]="show()"
       (change)="toggleLayer()"
-      class="h-4 w-4 rounded mr-2 accent-blue-500"
+      class="h-4 w-4 rounded accent-blue-500"
     />
     <button
       (click)="toggleAreaSection()"
@@ -38,7 +38,7 @@
       @if (allAreas().length) {
         <div class="mt-2 space-y-2 pl-2" animate.enter="fade-in" animate.leave="fade-out">
           @for (area of allAreas(); track area.areaId) {
-            <label class="flex items-center space-x-2 cursor-pointer">
+            <label class="flex items-center gap-x-2 cursor-pointer">
               <!-- <input
                 type="checkbox"
                 [checked]="activeAreas().has(area.areaId)"

@@ -9,7 +9,6 @@ import {
   IonModal,
   IonContent,
   IonButton,
-  IonIcon,
   IonFooter,
   IonToolbar,
   IonButtons,
@@ -35,7 +34,6 @@ import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-
     IonModal,
     IonContent,
     IonButton,
-    IonIcon,
     IonFooter,
     IonToolbar,
     IonButtons,
@@ -62,6 +60,10 @@ export class UserModal {
 
   constructor() {
     addIcons({ close });
+  }
+
+  show() {
+    this.modal.present();
   }
 
   enterAnimation = (baseEl: HTMLElement) => {

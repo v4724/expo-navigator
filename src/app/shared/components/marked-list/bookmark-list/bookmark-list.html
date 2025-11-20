@@ -9,12 +9,12 @@
 @if (allList().length) {
   <div class="flex flex-col mt-2">
     @for (list of allList(); track $index) {
-      <div class="w-full flex items-center py-1">
+      <div class="w-full flex items-center py-1 gap-x-2">
         <input
           type="checkbox"
           [checked]="list.show"
           (change)="toggleList(list)"
-          class="h-4 w-4 rounded mr-2 accent-purple-800"
+          class="h-4 w-4 rounded accent-purple-800"
         />
         <button class="flex items-center">
           <mat-icon
@@ -26,7 +26,7 @@
           ></mat-icon>
         </button>
         <div class="w-full flex items-center text-left text-gray-700 pr-1">
-          <span class="flex text-nowrap pl-1 pr-2">{{ list.listName }}</span>
+          <span class="flex text-nowrap pr-2">{{ list.listName }}</span>
           <div>({{ list.list.length }})</div>
           <div class="flex gap-1 items-center ml-auto">
             <button

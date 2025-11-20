@@ -9,17 +9,12 @@
           [value]="currSearchTerm()"
         ></ion-searchbar>
         <div class="flex items-center pr-1">
-          <ion-button
-            class="ml-auto"
-            aria-label="User"
-            fill="outline"
-            shape="round"
-            id="user-modal-trigger"
-            expand="block"
-          >
-            <ion-icon slot="icon-only" name="person" aria-hidden="true"></ion-icon>
-          </ion-button>
-          <app-user-modal> </app-user-modal>
+          <p-button
+            icon="pi pi-user"
+            [rounded]="true"
+            [outlined]="true"
+            (click)="userModal.show()"
+          />
         </div>
       </div>
 
@@ -72,5 +67,6 @@
   </ion-toolbar>
 </ion-footer>
 
+<app-user-modal #userModal> </app-user-modal>
 <app-stall-info-sheet> </app-stall-info-sheet>
 <app-search-result-list-sheet #resultList></app-search-result-list-sheet>
