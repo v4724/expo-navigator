@@ -1,0 +1,9 @@
+::ng-deep {
+  // header 下方陰影
+  .stall-info-drawer.p-drawer.p-drawer-bottom > .p-drawer-header {
+    z-index: 99;
+  }
+  .stall-info-drawer.p-drawer.p-drawer-bottom > .p-drawer-content {
+    padding: 0;
+  }
+}

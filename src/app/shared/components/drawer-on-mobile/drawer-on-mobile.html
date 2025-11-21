@@ -1,29 +1,37 @@
 <p-drawer
   [(visible)]="visible"
   position="bottom"
-  styleClass="!transition-all duration-100 !shadow-[0_-1px_5px_rgba(0,0,0,0.1)]"
+  [styleClass]="_styleClass()"
   [modal]="false"
   [style]="{ height: drawerHeight + 'px' }"
+  [closable]="false"
 >
   <ng-template #header>
-    <div class="w-full">
-      <div class="relative flex justify-center h-0">
+    <div class="absolute top-0 h-0 w-full flex justify-center">
+      <div class="relative w-1/5 h-[6px] rounded-full bg-gray-300 m-1">
         <div
-          class="relative absolute w-1/5 h-[6px] top-[-10px] left-[12px] rounded-full bg-gray-300 m-1"
-        >
-          <div
-            class="flex items-center absolute top-0 left-0 w-full h-full"
-            cdkDrag
-            cdkDragLockAxis="y"
-            (cdkDragStarted)="onDragStart($event)"
-            (cdkDragMoved)="onDrag($event)"
-            (cdkDragEnded)="onDragEnd($event)"
-          ></div>
-        </div>
+          class="flex items-center absolute top-0 left-0 w-full h-full"
+          cdkDrag
+          cdkDragLockAxis="y"
+          (cdkDragStarted)="onDragStart($event)"
+          (cdkDragMoved)="onDrag($event)"
+          (cdkDragEnded)="onDragEnd($event)"
+        ></div>
       </div>
-
-      <ng-content select="[title]"></ng-content>
     </div>
+    @if (title()) {
+      <div class="w-full flex p-3 px-4 items-center">
+        <ng-content select="[title]"></ng-content>
+
+        <p-button
+          class="ml-auto"
+          icon="pi pi-times"
+          [rounded]="true"
+          [text]="true"
+          (click)="close()"
+        />
+      </div>
+    }
   </ng-template>
 
   <ng-content></ng-content>

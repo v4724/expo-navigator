@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragEnd, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 
@@ -11,11 +11,21 @@ import { DrawerModule } from 'primeng/drawer';
   styleUrl: './drawer-on-mobile.scss',
 })
 export class DrawerOnMobile {
+  styleClass = input<string>('');
+  title = input<boolean>(true);
+
   visible = false;
 
   drawerHeight = 300;
   startHeight = 300;
   dragStartY = 0;
+
+  firstMove = false;
+  snapPoints = [0, 0.25, 0.5, 0.9]; // 25%、50%、90%
+
+  _styleClass = computed(() => {
+    return this.styleClass() + ' !transition-all duration-100 !shadow-[0_-1px_5px_rgba(0,0,0,0.1)]';
+  });
 
   show() {
     this.visible = true;
@@ -25,9 +35,6 @@ export class DrawerOnMobile {
   close() {
     this.visible = false;
   }
-
-  firstMove = false;
-  snapPoints = [0, 0.25, 0.5, 0.9]; // 25%、50%、90%
 
   onDragStart(event: CdkDragStart) {
     this.startHeight = this.drawerHeight;

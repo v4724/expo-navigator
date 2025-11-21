@@ -1,0 +1,19 @@
+::ng-deep {
+  // header 下方陰影
+  .p-drawer.p-drawer-bottom > .p-drawer-header {
+    --p-drawer-header-padding: 0;
+    --tw-shadow:
+      0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)),
+      0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow:
+      var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow),
+      var(--tw-ring-shadow), var(--tw-shadow);
+    z-index: 1;
+    .p-button {
+      --p-button-icon-only-width: 24px;
+    }
+  }
+  .p-drawer.p-drawer-bottom > .p-drawer-content {
+    padding-top: 0.75rem;
+  }
+}

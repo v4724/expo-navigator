@@ -1,15 +1,6 @@
 import { Component, inject } from '@angular/core';
-import {
-  IonToolbar,
-  IonSearchbar,
-  IonContent,
-  IonFooter,
-  IonButton,
-  IonButtons,
-} from '@ionic/angular/standalone';
+import { IonSearchbar } from '@ionic/angular/standalone';
 import { Map } from 'src/app/pages/stalls-map/map/map';
-import { MarkedListSheet } from '../components/marked-list-sheet/marked-list-sheet';
-import { ControlLayersSheet } from '../components/control-layers-sheet/control-layers-sheet';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { person } from 'ionicons/icons';
@@ -18,11 +9,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { CommonModule } from '@angular/common';
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
-import { StallInfoSheet } from '../components/stall-info-sheet/stall-info-sheet';
 import { Button } from 'primeng/button';
 import { SearchResultListSheet } from '../components/search-result-list-sheet/search-result-list-sheet';
 import { MarkedListDrawer } from '../components/marked-list-drawer/marked-list-drawer';
 import { ControlLayersDrawer } from '../components/control-layers-drawer/control-layers-drawer';
+import { StallInfoDrawer } from '../components/stall-info-drawer/stall-info-drawer';
 
 @Component({
   selector: 'app-home',
@@ -31,11 +22,11 @@ import { ControlLayersDrawer } from '../components/control-layers-drawer/control
     IonSearchbar,
     Map,
     UserModal,
-    StallInfoSheet,
     SearchResultListSheet,
     Button,
     MarkedListDrawer,
     ControlLayersDrawer,
+    StallInfoDrawer,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
