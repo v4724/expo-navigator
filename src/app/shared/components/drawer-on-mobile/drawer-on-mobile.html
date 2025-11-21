@@ -1,0 +1,30 @@
+<p-drawer
+  [(visible)]="visible"
+  position="bottom"
+  styleClass="!transition-all duration-100 !shadow-[0_-1px_5px_rgba(0,0,0,0.1)]"
+  [modal]="false"
+  [style]="{ height: drawerHeight + 'px' }"
+>
+  <ng-template #header>
+    <div class="w-full">
+      <div class="relative flex justify-center h-0">
+        <div
+          class="relative absolute w-1/5 h-[6px] top-[-10px] left-[12px] rounded-full bg-gray-300 m-1"
+        >
+          <div
+            class="flex items-center absolute top-0 left-0 w-full h-full"
+            cdkDrag
+            cdkDragLockAxis="y"
+            (cdkDragStarted)="onDragStart($event)"
+            (cdkDragMoved)="onDrag($event)"
+            (cdkDragEnded)="onDragEnd($event)"
+          ></div>
+        </div>
+      </div>
+
+      <ng-content select="[title]"></ng-content>
+    </div>
+  </ng-template>
+
+  <ng-content></ng-content>
+</p-drawer>
