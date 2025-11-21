@@ -1,5 +1,5 @@
-<ion-content class="ion-padding">
-  <div class="flex flex-col h-full">
+<div class="flex flex-col h-full">
+  <div class="flex flex-col flex-grow">
     <div class="flex flex-col">
       <div class="flex">
         <ion-searchbar
@@ -39,34 +39,24 @@
     </div>
     <app-map class="flex-grow"></app-map>
   </div>
-</ion-content>
-<ion-footer>
-  <ion-toolbar>
-    <ion-buttons class="flex flex-row justify-between">
-      <ion-button
-        class=""
-        [ngClass]="{ hidden: !isLogin(), 'w-1/2': isLogin() }"
-        id="marked-list-sheet-trigger"
-        expand="block"
-      >
-        書籤
-      </ion-button>
 
-      <ion-button
-        class=""
-        [ngClass]="{ 'w-full': !isLogin(), 'w-1/2': isLogin() }"
-        id="control-layers-sheet-trigger"
-        expand="block"
-      >
-        圖層
-      </ion-button>
+  <div class="flex flex-row mt-auto justify-between h-12 shadow">
+    <button
+      pButton
+      class="block"
+      [ngClass]="{ hidden: !isLogin(), 'w-1/2': isLogin() }"
+      (click)="markedListDrawer.show()"
+    >
+      書籤
+    </button>
+    <button pButton class="block" [ngClass]="{ 'w-full': !isLogin(), 'w-1/2': isLogin() }">
+      圖層
+    </button>
+  </div>
+</div>
 
-      <app-marked-list-sheet> </app-marked-list-sheet>
-      <app-control-layers-sheet> </app-control-layers-sheet>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-footer>
-
+<app-marked-list-drawer #markedListDrawer></app-marked-list-drawer>
+<app-control-layers-sheet> </app-control-layers-sheet>
 <app-user-modal #userModal> </app-user-modal>
 <app-stall-info-sheet> </app-stall-info-sheet>
 <app-search-result-list-sheet #resultList></app-search-result-list-sheet>

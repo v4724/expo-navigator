@@ -21,24 +21,20 @@ import { SearchAndFilterService } from 'src/app/core/services/state/search-and-f
 import { StallInfoSheet } from '../components/stall-info-sheet/stall-info-sheet';
 import { Button } from 'primeng/button';
 import { SearchResultListSheet } from '../components/search-result-list-sheet/search-result-list-sheet';
+import { MarkedListDrawer } from '../components/marked-list-drawer/marked-list-drawer';
 
 @Component({
   selector: 'app-home',
   imports: [
     CommonModule,
-    IonToolbar,
     IonSearchbar,
-    IonContent,
-    IonFooter,
     Map,
-    IonButton,
-    IonButtons,
-    MarkedListSheet,
     ControlLayersSheet,
     UserModal,
     StallInfoSheet,
     SearchResultListSheet,
     Button,
+    MarkedListDrawer,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
