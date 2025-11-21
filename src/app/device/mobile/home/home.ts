@@ -22,6 +22,7 @@ import { StallInfoSheet } from '../components/stall-info-sheet/stall-info-sheet'
 import { Button } from 'primeng/button';
 import { SearchResultListSheet } from '../components/search-result-list-sheet/search-result-list-sheet';
 import { MarkedListDrawer } from '../components/marked-list-drawer/marked-list-drawer';
+import { ControlLayersDrawer } from '../components/control-layers-drawer/control-layers-drawer';
 
 @Component({
   selector: 'app-home',
@@ -29,12 +30,12 @@ import { MarkedListDrawer } from '../components/marked-list-drawer/marked-list-d
     CommonModule,
     IonSearchbar,
     Map,
-    ControlLayersSheet,
     UserModal,
     StallInfoSheet,
     SearchResultListSheet,
     Button,
     MarkedListDrawer,
+    ControlLayersDrawer,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',

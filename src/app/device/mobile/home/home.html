@@ -40,7 +40,7 @@
     <app-map class="flex-grow"></app-map>
   </div>
 
-  <div class="flex flex-row mt-auto justify-between h-12 shadow">
+  <div class="flex flex-row mt-auto justify-between h-12 shadow-[0_-1px_5px_rgba(0,0,0,0.1)]">
     <button
       pButton
       class="block"
@@ -49,14 +49,19 @@
     >
       書籤
     </button>
-    <button pButton class="block" [ngClass]="{ 'w-full': !isLogin(), 'w-1/2': isLogin() }">
+    <button
+      pButton
+      class="block"
+      [ngClass]="{ 'w-full': !isLogin(), 'w-1/2': isLogin() }"
+      (click)="controlLayersDrawer.show()"
+    >
       圖層
     </button>
   </div>
 </div>
 
 <app-marked-list-drawer #markedListDrawer></app-marked-list-drawer>
-<app-control-layers-sheet> </app-control-layers-sheet>
+<app-control-layers-drawer #controlLayersDrawer></app-control-layers-drawer>
 <app-user-modal #userModal> </app-user-modal>
 <app-stall-info-sheet> </app-stall-info-sheet>
 <app-search-result-list-sheet #resultList></app-search-result-list-sheet>
