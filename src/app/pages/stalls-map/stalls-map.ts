@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { Topbar } from './topbar/topbar';
 import { Map } from './map/map';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { EditBtn } from 'src/app/components/edit-stall/edit-btn/edit-btn';
 import { StallSideNav } from 'src/app/components/stall-info-ui/stall-side-nav/stall-side-nav';
 import { LeftSidebar } from 'src/app/components/left-sidebar/left-sidebar';
 
@@ -19,7 +18,6 @@ import { LeftSidebar } from 'src/app/components/left-sidebar/left-sidebar';
     Map,
     MatSidenavModule,
     StallSideNav,
-    EditBtn,
     LeftSidebar,
   ],
   templateUrl: './stalls-map.html',

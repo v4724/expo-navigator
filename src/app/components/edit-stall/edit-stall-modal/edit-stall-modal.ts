@@ -50,7 +50,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ResponseSnackBar } from 'src/app/shared/components/response-snack-bar/response-snack-bar';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StallSideNav } from '../../stall-info-ui/stall-side-nav/stall-side-nav';
+// import { StallSideNav } from '../../stall-info-ui/stall-side-nav/stall-side-nav';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
@@ -62,6 +62,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { isEqual } from 'lodash-es';
 import { PromoStallDto, UpdatePromoStallDto } from 'src/app/core/models/promo-stall.model';
 import { Dialog } from 'primeng/dialog';
+import { StallSideContent } from '../../stall-info-ui/stall-side-nav/stall-side-content/stall-side-content';
+import { StallSideHeader } from '../../stall-info-ui/stall-side-nav/stall-side-header/stall-side-header';
 
 interface MyTab {
   icon: string;
@@ -97,13 +99,14 @@ interface StallTag extends StallTagDto {
     BadgeModule,
     MatProgressSpinnerModule,
     CKEditorModule,
-    StallSideNav,
+    // StallSideNav,
+    StallSideHeader,
+    StallSideContent,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
 })
 export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(Dialog) dialog!: Dialog;
   @ViewChild(Tabs) promoTabs!: Tabs;
 
   private readonly _stallService = inject(StallService);

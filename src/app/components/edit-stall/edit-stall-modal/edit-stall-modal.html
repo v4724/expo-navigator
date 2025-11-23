@@ -345,9 +345,10 @@
   [styleClass]="'preview-stall-dialog'"
   [appendTo]="'body'"
 >
-  <app-stall-side-nav
+  <app-stall-side-header
     [isPreview]="true"
     [previewStall]="previewStall"
     (close)="previewVisible = false"
-  ></app-stall-side-nav>
+  ></app-stall-side-header>
+  <app-stall-side-content [isPreview]="true" [previewStall]="previewStall"></app-stall-side-content>
 </p-dialog>
