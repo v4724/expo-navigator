@@ -19,6 +19,7 @@ import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { TagService } from 'src/app/core/services/state/tag-service';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { SafeHtmlPipe } from 'src/app/shared/pipe/safe-html-pipe';
 
@@ -39,6 +40,7 @@ export class StallSideContent implements OnInit {
   private _stallService = inject(StallService);
   private _userService = inject(UserService);
   private _tagService = inject(TagService);
+  private _uiStateService = inject(UiStateService);
 
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
   imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
@@ -97,9 +99,13 @@ export class StallSideContent implements OnInit {
     return this.stall()?.id ?? '';
   });
 
+  isMobile = false;
+
   Array = Array;
 
   ngOnInit(): void {
+    this.isMobile = this._uiStateService.isMobile();
+
     if (this.isPreview()) {
       this.previewStall$.subscribe((stall) => {
         if (stall) {

@@ -5,6 +5,7 @@ import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { TooltipService } from './tooltip-service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { StallInfo } from 'src/app/components/stall-info-ui/stall-info/stall-info';
+import { UserService } from './user-service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class SelectStallService {
 
   private _tooltipService = inject(TooltipService);
   private _stallService = inject(StallService);
+  private _userService = inject(UserService);
   private readonly _dialog = inject(MatDialog);
 
   set selected(id: string | null) {
@@ -29,10 +31,20 @@ export class SelectStallService {
   get selected(): string | null {
     return this._selectedId.getValue();
   }
+
   get selectedStall(): StallData | undefined {
     const id = this._selectedId.getValue();
     if (!id) return undefined;
     return this._stallService.findStall(id);
+  }
+
+  isEditable() {
+    const isLogin = this._userService.isLogin;
+    const user = this._userService.user;
+    if (isLogin && user) {
+      return user.stallIds.find((id) => id === this.selectedStall?.id);
+    }
+    return false;
   }
 
   hasSelected(): boolean {

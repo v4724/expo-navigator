@@ -51,13 +51,12 @@ export class StallSideHeader implements OnInit {
   stallId = computed(() => {
     return this.stall()?.id ?? '';
   });
+
   isEditable = computed(() => {
+    const stall = this.stall();
     const isLogin = this.isLogin();
-    const user = this.user();
-    if (isLogin && user) {
-      return user.stallIds.find((id) => id === this.stall()?.id);
-    }
-    return false;
+    if (!stall || !isLogin) return false;
+    return this._selectStallService.isEditable();
   });
 
   ngOnInit() {

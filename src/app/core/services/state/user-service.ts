@@ -24,6 +24,7 @@ export class UserService {
   constructor() {
     this.initUser();
   }
+
   private initUser() {
     // 只在瀏覽器環境操作 localStorage
     if (this._uiStateService.isPlatformBrowser()) {
@@ -43,6 +44,10 @@ export class UserService {
 
   get user() {
     return this._user.getValue();
+  }
+
+  get isLogin() {
+    return this._isLogin.getValue();
   }
 
   login(acc: string) {

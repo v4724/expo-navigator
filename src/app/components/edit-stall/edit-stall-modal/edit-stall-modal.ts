@@ -167,6 +167,10 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  get isMobile() {
+    return this._uiStateService.isMobile();
+  }
+
   get stallId() {
     return this.stallForm.get('stallId')?.getRawValue() as string;
   }
