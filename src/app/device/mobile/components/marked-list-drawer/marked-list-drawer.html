@@ -1,6 +1,7 @@
 <app-drawer-on-mobile>
-  <div title>
-    <div>書籤</div>
+  <div title class="flex items-center gap-2">
+    <div class="text-lg">書籤</div>
+    <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
   </div>
 
   <div class="flex flex-col gap-2">
