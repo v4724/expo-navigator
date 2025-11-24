@@ -15,6 +15,7 @@ import { MarkedListDrawer } from '../components/marked-list-drawer/marked-list-d
 import { ControlLayersDrawer } from '../components/control-layers-drawer/control-layers-drawer';
 import { StallInfoDrawer } from '../components/stall-info-drawer/stall-info-drawer';
 import { EditBtn } from 'src/app/components/edit-stall/edit-btn/edit-btn';
+import { UserDrawer } from '../components/user-drawer/user-drawer';
 
 @Component({
   selector: 'app-home',
@@ -22,13 +23,13 @@ import { EditBtn } from 'src/app/components/edit-stall/edit-btn/edit-btn';
     CommonModule,
     IonSearchbar,
     Map,
-    UserModal,
     SearchResultListSheet,
     Button,
     MarkedListDrawer,
     ControlLayersDrawer,
     StallInfoDrawer,
     EditBtn,
+    UserDrawer,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',

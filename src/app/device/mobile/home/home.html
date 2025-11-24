@@ -13,7 +13,7 @@
             icon="pi pi-user"
             [rounded]="true"
             [outlined]="true"
-            (click)="userModal.show()"
+            (click)="userDrawer.show()"
           />
         </div>
       </div>
@@ -62,6 +62,6 @@
 
 <app-marked-list-drawer #markedListDrawer></app-marked-list-drawer>
 <app-control-layers-drawer #controlLayersDrawer></app-control-layers-drawer>
-<app-user-modal #userModal> </app-user-modal>
 <app-stall-info-drawer> <app-edit-btn editBtn> </app-edit-btn></app-stall-info-drawer>
 <app-search-result-list-sheet #resultList></app-search-result-list-sheet>
+<app-user-drawer #userDrawer></app-user-drawer>
