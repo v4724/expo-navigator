@@ -250,8 +250,10 @@ export class StallService {
           );
           return;
         }
-        let top = stallDef.anchorRect.top;
-        let left = stallDef.anchorRect.left;
+        const defTop = stallDef.anchorRect.top;
+        const defLeft = stallDef.anchorRect.left;
+        let top = defTop;
+        let left = defLeft;
         const start = stallDef.start;
         const end = stallDef.end;
         const width = stallDef.width;
@@ -264,19 +266,6 @@ export class StallService {
         // Most stalls are in horizontal rows, calculate position from right to left.
         let skipStallNum = stallNum - start;
         const currBlockGap = blockGap * Math.floor((stallNum - start) / blockStallCnt);
-
-        const zoneDef = locateStall.groupDef;
-        const isGrouped = zoneDef.isGrouped;
-        const skipStart = zoneDef.skipStart;
-        const skipEnd = zoneDef.skipEnd;
-        if (isGrouped) {
-          if (stallNum >= skipStart && stallNum <= skipEnd) {
-            skipStallNum = skipStart;
-          } else if (stallNum > skipEnd) {
-            skipStallNum = stallNum - (skipEnd - skipStart);
-          }
-          // top = top - height * (tempNum - 1) - gapSize;
-        }
 
         let stallWidth = width;
         let stallHeight = height;
@@ -303,6 +292,33 @@ export class StallService {
             }
             stallHeight = height * stallCnt;
             break;
+        }
+
+        // 設定 group 的 stall 位置為 group 的中心
+        const zoneDef = locateStall.groupDef;
+        const isGrouped = zoneDef.isGrouped;
+        const skipStart = zoneDef.skipStart;
+        const skipEnd = zoneDef.skipEnd;
+        if (isGrouped) {
+          const num = (end - start - (skipEnd - skipStart) + 1) / 2;
+          switch (direction) {
+            case 'right':
+              left = defLeft - num * width - currBlockGap;
+              stallWidth = width * stallCnt;
+              break;
+            case 'left':
+              left = defLeft + num * width + currBlockGap;
+              stallWidth = width * stallCnt;
+              break;
+            case 'top':
+              top = defTop + num * height + currBlockGap;
+              stallHeight = height * stallCnt;
+              break;
+            case 'bottom':
+              top = defTop - num * height - currBlockGap;
+              stallHeight = height * stallCnt;
+              break;
+          }
         }
 
         const finalLeft = parseFloat(left.toFixed(2));

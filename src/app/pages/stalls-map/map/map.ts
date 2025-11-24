@@ -106,7 +106,14 @@ export class Map implements OnInit, AfterViewInit {
   // 自動定位置中
   autoFocusing = signal<boolean>(false);
 
+  // mobile 攤位資訊高度
+  mobileStallInfoDefaultH = 0;
+
+  constructor() {}
+
   ngOnInit() {
+    this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? 429 : 0;
+
     this.maxScale.set(this._uiStateService.isMobile() ? 6 : 3);
     this.focusScale.set(this._uiStateService.isMobile() ? 5 : 2);
 
@@ -255,20 +262,25 @@ export class Map implements OnInit, AfterViewInit {
     const mapEl = this.mapImage.nativeElement;
     const viewEl = this.mapContainer.nativeElement;
 
-    const mapW = mapEl.offsetWidth * this.scale();
-    const mapH = mapEl.offsetHeight * this.scale();
+    const mapW = mapEl.offsetWidth;
+    const mapH = mapEl.offsetHeight;
+    const scaleMapW = mapW * this.scale();
+    const scaleMapH = mapH * this.scale();
     const viewW = viewEl.offsetWidth;
-    const viewH = this._uiStateService.isMobile() ? viewEl.offsetHeight / 2 : viewEl.offsetHeight;
+    const viewH = this._uiStateService.isMobile()
+      ? viewEl.offsetHeight - this.mobileStallInfoDefaultH
+      : viewEl.offsetHeight;
 
     console.debug('mapWH', mapW, mapH);
+    console.debug('scaleMapWH', scaleMapW, scaleMapH);
     console.debug('viewWH', viewW, viewH);
-    if (mapW === 0 || mapH === 0 || viewW === 0 || viewH === 0) return;
+    if (scaleMapW === 0 || scaleMapH === 0 || viewW === 0 || viewH === 0) return;
 
     // 將百分比座標轉換為地圖實際座標
-    const stallLeft = (stall.coords.left / 100) * mapW;
-    const stallTop = (stall.coords.top / 100) * mapH;
-    const stallWidth = (stall.coords.width / 100) * mapW;
-    const stallHeight = (stall.coords.height / 100) * mapH;
+    const stallLeft = (stall.coords.left / 100) * scaleMapW;
+    const stallTop = (stall.coords.top / 100) * scaleMapH;
+    const stallWidth = (stall.coords.width / 100) * scaleMapW;
+    const stallHeight = (stall.coords.height / 100) * scaleMapH;
 
     const stallCenterX = stallLeft + stallWidth / 2;
     const stallCenterY = stallTop + stallHeight / 2;
@@ -284,8 +296,8 @@ export class Map implements OnInit, AfterViewInit {
     const viewCenterY = viewH / 2;
 
     // 地圖縮放後中心
-    const scaledMapCenterX = mapW / 2;
-    const scaledMapCenterY = mapH / 2;
+    const scaledMapCenterX = scaleMapW / 2;
+    const scaledMapCenterY = scaleMapH / 2;
 
     // 攤位在縮放後地圖的座標
     const scaledStallX = stallCenterX;
@@ -351,14 +363,26 @@ export class Map implements OnInit, AfterViewInit {
 
     if (isInside) return;
 
-    // 將攤位置中（相對於地圖中心）
-    const centerY = this._uiStateService.isMobile() ? scaledMapCenterY / 2 : scaledMapCenterY;
+    // mobile 下方有攤位資訊，中心要再往上移
+    const centerY = this._uiStateService.isMobile()
+      ? (viewH - this.mobileStallInfoDefaultH) / 3
+      : 0;
+    // 將攤位置中（相對於地圖中心 0,0）
     const newTranslateX = (scaledMapCenterX - scaledStallX) / this.scale();
-    const newTranslateY = (centerY - scaledStallY) / this.scale();
+    const newTranslateY = (scaledMapCenterY - scaledStallY) / this.scale() - Math.abs(centerY);
 
     console.debug('orig focus position');
-    console.debug(newTranslateX, scaledMapCenterX, '-', scaledStallX);
-    console.debug(newTranslateY, scaledMapCenterY, '-', scaledStallY);
+    console.debug(newTranslateX, scaledMapCenterX, '-', scaledStallX, '/', this.scale());
+    console.debug(
+      newTranslateY,
+      scaledMapCenterY,
+      '-',
+      scaledStallY,
+      '/',
+      this.scale(),
+      '-',
+      Math.abs(centerY),
+    );
 
     // 應用 clamp 限制（避免地圖超出畫面邊界）
     this._setPosition({ x: newTranslateX, y: newTranslateY });
