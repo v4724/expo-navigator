@@ -335,20 +335,27 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog
-  [(visible)]="previewVisible"
-  [modal]="true"
-  [closable]="false"
-  [draggable]="false"
-  [showHeader]="false"
-  [style]="{ width: '30vw', maxWidth: '800px', overflow: 'hidden' }"
-  [styleClass]="'preview-stall-dialog'"
-  [appendTo]="'body'"
->
-  <app-stall-side-header
-    [isPreview]="true"
-    [previewStall]="previewStall"
-    (close)="previewVisible = false"
-  ></app-stall-side-header>
-  <app-stall-side-content [isPreview]="true" [previewStall]="previewStall"></app-stall-side-content>
-</p-dialog>
+@if (isMobile) {
+  <app-stall-info-drawer [isPreview]="true" [previewStall]="previewStall"> </app-stall-info-drawer>
+} @else {
+  <p-dialog
+    [(visible)]="previewVisible"
+    [modal]="true"
+    [closable]="false"
+    [draggable]="false"
+    [showHeader]="false"
+    [style]="{ width: '30vw', maxWidth: '800px', overflow: 'hidden' }"
+    [styleClass]="'preview-stall-dialog'"
+    [appendTo]="'body'"
+  >
+    <app-stall-side-header
+      [isPreview]="true"
+      [previewStall]="previewStall"
+      (close)="previewVisible = false"
+    ></app-stall-side-header>
+    <app-stall-side-content
+      [isPreview]="true"
+      [previewStall]="previewStall"
+    ></app-stall-side-content>
+  </p-dialog>
+}

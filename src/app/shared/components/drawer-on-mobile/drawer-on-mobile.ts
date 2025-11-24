@@ -13,6 +13,8 @@ import { DrawerModule } from 'primeng/drawer';
 export class DrawerOnMobile {
   styleClass = input<string>('');
   title = input<boolean>(true);
+  modal = input<boolean>(false);
+  dismissible = input<boolean>(false);
 
   visible = false;
 
@@ -24,7 +26,10 @@ export class DrawerOnMobile {
   snapPoints = [0, 0.25, 0.5, 0.9]; // 25%、50%、90%
 
   _styleClass = computed(() => {
-    return this.styleClass() + ' !transition-all duration-100 !shadow-[0_-1px_5px_rgba(0,0,0,0.1)]';
+    return (
+      this.styleClass() +
+      ' max-w-lg !transition-all duration-100 !shadow-[0_-1px_5px_rgba(0,0,0,0.1)]'
+    );
   });
 
   show() {

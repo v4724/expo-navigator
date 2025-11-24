@@ -2,13 +2,14 @@
   [(visible)]="visible"
   position="bottom"
   [styleClass]="_styleClass()"
-  [modal]="false"
+  [modal]="modal()"
   [style]="{ height: drawerHeight + 'px' }"
   [closable]="false"
+  [dismissible]="false"
 >
   <ng-template #header>
     <div class="absolute top-0 h-0 w-full flex justify-center">
-      <div class="relative w-1/5 h-[6px] rounded-full bg-gray-300 m-1">
+      <div class="relative w-1/5 h-[6px] rounded-full bg-gray-300 m-3 mt-2">
         <div
           class="flex items-center absolute top-0 left-0 w-full h-full"
           cdkDrag

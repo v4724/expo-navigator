@@ -148,7 +148,11 @@ export class StallSideContent implements OnInit {
   // --- Image Lightbox Listeners ---
   @HostListener('click', ['$event'])
   bodyClicked(e: Event) {
-    if (this.isPreview()) return;
+    if (this.isPreview()) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
 
     const target = e.target;
     // Check if the clicked element is an image within the designated areas.

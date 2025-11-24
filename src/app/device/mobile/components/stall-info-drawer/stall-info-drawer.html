@@ -1,10 +1,28 @@
-<app-drawer-on-mobile [styleClass]="'stall-info-drawer'">
-  <div title class="w-full flex justify-between">
+<app-drawer-on-mobile [styleClass]="'stall-info-drawer'" [modal]="isPreview()">
+  <div title class="w-full flex">
     <div>{{ stall()?.id }}: {{ stall()?.stallTitle }}</div>
 
-    @if (isEditable()) {
-      <app-edit-btn> </app-edit-btn>
+    @if (stall()?.stallLink) {
+      <button
+        class="ml-1 mr-auto text-base flex items-center transition hover:scale-110 text-gray-400"
+        (click)="!isPreview() && oenpLink()"
+      >
+        <mat-icon
+          [inline]="true"
+          aria-hidden="false"
+          aria-label="Example link icon"
+          fontIcon="open_in_new"
+        ></mat-icon>
+      </button>
+    }
+
+    @if (!isPreview() && isEditable()) {
+      <ng-content select="[editBtn]"></ng-content>
     }
   </div>
-  <app-stall-side-content (close)="close()"></app-stall-side-content>
+  <app-stall-side-content
+    (close)="close()"
+    [isPreview]="isPreview()"
+    [previewStall]="previewStall()"
+  ></app-stall-side-content>
 </app-drawer-on-mobile>

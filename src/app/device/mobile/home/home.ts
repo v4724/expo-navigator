@@ -14,6 +14,7 @@ import { SearchResultListSheet } from '../components/search-result-list-sheet/se
 import { MarkedListDrawer } from '../components/marked-list-drawer/marked-list-drawer';
 import { ControlLayersDrawer } from '../components/control-layers-drawer/control-layers-drawer';
 import { StallInfoDrawer } from '../components/stall-info-drawer/stall-info-drawer';
+import { EditBtn } from 'src/app/components/edit-stall/edit-btn/edit-btn';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +28,7 @@ import { StallInfoDrawer } from '../components/stall-info-drawer/stall-info-draw
     MarkedListDrawer,
     ControlLayersDrawer,
     StallInfoDrawer,
+    EditBtn,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',

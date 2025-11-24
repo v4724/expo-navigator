@@ -64,6 +64,7 @@ import { PromoStallDto, UpdatePromoStallDto } from 'src/app/core/models/promo-st
 import { Dialog } from 'primeng/dialog';
 import { StallSideContent } from '../../stall-info-ui/stall-side-nav/stall-side-content/stall-side-content';
 import { StallSideHeader } from '../../stall-info-ui/stall-side-nav/stall-side-header/stall-side-header';
+import { StallInfoDrawer } from 'src/app/device/mobile/components/stall-info-drawer/stall-info-drawer';
 
 interface MyTab {
   icon: string;
@@ -102,6 +103,7 @@ interface StallTag extends StallTagDto {
     // StallSideNav,
     StallSideHeader,
     StallSideContent,
+    StallInfoDrawer,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -476,6 +478,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  @ViewChild(StallInfoDrawer) mobilePreviewDrawer!: StallInfoDrawer;
   // TODO ckeditor 和 預覽的稍微不一樣，待檢查樣式
   preview() {
     const stall = JSON.parse(JSON.stringify(this._selectStallService.selectedStall));
@@ -486,7 +489,11 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     stall.stallLink = stallLink;
     stall.promoData = promos;
 
-    this.previewVisible = true;
+    if (this.isMobile) {
+      this.mobilePreviewDrawer?.show();
+    } else {
+      this.previewVisible = true;
+    }
     this.previewStall = stall;
   }
 
