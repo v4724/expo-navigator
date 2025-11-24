@@ -49,19 +49,20 @@
     >
       書籤
     </button>
+
     <button
       pButton
       class="block"
       [ngClass]="{ 'w-full': !isLogin(), 'w-1/2': isLogin() }"
-      (click)="controlLayersDrawer.show()"
+      (click)="onlyAreaDrawer.show()"
     >
-      圖層
+      場內 only
     </button>
   </div>
 </div>
 
 <app-marked-list-drawer #markedListDrawer></app-marked-list-drawer>
-<app-control-layers-drawer #controlLayersDrawer></app-control-layers-drawer>
+<app-only-area-drawer #onlyAreaDrawer></app-only-area-drawer>
 <app-stall-info-drawer> <app-edit-btn editBtn> </app-edit-btn></app-stall-info-drawer>
 <app-search-result-list-sheet #resultList></app-search-result-list-sheet>
 <app-user-drawer #userDrawer></app-user-drawer>
