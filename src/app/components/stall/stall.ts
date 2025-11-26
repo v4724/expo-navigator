@@ -152,8 +152,9 @@ export class Stall implements OnInit, AfterViewInit {
         let isMatch = false;
         Object.keys(ids).forEach((seriesId) => {
           const numId = Number(seriesId);
-          Object.keys(ids[numId] ?? []).forEach((key) => {
-            isMatch = isMatch || ids[numId][key].has(id);
+          Object.keys(ids[numId] ?? []).forEach((groupId) => {
+            const groupNumId = Number(groupId);
+            isMatch = isMatch || ids[numId][groupNumId].has(id);
           });
         });
         return isMatch;

@@ -61,10 +61,14 @@ export class SearchAndFilterService {
 
           const isTagMatch = stall.filterTags.some((id) => {
             return Object.keys(advancedFilter).some((seriesId) => {
-              const numId = Number(seriesId);
-              return Object.keys(advancedFilter[numId] ?? []).some((key) => {
-                return advancedFilter[numId][key].has(id);
-              });
+              const seriesNumId = Number(seriesId);
+              const hasAdvancedFilter = Object.keys(advancedFilter[seriesNumId] ?? []).some(
+                (groupId) => {
+                  const groupNumId = Number(groupId);
+                  return advancedFilter[seriesNumId][groupNumId].has(id);
+                },
+              );
+              return hasAdvancedFilter;
             });
           });
 
@@ -74,9 +78,12 @@ export class SearchAndFilterService {
         this.filterStalls = filter;
 
         const hasFilter = Object.keys(advancedFilter).some((seriesId) => {
-          const numId = Number(seriesId);
-          const hasAdvancedFilter =
-            advancedFilter[numId]['cp']?.size > 0 || advancedFilter[numId]['char']?.size > 0;
+          const seriesNumId = Number(seriesId);
+
+          const hasAdvancedFilter = Object.keys(advancedFilter[seriesNumId]).some((groupId) => {
+            const groupNumId = Number(groupId);
+            return advancedFilter[seriesNumId][groupNumId]?.size > 0;
+          });
           return hasAdvancedFilter;
         });
         const isFiltering = !!searchTerm || seriesIds.size > 0 || hasFilter;

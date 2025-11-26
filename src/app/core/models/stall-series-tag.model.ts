@@ -4,14 +4,24 @@ export interface StallSeriesDto {
   seriesName: string;
 }
 
+export interface StallGroupDto {
+  groupId: number;
+
+  groupName: string;
+
+  seriesId: number;
+
+  seriesName: string;
+}
+
 export interface StallTagDto {
   tagId: number;
 
   tagName: string;
 
-  tagType: 'CHAR' | 'CP';
+  tagType: 'CHAR';
 
-  seriesId: number;
+  groupId: number;
 
-  seriesName: string;
+  groupName: string;
 }

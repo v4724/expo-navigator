@@ -1,60 +1,56 @@
 <div class="space-y-4 max-h-96 overflow-y-auto mb-4">
   <div class="relative">
-    <button
-      class="absolute top-1 right-0 text-xs text-gray-400 flex items-center"
-      (click)="clearTags(options()?.id, 'cp')"
-    >
-      清除全部
-      <mat-icon
-        [inline]="true"
-        aria-hidden="false"
-        aria-label="Example cancel icon"
-        fontIcon="cancel"
-        class="ml-1"
-      ></mat-icon>
-    </button>
-    <div class="font-semibold text-md text-gray-700 mb-2 border-b pb-1">CP</div>
-    <div class="grid grid-cols-2 gap-2 mt-2">
-      @for (tag of options()?.advanced?.cp; track tag.id) {
-        <label class="flex items-center gap-x-2 cursor-pointer text-sm">
-          <input
-            type="checkbox"
-            [checked]="isAdvancedTagSelected(options()?.id, 'cp', tag.id)"
-            (change)="toggleAdvancedTag(options()?.id, 'cp', tag.id)"
-            class="h-4 w-4 rounded accent-purple-500"
-          />
-          <span>{{ tag.name }}</span>
-        </label>
-      }
-    </div>
-  </div>
-  <div class="relative">
-    <button
-      class="absolute top-1 right-0 text-xs text-gray-400 flex items-center"
-      (click)="clearTags(options()?.id, 'char')"
-    >
-      清除全部
-      <mat-icon
-        [inline]="true"
-        aria-hidden="false"
-        aria-label="Example cancel icon"
-        fontIcon="cancel"
-        class="ml-1"
-      ></mat-icon>
-    </button>
-    <div class="font-semibold text-md text-gray-700 mb-2 border-b pb-1">角色</div>
-    <div class="grid grid-cols-2 gap-2 mt-2">
-      @for (tag of options()?.advanced?.char; track tag.id) {
-        <label class="flex items-center gap-x-2 cursor-pointer text-sm">
-          <input
-            type="checkbox"
-            [checked]="isAdvancedTagSelected(options()?.id, 'char', tag.id)"
-            (change)="toggleAdvancedTag(options()?.id, 'char', tag.id)"
-            class="h-4 w-4 rounded accent-purple-500"
-          />
-          <span>{{ tag.name }}</span>
-        </label>
-      }
+    <div class="font-semibold text-md text-gray-700 mb-2 border-b pb-1"></div>
+    <div class="grid grid-cols-1 gap-2 mt-2">
+      <p-accordion>
+        @for (group of options()?.groups; track group.id) {
+          <p-accordion-panel [value]="group.id">
+            <p-accordion-header>
+              <span class="flex items-center w-full mr-2">
+                <label class="flex items-center gap-x-2 cursor-pointer text-sm">
+                  <span>{{ group.name }}</span>
+
+                  @let groups = groupsForCnt();
+                  @if (groups && groups[group.id]) {
+                    @let size = groups[group.id]?.size;
+                    @if (!!size) {
+                      <p-badge [value]="size" badgeSize="small" />
+                    }
+                  }
+                </label>
+                <button
+                  class="ml-auto text-xs text-gray-400 flex items-center"
+                  (click)="clearTags($event, options()?.id, group)"
+                >
+                  清除全部
+                  <mat-icon
+                    [inline]="true"
+                    aria-hidden="false"
+                    aria-label="Example cancel icon"
+                    fontIcon="cancel"
+                    class="ml-1"
+                  ></mat-icon>
+                </button>
+              </span>
+            </p-accordion-header>
+            <p-accordion-content>
+              <div class="flex flex-wrap gap-x-2 gap-y-3">
+                @for (tag of group.tags; track tag.id) {
+                  <label class="flex items-center gap-x-1 cursor-pointer text-sm">
+                    <input
+                      type="checkbox"
+                      [checked]="isAdvancedTagSelected(series()?.id, group.id, tag.id)"
+                      (change)="toggleAdvancedTag(series()?.id, group.id, tag.id)"
+                      class="h-4 w-4 rounded accent-purple-500"
+                    />
+                    <span>{{ tag.name }}</span>
+                  </label>
+                }
+              </div>
+            </p-accordion-content>
+          </p-accordion-panel>
+        }
+      </p-accordion>
     </div>
   </div>
 </div>

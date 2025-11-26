@@ -2,19 +2,15 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, computed, inject, signal, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { IonSearchbar, IonContent, IonList, IonItem, IonLabel } from '@ionic/angular/standalone';
+import { IonSearchbar, IonContent } from '@ionic/angular/standalone';
 import { AdvancedSeriesTagService } from 'src/app/components/search-and-filter/advanced-series-tag/advanced-series-tag-service';
-import {
-  StallSeries,
-  StallTag,
-  AdvancedFilters,
-} from 'src/app/core/interfaces/stall-series-tag.interface';
+import { StallSeries, AdvancedFilters } from 'src/app/core/interfaces/stall-series-tag.interface';
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 import { TagService } from 'src/app/core/services/state/tag-service';
 
 @Component({
   selector: 'app-search',
-  imports: [CommonModule, IonSearchbar, IonContent, MatIconModule, IonList, IonItem, IonLabel],
+  imports: [CommonModule, IonSearchbar, IonContent, MatIconModule],
   templateUrl: './search.html',
   styleUrl: './search.scss',
 })
@@ -31,22 +27,9 @@ export class Search implements AfterViewInit {
 
   // 作品 + 標籤
   tagFetchEnd = toSignal(this._tagService.fetchEnd$);
-  allSeriesAndTags = computed(() => {
+  allSeries = computed(() => {
     if (!this.tagFetchEnd()) return [];
-    const data: StallSeries[] = [];
-    this._tagService.allSeries.forEach((val, key) => {
-      const cp: StallTag[] = this._tagService.toStallTagArr(key, 'CP');
-      const char: StallTag[] = this._tagService.toStallTagArr(key, 'CHAR');
-
-      data.push({
-        id: key,
-        name: val.seriesName,
-        advanced: {
-          cp: cp,
-          char: char,
-        },
-      });
-    });
+    const data: StallSeries[] = this._tagService.getSeriesData();
     return data;
   });
 
@@ -94,7 +77,7 @@ export class Search implements AfterViewInit {
   }
 
   openAdvancedFilterModal(series: StallSeries) {
-    if (!series.advanced) return;
+    if (!series.groups) return;
 
     this._advancedSTService.show(series);
   }

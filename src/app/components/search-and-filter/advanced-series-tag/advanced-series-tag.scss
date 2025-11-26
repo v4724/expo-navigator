@@ -1,0 +1,9 @@
+:host ::ng-deep {
+  .p-panel-icons {
+    display: flex;
+    column-gap: 0.25rem;
+  }
+  .p-accordionheader {
+    --p-accordion-header-padding: 0.8rem;
+  }
+}

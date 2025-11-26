@@ -78,7 +78,10 @@ export class StallSideContent implements OnInit {
         const subTag = this._tagService.getTagById(subTagId);
         if (!subTag) return;
 
-        const series = this._tagService.getSeriesById(subTag.seriesId);
+        const group = this._tagService.getGroupById(subTag.groupId);
+        if (!group) return;
+
+        const series = this._tagService.getSeriesById(group.seriesId);
         if (!series) return;
 
         let seriesEntry = tagMap.get(series);

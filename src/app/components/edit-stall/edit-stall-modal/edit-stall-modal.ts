@@ -10,6 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormGroup,
@@ -17,12 +18,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  MatDialogRef,
-  MatDialog,
-  MatDialogActions,
-  MatDialogContent,
-} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatIcon } from '@angular/material/icon';
@@ -33,12 +29,16 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { FieldsetModule } from 'primeng/fieldset';
 import { Tabs, TabsModule } from 'primeng/tabs';
 import { AvatarModule } from 'primeng/avatar';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { TagService } from 'src/app/core/services/state/tag-service';
 import { finalize, first, map, of } from 'rxjs';
-import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
+import {
+  StallGroupDto,
+  StallSeriesDto,
+  StallTagDto,
+} from 'src/app/core/models/stall-series-tag.model';
 import { Checkbox, CheckboxModule } from 'primeng/checkbox';
 import { PanelModule } from 'primeng/panel';
 import { Popover } from 'primeng/popover';
@@ -50,7 +50,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ResponseSnackBar } from 'src/app/shared/components/response-snack-bar/response-snack-bar';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-// import { StallSideNav } from '../../stall-info-ui/stall-side-nav/stall-side-nav';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
@@ -65,6 +64,10 @@ import { Dialog } from 'primeng/dialog';
 import { StallSideContent } from '../../stall-info-ui/stall-side-nav/stall-side-content/stall-side-content';
 import { StallSideHeader } from '../../stall-info-ui/stall-side-nav/stall-side-header/stall-side-header';
 import { StallInfoDrawer } from 'src/app/device/mobile/components/stall-info-drawer/stall-info-drawer';
+import { AccordionModule } from 'primeng/accordion';
+import { DialogService } from 'primeng/dynamicdialog';
+import { AdvancedFilters } from 'src/app/core/interfaces/stall-series-tag.interface';
+import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawer-on-mobile';
 
 interface MyTab {
   icon: string;
@@ -73,6 +76,10 @@ interface MyTab {
 interface StallSeries extends StallSeriesDto {
   controlName: string;
 }
+interface StallGroup extends StallGroupDto {
+  controlName: string;
+}
+
 interface StallTag extends StallTagDto {
   controlName: string;
 }
@@ -104,6 +111,8 @@ interface StallTag extends StallTagDto {
     StallSideHeader,
     StallSideContent,
     StallInfoDrawer,
+    AccordionModule,
+    DrawerOnMobile,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -116,11 +125,10 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _dialog = inject(MatDialog);
   private readonly _fb = inject(FormBuilder);
   private readonly _tagService = inject(TagService);
-  private readonly _promoApiService = inject(PromoApiService);
   private readonly _stallApiService = inject(StallApiService);
   private readonly _snackBar = inject(MatSnackBar);
   private readonly _uiStateService = inject(UiStateService);
-  private readonly _cdr = inject(ChangeDetectorRef);
+  private readonly _dialogService = inject(DialogService);
 
   visible = false;
   previewVisible = false;
@@ -132,7 +140,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
 
   tabList = signal<MyTab[]>([]);
 
-  seriesAndTags = signal<Map<StallSeries, Map<'CHAR' | 'CP', StallTag[]>>>(new Map());
+  seriesAndTags = signal<Map<StallSeries, Map<StallGroup, StallTag[]>>>(new Map());
 
   seriesArr = computed(() => {
     return Array.from(this.seriesAndTags().keys());
@@ -140,16 +148,19 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
 
   tagsArr = computed(() => {
     let arr: StallTag[] = [];
-    this.seriesAndTags().forEach((val) => {
-      const char = val.get('CHAR') ?? [];
-      const cp = val.get('CP') ?? [];
-      arr = arr.concat(char).concat(cp);
+    this.seriesAndTags().forEach((map) => {
+      map.forEach((tags) => {
+        arr = arr.concat(tags);
+      });
     });
     return arr;
   });
 
   // key (seriesId)
   seriesSeletedTagCnt = signal<{ [key: string]: number }[]>([]);
+
+  // 當前 promo 標籤勾選計數
+  currPromoTagCnt = signal<AdvancedFilters>({});
 
   isTempSaving = signal<boolean>(false);
   isSaving = signal<boolean>(false);
@@ -158,6 +169,8 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   afterEditorInit = signal<boolean>(false);
   Editor: any = null;
   config: EditorConfig = {}; // CKEditor needs the DOM tree before calculating the configuration.
+
+  Object = Object;
 
   constructor() {
     this.stallForm = this._fb.group({
@@ -308,28 +321,27 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       this.updateSeriesCheck();
     });
 
+    // 設定 series 和 tag contorlName
     this._tagService.fetchEnd$.pipe(first((val) => !!val)).subscribe(() => {
-      const series = Array.from(this._tagService.allSeries.values());
+      const seriesArr = Array.from(this._tagService.allSeries.values());
+      const groups = Array.from(this._tagService.allGroups.values());
       const tags = Array.from(this._tagService.allTags.values());
       const map = new Map();
-      series.forEach((item) => {
-        const seriesControl = { ...item, controlName: `series-${item.seriesId}` };
-        const charTags = tags
-          .filter((tag) => tag.seriesId === item.seriesId && tag.tagType === 'CHAR')
-          .map((obj) => {
-            return { ...obj, controlName: `tag-${obj.tagId}` };
+      seriesArr.forEach((series) => {
+        const seriesControl = { ...series, controlName: `series-${series.seriesId}` };
+        const groupMap = new Map();
+        groups
+          .filter((group) => group.seriesId === series.seriesId)
+          .forEach((group) => {
+            const charTags = tags
+              .filter((tag) => tag.groupId === group.groupId)
+              .map((obj) => {
+                return { ...obj, controlName: `tag-${obj.tagId}` };
+              });
+            groupMap.set(group, charTags);
           });
-        const cpTags = tags
-          .filter((tag) => tag.seriesId === item.seriesId && tag.tagType === 'CP')
-          .map((obj) => {
-            return { ...obj, controlName: `tag-${obj.tagId}` };
-          });
-        const typeMap = new Map();
-        typeMap.set('CHAR', charTags);
-        typeMap.set('CP', cpTags);
-        map.set(seriesControl, typeMap);
+        map.set(seriesControl, groupMap);
       });
-
       this.seriesAndTags.set(map);
     });
   }
@@ -392,6 +404,8 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
 
       this.promos.push(promoGroup);
     });
+
+    this.onPromoChange(0);
   }
 
   getLinksForm(promoIndex: number): FormArray {
@@ -418,8 +432,12 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     this.getLinksForm(promoIndex).removeAt(linkIndex);
   }
 
-  openTags(e: Event, op: Popover, series: StallSeriesDto) {
-    op.toggle(e);
+  openTags(e: Event, op: Popover, drawer: DrawerOnMobile) {
+    if (this.isMobile) {
+      drawer.show();
+    } else {
+      op.toggle(e);
+    }
   }
 
   // 更新宣傳車分頁
@@ -439,27 +457,49 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     this.promos.controls.forEach((promo, index) => {
       const promoObj: { [key: string]: number } = {};
       const val = promo.get('seriesAndTags')?.value;
-      this.seriesArr().forEach((series) => {
-        const seriesControlName = series.controlName;
-        val[seriesControlName];
-      });
-      this.seriesAndTags().forEach((tags, series) => {
+
+      // tag controlName 有出現在 form 表單上則+1
+      this.seriesAndTags().forEach((map, series) => {
         let cnt = 0;
-        tags.get('CHAR')?.forEach((tag) => {
-          if (val[tag.controlName]) {
-            cnt += 1;
-          }
-        });
-        tags.get('CP')?.forEach((tag) => {
-          if (val[tag.controlName]) {
-            cnt += 1;
-          }
+        map.forEach((tags) => {
+          tags.forEach((tag) => {
+            if (val[tag.controlName]) {
+              cnt += 1;
+            }
+          });
         });
         promoObj[series.controlName] = cnt;
       });
       arr.push(promoObj);
     });
     this.seriesSeletedTagCnt.set(arr);
+  }
+
+  updateCurrPromoTagCnt(promo: AbstractControl) {
+    console.log('currPromo', promo);
+    const val = promo.get('seriesAndTags')?.value;
+
+    const tagsCnt: AdvancedFilters = {};
+    Array.from(this._tagService.allSeries.keys()).forEach((seriesId) => {
+      tagsCnt[seriesId] = {};
+      Array.from(this._tagService.allGroups.values())
+        .filter((group) => group.seriesId === seriesId)
+        .forEach((group) => {
+          tagsCnt[seriesId][group.groupId] = new Set<number>();
+        });
+    });
+
+    this.seriesAndTags().forEach((map, series) => {
+      map.forEach((tags, group) => {
+        tags.forEach((tag) => {
+          if (val[tag.controlName]) {
+            tagsCnt[series.seriesId][group.groupId].add(tag.tagId);
+          }
+        });
+      });
+    });
+
+    this.currPromoTagCnt.set(tagsCnt);
   }
 
   updateSeriesCheck() {
@@ -495,6 +535,15 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       this.previewVisible = true;
     }
     this.previewStall = stall;
+  }
+
+  // 切換宣傳車時，更新標籤數字
+  onPromoChange(index: string | number | undefined) {
+    index = Number(index);
+    const currPromo = this.promos.controls[index];
+    if (currPromo) {
+      this.updateCurrPromoTagCnt(currPromo);
+    }
   }
 
   show() {
@@ -624,11 +673,10 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.seriesAndTags().forEach((val) => {
-      val.get('CHAR')?.forEach((tag) => {
-        group[tag.controlName] = [false];
-      });
-      val.get('CP')?.forEach((tag) => {
-        group[tag.controlName] = [false];
+      val.forEach((tags) => {
+        tags.forEach((tag) => {
+          group[tag.controlName] = [false];
+        });
       });
     });
 

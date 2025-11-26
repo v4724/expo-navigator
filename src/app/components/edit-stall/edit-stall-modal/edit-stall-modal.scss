@@ -35,3 +35,16 @@
     padding: 0.5rem 1rem;
   }
 }
+
+::ng-deep {
+  .p-panel-icons {
+    display: flex;
+    column-gap: 0.25rem;
+  }
+  .edit-stall-tags .p-accordionheader {
+    --p-accordion-header-padding: 0.8rem;
+  }
+  .edit-stall-tags__mobile .p-accordionheader {
+    --p-accordion-header-padding: 0.8rem;
+  }
+}

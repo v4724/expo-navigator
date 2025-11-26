@@ -6,16 +6,19 @@ import {
   StallSeries,
   StallTag,
   AdvancedFilters,
+  StallGroup,
 } from 'src/app/core/interfaces/stall-series-tag.interface';
 import { TagService } from 'src/app/core/services/state/tag-service';
 import { InputSearch } from './input-search/input-search';
 import { ResultListBtn } from './result-list-btn/result-list-btn';
 
 import { AdvancedSeriesTagService } from './advanced-series-tag/advanced-series-tag-service';
+import { PanelModule } from 'primeng/panel';
+import { StallTagDto } from 'src/app/core/models/stall-series-tag.model';
 
 @Component({
   selector: 'app-search-and-filter',
-  imports: [CommonModule, MatIconModule, InputSearch, ResultListBtn],
+  imports: [CommonModule, MatIconModule, InputSearch, ResultListBtn, PanelModule],
   templateUrl: './search-and-filter.html',
   styleUrl: './search-and-filter.scss',
 })
@@ -23,27 +26,11 @@ export class SearchAndFilter {
   private _tagService = inject(TagService);
   private _advancedSTService = inject(AdvancedSeriesTagService);
 
-  isTagSectionOpen = signal(true);
-
   // 作品 + 標籤
   tagFetchEnd = toSignal(this._tagService.fetchEnd$);
-  allSeriesAndTags = computed(() => {
+  allSeries = computed(() => {
     if (!this.tagFetchEnd()) return [];
-    const data: StallSeries[] = [];
-    this._tagService.allSeries.forEach((val, key) => {
-      const cp: StallTag[] = this._tagService.toStallTagArr(key, 'CP');
-      const char: StallTag[] = this._tagService.toStallTagArr(key, 'CHAR');
-
-      data.push({
-        id: key,
-        name: val.seriesName,
-        advanced: {
-          cp: cp,
-          char: char,
-        },
-      });
-    });
-    return data;
+    return this._tagService.getSeriesData();
   });
 
   selectedAdvancedTagsId = toSignal(this._tagService.selectedAdvancedTagsId$, { initialValue: {} });
@@ -60,10 +47,6 @@ export class SearchAndFilter {
     return counts;
   });
 
-  toggleTagSection() {
-    this.isTagSectionOpen.update((v) => !v);
-  }
-
   isSeriesSelected(seriesId: number): boolean {
     return this._tagService.selectedSeriesId.has(seriesId);
   }
@@ -73,7 +56,7 @@ export class SearchAndFilter {
   }
 
   openAdvancedFilterModal(series: StallSeries) {
-    if (!series.advanced) return;
+    if (!series.groups) return;
 
     this._advancedSTService.show(series);
   }

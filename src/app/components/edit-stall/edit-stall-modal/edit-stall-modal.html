@@ -74,7 +74,7 @@
           (click)="addPromo()"
         />
       </div>
-      <p-tabs #promoTabs [value]="0" scrollable>
+      <p-tabs #promoTabs [value]="0" scrollable (valueChange)="onPromoChange($event)">
         <p-tablist class="!sticky top-[-20px] z-100 border-t-1 border-gray-100">
           @for (tab of tabList(); track tab; let tabIndex = $index) {
             <p-tab [value]="tabIndex">
@@ -161,7 +161,7 @@
                             />
                           }
                           <button
-                            (click)="openTags($event, op, series)"
+                            (click)="openTags($event, op, drawer)"
                             class="text-gray-500 hover:text-gray-800 flex items-center"
                           >
                             <mat-icon
@@ -172,44 +172,70 @@
                             ></mat-icon>
                           </button>
                         </div>
+
+                        <!-- desktop 用 -->
                         <p-popover #op>
-                          <div class="flex flex-col gap-4 p-2">
-                            <div class="flex gap-4">
-                              <div class="flex text-nowrap w-6">角色</div>
-                              <div class="flex flex-wrap gap-x-4 gap-y-2">
-                                @for (tag of seriesAndTags().get(series)?.get('CHAR'); track tag) {
-                                  <div>
-                                    <p-checkbox
-                                      [formControlName]="tag.controlName"
-                                      [binary]="true"
-                                      [inputId]="`${tag.controlName}`"
-                                    />
-                                    <label [for]="`${tag.controlName}`">
-                                      {{ tag.tagName }}
-                                    </label>
-                                  </div>
-                                }
-                              </div>
-                            </div>
-                            <div class="flex gap-4">
-                              <div class="flex text-nowrap w-6">CP</div>
-                              <div class="flex flex-wrap gap-x-4 gap-y-2">
-                                @for (tag of seriesAndTags().get(series)?.get('CP'); track tag) {
-                                  <div>
-                                    <p-checkbox
-                                      [formControlName]="tag.controlName"
-                                      [binary]="true"
-                                      [inputId]="`${tag.controlName}`"
-                                    />
-                                    <label [for]="`${tag.controlName}`">
-                                      {{ tag.tagName }}
-                                    </label>
-                                  </div>
-                                }
-                              </div>
-                            </div>
+                          <div
+                            class="flex flex-col min-w-[200px] w-[250px] md:w-[400px] min-h-[200px] h-[300px] overflow-y-auto edit-stall-tags"
+                          >
+                            <ng-container *ngTemplateOutlet="tags"></ng-container>
                           </div>
                         </p-popover>
+
+                        <!-- mobile 用 -->
+                        <app-drawer-on-mobile
+                          #drawer
+                          [modal]="true"
+                          [styleClass]="'edit-stall-tags__mobile'"
+                        >
+                          <div title>{{ series.seriesName }}</div>
+                          <ng-container *ngTemplateOutlet="tags"></ng-container>
+                        </app-drawer-on-mobile>
+
+                        <!-- 共用結構 -->
+                        <ng-template #tags>
+                          @let groups = seriesAndTags().get(series);
+                          @for (group of groups?.keys(); track $index) {
+                            <p-accordion>
+                              <p-accordion-panel [value]="$index">
+                                <p-accordion-header>
+                                  <div class="flex gap-1">
+                                    <span>{{ group.groupName }}</span>
+
+                                    @let tagsCnt = currPromoTagCnt();
+                                    @if (
+                                      tagsCnt &&
+                                      tagsCnt[series.seriesId] &&
+                                      tagsCnt[series.seriesId][group.groupId]
+                                    ) {
+                                      @let size = tagsCnt[series.seriesId][group.groupId].size;
+                                      @if (!!size) {
+                                        <p-badge [value]="size" badgeSize="small" />
+                                      }
+                                    }
+                                  </div>
+                                </p-accordion-header>
+                                <p-accordion-content>
+                                  <div class="flex flex-wrap gap-x-2 gap-y-3">
+                                    @for (tag of groups?.get(group) ?? []; track tag.tagId) {
+                                      <div class="inline-flex flex-nowrap gap-x-1">
+                                        <p-checkbox
+                                          [formControlName]="tag.controlName"
+                                          [binary]="true"
+                                          [inputId]="`${tag.controlName}`"
+                                          (onChange)="updateCurrPromoTagCnt(promo)"
+                                        />
+                                        <label [for]="`${tag.controlName}`">
+                                          {{ tag.tagName }}
+                                        </label>
+                                      </div>
+                                    }
+                                  </div>
+                                </p-accordion-content>
+                              </p-accordion-panel>
+                            </p-accordion>
+                          }
+                        </ng-template>
                       }
                     </div>
                     <div class="flex w-full gap-4">

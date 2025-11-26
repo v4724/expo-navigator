@@ -3,23 +3,29 @@ export interface StallSeries {
 
   name: string;
 
-  advanced: AdvancedData;
+  groups: StallGroup[];
+
+  checked: boolean;
+}
+export interface StallGroup {
+  id: number;
+
+  name: string;
+
+  tags: StallTag[];
 }
 
 export interface StallTag {
   id: number;
 
   name: string;
-}
 
-export interface AdvancedData {
-  cp: StallTag[];
-  char: StallTag[];
+  checked: boolean;
 }
 
 // Maps category to its selected advanced filter keys and values
 export interface AdvancedFilters {
-  [series: number]: {
-    [key: string]: Set<number>;
+  [seriesId: number]: {
+    [groupId: number]: Set<number>;
   };
 }

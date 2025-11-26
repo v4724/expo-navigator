@@ -1,15 +1,28 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import { SERIES_CSV_URL, TAG_CSV_URL } from '../../const/google-excel-csv-url';
-import { StallSeriesDto, StallTagDto } from '../../models/stall-series-tag.model';
-import { AdvancedFilters, StallTag } from '../../interfaces/stall-series-tag.interface';
+import {
+  DEF_CSV_URL,
+  GROUP_CSV_URL,
+  SERIES_CSV_URL,
+  TAG_CSV_URL,
+} from '../../const/google-excel-csv-url';
+import { StallGroupDto, StallSeriesDto, StallTagDto } from '../../models/stall-series-tag.model';
+import {
+  AdvancedFilters,
+  StallGroup,
+  StallSeries,
+  StallTag,
+} from '../../interfaces/stall-series-tag.interface';
+import { ExpoDef } from '../../models/expo-def.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TagService {
+  expoDef = new Map<string, any>();
   allSeries = new Map<number, StallSeriesDto>();
+  allGroups = new Map<number, StallGroupDto>();
   allTags = new Map<number, StallTagDto>();
 
   private _selectedSeriesId = new BehaviorSubject<Set<number>>(new Set());
@@ -21,12 +34,26 @@ export class TagService {
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   fetchEnd$ = this._fetchEnd.asObservable();
 
+  multiSeries = true;
+  specifiedSeriesId = -1;
+
   constructor() {
-    forkJoin([fetchExcelData(SERIES_CSV_URL), fetchExcelData(TAG_CSV_URL)])
+    forkJoin([
+      fetchExcelData(DEF_CSV_URL),
+      fetchExcelData(SERIES_CSV_URL),
+      fetchExcelData(GROUP_CSV_URL),
+      fetchExcelData(TAG_CSV_URL),
+    ])
       .pipe()
-      .subscribe(([series, tags]) => {
+      .subscribe(([defs, series, groups, tags]) => {
+        this.processDef(defs);
         this.processSeries(series);
+        this.processGroups(groups);
         this.processTags(tags);
+        const multiSeries = this.expoDef.get('MULTI_SERIES_EXPO');
+        const specifiedSeriesId = this.expoDef.get('SPECIFIED_SERIES_ID');
+        this.multiSeries = multiSeries;
+        this.specifiedSeriesId = specifiedSeriesId;
         this._fetchEnd.next(true);
       });
   }
@@ -49,26 +76,48 @@ export class TagService {
     this._selectedSeriesId.next(newCats);
   }
 
-  toggleAdvancedTag(series: number, key: string, value: number) {
+  toggleAdvancedTag(seriesId: number, groupId: number, tagId: number) {
     const newFilters = { ...this.selectedAdvancedTagsId };
-    if (!newFilters[series]) newFilters[series] = {};
-    if (!newFilters[series][key]) newFilters[series][key] = new Set();
+    if (!newFilters[seriesId]) newFilters[seriesId] = {};
+    if (!newFilters[seriesId][groupId]) newFilters[seriesId][groupId] = new Set();
 
-    if (newFilters[series][key].has(value)) {
-      newFilters[series][key].delete(value);
+    if (newFilters[seriesId][groupId].has(tagId)) {
+      newFilters[seriesId][groupId].delete(tagId);
     } else {
-      newFilters[series][key].add(value);
+      newFilters[seriesId][groupId].add(tagId);
     }
     this._selectedAdvancedTagsId.next(newFilters);
   }
 
-  clearAdvancedTag(series: number, type: 'cp' | 'char') {
+  clearAdvancedTag(seriesId: number, groupId: number) {
     const newFilters = { ...this.selectedAdvancedTagsId };
-    if (newFilters[series]) {
-      newFilters[series][type].clear();
+    if (newFilters[seriesId]) {
+      newFilters[seriesId][groupId].clear();
     }
 
     this._selectedAdvancedTagsId.next(newFilters);
+  }
+
+  processDef(rawData: Record<string, string>[]) {
+    rawData.forEach((rawSeries) => {
+      const key = rawSeries['key'];
+      const value = rawSeries['value'];
+      const description = rawSeries['description'];
+
+      if (!key || !value) {
+        console.warn('場次定義 缺少設定', key, value, description);
+        return;
+      }
+
+      if (!this.expoDef.has(key)) {
+        const def: ExpoDef = {
+          key,
+          value,
+          description,
+        };
+        this.expoDef.set(key, def);
+      }
+    });
   }
 
   processSeries(rawData: Record<string, string>[]) {
@@ -91,44 +140,97 @@ export class TagService {
     });
   }
 
+  processGroups(rawData: Record<string, string>[]) {
+    rawData.forEach((rawSeries) => {
+      const groupId = Number(rawSeries['groupId']);
+      const groupName = rawSeries['groupName'];
+      const seriesId = rawSeries['seriesId'];
+      const seriesName = rawSeries['seriesName'];
+
+      if (!groupId || !groupName) {
+        console.warn('group 缺少設定', groupId, groupName);
+        return;
+      }
+
+      if (!this.allGroups.has(groupId)) {
+        const group: StallGroupDto = {
+          groupId: Number(groupId),
+          groupName,
+          seriesId: Number(seriesId),
+          seriesName,
+        };
+        this.allGroups.set(groupId, group);
+      }
+    });
+  }
+
   processTags(rawData: Record<string, string>[]) {
     rawData.forEach((rawSeries) => {
       const tagId = Number(rawSeries['tagId']);
       const tagName = rawSeries['tagName'];
       const tagType = rawSeries['tagType'];
-      const seriesId = Number(rawSeries['seriesId']);
-      const seriesName = rawSeries['seriesName'];
+      const groupId = Number(rawSeries['groupId']);
+      const groupName = rawSeries['groupName'];
 
-      if (!tagId || !tagName || !tagType || !seriesId) {
-        console.warn('tag 缺少設定', tagId, tagName, tagType, seriesId);
+      if (!tagId || !tagName || !tagType || !groupId) {
+        console.warn('tag 缺少設定', tagId, tagName, tagType, groupId);
         return;
       }
 
       if (!this.allTags.has(tagId)) {
-        const series: StallTagDto = {
+        const tag: StallTagDto = {
           tagId,
           tagName,
-          tagType: tagType as 'CHAR' | 'CP',
-          seriesId,
-          seriesName,
+          tagType: tagType as 'CHAR',
+          groupId,
+          groupName,
         };
-        this.allTags.set(tagId, series);
+        this.allTags.set(tagId, tag);
       }
     });
   }
 
-  toStallTagArr(seriesId: number, tagType: 'CP' | 'CHAR'): StallTag[] {
-    return Array.from(this.allTags.values())
-      .filter((tag: StallTagDto) => {
-        return tag.seriesId === seriesId && tag.tagType === tagType;
-      })
-      .map((tag: StallTagDto) => {
-        return { id: tag.tagId, name: tag.tagName };
+  getSeriesData() {
+    const data: StallSeries[] = [];
+    this.allSeries.forEach((val, seriesId) => {
+      const groups: StallGroup[] = [];
+
+      Array.from(this.allGroups.values())
+        .filter((group) => group.seriesId === seriesId)
+        .forEach((group) => {
+          const tags: StallTag[] = Array.from(this.allTags.values())
+            .filter((tag) => tag.groupId === group.groupId)
+            .map((dto: StallTagDto) => {
+              return {
+                id: dto.tagId,
+                name: dto.tagName,
+                checked: false,
+              };
+            });
+          groups.push({
+            id: group.groupId,
+            name: group.groupName,
+            tags,
+          });
+        });
+
+      data.push({
+        id: seriesId,
+        name: val.seriesName,
+        groups,
+        checked: false,
       });
+    });
+    console.log(data);
+    return data;
   }
 
   getSeriesById(id: number): StallSeriesDto | undefined {
     return this.allSeries.get(id);
+  }
+
+  getGroupById(id: number): StallGroupDto | undefined {
+    return this.allGroups.get(id);
   }
 
   getTagById(id: number): StallTagDto | undefined {
