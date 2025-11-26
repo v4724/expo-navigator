@@ -1,0 +1,11 @@
+:host ::ng-deep {
+  .p-panel-header {
+    --p-panel-toggleable-header-padding: 0px;
+  }
+  .p-panel-content {
+    --p-panel-content-padding: 0 0.5rem 1rem 0rem;
+  }
+  .p-panel {
+    --p-panel-border-color: transparent;
+  }
+}

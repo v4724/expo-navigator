@@ -18,8 +18,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { DialogService } from 'primeng/dynamicdialog';
-import { isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID } from '@angular/core';
+import { ConfirmationService } from 'primeng/api';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -83,5 +82,6 @@ export const appConfig: ApplicationConfig = {
       );
     }),
     DialogService,
+    ConfirmationService,
   ],
 };

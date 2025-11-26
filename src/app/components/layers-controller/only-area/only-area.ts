@@ -2,12 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
+import { PanelModule } from 'primeng/panel';
 import { AreaService } from 'src/app/core/services/state/area-service';
-import { SearchAndFilter } from '../../search-and-filter/search-and-filter';
 
 @Component({
   selector: 'app-only-area',
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, PanelModule],
   templateUrl: './only-area.html',
   styleUrl: './only-area.scss',
 })
@@ -30,10 +30,6 @@ export class OnlyArea {
   });
 
   show = toSignal(this._areaService.show$);
-
-  toggleAreaSection() {
-    this.isAreaSectionOpen.update((v) => !v);
-  }
 
   toggleLayer() {
     this._areaService.toggleLayer();

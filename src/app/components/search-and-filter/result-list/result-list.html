@@ -4,8 +4,8 @@
   [class.shadow-2xl]="showControls()"
 >
   <div class="flex flex-col flex-1 overflow-y-auto px-2">
-    <div class="mb-2 flex items-center">
-      <div>搜尋結果：{{ isFiltering() ? results()?.length : '-' }}筆</div>
+    <div class="pb-2 flex items-center sticky top-0 bg-white z-1">
+      <div class="">搜尋結果：{{ isFiltering() ? results()?.length : '-' }}筆</div>
       <div class="ml-auto">
         <button
           class="py-1 px-2 border rounded-full flex items-center text-gray-600 border-gray-300"

@@ -5,14 +5,14 @@ import { MarkedLayer } from './marked-layer/marked-layer';
 import { OnlyArea } from './only-area/only-area';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { StallsLayer } from './stalls-layer/stalls-layer';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { LeftSidebarService, SidebarType } from 'src/app/core/services/state/left-sidebar-service';
 import { map } from 'rxjs';
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'app-layers-controller',
-  imports: [CommonModule, MarkedLayer, OnlyArea, SearchAndFilter, StallsLayer],
+  imports: [CommonModule, MarkedLayer, OnlyArea, SearchAndFilter, Divider],
   templateUrl: './layers-controller.html',
   styleUrl: './layers-controller.scss',
 })

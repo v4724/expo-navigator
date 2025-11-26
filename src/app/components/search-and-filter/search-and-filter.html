@@ -7,9 +7,9 @@
   </div>
 
   <div>
-    <p-panel [toggleable]="true">
+    <p-panel [toggleable]="true" [toggler]="'header'">
       <ng-template #header>
-        <span>攤位標籤</span>
+        <span>搜尋：攤位標籤</span>
       </ng-template>
       @if (!tagFetchEnd()) {
         <mat-icon

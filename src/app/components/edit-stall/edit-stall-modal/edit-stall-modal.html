@@ -75,7 +75,7 @@
         />
       </div>
       <p-tabs #promoTabs [value]="0" scrollable (valueChange)="onPromoChange($event)">
-        <p-tablist class="!sticky top-[-20px] z-100 border-t-1 border-gray-100">
+        <p-tablist class="!sticky top-0 z-100 border-t-1 border-gray-100">
           @for (tab of tabList(); track tab; let tabIndex = $index) {
             <p-tab [value]="tabIndex">
               <div class="flex gap-1 h-full">

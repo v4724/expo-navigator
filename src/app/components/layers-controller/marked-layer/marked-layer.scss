@@ -52,3 +52,15 @@ transition + cubic-bezier：拖曳或排序時動畫平滑。
 .example-box:last-child {
   border: none;
 }
+
+:host ::ng-deep {
+  .p-panel-header {
+    --p-panel-toggleable-header-padding: 0px;
+  }
+  .p-panel-content {
+    --p-panel-content-padding: 0 0.5rem 1rem 0.25rem;
+  }
+  .p-panel {
+    --p-panel-border-color: transparent;
+  }
+}

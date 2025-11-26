@@ -1,6 +1,5 @@
 import {
   AfterViewInit,
-  ChangeDetectorRef,
   Component,
   computed,
   inject,
@@ -18,8 +17,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MatIcon } from '@angular/material/icon';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
@@ -45,7 +42,6 @@ import { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
 import { BadgeModule } from 'primeng/badge';
 import { PromoStall } from 'src/app/core/interfaces/promo-stall.interface';
-import { PromoApiService } from 'src/app/core/services/api/promo-api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ResponseSnackBar } from 'src/app/shared/components/response-snack-bar/response-snack-bar';
 import { StallService } from 'src/app/core/services/state/stall-service';
@@ -65,9 +61,9 @@ import { StallSideContent } from '../../stall-info-ui/stall-side-nav/stall-side-
 import { StallSideHeader } from '../../stall-info-ui/stall-side-nav/stall-side-header/stall-side-header';
 import { StallInfoDrawer } from 'src/app/device/mobile/components/stall-info-drawer/stall-info-drawer';
 import { AccordionModule } from 'primeng/accordion';
-import { DialogService } from 'primeng/dynamicdialog';
 import { AdvancedFilters } from 'src/app/core/interfaces/stall-series-tag.interface';
 import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawer-on-mobile';
+import { ConfirmationService } from 'primeng/api';
 
 interface MyTab {
   icon: string;
@@ -122,13 +118,12 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly _stallService = inject(StallService);
   private readonly _selectStallService = inject(SelectStallService);
-  private readonly _dialog = inject(MatDialog);
   private readonly _fb = inject(FormBuilder);
   private readonly _tagService = inject(TagService);
   private readonly _stallApiService = inject(StallApiService);
   private readonly _snackBar = inject(MatSnackBar);
   private readonly _uiStateService = inject(UiStateService);
-  private readonly _dialogService = inject(DialogService);
+  private readonly _confirmService = inject(ConfirmationService);
 
   visible = false;
   previewVisible = false;
@@ -351,6 +346,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {}
 
   initFormVal(stall: StallData) {
+    this.stallForm.reset();
     this.stallForm.patchValue({
       stallId: stall.id,
       stallTitle: stall.stallTitle,
@@ -597,11 +593,6 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const updateObs = this._update();
-    if (!updateObs) {
-      return;
-    }
-
     this.isSaving.set(true);
     this._update()
       .pipe(
@@ -626,20 +617,27 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onClose() {
+    console.log(this.stallForm);
     if (this.stallForm.dirty) {
-      const dialogRef = this._dialog.open(ConfirmDialog, {
-        disableClose: true, // 取消點選背景自動關閉
-        data: {
-          label: '資料尚未儲存，是否結束編輯？',
+      this._confirmService.confirm({
+        message: '資料尚未儲存，是否結束編輯？',
+        header: '確認',
+        closable: false,
+        icon: 'pi pi-exclamation-triangle',
+        rejectButtonProps: {
+          label: '取消',
+          severity: 'secondary',
+          outlined: true,
+          text: true,
         },
-      });
-
-      dialogRef.afterClosed().subscribe((result) => {
-        console.debug('The dialog was closed');
-        if (result === 'CONFIRM') {
-          console.debug('結束編輯');
+        acceptButtonProps: {
+          label: '結束',
+          text: true,
+        },
+        accept: () => {
           this.visible = false;
-        }
+        },
+        reject: () => {},
       });
     } else {
       this.visible = false;

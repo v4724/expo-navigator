@@ -43,6 +43,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ConfirmationService } from 'primeng/api';
 
 interface DialogData {
   list: MarkedList;
@@ -79,7 +80,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _markedListService = inject(MarkedStallService);
   private readonly _markedListApiService = inject(MarkedListApiService);
   private readonly _userService = inject(UserService);
-  private readonly _dialog = inject(MatDialog);
+  private readonly _confirmService = inject(ConfirmationService);
   private readonly _fb = inject(FormBuilder);
   private readonly _snackBar = inject(MatSnackBar);
 
@@ -173,6 +174,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {}
 
   initFormVal(item: MarkedList) {
+    this.editForm.reset();
     this.editForm.patchValue({
       id: item.id,
       listName: item.listName,
@@ -291,19 +293,25 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   // TODO 資料比對
   onClose() {
     if (this.editForm.dirty) {
-      const dialogRef = this._dialog.open(ConfirmDialog, {
-        disableClose: true, // 取消點選背景自動關閉
-        data: {
-          label: '資料尚未儲存，是否結束編輯？',
+      this._confirmService.confirm({
+        message: '資料尚未儲存，是否結束編輯？',
+        header: '確認',
+        closable: false,
+        icon: 'pi pi-exclamation-triangle',
+        rejectButtonProps: {
+          label: '取消',
+          severity: 'secondary',
+          outlined: true,
+          text: true,
         },
-      });
-
-      dialogRef.afterClosed().subscribe((result) => {
-        console.debug('The dialog was closed');
-        if (result === 'CONFIRM') {
-          console.debug('結束編輯');
+        acceptButtonProps: {
+          label: '結束',
+          text: true,
+        },
+        accept: () => {
           this.dialogRef.close();
-        }
+        },
+        reject: () => {},
       });
     } else {
       this.dialogRef.close();

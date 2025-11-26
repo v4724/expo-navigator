@@ -12,7 +12,7 @@
 
                   @let groups = groupsForCnt();
                   @if (groups && groups[group.id]) {
-                    @let size = groups[group.id]?.size;
+                    @let size = groups[group.id] ? groups[group.id].size : 0;
                     @if (!!size) {
                       <p-badge [value]="size" badgeSize="small" />
                     }

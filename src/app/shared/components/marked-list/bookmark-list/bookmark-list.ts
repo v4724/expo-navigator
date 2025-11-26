@@ -12,6 +12,8 @@ import { AccordionModule } from 'primeng/accordion';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmationService } from 'primeng/api';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-bookmark-list',
@@ -25,6 +27,7 @@ export class BookmarkList {
   private _markedListApiService = inject(MarkedListApiService);
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
+  private _confirmService = inject(ConfirmationService);
   private _snackBar = inject(MatSnackBar);
 
   user = toSignal(this._userService.user$);
@@ -45,15 +48,41 @@ export class BookmarkList {
 
   deleteList(e: Event, list: MarkedList) {
     e.stopPropagation();
-    list.isUpdating = true;
-    this._markedListApiService.delete(list.id, this.user()?.acc!).subscribe((res) => {
-      if (res.success) {
-        this._snackBar.open('書籤刪除成功', '', { duration: 2000 });
-        this._markedListService.delete(list.id);
-      } else {
-        list.isUpdating = false;
-        this._snackBar.open('書籤刪除失敗', res.errors[0], { duration: 2000 });
-      }
+    this._confirmService.confirm({
+      message: '資料尚未儲存，是否結束編輯？',
+      header: '確認',
+      closable: false,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: '取消',
+        severity: 'secondary',
+        outlined: true,
+        text: true,
+      },
+      acceptButtonProps: {
+        label: '刪除',
+        text: true,
+      },
+      accept: () => {
+        list.isUpdating = true;
+        this._markedListApiService
+          .delete(list.id, this.user()?.acc!)
+          .pipe(
+            finalize(() => {
+              list.isUpdating = false;
+            }),
+          )
+          .subscribe((res) => {
+            if (res.success) {
+              this._snackBar.open('書籤刪除成功', '', { duration: 2000 });
+              this._markedListService.delete(list.id);
+            } else {
+              list.isUpdating = false;
+              this._snackBar.open('書籤刪除失敗', res.errors[0], { duration: 2000 });
+            }
+          });
+      },
+      reject: () => {},
     });
   }
 }

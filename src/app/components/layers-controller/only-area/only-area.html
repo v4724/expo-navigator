@@ -1,55 +1,37 @@
-<div class="mb-4 border-b pb-2 pr-1">
-  <div class="w-full flex items-center gap-x-2">
-    <input
-      type="checkbox"
-      [checked]="show()"
-      (change)="toggleLayer()"
-      class="h-4 w-4 rounded accent-blue-500"
-    />
-    <button
-      (click)="toggleAreaSection()"
-      class="w-full flex justify-between items-center text-left font-semibold text-gray-700"
-    >
-      <span>場內 Only 區</span>
-      <mat-icon
-        aria-hidden="false"
-        aria-label="Example home icon"
-        fontIcon="keyboard_arrow_up"
-        class="h-5 w-5 transition-transform"
-        [class.rotate-180]="!isAreaSectionOpen()"
-      ></mat-icon>
-    </button>
-  </div>
-
-  <div
-    class="transition-all duration-300"
-    [class.max-h-0]="!isAreaSectionOpen()"
-    [class.max-h-80]="isAreaSectionOpen()"
-  >
-    @if (isAreaSectionOpen()) {
-      @if (!areaFetchEnd()) {
-        <mat-icon
-          class="animate-spin"
-          aria-hidden="false"
-          aria-label="auto renew"
-          fontIcon="autorenew"
-        ></mat-icon>
-      }
-      @if (allAreas().length) {
-        <div class="mt-2 space-y-2 pl-2" animate.enter="fade-in" animate.leave="fade-out">
-          @for (area of allAreas(); track area.areaId) {
-            <label class="flex items-center gap-x-2 cursor-pointer">
-              <!-- <input
+<p-panel [toggleable]="true" [toggler]="'header'" [collapsed]="true">
+  <ng-template #header>
+    <div class="flex gap-2 items-center">
+      <input
+        type="checkbox"
+        [checked]="show()"
+        (change)="toggleLayer()"
+        class="h-4 w-4 rounded accent-blue-500"
+        (click)="$event.stopPropagation()"
+      />
+      <span class="font-bold">場內 Only 區</span>
+    </div>
+  </ng-template>
+  @if (!areaFetchEnd()) {
+    <mat-icon
+      class="animate-spin"
+      aria-hidden="false"
+      aria-label="auto renew"
+      fontIcon="autorenew"
+    ></mat-icon>
+  }
+  @if (allAreas().length) {
+    <div class="mt-2 space-y-2 pl-2" animate.enter="fade-in" animate.leave="fade-out">
+      @for (area of allAreas(); track area.areaId) {
+        <label class="flex items-center gap-x-2 cursor-pointer">
+          <!-- <input
                 type="checkbox"
                 [checked]="activeAreas().has(area.areaId)"
                 (change)="toggleArea(area.areaId)"
                 class="h-4 w-4 rounded accent-blue-500"
               /> -->
-              <span class="text-sm text-gray-600">{{ area.areaName }}</span>
-            </label>
-          }
-        </div>
+          <span class="text-sm text-gray-600">{{ area.areaName }}</span>
+        </label>
       }
-    }
-  </div>
-</div>
+    </div>
+  }
+</p-panel>

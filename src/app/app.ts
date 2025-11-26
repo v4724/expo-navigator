@@ -2,10 +2,11 @@ import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { isPlatform } from '@ionic/core';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, IonApp, IonRouterOutlet],
+  imports: [RouterOutlet, IonApp, IonRouterOutlet, ConfirmDialog],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
