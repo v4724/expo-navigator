@@ -3,6 +3,7 @@ export interface StallGridDef {
   stallDefs: StallRule[];
   groupDef: StallGroupRule;
   isGrouped: boolean;
+  bookmarkPosition: BookmarkPosType;
 }
 
 export interface StallRule {
@@ -17,6 +18,7 @@ export interface StallRule {
     left: number;
   };
   direction: StallRuleDirectionType;
+  bookmarkPosition: BookmarkPosType;
 }
 
 export interface StallGroupRule {
@@ -33,3 +35,4 @@ export interface StallGroupRule {
 }
 
 export type StallRuleDirectionType = 'right' | 'left' | 'top' | 'bottom';
+export type BookmarkPosType = 'right' | 'left' | 'top' | 'bottom';

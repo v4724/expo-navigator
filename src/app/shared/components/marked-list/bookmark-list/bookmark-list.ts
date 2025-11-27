@@ -49,7 +49,7 @@ export class BookmarkList {
   deleteList(e: Event, list: MarkedList) {
     e.stopPropagation();
     this._confirmService.confirm({
-      message: '資料尚未儲存，是否結束編輯？',
+      message: `是否刪除「${list.listName}」？`,
       header: '確認',
       closable: false,
       icon: 'pi pi-exclamation-triangle',

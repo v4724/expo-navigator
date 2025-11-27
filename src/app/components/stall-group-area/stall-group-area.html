@@ -13,6 +13,8 @@
 >
   {{ zone().zoneId }}
   <div #anchor class="absolute right-[-7px]" [style.top]="popoverAnchorTop()"></div>
+
+  <app-bookmarks [zoneId]="zone().zoneId"></app-bookmarks>
 </div>
 
 <p-popover #popover (onShow)="onPopoverShow()">
@@ -24,14 +26,20 @@
       {{ zone().zoneId }}
     </div>
     <div
-      class="stall-group-popover flex gap-1 pr-2 h-[300px] overflow-auto"
+      class="stall-group-popover flex gap-1 pr-2 overflow-auto"
       [class.flex-col]="direction() === 'bottom' || direction() === 'top'"
       [class.flex-row-reverse]="direction() === 'right'"
       [class.flex-col-reverse]="direction() === 'bottom'"
+      [ngClass]="{
+        'h-[300px]': direction() === 'bottom' || direction() === 'top',
+        'w-[300px]': direction() === 'left' || direction() === 'right',
+        'h-[80px]': showMarkLayer() && (direction() === 'left' || direction() === 'right'),
+        'w-[80px]': showMarkLayer() && (direction() === 'bottom' || direction() === 'top'),
+      }"
     >
       @for (stall of stalls(); track $index) {
         <div
-          class="stall-area size-7 !text-base rounded-sm"
+          class="relative stall-area size-7 !text-base rounded-sm"
           [class.has-promo]="stall.hasPromo"
           [class.is-selected]="stall.id === selectedId()"
           [class.is-search-match]="matchStallIds().has(stall.id)"
@@ -39,6 +47,7 @@
           [pTooltip]="stall.stallTitle"
         >
           {{ stall.padNum }}
+          <app-bookmark [stall]="stall"></app-bookmark>
         </div>
       }
     </div>

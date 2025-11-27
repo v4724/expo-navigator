@@ -11,6 +11,7 @@ import {
   StallGridDef,
   StallRule,
   StallRuleDirectionType,
+  BookmarkPosType,
 } from '../../interfaces/stall-def.interface';
 import { STALL_GRID_DEF, STALL_ZONE_DEF } from '../../const/google-excel-csv-url';
 
@@ -164,6 +165,7 @@ export class StallService {
       const height = Number(rawSeries['stall_height']);
       const top = Number(rawSeries['anchor_stall_rect_top']);
       const left = Number(rawSeries['anchor_stall_rect_left']);
+      const bookmarkPosition = rawSeries['bookmark_position'];
 
       let entry = stallZoneDefs.get(zoneId);
       if (!entry) {
@@ -177,6 +179,7 @@ export class StallService {
           isGrouped: group.isGrouped,
           stallDefs: [],
           groupDef: group,
+          bookmarkPosition: bookmarkPosition as BookmarkPosType,
         };
         entry = def;
         stallZoneDefs.set(zoneId, def);
@@ -194,6 +197,7 @@ export class StallService {
           left,
         },
         direction: direction as StallRuleDirectionType,
+        bookmarkPosition: bookmarkPosition as BookmarkPosType,
       };
       entry.stallDefs.push(stallRule);
     });
@@ -355,6 +359,7 @@ export class StallService {
           filterTags: [],
           filterCustomTags: [],
           isSearchMatch: false,
+          rule: stallDef,
         };
         stallsMap.set(id, stall);
         stallEntry = stall;

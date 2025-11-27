@@ -1,5 +1,6 @@
 import { StallDto } from '../models/stall.model';
 import { PromoStall } from './promo-stall.interface';
+import { StallRule } from './stall-def.interface';
 
 /**
  * Unified data structure for a single stall, combining all sources of info.
@@ -30,4 +31,6 @@ export interface StallData extends Omit<StallDto, 'promotion'> {
   filterSeries: number[];
 
   filterCustomTags: string[];
+
+  rule: StallRule;
 }

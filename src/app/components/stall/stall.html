@@ -36,15 +36,24 @@
     </svg>
   </div> -->
 
-  <!-- mark -->
-  @if (isLogin() && showMarkLayer() && allMarkedList()?.length) {
+  <!-- bookmark -->
+  @if (isLogin() && showMarkLayer() && allMarkedList()?.length && !isGroupedMember()) {
+    @let markSet = isMarkedSet();
     <div
-      class="absolute top-full left-1/2 -translate-x-1/2 pointer-events-none z-[100] w-full flex flex-wrap justify-center"
+      class="absolute pointer-events-none z-[100] w-full flex justify-center"
+      [ngClass]="{
+        'bottom-full left-1/2 -translate-x-1/2': stall().rule.bookmarkPosition === 'top',
+        'left-[100%] top-1/2 -translate-y-1/2': stall().rule.bookmarkPosition === 'right',
+        'top-full left-1/2 -translate-x-1/2': stall().rule.bookmarkPosition === 'bottom',
+        'right-[100%] top-1/2 -translate-y-1/2': stall().rule.bookmarkPosition === 'left',
+        'flex-nowrap': markSet.size <= 2,
+        'flex-wrap': markSet.size > 2,
+      }"
       (click)="$event.stopPropagation()"
       (mouseover)="$event.stopPropagation()"
     >
       @for (item of allMarkedList(); track $index) {
-        @if (item.show && isMarkedSet().has(item.id)) {
+        @if (item.show && markSet.has(item.id)) {
           <div class="flex items-center justify-center">
             <mat-icon
               inline
@@ -52,8 +61,8 @@
               aria-label="marked icon"
               [style.color]="item.iconColor"
               [fontIcon]="item.icon || 'star'"
-              [style.font-size]="iconSize()"
-              [style.line-height]="iconSize()"
+              [style.font-size]="markSet.size <= 2 ? fontSizeNum() + 'px' : iconSize()"
+              [style.line-height]="markSet.size <= 2 ? fontSizeNum() + 'px' : iconSize()"
             ></mat-icon>
           </div>
         }

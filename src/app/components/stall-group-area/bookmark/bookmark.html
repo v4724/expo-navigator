@@ -1,0 +1,31 @@
+@if (isLogin() && showMarkLayer() && bookmarkSet().size) {
+  <div
+    class="absolute pointer-events-none z-[100] w-full flex justify-center"
+    [ngClass]="{
+      'left-[100%] top-1/2 -translate-y-1/2':
+        stall().rule.bookmarkPosition === 'right' || stall().rule.bookmarkPosition === 'left',
+      'top-full left-1/2 -translate-x-1/2':
+        stall().rule.bookmarkPosition === 'top' || stall().rule.bookmarkPosition === 'bottom',
+      'flex-nowrap': bookmarkSet().size <= 2,
+      'flex-wrap': bookmarkSet().size > 2,
+    }"
+    (click)="$event.stopPropagation()"
+    (mouseover)="$event.stopPropagation()"
+  >
+    @for (item of allMarkedList(); track $index) {
+      @if (item.show && bookmarkSet().has(item.id)) {
+        <div class="flex items-center justify-center">
+          <mat-icon
+            inline
+            aria-hidden="false"
+            aria-label="marked icon"
+            [style.color]="item.iconColor"
+            [fontIcon]="item.icon || 'star'"
+            [style.font-size]="bookmarkSet().size <= 2 ? fontSizeNum() + 'px' : iconSize()"
+            [style.line-height]="bookmarkSet().size <= 2 ? fontSizeNum() + 'px' : iconSize()"
+          ></mat-icon>
+        </div>
+      }
+    }
+  </div>
+}

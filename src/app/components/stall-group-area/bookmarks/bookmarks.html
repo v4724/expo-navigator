@@ -1,0 +1,30 @@
+@if (isLogin() && showMarkLayer() && distinctBookmarks()?.length && isGroupedMember()) {
+  <div
+    class="absolute pointer-events-none z-[100] w-full flex justify-center"
+    [ngClass]="{
+      'bottom-full left-1/2 -translate-x-1/2': def()?.bookmarkPosition === 'top',
+      'left-[100%] top-1/2 -translate-y-1/2':
+        def()?.bookmarkPosition === 'right' || def()?.bookmarkPosition === 'left',
+      'top-full left-1/2 -translate-x-1/2': def()?.bookmarkPosition === 'bottom',
+      'right-[100%] top-1/2 -translate-y-1/2': def()?.bookmarkPosition === 'left',
+      'flex-row': def()?.bookmarkPosition === 'top' || def()?.bookmarkPosition === 'bottom',
+      'flex-col': def()?.bookmarkPosition === 'right' || def()?.bookmarkPosition === 'left',
+    }"
+    (click)="$event.stopPropagation()"
+    (mouseover)="$event.stopPropagation()"
+  >
+    @for (item of distinctBookmarks(); track $index) {
+      <div class="flex items-center justify-center">
+        <mat-icon
+          inline
+          aria-hidden="false"
+          aria-label="marked icon"
+          [style.color]="item.iconColor"
+          [fontIcon]="item.icon || 'star'"
+          [style.font-size]="iconSize()"
+          [style.line-height]="iconSize()"
+        ></mat-icon>
+      </div>
+    }
+  </div>
+}

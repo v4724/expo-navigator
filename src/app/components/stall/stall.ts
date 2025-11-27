@@ -59,6 +59,7 @@ export class Stall implements OnInit, AfterViewInit {
     return this._stallService.isGroupedMember(stall);
   });
 
+  fontSizeNum = signal<number>(8);
   fontSize = signal<string>('0.5rem');
   iconSize = signal<string>('0.25rem');
 
@@ -224,9 +225,11 @@ export class Stall implements OnInit, AfterViewInit {
     if (mapH) {
       const h = (Number(this.stall().coords.height) * mapH) / 100;
       const fontSize = h * 0.7;
+      this.fontSizeNum.set(Math.round(fontSize));
       this.fontSize.set(`${Math.round(fontSize)}px`);
       this.iconSize.set(`${Math.round(fontSize * 0.6)}px`);
     } else {
+      this.fontSizeNum.set(8);
       this.fontSize.set('0.5rem');
       this.iconSize.set('0.25rem');
     }

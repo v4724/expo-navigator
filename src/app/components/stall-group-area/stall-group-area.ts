@@ -18,10 +18,13 @@ import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TooltipModule } from 'primeng/tooltip';
+import { Bookmarks } from './bookmarks/bookmarks';
+import { Bookmark } from './bookmark/bookmark';
+import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 
 @Component({
   selector: 'app-stall-group-area',
-  imports: [CommonModule, Popover, TooltipModule],
+  imports: [CommonModule, Popover, TooltipModule, Bookmarks, Bookmark],
   templateUrl: './stall-group-area.html',
   styleUrl: './stall-group-area.scss',
 })
@@ -32,6 +35,7 @@ export class StallGroupArea implements OnInit {
 
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
+  private _markedListService = inject(MarkedStallService);
   private _stallService = inject(StallService);
 
   popoverAnchorTop = signal<string>('0');
@@ -55,6 +59,8 @@ export class StallGroupArea implements OnInit {
   });
 
   selectedId = toSignal(this._selectStallService.selectedStallId$);
+
+  showMarkLayer = toSignal(this._markedListService.layerShown$);
 
   private _matchStallIds = toSignal(this._stallMapService.matchStallsId$);
   matchStallIds = computed(() => {
