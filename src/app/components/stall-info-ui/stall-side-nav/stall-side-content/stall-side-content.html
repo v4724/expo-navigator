@@ -66,7 +66,11 @@
 
                   @let tagSet = seriesAndTagMap?.get(series);
                   @for (tag of tagSet; track $index) {
-                    <span class="promo-tag">#{{ tag.tagName }}</span>
+                    @if (tag.addGroupName) {
+                      <span class="promo-tag">#{{ tag.groupName }}-{{ tag.tagName }}</span>
+                    } @else {
+                      <span class="promo-tag">#{{ tag.tagName }}</span>
+                    }
                   }
                 }
                 @if (promo.customTags) {

@@ -135,6 +135,7 @@ export class TagService {
       const tagType = rawSeries['tagType'];
       const groupId = Number(rawSeries['groupId']);
       const groupName = rawSeries['groupName'];
+      const addGroupName = rawSeries['addGroupName'].toLocaleLowerCase() === 'true' ? true : false;
 
       if (!tagId || !tagName || !tagType || !groupId) {
         console.warn('tag 缺少設定', tagId, tagName, tagType, groupId);
@@ -148,6 +149,7 @@ export class TagService {
           tagType: tagType as 'CHAR',
           groupId,
           groupName,
+          addGroupName,
         };
         this.allTags.set(tagId, tag);
       }

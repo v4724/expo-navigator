@@ -24,4 +24,6 @@ export interface StallTagDto {
   groupId: number;
 
   groupName: string;
+
+  addGroupName: boolean;
 }
