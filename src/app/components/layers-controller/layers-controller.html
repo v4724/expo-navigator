@@ -8,14 +8,16 @@
     <!-- Tag Filters Section -->
     <app-search-and-filter></app-search-and-filter>
 
-    <p-divider></p-divider>
     <!-- Layer Controls Section -->
     <div class="flex flex-col">
       <!-- 攤位 -->
       <!-- <app-stalls-layer></app-stalls-layer> -->
 
       <!-- 場內 only -->
-      <app-only-area></app-only-area>
+      @if (multiSeriesExpo()) {
+        <p-divider></p-divider>
+        <app-only-area></app-only-area>
+      }
 
       <!-- 已標記 -->
       @if (isLogin()) {

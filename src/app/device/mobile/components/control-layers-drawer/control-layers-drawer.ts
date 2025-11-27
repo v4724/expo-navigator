@@ -6,6 +6,7 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { OnlyArea } from 'src/app/components/layers-controller/only-area/only-area';
 import { StallsLayer } from 'src/app/components/layers-controller/stalls-layer/stalls-layer';
 import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawer-on-mobile';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-control-layers-drawer',
@@ -17,8 +18,10 @@ export class ControlLayersDrawer {
   @ViewChild(DrawerOnMobile) drawer!: DrawerOnMobile;
 
   private _markedListService = inject(MarkedStallService);
+  private _expoStateService = inject(ExpoStateService);
 
   showMarkedListLayer = toSignal(this._markedListService.layerShown$);
+  multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
 
   toggleLayer() {
     this._markedListService.toggleLayer();

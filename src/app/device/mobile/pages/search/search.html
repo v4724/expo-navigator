@@ -9,7 +9,15 @@
     [value]="currSearchTerm()"
   ></ion-searchbar>
   <div class="flex flex-col">
-    <div class="mt-2 mb-1 mx-3">攤位標籤</div>
+    <div class="flex gap-1 items-center mt-2 mb-1 mx-3 text-gray-600">
+      <span>攤位標籤</span>
+      <i
+        class="pi pi-question-circle text-gray-400"
+        pTooltip="符合任一搜尋條件即可比對到"
+        tooltipPosition="top"
+      >
+      </i>
+    </div>
     @if (!tagFetchEnd()) {
       <div class="flex items-center justify-center">
         <mat-icon
@@ -21,35 +29,44 @@
       </div>
     }
     @if (allSeries().length) {
-      <div class="space-y-2 mx-3 p-3 overflow-auto bg-white/80 rounded-lg">
+      <div
+        class="mx-3 overflow-auto bg-white/80 rounded-lg"
+        [ngClass]="{ 'space-y-2 p-32': multiSeries() }"
+      >
         @for (series of allSeries(); track $index) {
-          <div class="flex items-center justify-between">
-            <label class="flex items-center gap-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                (change)="toggleSeries(series.id)"
-                [checked]="isSeriesSelected(series.id)"
-                class="h-4 w-4 rounded accent-purple-500"
-              />
-              <span class="text-sm text-gray-600">{{ series.name }}</span>
-              @if (selectedAdvancedTagsCount()[series.id]) {
-                <span class="text-xs bg-purple-200 text-purple-800 rounded-full px-2 py-0.5">
-                  {{ selectedAdvancedTagsCount()[series.id] }}
-                </span>
-              }
-            </label>
-            <button
-              (click)="openAdvancedFilterModal(series)"
-              class="text-gray-500 hover:text-gray-800"
-            >
-              <mat-icon
-                [inline]="true"
-                aria-hidden="false"
-                aria-label="Example filter icon"
-                fontIcon="filter_alt"
-              ></mat-icon>
-            </button>
-          </div>
+          @if (multiSeries()) {
+            <div class="flex items-center justify-between">
+              <label class="flex items-center gap-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  (change)="toggleSeries(series.id)"
+                  [checked]="isSeriesSelected(series.id)"
+                  class="h-4 w-4 rounded accent-purple-500"
+                />
+                <span class="text-sm text-gray-600">{{ series.name }}</span>
+                @if (selectedAdvancedTagsCount()[series.id]) {
+                  <span class="text-xs bg-purple-200 text-purple-800 rounded-full px-2 py-0.5">
+                    {{ selectedAdvancedTagsCount()[series.id] }}
+                  </span>
+                }
+              </label>
+              <button
+                (click)="openAdvancedFilterModal(series)"
+                class="text-gray-500 hover:text-gray-800"
+              >
+                <mat-icon
+                  [inline]="true"
+                  aria-hidden="false"
+                  aria-label="Example filter icon"
+                  fontIcon="filter_alt"
+                ></mat-icon>
+              </button>
+            </div>
+          } @else {
+            @if (series.id === specifiedSeriesId()) {
+              <app-advanced-series-tag [series]="series"></app-advanced-series-tag>
+            }
+          }
         }
       </div>
     }

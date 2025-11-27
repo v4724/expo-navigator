@@ -15,6 +15,7 @@ import { StallInfoDrawer } from '../components/stall-info-drawer/stall-info-draw
 import { EditBtn } from 'src/app/components/edit-stall/edit-btn/edit-btn';
 import { UserDrawer } from '../components/user-drawer/user-drawer';
 import { OnlyAreaDrawer } from '../components/only-area-drawer/only-area-drawer';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-home',
@@ -36,6 +37,7 @@ import { OnlyAreaDrawer } from '../components/only-area-drawer/only-area-drawer'
 export class Home {
   private _userService = inject(UserService);
   private _searchAndFilterService = inject(SearchAndFilterService);
+  private _expoStateService = inject(ExpoStateService);
   private router = inject(Router);
 
   isLogin = toSignal(this._userService.isLogin$);
@@ -44,6 +46,8 @@ export class Home {
   isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
   currSearchTerm = toSignal(this._searchAndFilterService.inputSearch$);
   results = toSignal(this._searchAndFilterService.filterStalls$);
+
+  multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
 
   constructor() {
     addIcons({ person });

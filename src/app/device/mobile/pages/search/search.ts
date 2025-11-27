@@ -3,14 +3,24 @@ import { AfterViewInit, Component, computed, inject, signal, ViewChild } from '@
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { IonSearchbar, IonContent } from '@ionic/angular/standalone';
+import { TooltipModule } from 'primeng/tooltip';
+import { AdvancedSeriesTag } from 'src/app/components/search-and-filter/advanced-series-tag/advanced-series-tag';
 import { AdvancedSeriesTagService } from 'src/app/components/search-and-filter/advanced-series-tag/advanced-series-tag-service';
 import { StallSeries, AdvancedFilters } from 'src/app/core/interfaces/stall-series-tag.interface';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 import { TagService } from 'src/app/core/services/state/tag-service';
 
 @Component({
   selector: 'app-search',
-  imports: [CommonModule, IonSearchbar, IonContent, MatIconModule],
+  imports: [
+    CommonModule,
+    IonSearchbar,
+    IonContent,
+    MatIconModule,
+    AdvancedSeriesTag,
+    TooltipModule,
+  ],
   templateUrl: './search.html',
   styleUrl: './search.scss',
 })
@@ -20,6 +30,11 @@ export class Search implements AfterViewInit {
   private _tagService = inject(TagService);
   private _searchAndFilterService = inject(SearchAndFilterService);
   private _advancedSTService = inject(AdvancedSeriesTagService);
+  private _expoStateService = inject(ExpoStateService);
+
+  // 場次設定
+  multiSeries = toSignal(this._expoStateService.multiSeriesExpo$);
+  specifiedSeriesId = toSignal(this._expoStateService.specifiedSeriesId$);
 
   currSearchTerm = toSignal(this._searchAndFilterService.inputSearch$);
   isAdvancedFilterModalOpen = signal(false);

@@ -9,6 +9,7 @@ import { UserService } from 'src/app/core/services/state/user-service';
 import { LeftSidebarService, SidebarType } from 'src/app/core/services/state/left-sidebar-service';
 import { map } from 'rxjs';
 import { Divider } from 'primeng/divider';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-layers-controller',
@@ -17,6 +18,7 @@ import { Divider } from 'primeng/divider';
   styleUrl: './layers-controller.scss',
 })
 export class LayersController {
+  private _expoStateService = inject(ExpoStateService);
   private _leftSidebarService = inject(LeftSidebarService);
   private _userService = inject(UserService);
 
@@ -28,4 +30,5 @@ export class LayersController {
     ),
   );
   isLogin = toSignal(this._userService.isLogin$);
+  multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
 }

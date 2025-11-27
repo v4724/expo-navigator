@@ -1,12 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import {
-  DEF_CSV_URL,
-  GROUP_CSV_URL,
-  SERIES_CSV_URL,
-  TAG_CSV_URL,
-} from '../../const/google-excel-csv-url';
+import { GROUP_CSV_URL, SERIES_CSV_URL, TAG_CSV_URL } from '../../const/google-excel-csv-url';
 import { StallGroupDto, StallSeriesDto, StallTagDto } from '../../models/stall-series-tag.model';
 import {
   AdvancedFilters,
@@ -14,7 +9,7 @@ import {
   StallSeries,
   StallTag,
 } from '../../interfaces/stall-series-tag.interface';
-import { ExpoDef } from '../../models/expo-def.model';
+import { ExpoStateService } from './expo-state-service';
 
 @Injectable({
   providedIn: 'root',
@@ -34,26 +29,17 @@ export class TagService {
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   fetchEnd$ = this._fetchEnd.asObservable();
 
-  multiSeries = true;
-  specifiedSeriesId = -1;
-
   constructor() {
     forkJoin([
-      fetchExcelData(DEF_CSV_URL),
       fetchExcelData(SERIES_CSV_URL),
       fetchExcelData(GROUP_CSV_URL),
       fetchExcelData(TAG_CSV_URL),
     ])
       .pipe()
-      .subscribe(([defs, series, groups, tags]) => {
-        this.processDef(defs);
+      .subscribe(([series, groups, tags]) => {
         this.processSeries(series);
         this.processGroups(groups);
         this.processTags(tags);
-        const multiSeries = this.expoDef.get('MULTI_SERIES_EXPO');
-        const specifiedSeriesId = this.expoDef.get('SPECIFIED_SERIES_ID');
-        this.multiSeries = multiSeries;
-        this.specifiedSeriesId = specifiedSeriesId;
         this._fetchEnd.next(true);
       });
   }
@@ -96,28 +82,6 @@ export class TagService {
     }
 
     this._selectedAdvancedTagsId.next(newFilters);
-  }
-
-  processDef(rawData: Record<string, string>[]) {
-    rawData.forEach((rawSeries) => {
-      const key = rawSeries['key'];
-      const value = rawSeries['value'];
-      const description = rawSeries['description'];
-
-      if (!key || !value) {
-        console.warn('場次定義 缺少設定', key, value, description);
-        return;
-      }
-
-      if (!this.expoDef.has(key)) {
-        const def: ExpoDef = {
-          key,
-          value,
-          description,
-        };
-        this.expoDef.set(key, def);
-      }
-    });
   }
 
   processSeries(rawData: Record<string, string>[]) {

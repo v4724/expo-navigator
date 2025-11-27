@@ -40,24 +40,33 @@
     <app-map class="flex-grow"></app-map>
   </div>
 
-  <div class="flex flex-row mt-auto justify-between h-12 shadow-[0_-1px_5px_rgba(0,0,0,0.1)] z-1">
+  <div
+    class="flex flex-row mt-auto justify-between h-12 shadow-[0_-1px_5px_rgba(0,0,0,0.1)] z-1"
+    [ngClass]="{ hidden: !isLogin() && !multiSeriesExpo() }"
+  >
     <button
       pButton
       class="block"
-      [ngClass]="{ hidden: !isLogin(), 'w-1/2': isLogin() }"
+      [ngClass]="{
+        hidden: !isLogin(),
+        'w-1/2': isLogin() && multiSeriesExpo(),
+        'w-full': isLogin() && !multiSeriesExpo(),
+      }"
       (click)="markedListDrawer.show()"
     >
       書籤
     </button>
 
-    <button
-      pButton
-      class="block"
-      [ngClass]="{ 'w-full': !isLogin(), 'w-1/2': isLogin() }"
-      (click)="onlyAreaDrawer.show()"
-    >
-      場內 only
-    </button>
+    @if (multiSeriesExpo()) {
+      <button
+        pButton
+        class="block"
+        [ngClass]="{ 'w-full': !isLogin(), 'w-1/2': isLogin() }"
+        (click)="onlyAreaDrawer.show()"
+      >
+        場內 only
+      </button>
+    }
   </div>
 </div>
 
