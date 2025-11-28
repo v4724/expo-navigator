@@ -1,8 +1,5 @@
-<div mat-dialog-title class="py-4 px-6 text-gray-600 flex">
-  <div class="text-lg">編輯書籤</div>
-</div>
-<mat-dialog-content>
-  <form [formGroup]="editForm" class="flex flex-col w-full h-[calc(100vh-260px)]">
+<div class="pt-2 h-[calc(100vh-220px)] overflow-auto">
+  <form [formGroup]="editForm" class="flex flex-col w-full">
     <!-- 社團資訊 -->
     <div class="flex flex-wrap gap-3">
       <div class="flex flex-col gap-1 w-full">
@@ -135,14 +132,14 @@
       </div>
     </div>
   </form>
-</mat-dialog-content>
-<mat-dialog-actions>
+</div>
+<div class="w-full justify-end flex gap-1 pt-2">
   <p-button label="關閉" size="small" variant="text" severity="secondary" (click)="onClose()" />
   <p-button
     label="儲存"
     size="small"
     variant="text"
     (click)="onSave()"
-    [disabled]="isTempSaving() || isSaving()"
-  />
-</mat-dialog-actions>
+    [disabled]="isSaving()"
+  ></p-button>
+</div>

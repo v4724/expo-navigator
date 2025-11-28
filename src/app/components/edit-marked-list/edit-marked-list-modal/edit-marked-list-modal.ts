@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   inject,
+  input,
   OnDestroy,
   OnInit,
   signal,
@@ -16,18 +17,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
 import { finalize, map, of, tap } from 'rxjs';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { MarkedListUpdateDto } from 'src/app/core/models/marked-stall.model';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogActions,
-  MatDialogContent,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MatDialogActions, MatDialogContent } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Divider } from 'primeng/divider';
@@ -44,10 +38,7 @@ import { ButtonModule } from 'primeng/button';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
-
-interface DialogData {
-  list: MarkedList;
-}
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-edit-marked-list-modal',
@@ -55,8 +46,6 @@ interface DialogData {
     StallFilterInput,
     FormsModule,
     ReactiveFormsModule,
-    MatDialogContent,
-    MatDialogActions,
     FloatLabel,
     Divider,
     Chip,
@@ -74,8 +63,7 @@ interface DialogData {
 export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('colorPicker') colorPicker!: ColorPicker;
 
-  readonly dialogRef = inject(MatDialogRef<EditMarkedListModal>);
-  readonly data = inject<DialogData>(MAT_DIALOG_DATA);
+  data = input.required<MarkedList>();
 
   private readonly _markedListService = inject(MarkedStallService);
   private readonly _markedListApiService = inject(MarkedListApiService);
@@ -83,11 +71,11 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _confirmService = inject(ConfirmationService);
   private readonly _fb = inject(FormBuilder);
   private readonly _snackBar = inject(MatSnackBar);
+  private readonly _ref = inject(DynamicDialogRef);
 
   editForm: FormGroup;
 
   user = toSignal(this._userService.user$);
-  isTempSaving = signal<boolean>(false);
   isSaving = signal<boolean>(false);
 
   defaultColor = '#6e11b0';
@@ -95,8 +83,8 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     this.defaultColor,
     '#ff0000',
     '#00ff00',
-    '#0000ff',
-    '#ffff00',
+    '#00ab05',
+    '#ff8100',
     '#ff00ff',
   ];
 
@@ -163,8 +151,10 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   get selectedStalls(): StallData[] {
     return this.list.value ?? [];
   }
+
   ngOnInit(): void {
-    this.initFormVal(this.data.list);
+    console.log('??', this.data());
+    this.initFormVal(this.data());
     this.initIconEvent();
     this.initIconColorEvent();
   }
@@ -282,7 +272,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe((res) => {
         if (res.success) {
-          this.dialogRef.close();
+          this._ref.close();
           this._snackBar.open('儲存成功', '', { duration: 2000 });
         } else {
           this._snackBar.open(`儲存失敗 ${res.errors[0]}`, '', { duration: 2000 });
@@ -309,12 +299,12 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
           text: true,
         },
         accept: () => {
-          this.dialogRef.close();
+          this._ref.close();
         },
         reject: () => {},
       });
     } else {
-      this.dialogRef.close();
+      this._ref.close();
     }
   }
 
