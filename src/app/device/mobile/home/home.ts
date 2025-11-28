@@ -16,6 +16,8 @@ import { EditBtn } from 'src/app/components/edit-stall/edit-btn/edit-btn';
 import { UserDrawer } from '../components/user-drawer/user-drawer';
 import { OnlyAreaDrawer } from '../components/only-area-drawer/only-area-drawer';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { SpeedDialModule } from 'primeng/speeddial';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-home',
@@ -30,6 +32,7 @@ import { ExpoStateService } from 'src/app/core/services/state/expo-state-service
     EditBtn,
     UserDrawer,
     OnlyAreaDrawer,
+    SpeedDialModule,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
@@ -49,8 +52,16 @@ export class Home {
 
   multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
 
+  items: MenuItem[] | null;
   constructor() {
     addIcons({ person });
+
+    this.items = [
+      { label: '攤位', styleClass: 'legend-default' },
+      { label: '宣傳車', styleClass: 'legend-promo' },
+      { label: '搜尋結果', styleClass: 'legend-search' },
+      { label: '選擇中', styleClass: 'legend-selected' },
+    ];
   }
 
   toSearch() {
