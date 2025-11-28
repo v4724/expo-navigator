@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
-import { filter } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { StallGridDef } from 'src/app/core/interfaces/stall-def.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -26,6 +26,13 @@ export class Bookmarks implements OnInit {
   isLogin = toSignal(this._userService.isLogin$);
   showMarkLayer = toSignal(this._markedListService.layerShown$);
   allMarkedList = toSignal(this._markedListService.markedList$);
+  toggleListStamp = toSignal(
+    this._markedListService.toggleList$.pipe(
+      map(() => {
+        return +new Date();
+      }),
+    ),
+  );
   zoneDef = toSignal(this._stallService.stallZoneDef$);
 
   isGroupedMember = computed(() => {
@@ -46,10 +53,14 @@ export class Bookmarks implements OnInit {
   // 該 zoneId 所有攤位的書籤列表在 distinct 後的書籤圖案
   distinctBookmarks = computed(() => {
     const all = this.allMarkedList();
+    const toggleListStamp = this.toggleListStamp(); // 聽一下當有單一書籤圖層開啟或關閉
     const list = all?.filter((list) => {
-      return list.list.some((stall) => {
-        return stall.stallZone === this.zoneId();
-      });
+      return (
+        list.show &&
+        list.list.some((stall) => {
+          return stall.stallZone === this.zoneId();
+        })
+      );
     });
     return list;
   });
