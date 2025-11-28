@@ -34,7 +34,9 @@ export class UserApiService {
 
   delete(id: number, acc: string): Observable<UpdateResponse<UserDto>> {
     return this.http
-      .delete<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${id}`, { body: { acc } })
+      .delete<
+        UpdateResponse<UserDto>
+      >(`${this.apiUrl}/api/user/${id}`, { body: { acc: acc.toString() } })
       .pipe(tap((res) => console.debug(res)));
   }
 

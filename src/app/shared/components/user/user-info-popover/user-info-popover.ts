@@ -6,10 +6,10 @@ import { ButtonModule } from 'primeng/button';
 import { UserApiService } from 'src/app/core/services/api/user-api.service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
-import { MatDialog } from '@angular/material/dialog';
 import { CreateUserModal } from 'src/app/components/user/create-user-modal/create-user-modal';
-import { ConfirmDialog } from '../../confirm-dialog/confirm-dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmationService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-user-info-popover',
@@ -24,7 +24,8 @@ export class UserInfoPopover {
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
   private _userApiService = inject(UserApiService);
-  private _dialog = inject(MatDialog);
+  private _confirmService = inject(ConfirmationService);
+  private _dialogService = inject(DialogService);
   private _snackBar = inject(MatSnackBar);
 
   user = toSignal(this._userService.user$);
@@ -47,29 +48,35 @@ export class UserInfoPopover {
 
   edit() {
     this.userInfoPopover?.hide();
-    this._dialog.open(CreateUserModal, {
-      hasBackdrop: true, // 有底色
-      disableClose: true, // 取消點選背景自動關閉
-      width: '60vw',
-      maxWidth: '400px',
-      minHeight: '200px',
-      maxHeight: '90vh',
-      panelClass: [''],
-      data: { isEdit: true },
+    this._dialogService.open(CreateUserModal, {
+      header: '編輯使用者',
+      dismissableMask: true, // 取消點選背景自動關閉
+      modal: true,
+      width: '400px',
+      height: '400px',
+      inputValues: {
+        isEdit: true,
+      },
     });
   }
 
   delete() {
-    const dialogRef = this._dialog.open(ConfirmDialog, {
-      disableClose: true, // 取消點選背景自動關閉
-      data: {
-        label: '確認刪除該使用者？',
+    this._confirmService.confirm({
+      message: '確認刪除該使用者？',
+      header: '確認',
+      closable: false,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: '取消',
+        severity: 'secondary',
+        outlined: true,
+        text: true,
       },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === 'CONFIRM') {
-        console.debug('結束編輯');
+      acceptButtonProps: {
+        label: '刪除',
+        text: true,
+      },
+      accept: () => {
         this._userApiService
           .delete(this.user()?.id!, this.user()?.acc!)
           .pipe()
@@ -82,7 +89,8 @@ export class UserInfoPopover {
               this._snackBar.open('使用者刪除失敗', res.errors[0], { duration: 2000 });
             }
           });
-      }
+      },
+      reject: () => {},
     });
   }
 }

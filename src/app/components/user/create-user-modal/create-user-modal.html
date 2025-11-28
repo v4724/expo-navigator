@@ -1,7 +1,4 @@
-<div mat-dialog-title class="py-4 px-6 text-gray-600">
-  {{ isEdit() ? '編輯使用者' : '新增使用者' }}
-</div>
-<mat-dialog-content>
+<div class="h-[280px]">
   <form [formGroup]="userForm" class="flex flex-col w-full pt-2">
     <!-- 社團資訊 -->
     <div class="flex flex-wrap gap-3">
@@ -42,7 +39,7 @@
           (onSelect)="onFilterSelect($event)"
         ></app-stall-filter-input>
 
-        <div class="flex gap-2 flex-wrap mt-2">
+        <div class="flex gap-2 flex-wrap mt-2 h-[135px] overflow-auto">
           @for (stallId of selectedStallIds; track stallId) {
             <p-chip [label]="stallId" [removable]="true" (onRemove)="removeStallId($index)" />
           }
@@ -50,8 +47,8 @@
       </div>
     </div>
   </form>
-</mat-dialog-content>
-<mat-dialog-actions>
+</div>
+<div class="flex w-full justify-end items-center pt-2">
   <p-button
     [label]="isEdit() ? '儲存' : '新增'"
     size="small"
@@ -60,4 +57,4 @@
     [disabled]="isSubmitting()"
   />
   <p-button label="關閉" severity="secondary" size="small" variant="text" (click)="onClose()" />
-</mat-dialog-actions>
+</div>

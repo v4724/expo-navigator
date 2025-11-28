@@ -1,20 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal, ViewChild } from '@angular/core';
-import { Button } from 'primeng/button';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Drawer, DrawerModule } from 'primeng/drawer';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CreateUserModal } from 'src/app/components/user/create-user-modal/create-user-modal';
-import { ConfirmDialog } from 'src/app/shared/components/confirm-dialog/confirm-dialog';
 import { UserApiService } from 'src/app/core/services/api/user-api.service';
 import { Avatar } from 'primeng/avatar';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { DialogService } from 'primeng/dynamicdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-user-drawer',
@@ -30,7 +29,8 @@ export class UserDrawer {
   private _userService = inject(UserService);
   private _userApiService = inject(UserApiService);
   private _snackBar = inject(MatSnackBar);
-  private _dialog = inject(MatDialog);
+  private _dialogService = inject(DialogService);
+  private _confirmService = inject(ConfirmationService);
 
   stall = signal<StallData | undefined>(undefined);
   isLogin = toSignal(this._userService.isLogin$);
@@ -79,41 +79,45 @@ export class UserDrawer {
   }
 
   create() {
-    this._dialog.open(CreateUserModal, {
-      hasBackdrop: true, // 有底色
-      disableClose: true, // 取消點選背景自動關閉
-      width: '60vw',
-      maxWidth: '400px',
-      minHeight: '200px',
-      maxHeight: '90vh',
-      panelClass: [''],
+    this._dialogService.open(CreateUserModal, {
+      header: '新增使用者',
+      dismissableMask: true, // 取消點選背景自動關閉
+      modal: true,
+      width: '400px',
+      height: '400px',
     });
   }
 
   edit() {
-    this._dialog.open(CreateUserModal, {
-      hasBackdrop: true, // 有底色
-      disableClose: true, // 取消點選背景自動關閉
-      width: '60vw',
-      maxWidth: '400px',
-      minHeight: '200px',
-      maxHeight: '90vh',
-      panelClass: [''],
-      data: { isEdit: true },
+    this._dialogService.open(CreateUserModal, {
+      header: '編輯使用者',
+      dismissableMask: true, // 取消點選背景自動關閉
+      modal: true,
+      width: '400px',
+      height: '400px',
+      inputValues: {
+        isEdit: true,
+      },
     });
   }
 
   delete() {
-    const dialogRef = this._dialog.open(ConfirmDialog, {
-      disableClose: true, // 取消點選背景自動關閉
-      data: {
-        label: '確認刪除該使用者？',
+    this._confirmService.confirm({
+      message: '確認刪除該使用者？',
+      header: '確認',
+      closable: false,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: '取消',
+        severity: 'secondary',
+        outlined: true,
+        text: true,
       },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === 'CONFIRM') {
-        console.debug('結束編輯');
+      acceptButtonProps: {
+        label: '刪除',
+        text: true,
+      },
+      accept: () => {
         this._userApiService
           .delete(this.user()?.id!, this.user()?.acc!)
           .pipe()
@@ -126,7 +130,8 @@ export class UserDrawer {
               this._snackBar.open('使用者刪除失敗', res.errors[0], { duration: 2000 });
             }
           });
-      }
+      },
+      reject: () => {},
     });
   }
 }

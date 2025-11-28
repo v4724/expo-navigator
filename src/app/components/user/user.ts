@@ -12,6 +12,7 @@ import { CreateUserModal } from './create-user-modal/create-user-modal';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserInfoPopover } from 'src/app/shared/components/user/user-info-popover/user-info-popover';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-user',
@@ -34,7 +35,7 @@ export class User implements OnInit {
   @ViewChild('loginInput') loginInput!: ElementRef<HTMLInputElement>;
 
   private _userService = inject(UserService);
-  private _dialog = inject(MatDialog);
+  private _dialogService = inject(DialogService);
   private _snackBar = inject(MatSnackBar);
 
   isLogin = toSignal(this._userService.isLogin$);
@@ -84,14 +85,12 @@ export class User implements OnInit {
 
   create() {
     this.loginPopover?.hide();
-    this._dialog.open(CreateUserModal, {
-      hasBackdrop: true, // 有底色
-      disableClose: true, // 取消點選背景自動關閉
-      width: '60vw',
-      maxWidth: '400px',
-      minHeight: '200px',
-      maxHeight: '90vh',
-      panelClass: [''],
+    this._dialogService.open(CreateUserModal, {
+      header: '新增使用者',
+      dismissableMask: true, // 取消點選背景自動關閉
+      modal: true,
+      width: '400px',
+      height: '400px',
     });
   }
 }
