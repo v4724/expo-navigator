@@ -58,4 +58,8 @@ export class SearchResultListSheet {
       });
     }
   }
+
+  close() {
+    this.modal.dismiss();
+  }
 }

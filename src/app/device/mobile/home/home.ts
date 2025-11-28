@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { IonSearchbar } from '@ionic/angular/standalone';
 import { Map } from 'src/app/pages/stalls-map/map/map';
 import { Router } from '@angular/router';
@@ -18,6 +18,7 @@ import { OnlyAreaDrawer } from '../components/only-area-drawer/only-area-drawer'
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { MenuItem } from 'primeng/api';
+import { ResultList } from 'src/app/components/search-and-filter/result-list/result-list';
 
 @Component({
   selector: 'app-home',
@@ -38,6 +39,11 @@ import { MenuItem } from 'primeng/api';
   styleUrl: './home.scss',
 })
 export class Home {
+  @ViewChild('markedListDrawer') markedListDrawer!: MarkedListDrawer;
+  @ViewChild('onlyAreaDrawer') onlyAreaDrawer!: OnlyAreaDrawer;
+  @ViewChild('stallInfoDrawer') stallInfoDrawer!: StallInfoDrawer;
+  @ViewChild('resultList') resultList!: ResultList;
+
   private _userService = inject(UserService);
   private _searchAndFilterService = inject(SearchAndFilterService);
   private _expoStateService = inject(ExpoStateService);
@@ -65,6 +71,12 @@ export class Home {
   }
 
   toSearch() {
-    this.router.navigate(['/mobile-search']);
+    this.markedListDrawer.close();
+    this.onlyAreaDrawer.close();
+    this.stallInfoDrawer.close();
+    this.resultList.close();
+    requestAnimationFrame(() => {
+      this.router.navigate(['/mobile-search']);
+    });
   }
 }

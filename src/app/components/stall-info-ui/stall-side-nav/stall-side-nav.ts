@@ -5,7 +5,7 @@ import { StallData } from '../../../core/interfaces/stall.interface';
 import { ButtonModule } from 'primeng/button';
 import { StallSideHeader } from './stall-side-header/stall-side-header';
 import { StallSideContent } from './stall-side-content/stall-side-content';
-import { distinctUntilChanged } from 'rxjs';
+import { distinctUntilChanged, filter } from 'rxjs';
 import { EditBtn } from '../../edit-stall/edit-btn/edit-btn';
 
 @Component({
@@ -27,7 +27,10 @@ export class StallSideNav implements OnInit, AfterViewInit {
     if (this.isPreview()) {
     } else {
       this._selectStallService.selectedStallId$
-        .pipe(distinctUntilChanged())
+        .pipe(
+          filter((stallId) => !!stallId),
+          distinctUntilChanged(),
+        )
         .subscribe((stallId) => {
           this.open.emit(true);
         });
