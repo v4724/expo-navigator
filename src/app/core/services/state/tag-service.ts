@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin } from 'rxjs';
+import { BehaviorSubject, filter, forkJoin, switchMap, take } from 'rxjs';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import { GROUP_CSV_URL, SERIES_CSV_URL, TAG_CSV_URL } from '../../const/google-excel-csv-url';
 import { StallGroupDto, StallSeriesDto, StallTagDto } from '../../models/stall-series-tag.model';
 import {
   AdvancedFilters,
@@ -29,13 +28,32 @@ export class TagService {
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   fetchEnd$ = this._fetchEnd.asObservable();
 
+  private _expoStateService = inject(ExpoStateService);
+
   constructor() {
     forkJoin([
-      fetchExcelData(SERIES_CSV_URL),
-      fetchExcelData(GROUP_CSV_URL),
-      fetchExcelData(TAG_CSV_URL),
+      this._expoStateService.seriesCSVUrl$.pipe(
+        filter((val) => !!val),
+        take(1),
+      ),
+      this._expoStateService.groupCSVUrl$.pipe(
+        filter((val) => !!val),
+        take(1),
+      ),
+      this._expoStateService.tagCSVUrl$.pipe(
+        filter((val) => !!val),
+        take(1),
+      ),
     ])
-      .pipe()
+      .pipe(
+        switchMap(([seriesCSVUrl, groupCSVUrl, tagCSVUrl]) => {
+          return forkJoin([
+            fetchExcelData(seriesCSVUrl),
+            fetchExcelData(groupCSVUrl),
+            fetchExcelData(tagCSVUrl),
+          ]);
+        }),
+      )
       .subscribe(([series, groups, tags]) => {
         this.processSeries(series);
         this.processGroups(groups);

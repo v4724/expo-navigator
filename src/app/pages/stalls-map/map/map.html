@@ -33,15 +33,16 @@
       (touchmove)="onTouchMove($event)"
       (touchend)="onTouchEnd($event)"
     >
-      <img
-        #mapImage
-        class="w-full h-full object-contain pointer-events-none"
-        [src]="mapImgSrc"
-        alt="Background Map"
-        (load)="onMapImageLoad($event)"
-        (error)="onMapImageError()"
-      />
-
+      @if (mapImgSrc()) {
+        <img
+          #mapImage
+          class="w-full h-full object-contain pointer-events-none"
+          [src]="mapImgSrc()"
+          alt="Background Map"
+          (load)="onMapImageLoad($event)"
+          (error)="onMapImageError()"
+        />
+      }
       <!-- 攤位 -->
       <div class="">
         @for (stall of allStalls$ | async; track $index) {

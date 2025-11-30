@@ -14,14 +14,24 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
-import { BehaviorSubject, catchError, EMPTY, finalize, first, forkJoin, map } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  EMPTY,
+  filter,
+  finalize,
+  first,
+  forkJoin,
+  map,
+  take,
+} from 'rxjs';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
 import { Stall } from 'src/app/components/stall/stall';
-import { MAP_URL } from 'src/app/core/const/resource';
 import { TargetXY } from 'src/app/core/directives/draggable';
 import { Area } from 'src/app/core/interfaces/area.interface';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { AreaService } from 'src/app/core/services/state/area-service';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
@@ -43,6 +53,7 @@ export class Map implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
+  private _expoStateService = inject(ExpoStateService);
 
   isMobile: WritableSignal<boolean> = signal<boolean>(false);
   isInitialLoading: WritableSignal<boolean> = signal<boolean>(true);
@@ -54,14 +65,34 @@ export class Map implements OnInit, AfterViewInit {
 
   // 縮放、拖曳的計算值
   scale = signal(1);
-  maxScale = signal(3);
-  focusScale = signal(3);
+  maxScale = toSignal(
+    forkJoin([
+      this._expoStateService.desktopMapScaleMax$.pipe(filter((val) => !!val)),
+      this._expoStateService.mobileMapScaleMax$.pipe(filter((val) => !!val)),
+    ]).pipe(
+      take(1),
+      map(([desktop, mobile]) => (this._uiStateService.isMobile() ? mobile : desktop)),
+    ),
+    { initialValue: 3 },
+  );
+  focusScale = toSignal(
+    forkJoin([
+      this._expoStateService.desktopMapScaleFocus$.pipe(filter((val) => !!val)),
+      this._expoStateService.mobileMapScaleFocus$.pipe(filter((val) => !!val)),
+    ]).pipe(
+      take(1),
+      map(([desktop, mobile]) => (this._uiStateService.isMobile() ? mobile : desktop)),
+    ),
+    { initialValue: 3 },
+  );
   freePosition = { x: 0, y: 0 }; // cdkDragFreeDragPosition 來源
   private dragStartPointer = { x: 0, y: 0 };
   private dragStartPos = { x: 0, y: 0 };
   private firstMove = true;
 
-  mapImgSrc = MAP_URL;
+  mapImgSrc = toSignal(this._expoStateService.mapImageUrl$.pipe(filter((url) => !!url)), {
+    initialValue: '',
+  });
   _mapImgLoaded = new BehaviorSubject<boolean>(false);
   mapImgLoaded$ = this._mapImgLoaded.asObservable();
   mapImgLoaded = toSignal(this._mapImgLoaded);
@@ -113,9 +144,6 @@ export class Map implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? 429 : 0;
-
-    this.maxScale.set(this._uiStateService.isMobile() ? 6 : 3);
-    this.focusScale.set(this._uiStateService.isMobile() ? 5 : 2);
 
     this._mapImgLoaded.pipe(first((val) => !!val)).subscribe(() => {
       this._stallMapService.mapImage = this.mapImage.nativeElement;

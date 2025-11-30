@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin } from 'rxjs';
+import { BehaviorSubject, filter, forkJoin, map, switchMap, take, tap } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { PromoApiService } from '../api/promo-api.service';
 import { PromoStall } from '../../interfaces/promo-stall.interface';
@@ -13,7 +13,7 @@ import {
   StallRuleDirectionType,
   BookmarkPosType,
 } from '../../interfaces/stall-def.interface';
-import { STALL_GRID_DEF, STALL_ZONE_DEF } from '../../const/google-excel-csv-url';
+import { ExpoStateService } from './expo-state-service';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +27,7 @@ export class StallService {
 
   private _stallApiService = inject(StallApiService);
   private _promoService = inject(PromoApiService);
+  private _expoStateService = inject(ExpoStateService);
 
   private _validStallIds = new Set<string>();
 
@@ -41,9 +42,17 @@ export class StallService {
 
   constructor() {
     forkJoin([
-      this._stallApiService.fetch(),
-      fetchExcelData(STALL_GRID_DEF),
-      fetchExcelData(STALL_ZONE_DEF),
+      this._stallApiService.fetch().pipe(),
+      this._expoStateService.stallGridDef$.pipe(
+        filter((url) => !!url),
+        take(1),
+        switchMap((url) => fetchExcelData(url)),
+      ),
+      this._expoStateService.stallZoneDef$.pipe(
+        filter((url) => !!url),
+        take(1),
+        switchMap((url) => fetchExcelData(url)),
+      ),
     ])
       .pipe()
       .subscribe(([rawStallData, gridDefs, zoneDefs]) => {

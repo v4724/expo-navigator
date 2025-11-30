@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, filter, forkJoin } from 'rxjs';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import { AREA_CSV_URL } from '../../const/google-excel-csv-url';
 import { AreaDto } from '../../models/area.model';
 import { Area } from '../../interfaces/area.interface';
+import { ExpoStateService } from './expo-state-service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,14 +20,18 @@ export class AreaService {
 
   show$ = this._show.asObservable();
 
+  private _expoStateService = inject(ExpoStateService);
+
   constructor() {
-    forkJoin([fetchExcelData(AREA_CSV_URL)])
-      .pipe()
-      .subscribe(([area]) => {
-        this._processAreas(area);
-        this._selectAll();
-        this._fetchEnd.next(true);
-      });
+    this._expoStateService.areaCSVUrl$.pipe(filter((url) => !!url)).subscribe((url) => {
+      forkJoin([fetchExcelData(url)])
+        .pipe()
+        .subscribe(([area]) => {
+          this._processAreas(area);
+          this._selectAll();
+          this._fetchEnd.next(true);
+        });
+    });
   }
 
   get allAreas(): AreaDto[] {

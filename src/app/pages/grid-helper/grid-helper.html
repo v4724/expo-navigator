@@ -17,7 +17,7 @@
       <img
         #mapImage
         class="w-full h-full object-contain pointer-events-none"
-        [src]="mapImgSrc"
+        [src]="mapImgSrc()"
         alt="Neo iComic Echo Venue Map"
         (load)="onMapImageLoad($event)"
       />

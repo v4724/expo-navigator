@@ -14,10 +14,9 @@ export class StallApiService {
   constructor(private http: HttpClient) {}
 
   fetch(): Observable<StallDto[]> {
-    return this.http.get<FetchResponse<StallDto[]>>(`${this.apiUrl}/api/stalls`).pipe(
-      tap((res) => console.debug(res)),
-      map((res) => res.data),
-    );
+    return this.http
+      .get<FetchResponse<StallDto[]>>(`${this.apiUrl}/api/stalls`)
+      .pipe(map((res) => res.data));
   }
 
   update(id: string, dto: UpdateStallDto): Observable<Response> {

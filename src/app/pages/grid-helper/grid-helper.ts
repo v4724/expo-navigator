@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MAP_URL } from 'src/app/core/const/resource';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 interface Point {
   x: number;
@@ -30,7 +31,9 @@ interface Polygon {
 })
 export class GridHelper {
   @ViewChild('mapContent') mapContent!: ElementRef<HTMLDivElement>;
-  mapImgSrc = MAP_URL;
+  private _expoStateService = inject(ExpoStateService);
+
+  mapImgSrc = toSignal(this._expoStateService.mapImageUrl$);
   private _snackBar = inject(MatSnackBar);
 
   // 圖片比例
