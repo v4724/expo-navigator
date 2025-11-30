@@ -222,9 +222,17 @@ export class Stall implements OnInit, AfterViewInit {
 
   resizeHandler() {
     const mapH = this._stallMapService.mapContentWH.h;
-    if (mapH) {
-      const h = (Number(this.stall().coords.height) * mapH) / 100;
-      const fontSize = h * 0.7;
+    const mapW = this._stallMapService.mapContentWH.w;
+    if (mapH && mapW) {
+      const direction = this.stall().rule.direction;
+      const isVerticalStall = direction === 'bottom' || direction === 'top';
+      let size = (Number(this.stall().coords.height) * mapH) / 100;
+      if (isVerticalStall) {
+        size = (Number(this.stall().coords.width) * mapW) / 100;
+      } else {
+        size = (Number(this.stall().coords.height) * mapH) / 100;
+      }
+      const fontSize = size * 0.7;
       this.fontSizeNum.set(Math.round(fontSize));
       this.fontSize.set(`${Math.round(fontSize)}px`);
       this.iconSize.set(`${Math.round(fontSize * 0.6)}px`);
