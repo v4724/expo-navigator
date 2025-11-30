@@ -64,11 +64,11 @@ export class GridHelper {
     return str;
   });
   drawingPolygonRatioStr = computed(() => {
-    const str = this.drawingPolygon()
-      .map((data) => {
-        return this.getRatioXYStr(data.x, data.y);
-      })
-      .join(' ');
+    const perPolygon = this.drawingPolygon().map((data) => {
+      return this.getRatioXY(data.x, data.y);
+    });
+    const str =
+      perPolygon[0].y + ' ' + perPolygon[1].x + ' ' + perPolygon[2].y + ' ' + perPolygon[0].x;
     return str;
   });
   drawingPolygonRatioJSONStr = computed(() => {
@@ -79,8 +79,8 @@ export class GridHelper {
     );
   });
 
-  getRatioXYStr(x: number, y: number) {
-    return `${(x / this.mapWidth()) * 100},${(y / this.mapHeight()) * 100}`;
+  getRatioXY(x: number, y: number) {
+    return { x: (x / this.mapWidth()) * 100, y: (y / this.mapHeight()) * 100 };
   }
 
   onMapImageLoad(event: Event) {
@@ -89,9 +89,10 @@ export class GridHelper {
     if (naturalWidth > 0) {
       this.imageHeightToWidthRatio.set(naturalHeight / naturalWidth);
     }
-
-    this.mapWidth.set(img.offsetWidth);
-    this.mapHeight.set(img.offsetHeight);
+    requestAnimationFrame(() => {
+      this.mapWidth.set(img.offsetWidth);
+      this.mapHeight.set(img.offsetHeight);
+    });
   }
 
   statusChange(e: MatButtonToggleChange) {
@@ -115,12 +116,14 @@ export class GridHelper {
     const offsetY = this.mapContent.nativeElement.offsetTop;
     const pointerClentX = e.clientX;
     const pointerClentY = e.clientY;
+    console.debug('pointerDown offsetX, offsetY', offsetX, offsetY);
     if (this.editingType() === 'point') {
       const x = pointerClentX - offsetX;
       const y = pointerClentY - offsetY;
+      const ratioXY = this.getRatioXY(x, y);
       const circle = {
         point: { x: x, y: y },
-        pointRatioStr: this.getRatioXYStr(x, y),
+        pointRatioStr: `${ratioXY.y},${ratioXY.x}`,
       };
       this.circles().push(circle);
       const newCat = [...this.circles()];
