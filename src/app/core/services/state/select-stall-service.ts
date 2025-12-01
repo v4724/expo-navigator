@@ -41,8 +41,9 @@ export class SelectStallService {
   isEditable() {
     const isLogin = this._userService.isLogin;
     const user = this._userService.user;
+    const exampleStall = this.selectedStall?.stallZone === '範';
     if (isLogin && user) {
-      return user.stallIds.find((id) => id === this.selectedStall?.id);
+      return user.stallIds.find((id) => id === this.selectedStall?.id) || exampleStall;
     }
     return false;
   }
