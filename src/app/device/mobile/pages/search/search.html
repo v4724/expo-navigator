@@ -9,14 +9,9 @@
     [value]="currSearchTerm()"
   ></ion-searchbar>
   <div class="flex flex-col">
-    <div class="flex gap-1 items-center mt-2 mb-1 mx-3 text-gray-600">
+    <div class="flex gap-1 items-end mt-2 mb-1 mx-3 text-gray-600">
       <span>攤位標籤</span>
-      <i
-        class="pi pi-question-circle text-gray-400"
-        pTooltip="符合任一搜尋條件即可比對到"
-        tooltipPosition="top"
-      >
-      </i>
+      <div class="text-xs text-gray-400">攤位符合任一搜尋條件即可比對成功</div>
     </div>
     @if (!tagFetchEnd()) {
       <div class="flex items-center justify-center">
