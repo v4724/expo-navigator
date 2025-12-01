@@ -67,21 +67,35 @@ export class Map implements OnInit, AfterViewInit {
   scale = signal(1);
   maxScale = toSignal(
     forkJoin([
-      this._expoStateService.desktopMapScaleMax$.pipe(filter((val) => !!val)),
-      this._expoStateService.mobileMapScaleMax$.pipe(filter((val) => !!val)),
+      this._expoStateService.desktopMapScaleMax$.pipe(
+        filter((val) => val > 0),
+        take(1),
+      ),
+      this._expoStateService.mobileMapScaleMax$.pipe(
+        filter((val) => val > 0),
+        take(1),
+      ),
     ]).pipe(
-      take(1),
-      map(([desktop, mobile]) => (this._uiStateService.isMobile() ? mobile : desktop)),
+      map(([desktop, mobile]) => {
+        return this._uiStateService.isMobile() ? mobile : desktop;
+      }),
     ),
     { initialValue: 3 },
   );
   focusScale = toSignal(
     forkJoin([
-      this._expoStateService.desktopMapScaleFocus$.pipe(filter((val) => !!val)),
-      this._expoStateService.mobileMapScaleFocus$.pipe(filter((val) => !!val)),
+      this._expoStateService.desktopMapScaleFocus$.pipe(
+        filter((val) => val > 0),
+        take(1),
+      ),
+      this._expoStateService.mobileMapScaleFocus$.pipe(
+        filter((val) => val > 0),
+        take(1),
+      ),
     ]).pipe(
-      take(1),
-      map(([desktop, mobile]) => (this._uiStateService.isMobile() ? mobile : desktop)),
+      map(([desktop, mobile]) => {
+        return this._uiStateService.isMobile() ? mobile : desktop;
+      }),
     ),
     { initialValue: 3 },
   );

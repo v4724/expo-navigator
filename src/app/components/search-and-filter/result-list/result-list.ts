@@ -12,10 +12,12 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { Button } from 'primeng/button';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { StallService } from 'src/app/core/services/state/stall-service';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { TagPipe } from 'src/app/shared/pipe/tag-pipe';
 
 @Component({
   selector: 'app-result-list',
-  imports: [Divider, SeriesPipe, Button],
+  imports: [Divider, SeriesPipe, TagPipe, Button],
   templateUrl: './result-list.html',
   styleUrl: './result-list.scss',
 })
@@ -25,6 +27,7 @@ export class ResultList implements OnInit {
   private _leftSidebarService = inject(LeftSidebarService);
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
+  private _expoStateService = inject(ExpoStateService);
   private readonly _ref = inject(DynamicDialogRef, { optional: true });
 
   showControls = toSignal(
@@ -37,6 +40,7 @@ export class ResultList implements OnInit {
   filterResults = toSignal(this._searchAndFilterService.filterStalls$);
   allStalls = toSignal(this._stallService.allStalls$);
   isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
+  multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
 
   list = computed(() => {
     let result: StallData[] = [];

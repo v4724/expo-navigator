@@ -15,6 +15,7 @@ import { TabsModule } from 'primeng/tabs';
 import { distinctUntilChanged } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { LightboxService } from 'src/app/core/services/state/lightbox-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
@@ -41,6 +42,7 @@ export class StallSideContent implements OnInit {
   private _userService = inject(UserService);
   private _tagService = inject(TagService);
   private _uiStateService = inject(UiStateService);
+  private _expoStateService = inject(ExpoStateService);
 
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
   imageLoaded: WritableSignal<boolean> = signal<boolean>(false);
@@ -48,6 +50,7 @@ export class StallSideContent implements OnInit {
   isLogin = toSignal(this._userService.isLogin$);
   user = toSignal(this._userService.user$);
   stallUpdatedAt = toSignal(this._stallService.stallUpdatedAt$);
+  multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
 
   promoViewTagMap = computed(() => {
     const map = new Map<number, Map<StallSeriesDto, Set<StallTagDto>>>();

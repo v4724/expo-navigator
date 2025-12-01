@@ -1,5 +1,5 @@
 <div
-  class="absolute top-0 left-0 h-full bg-white bg-opacity-90 backdrop-blur-sm z-20 w-80 lg:w-96 pt-3 pb-4 px-2 transform transition-transform duration-300 ease-in-out flex flex-col"
+  class="absolute top-0 left-0 h-full bg-white bg-opacity-90 backdrop-blur-sm z-20 w-96 lg:w-110 pt-3 pb-4 px-2 transform transition-transform duration-300 ease-in-out flex flex-col"
   [class.-translate-x-full]="!showControls()"
   [class.shadow-2xl]="showControls()"
 >
@@ -49,7 +49,7 @@
               >
                 {{ item.id }}
               </div>
-              <div class="mb-[1px]">{{ item.stallTitle }}</div>
+              <div class="mb-[1px] text-sm">{{ item.stallTitle }}</div>
             </div>
             <div class="flex flex-wrap">
               @for (promo of item.promoData; track $index) {
@@ -60,11 +60,19 @@
               }
             </div>
             <div class="flex flex-wrap gap-1 text-[10px]">
-              @for (series of item.filterSeries; track $index) {
-                <span class="promo-tag inline-flex"> #{{ series | seriesPipe }} </span>
+              @if (multiSeriesExpo()) {
+                @for (series of item.filterSeries; track $index) {
+                  <span class="promo-tag inline-flex"> #{{ series | seriesPipe }} </span>
+                }
+              } @else {
+                @for (tags of item.filterTags; track $index) {
+                  <span class="promo-tag inline-flex"> #{{ tags | tagPipe }} </span>
+                }
               }
-              @if (!!item.filterCustomTags) {
-                <span class="promo-tag"> #{{ item.filterCustomTags }} </span>
+              @if (item.filterCustomTags.length) {
+                @for (tag of item.filterCustomTags; track $index) {
+                  <span class="promo-tag inline-flex"> #{{ tag }} </span>
+                }
               }
             </div>
           </div>

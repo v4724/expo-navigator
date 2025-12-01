@@ -62,7 +62,9 @@
                 [ngClass]="{ hidden: Array.from(seriesAndTagMap?.keys() ?? []).length === 0 }"
               >
                 @for (series of Array.from(seriesAndTagMap?.keys() ?? []); track $index) {
-                  <span class="promo-tag">#{{ series.seriesName }}</span>
+                  @if (multiSeriesExpo()) {
+                    <span class="promo-tag">#{{ series.seriesName }}</span>
+                  }
 
                   @let tagSet = seriesAndTagMap?.get(series);
                   @for (tag of tagSet; track $index) {

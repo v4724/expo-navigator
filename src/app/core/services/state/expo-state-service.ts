@@ -20,10 +20,10 @@ export class ExpoStateService {
   private _tagCSVUrl = new BehaviorSubject<string>('');
   private _stallGridDef = new BehaviorSubject<string>('');
   private _stallZoneDef = new BehaviorSubject<string>('');
-  private _desktopMapScaleMax = new BehaviorSubject<number>(1);
-  private _desktopMapScaleFocus = new BehaviorSubject<number>(1);
-  private _mobileMapScaleMax = new BehaviorSubject<number>(1);
-  private _mobileMapScaleFocus = new BehaviorSubject<number>(1);
+  private _desktopMapScaleMax = new BehaviorSubject<number>(-1);
+  private _desktopMapScaleFocus = new BehaviorSubject<number>(-1);
+  private _mobileMapScaleMax = new BehaviorSubject<number>(-1);
+  private _mobileMapScaleFocus = new BehaviorSubject<number>(-1);
   private _mapImageUrl = new BehaviorSubject<string>('');
 
   fetchEnd$ = this._fetchEnd.asObservable();
@@ -98,10 +98,10 @@ export class ExpoStateService {
           case 'STALL_ZONE_DEF':
             this._stallZoneDef.next(value);
             break;
-          case 'MAP_SCALE_MAX':
+          case 'DESKTOP_MAP_SCALE_MAX':
             this._desktopMapScaleMax.next(Number(value));
             break;
-          case 'MAP_SCALE_FOCUS':
+          case 'DESKTOP_MAP_SCALE_FOCUS':
             this._desktopMapScaleFocus.next(Number(value));
             break;
           case 'MOBILE_MAP_SCALE_MAX':
