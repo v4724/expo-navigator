@@ -1,11 +1,1 @@
-<button
-  class="p-2 border rounded-full bg-white/60 flex items-center border-gray-300"
-  [ngClass]="{ 'text-gray-300 pointer-none': !isFiltering(), 'text-gray-600': isFiltering() }"
-  [disabled]="!isFiltering()"
-  (click)="openEditModal()"
-  aria-label="list modal"
->
-  <mat-icon class="transition hover:scale-110" aria-hidden="false" aria-label="filter list">
-    list
-  </mat-icon>
-</button>
+<p-button icon="pi pi-list" [rounded]="true" [outlined]="true" (click)="openModal()" />

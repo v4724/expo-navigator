@@ -1,16 +1,26 @@
 <div class="fixed top-0 left-0 layout-topbar px-4 z-2 w-full pointer-events-none">
   <div class="py-2 flex items-center gap-2">
-    <div class="flex items-center">
-      <app-toggle-controller></app-toggle-controller>
-      <div class="ml-2 text-lg bg-white/80 py-2 px-4 rounded-full text-gray-600 flex items-center">
-        <mat-icon
-          aria-hidden="false"
-          aria-label="Example home icon"
-          fontIcon="home"
-          class=""
-        ></mat-icon>
-        <div class="ml-2">{{ expoTitle() }} 互動地圖</div>
+    <div class="flex items-center pointer-events-auto gap-2">
+      @if (isLogin()) {
+        <app-marked-list-btn></app-marked-list-btn>
+      }
+      <app-result-list-btn></app-result-list-btn>
+
+      <div class="w-80">
+        <app-input-search></app-input-search>
       </div>
+    </div>
+
+    <div
+      class="text-lg bg-white/30 backdrop-blur-sm py-2 px-4 rounded-full text-gray-600 flex items-center"
+    >
+      <mat-icon
+        aria-hidden="false"
+        aria-label="Example home icon"
+        fontIcon="home"
+        class=""
+      ></mat-icon>
+      <div class="ml-2">{{ expoTitle() }} 互動地圖</div>
     </div>
 
     <div class="ml-auto pointer-events-auto">

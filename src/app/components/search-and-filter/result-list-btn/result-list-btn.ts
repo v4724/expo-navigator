@@ -1,28 +1,28 @@
 import { Component, inject } from '@angular/core';
 import { ResultList } from '../result-list/result-list';
 import { CommonModule } from '@angular/common';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatIcon } from '@angular/material/icon';
 import { LeftSidebarService } from 'src/app/core/services/state/left-sidebar-service';
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-result-list-btn',
-  imports: [CommonModule, MatIcon],
+  imports: [CommonModule, Button],
   templateUrl: './result-list-btn.html',
   styleUrl: './result-list-btn.scss',
 })
 export class ResultListBtn {
-  private readonly _dialog = inject(MatDialog);
+  private readonly _dialog = inject(DialogService);
   private readonly _leftSidebarService = inject(LeftSidebarService);
   private readonly _searchAndFilterService = inject(SearchAndFilterService);
 
-  currDialogRef: MatDialogRef<any> | null = null;
+  currDialogRef: DynamicDialogRef<any> | null = null;
 
   isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
 
-  openEditModal() {
+  openModal() {
     this._openSidebar();
   }
 
@@ -35,22 +35,15 @@ export class ResultListBtn {
       return;
     }
 
-    const dialogRef = this._dialog.open(ResultList, {
-      hasBackdrop: true, // 有底色
-      // disableClose: true, // 取消點選背景自動關閉
-      width: '80vw',
-      maxWidth: '800px',
+    this.currDialogRef = this._dialog.open(ResultList, {
+      showHeader: false,
+      modal: false,
+      dismissableMask: false,
+      width: '500px',
       height: 'calc(100vh - 100px)',
-      panelClass: [''],
     });
 
-    this.currDialogRef = dialogRef;
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.debug('The dialog was closed');
-      if (result !== undefined) {
-      }
-
+    this.currDialogRef?.onClose.subscribe(() => {
       this.currDialogRef = null;
     });
   }

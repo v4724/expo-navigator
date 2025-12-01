@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export type SidebarType = 'layerControl' | 'filterResults' | '';
+export type SidebarType = 'layerControl' | 'filterResults' | 'advancedFilter' | 'bookmarkList' | '';
 
 @Injectable({
   providedIn: 'root',
@@ -21,5 +21,9 @@ export class LeftSidebarService {
     } else {
       this._show.next(layer);
     }
+  }
+
+  show(layer: SidebarType) {
+    this._show.next(layer);
   }
 }

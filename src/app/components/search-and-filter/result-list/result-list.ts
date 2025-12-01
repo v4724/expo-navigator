@@ -1,6 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatDialogRef } from '@angular/material/dialog';
 import { Divider } from 'primeng/divider';
 import { map } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
@@ -9,21 +8,24 @@ import { LeftSidebarService, SidebarType } from 'src/app/core/services/state/lef
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { SeriesPipe } from '../../../shared/pipe/series-pipe';
-import { MatIcon } from '@angular/material/icon';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
+import { Button } from 'primeng/button';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { StallService } from 'src/app/core/services/state/stall-service';
 
 @Component({
   selector: 'app-result-list',
-  imports: [Divider, SeriesPipe, MatIcon],
+  imports: [Divider, SeriesPipe, Button],
   templateUrl: './result-list.html',
   styleUrl: './result-list.scss',
 })
 export class ResultList implements OnInit {
-  readonly dialogRef = inject(MatDialogRef<ResultList>, { optional: true });
   private _searchAndFilterService = inject(SearchAndFilterService);
+  private _stallService = inject(StallService);
   private _leftSidebarService = inject(LeftSidebarService);
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
+  private readonly _ref = inject(DynamicDialogRef, { optional: true });
 
   showControls = toSignal(
     this._leftSidebarService.show$.pipe(
@@ -32,8 +34,17 @@ export class ResultList implements OnInit {
       }),
     ),
   );
-  results = toSignal(this._searchAndFilterService.filterStalls$);
+  filterResults = toSignal(this._searchAndFilterService.filterStalls$);
+  allStalls = toSignal(this._stallService.allStalls$);
   isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
+
+  list = computed(() => {
+    if (this.isFiltering()) {
+      return this.filterResults();
+    } else {
+      return this.allStalls();
+    }
+  });
 
   ngOnInit(): void {}
 
@@ -44,11 +55,12 @@ export class ResultList implements OnInit {
     }, 100);
   }
 
-  back() {
+  toLayerControl() {
     this._leftSidebarService.toggle('layerControl');
   }
 
   close() {
-    this.dialogRef?.close();
+    this._leftSidebarService.toggle('filterResults');
+    this._ref?.close();
   }
 }

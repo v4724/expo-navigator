@@ -1,0 +1,9 @@
+:host ::ng-deep {
+  .p-toggleswitch {
+    --p-toggleswitch-width: 2rem;
+    --p-toggleswitch-height: 1.25rem;
+  }
+  .p-toggleswitch-handle {
+    --p-toggleswitch-handle-size: 0.8rem;
+  }
+}

@@ -1,58 +1,65 @@
 <div
-  class="absolute top-0 left-0 h-full bg-white bg-opacity-90 backdrop-blur-sm z-20 w-80 py-4 pl-2 pr-2 transform transition-transform duration-300 ease-in-out flex flex-col"
+  class="absolute top-0 left-0 h-full bg-white bg-opacity-90 backdrop-blur-sm z-20 w-80 lg:w-96 pt-3 pb-4 px-2 transform transition-transform duration-300 ease-in-out flex flex-col"
   [class.-translate-x-full]="!showControls()"
   [class.shadow-2xl]="showControls()"
 >
-  <div class="flex flex-col flex-1 overflow-y-auto px-2">
-    <div class="pb-2 flex items-center sticky top-0 bg-white z-1">
-      <div class="">搜尋結果：{{ isFiltering() ? results()?.length : '-' }}筆</div>
+  <div class="flex flex-col h-full">
+    <div class="px-2 pb-3 flex items-center bg-white">
+      @if (isFiltering()) {
+        <div class="text-gray-600">搜尋結果：{{ filterResults()?.length }} 筆</div>
+      } @else {
+        <div class="text-gray-600">攤位列表</div>
+      }
       <div class="ml-auto">
-        <button
-          class="py-1 px-2 border rounded-full flex items-center text-gray-600 border-gray-300"
-          (click)="back()"
-        >
-          <mat-icon class="transition hover:scale-110" inline>arrow_back_ios_new</mat-icon>
-        </button>
+        <p-button
+          icon="pi pi-times"
+          size="small"
+          [rounded]="true"
+          [text]="true"
+          (click)="close()"
+        />
       </div>
     </div>
 
-    @if (results()?.length === 0) {
+    @if (isFiltering() && filterResults()?.length === 0) {
       <div class="flex-1 flex items-center justify-center">無查詢結果</div>
     }
 
-    @for (item of results(); track $index) {
-      @if ($index > 0) {
-        <p-divider></p-divider>
-      }
-      <div
-        class="flex items-center w-full gap-4 transition hover:scale-102 hover:cursor-pointer"
-        (click)="selectAndFocus(item)"
-      >
-        <div class="shrink w-[100px] h-[100px] rounded-lg border border-gray-400 overflow-hidden">
-          @if (item.stallImg) {
-            <img class="w-full h-full object-cover object-center" [src]="item.stallImg" />
-          }
-        </div>
-        <div class="flex-1 flex flex-col gap-1">
-          <div>{{ item.id }}-{{ item.stallTitle }}</div>
-          <div class="flex flex-wrap">
-            @for (promo of item.promoData; track $index) {
-              @if ($index > 0) {
-                /
+    <div class="flex flex-col flex-1 overflow-y-auto px-2">
+      @for (item of list(); track item) {
+        @if ($index > 0) {
+          <p-divider></p-divider>
+        }
+        <div
+          class="flex items-center w-full gap-4 transition hover:scale-102 hover:cursor-pointer px-2"
+          (click)="selectAndFocus(item)"
+        >
+          <div class="shrink w-[100px] h-[100px] rounded-lg border border-gray-400 overflow-hidden">
+            @if (item.stallImg) {
+              <img class="w-full h-full object-cover object-center" [src]="item.stallImg" />
+            }
+          </div>
+          <div class="flex-1 flex flex-col gap-1">
+            <div>{{ item.id }}-{{ item.stallTitle }}</div>
+            <div class="flex flex-wrap">
+              @for (promo of item.promoData; track $index) {
+                @if ($index > 0) {
+                  /
+                }
+                {{ promo.promoTitle }}
               }
-              {{ promo.promoTitle }}
-            }
-          </div>
-          <div class="flex flex-wrap gap-1 text-[10px]">
-            @for (series of item.filterSeries; track $index) {
-              <span class="promo-tag inline-flex"> #{{ series | seriesPipe }} </span>
-            }
-            @if (item.filterCustomTags) {
-              <span class="promo-tag"> #{{ item.filterCustomTags }} </span>
-            }
+            </div>
+            <div class="flex flex-wrap gap-1 text-[10px]">
+              @for (series of item.filterSeries; track $index) {
+                <span class="promo-tag inline-flex"> #{{ series | seriesPipe }} </span>
+              }
+              @if (item.filterCustomTags) {
+                <span class="promo-tag"> #{{ item.filterCustomTags }} </span>
+              }
+            </div>
           </div>
         </div>
-      </div>
-    }
+      }
+    </div>
   </div>
 </div>

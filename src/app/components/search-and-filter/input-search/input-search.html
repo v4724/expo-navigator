@@ -1,8 +1,15 @@
-<input
-  type="search"
-  #searchInput
-  id="search-input"
-  placeholder="搜尋攤位編號、名稱、作者或標籤..."
-  aria-label="Search for stalls"
-  (input)="input()"
-/>
+<p-iconfield>
+  <p-inputicon class="pi pi-search" />
+  <input
+    #searchInput
+    class="w-full"
+    type="text"
+    pInputText
+    placeholder="搜尋攤位編號、名稱、作者或標籤..."
+    (input)="input()"
+    (click)="openAdvancedFilter()"
+  />
+  @if (!!searchInput.value) {
+    <p-inputicon class="pi pi-times" (click)="clear()" />
+  }
+</p-iconfield>
