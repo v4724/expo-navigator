@@ -39,8 +39,18 @@
               <img class="w-full h-full object-cover object-center" [src]="item.stallImg" />
             }
           </div>
+
           <div class="flex-1 flex flex-col gap-1">
-            <div>{{ item.id }}-{{ item.stallTitle }}</div>
+            <div class="flex items-center gap-1">
+              <div
+                class="rounded-full px-2 py-1 font-sans font-semibold text-xs text-nowrap"
+                [style.backgroundColor]="item.rule.zoneColor ? item.rule.zoneColor : 'transparent'"
+                [style.color]="item.rule.fontColor ? item.rule.fontColor : 'text-gray-600'"
+              >
+                {{ item.id }}
+              </div>
+              <div class="mb-[1px]">{{ item.stallTitle }}</div>
+            </div>
             <div class="flex flex-wrap">
               @for (promo of item.promoData; track $index) {
                 @if ($index > 0) {
@@ -53,7 +63,7 @@
               @for (series of item.filterSeries; track $index) {
                 <span class="promo-tag inline-flex"> #{{ series | seriesPipe }} </span>
               }
-              @if (item.filterCustomTags) {
+              @if (!!item.filterCustomTags) {
                 <span class="promo-tag"> #{{ item.filterCustomTags }} </span>
               }
             </div>

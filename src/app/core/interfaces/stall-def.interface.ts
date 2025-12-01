@@ -19,6 +19,8 @@ export interface StallRule {
   };
   direction: StallRuleDirectionType;
   bookmarkPosition: BookmarkPosType;
+  zoneColor: string;
+  fontColor: string;
 }
 
 export interface StallGroupRule {

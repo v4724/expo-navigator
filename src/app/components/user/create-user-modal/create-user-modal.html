@@ -41,7 +41,9 @@
 
         <div class="flex gap-2 flex-wrap mt-2 h-[135px] overflow-auto">
           @for (stallId of selectedStallIds; track stallId) {
-            <p-chip [label]="stallId" [removable]="true" (onRemove)="removeStallId($index)" />
+            <div>
+              <p-chip [label]="stallId" [removable]="true" (onRemove)="removeStallId($index)" />
+            </div>
           }
         </div>
       </div>

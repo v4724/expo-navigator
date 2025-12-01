@@ -1,7 +1,18 @@
 <div class="header flex bg-white shadow transition-all duration-300 w-full items-center px-5 py-4">
   <!-- 標題 -->
   <div class="flex mr-auto items-center h-6">
-    {{ stall()?.id }}: {{ stall()?.stallTitle }}
+    <div class="flex gap-1">
+      <div
+        class="rounded-full px-2 py-1 font-sans font-semibold text-xs text-nowrap"
+        [style.backgroundColor]="
+          stall()?.rule?.zoneColor ? stall()?.rule?.zoneColor : 'transparent'
+        "
+        [style.color]="stall()?.rule?.fontColor ? stall()?.rule?.fontColor : 'text-gray-600'"
+      >
+        {{ stall()?.id }}
+      </div>
+      <div class="mt-[1px]">{{ stall()?.stallTitle }}</div>
+    </div>
     @if (stall()?.stallLink) {
       <button
         class="ml-1 text-base flex items-center transition hover:scale-110 text-gray-400"

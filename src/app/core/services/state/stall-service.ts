@@ -175,6 +175,8 @@ export class StallService {
       const top = Number(rawSeries['anchor_stall_rect_top']);
       const left = Number(rawSeries['anchor_stall_rect_left']);
       const bookmarkPosition = rawSeries['bookmark_position'];
+      const zoneColor = rawSeries['zone_color'];
+      const fontColor = rawSeries['font_color'];
 
       let entry = stallZoneDefs.get(zoneId);
       if (!entry) {
@@ -207,6 +209,8 @@ export class StallService {
         },
         direction: direction as StallRuleDirectionType,
         bookmarkPosition: bookmarkPosition as BookmarkPosType,
+        zoneColor,
+        fontColor,
       };
       entry.stallDefs.push(stallRule);
     });
