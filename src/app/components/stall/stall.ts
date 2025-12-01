@@ -51,6 +51,7 @@ export class Stall implements OnInit, AfterViewInit {
   private _tooltipService = inject(TooltipService);
   private _tagService = inject(TagService);
   private _markedListService = inject(MarkedStallService);
+  private _markedStallService = inject(MarkedStallService);
   private _stallLayerService = inject(StallLayerService);
   private _userService = inject(UserService);
 
@@ -68,7 +69,7 @@ export class Stall implements OnInit, AfterViewInit {
   allMarkedList = toSignal(this._markedListService.markedList$);
   isLogin = toSignal(this._userService.isLogin$);
 
-  // 開關書籤圖層
+  // 開關整個書籤圖層
   toggleList = toSignal(this._markedListService.toggleList$);
 
   // 書籤清單查詢
@@ -104,11 +105,11 @@ export class Stall implements OnInit, AfterViewInit {
   });
 
   // 快速查詢書籤
-  isMarkedSet = computed(() => {
+  markedListIdSet = computed(() => {
     const set = this.markedMapByStallId()?.get(this.stall().id);
 
     if (!set) {
-      return new Set();
+      return new Set<number>();
     }
 
     return set;
@@ -173,7 +174,25 @@ export class Stall implements OnInit, AfterViewInit {
       .subscribe(() => {
         this.resizeHandler();
       });
+
+    this._markedListService.markedMapByStallId$.pipe().subscribe(() => {
+      this.shownList.set(Array.from(this.markedListIdSet()));
+    });
+
+    this._markedStallService.toggleList$.pipe().subscribe(() => {
+      this.allMarkedList();
+      const shownList = Array.from(this.markedListIdSet()).filter((markedListId) => {
+        const markedList = this.allMarkedList()?.find((list) => list.id === markedListId);
+        if (markedList) {
+          return markedList.show;
+        }
+        return false;
+      });
+
+      this.shownList.set(shownList);
+    });
   }
+  shownList = signal<number[]>([]);
 
   ngAfterViewInit(): void {}
 

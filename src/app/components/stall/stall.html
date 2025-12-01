@@ -38,16 +38,20 @@
 
   <!-- bookmark -->
   @if (isLogin() && showMarkLayer() && allMarkedList()?.length && !isGroupedMember()) {
-    @let markSet = isMarkedSet();
+    @let markSet = markedListIdSet();
     <div
       class="absolute pointer-events-none z-[100] w-full flex justify-center"
       [ngClass]="{
-        'bottom-full left-1/2 -translate-x-1/2': stall().rule.bookmarkPosition === 'top',
-        'left-[100%] top-1/2 -translate-y-1/2': stall().rule.bookmarkPosition === 'right',
-        'top-full left-1/2 -translate-x-1/2': stall().rule.bookmarkPosition === 'bottom',
-        'right-[100%] top-1/2 -translate-y-1/2': stall().rule.bookmarkPosition === 'left',
-        'flex-nowrap': markSet.size <= 2,
-        'flex-wrap': markSet.size > 2,
+        'bottom-full': stall().rule.bookmarkPosition === 'top',
+        'top-full': stall().rule.bookmarkPosition === 'bottom',
+        'left-1/2 -translate-x-1/2':
+          stall().rule.bookmarkPosition === 'top' || stall().rule.bookmarkPosition === 'bottom',
+        'left-[150%]': stall().rule.bookmarkPosition === 'right',
+        'right-[150%]': stall().rule.bookmarkPosition === 'left',
+        'top-1/2 -translate-y-1/2':
+          stall().rule.bookmarkPosition === 'right' || stall().rule.bookmarkPosition === 'left',
+        'flex-nowrap': shownList().length <= 2,
+        'flex-wrap': shownList().length > 2,
       }"
       (click)="$event.stopPropagation()"
       (mouseover)="$event.stopPropagation()"
@@ -61,8 +65,8 @@
               aria-label="marked icon"
               [style.color]="item.iconColor"
               [fontIcon]="item.icon || 'star'"
-              [style.font-size]="markSet.size <= 2 ? fontSizeNum() + 'px' : iconSize()"
-              [style.line-height]="markSet.size <= 2 ? fontSizeNum() + 'px' : iconSize()"
+              [style.font-size]="shownList().length <= 2 ? fontSizeNum() + 'px' : iconSize()"
+              [style.line-height]="shownList().length <= 2 ? fontSizeNum() + 'px' : iconSize()"
             ></mat-icon>
           </div>
         }
