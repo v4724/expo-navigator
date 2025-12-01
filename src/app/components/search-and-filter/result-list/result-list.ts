@@ -39,11 +39,21 @@ export class ResultList implements OnInit {
   isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
 
   list = computed(() => {
+    let result: StallData[] = [];
     if (this.isFiltering()) {
-      return this.filterResults();
+      result = this.filterResults() ?? [];
     } else {
-      return this.allStalls();
+      result = this.allStalls() ?? [];
     }
+    result.sort((a, b) => {
+      if (a.stallZone === '範' && b.stallZone !== '範') {
+        return 1;
+      } else if (a.stallZone === b.stallZone && a.stallNum > b.stallNum) {
+        return 1;
+      }
+      return -1;
+    });
+    return result;
   });
 
   ngOnInit(): void {}
