@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { TooltipModule } from 'primeng/tooltip';
 
+// desktop 進階搜尋畫面，根據設定檔可切換是否顯示單一場次
 @Component({
   selector: 'app-advanced-series-tag-drawer',
   imports: [CommonModule, AdvancedSeriesTag, Button, MatIcon, TooltipModule],

@@ -9,6 +9,7 @@ import { TagService } from 'src/app/core/services/state/tag-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BadgeModule } from 'primeng/badge';
 
+// 進階搜尋 - 指定 series 的標籤內容
 @Component({
   selector: 'app-advanced-series-tag',
   imports: [CommonModule, DialogModule, ButtonModule, MatIconModule, AccordionModule, BadgeModule],

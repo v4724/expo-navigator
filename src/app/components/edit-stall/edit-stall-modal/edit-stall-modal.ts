@@ -64,6 +64,7 @@ import { AccordionModule } from 'primeng/accordion';
 import { AdvancedFilters } from 'src/app/core/interfaces/stall-series-tag.interface';
 import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawer-on-mobile';
 import { ConfirmationService } from 'primeng/api';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 interface MyTab {
   icon: string;
@@ -124,12 +125,17 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _snackBar = inject(MatSnackBar);
   private readonly _uiStateService = inject(UiStateService);
   private readonly _confirmService = inject(ConfirmationService);
+  private _expoStateService = inject(ExpoStateService);
 
   visible = false;
   previewVisible = false;
   previewStall = undefined;
 
   stallForm: FormGroup;
+
+  // 場次設定
+  multiSeries = toSignal(this._expoStateService.multiSeriesExpo$);
+  specifiedSeriesId = toSignal(this._expoStateService.specifiedSeriesId$);
 
   selectedStallId = toSignal(this._selectStallService.selectedStallId$);
 

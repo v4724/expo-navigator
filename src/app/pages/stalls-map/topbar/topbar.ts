@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { User } from 'src/app/components/user/user';
 import { DownloadMap } from 'src/app/components/download-map/download-map';
-import { ToggleController } from 'src/app/components/layers-controller/toggle-controller/toggle-controller';
 import { MatIcon } from '@angular/material/icon';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -13,16 +12,7 @@ import { MarkedListBtn } from 'src/app/shared/components/marked-list/marked-list
 
 @Component({
   selector: 'app-topbar',
-  imports: [
-    CommonModule,
-    User,
-    DownloadMap,
-    MatIcon,
-    ToggleController,
-    InputSearch,
-    ResultListBtn,
-    MarkedListBtn,
-  ],
+  imports: [CommonModule, User, DownloadMap, MatIcon, InputSearch, ResultListBtn, MarkedListBtn],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
 })
