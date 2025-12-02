@@ -1,22 +1,25 @@
-<div>
-  <div class="recommendation-note">
-    <p>為獲得較佳體驗，建議使用電腦瀏覽器並將視窗寬度調整至 1024px 以上。</p>
+<div class="flex pointer-events-none relative px-2 items-center">
+  <div class="absolute flex gap-2 -top-1 left-1/2 -translate-x-1/2">
+    <div
+      class="text-gray-600 font-bold text-lg stroke-text"
+      [attr.data-stroke]="expoTitle() + ' 互動地圖'"
+    >
+      {{ expoTitle() }} 互動地圖
+    </div>
   </div>
 
-  <div class="data-source">
-    <h3 style="margin-bottom: 0px">資料來源</h3>
-    <ul>
-      <li>
-        <a href="https://starstonetw.weebly.com/" target="_blank" rel="noopener noreferrer"
-          >星石文創 NiCE 官網</a
-        >
-      </li>
-    </ul>
+  <!-- 資料來源 -->
+  <div class="ml-auto flex items-center text-xs">
+    <div class="">資料來源</div>
+    <button pButton text size="small" class="pointer-events-auto" (click)="openUrl()">
+      同忍祭官網 2025 忍者亂太郎only
+    </button>
   </div>
 
-  <div style="margin-top: 0.5rem">
+  <!-- desktop
+  <div class="ml-auto text-xs">
     <p style="margin-bottom: 0px">
-      © 2025 阿圖　｜　本作品由原作者 阿圖 非官方製作，現由 NiCE 創·迴響 正式授權使用。
+      © 2025 阿圖　｜　本作品由原作者 阿圖 非官方製作，現由「」正式授權使用。
     </p>
-  </div>
+  </div> -->
 </div>

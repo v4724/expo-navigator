@@ -1,11 +1,13 @@
 <main>
-  <div class="h-screen flex flex-col">
+  <div class="h-screen flex flex-col relative">
     <div class="flex-grow flex flex-col h-full">
       <div class="flex-grow h-full">
         <app-stalls-map></app-stalls-map>
       </div>
     </div>
 
-    <!-- <app-footer></app-footer> -->
+    <div class="absolute z-1 bottom-0 w-full">
+      <app-footer></app-footer>
+    </div>
   </div>
 </main>
