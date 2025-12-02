@@ -22,7 +22,7 @@
         <p-speeddial
           [model]="items"
           direction="down"
-          className="!items-start"
+          className="!items-start !pointer-events-none"
           [style]="{ position: 'absolute', left: '8px', top: 0, zIndex: 1 }"
         >
           <ng-template #button let-toggleCallback="toggleCallback">
@@ -38,7 +38,8 @@
           </ng-template>
           <ng-template #item let-item let-toggleCallback="toggleCallback">
             <div class="flex items-center gap-1 py-1 px-2 rounded-full legend-item text-sm w-30">
-              <span [class]="'legend-box ' + item.styleClass"></span><span>{{ item.label }}</span>
+              <span [class]="'legend-box ' + item.styleClass"></span>
+              <span class="stroke-text" [attr.data-stroke]="item.label">{{ item.label }}</span>
             </div>
           </ng-template>
         </p-speeddial>

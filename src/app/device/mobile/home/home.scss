@@ -2,4 +2,13 @@
   .text-sm .p-button {
     font-size: 0.875rem;
   }
+
+  .p-speeddial {
+    pointer-events: none !important;
+  }
+
+  .p-speeddial button,
+  .p-speeddial .p-speeddial-action {
+    pointer-events: auto !important;
+  }
 }
