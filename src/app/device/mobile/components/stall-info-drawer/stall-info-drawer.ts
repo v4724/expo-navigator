@@ -75,4 +75,8 @@ export class StallInfoDrawer {
   close() {
     this.drawer.close();
   }
+
+  onClose() {
+    this._selectStallService.selected = null;
+  }
 }

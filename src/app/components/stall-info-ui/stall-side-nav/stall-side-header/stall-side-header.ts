@@ -72,7 +72,6 @@ export class StallSideHeader implements OnInit {
         .subscribe((stallId) => {
           this.isMarkedSignal.set(false);
           requestAnimationFrame(() => {
-            console.log(this._selectStallService.selectedStall);
             this.stall.set(this._selectStallService.selectedStall);
           });
         });

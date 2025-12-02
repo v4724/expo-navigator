@@ -22,10 +22,6 @@ export class SelectStallService {
   set selected(id: string | null) {
     console.debug('stall-service next selected', id);
     this._selectedId.next(id);
-
-    if (id) {
-      this.openSidenav();
-    }
   }
 
   get selected(): string | null {
@@ -99,9 +95,5 @@ export class SelectStallService {
       this.selected = null;
       this.currDialogRef = null;
     });
-  }
-
-  openSidenav() {
-    // stall-side-nav 聽 select 事件另外處理
   }
 }

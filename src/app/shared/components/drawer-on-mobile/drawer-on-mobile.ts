@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragEnd, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 
@@ -15,6 +15,8 @@ export class DrawerOnMobile {
   title = input<boolean>(true);
   modal = input<boolean>(false);
   dismissible = input<boolean>(false);
+
+  onClose = output<number>();
 
   visible = false;
 
@@ -39,6 +41,7 @@ export class DrawerOnMobile {
 
   close() {
     this.visible = false;
+    this.onClose.emit(+new Date());
   }
 
   onDragStart(event: CdkDragStart) {
