@@ -16,10 +16,21 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { addIcons } from 'ionicons';
 import { close } from 'ionicons/icons';
+import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 
 @Component({
   selector: 'app-search-result-list-sheet',
-  imports: [IonModal, IonContent, IonIcon, IonTitle, IonButtons, IonButton, Divider, SeriesPipe],
+  imports: [
+    IonModal,
+    IonContent,
+    IonIcon,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    Divider,
+    SeriesPipe,
+    StallZoneBadge,
+  ],
   templateUrl: './search-result-list-sheet.html',
   styleUrl: './search-result-list-sheet.scss',
 })

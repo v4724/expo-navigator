@@ -42,13 +42,7 @@
 
           <div class="flex-1 flex flex-col gap-1">
             <div class="flex items-center gap-1">
-              <div
-                class="rounded-full px-2 py-1 font-sans font-semibold text-xs text-nowrap"
-                [style.backgroundColor]="item.rule.zoneColor ? item.rule.zoneColor : 'transparent'"
-                [style.color]="item.rule.fontColor ? item.rule.fontColor : 'text-gray-600'"
-              >
-                {{ item.id }}
-              </div>
+              <app-stall-zone-badge [stall]="item"></app-stall-zone-badge>
               <div class="mb-[1px] text-sm">{{ item.stallTitle }}</div>
             </div>
             <div class="flex flex-wrap">

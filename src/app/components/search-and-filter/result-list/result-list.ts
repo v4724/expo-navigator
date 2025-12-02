@@ -15,10 +15,11 @@ import { StallService } from 'src/app/core/services/state/stall-service';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { TagPipe } from 'src/app/shared/pipe/tag-pipe';
 import { TagService } from 'src/app/core/services/state/tag-service';
+import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 
 @Component({
   selector: 'app-result-list',
-  imports: [Divider, SeriesPipe, TagPipe, Button],
+  imports: [Divider, SeriesPipe, TagPipe, Button, StallZoneBadge],
   templateUrl: './result-list.html',
   styleUrl: './result-list.scss',
 })

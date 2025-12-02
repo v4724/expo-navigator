@@ -19,10 +19,11 @@ import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { UserService } from 'src/app/core/services/state/user-service';
+import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 
 @Component({
   selector: 'app-stall-side-header',
-  imports: [CommonModule, MatIcon, PopoverModule],
+  imports: [CommonModule, MatIcon, PopoverModule, StallZoneBadge],
   templateUrl: './stall-side-header.html',
   styleUrl: './stall-side-header.scss',
 })
