@@ -1,5 +1,5 @@
 <div class="flex flex-col h-full">
-  <div class="flex flex-col flex-grow">
+  <div class="flex flex-col flex-grow relative">
     <div class="flex flex-col">
       <div class="flex">
         <ion-searchbar
@@ -63,6 +63,17 @@
       </div>
     </div>
     <app-map class="flex-grow"></app-map>
+
+    <div class="absolute flex top-full left-1">
+      @if (expoTitle()) {
+        <div
+          class="stroke-text text-gray-600 font-bold text -translate-y-full"
+          [attr.data-stroke]="expoTitle() + ' 互動地圖'"
+        >
+          {{ expoTitle() }} 互動地圖
+        </div>
+      }
+    </div>
   </div>
 
   <div

@@ -57,6 +57,7 @@ export class Home {
   results = toSignal(this._searchAndFilterService.filterStalls$);
 
   multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
+  expoTitle = toSignal(this._expoStateService.expoTitle$);
 
   items: MenuItem[] | null;
   constructor() {
