@@ -1,6 +1,17 @@
 <app-drawer-on-mobile [styleClass]="'stall-info-drawer'" [modal]="isPreview()">
   <div title class="w-full flex">
-    <div>{{ stall()?.id }}: {{ stall()?.stallTitle }}</div>
+    <div class="flex gap-1 items-center">
+      <div
+        class="rounded-full px-2 py-1 font-sans font-semibold text-xs text-nowrap"
+        [style.backgroundColor]="
+          stall()?.rule?.zoneColor ? stall()?.rule?.zoneColor : 'transparent'
+        "
+        [style.color]="stall()?.rule?.fontColor ? stall()?.rule?.fontColor : 'text-gray-600'"
+      >
+        {{ stall()?.id }}
+      </div>
+      <div class="mt-[2px]">{{ stall()?.stallTitle }}</div>
+    </div>
 
     @if (stall()?.stallLink) {
       <button
