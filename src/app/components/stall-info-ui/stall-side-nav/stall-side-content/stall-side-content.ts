@@ -165,6 +165,11 @@ export class StallSideContent implements OnInit {
     if (target instanceof HTMLImageElement) {
       let src = '';
       const parentElement = target.parentElement;
+
+      if (parentElement?.tagName === 'P-AVATAR') {
+        return;
+      }
+
       if (target.classList.contains('official-stall-image')) {
         src = target.src;
       } else if (

@@ -14,6 +14,7 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { TagPipe } from 'src/app/shared/pipe/tag-pipe';
+import { TagService } from 'src/app/core/services/state/tag-service';
 
 @Component({
   selector: 'app-result-list',
@@ -26,6 +27,7 @@ export class ResultList implements OnInit {
   private _stallService = inject(StallService);
   private _leftSidebarService = inject(LeftSidebarService);
   private _selectStallService = inject(SelectStallService);
+  private _tagServcie = inject(TagService);
   private _stallMapService = inject(StallMapService);
   private _expoStateService = inject(ExpoStateService);
   private readonly _ref = inject(DynamicDialogRef, { optional: true });
@@ -41,8 +43,12 @@ export class ResultList implements OnInit {
   allStalls = toSignal(this._stallService.allStalls$);
   isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
   multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
+  tagFetched = toSignal(this._tagServcie.fetchEnd$);
 
   list = computed(() => {
+    const isTagFetched = this.tagFetched();
+    if (!isTagFetched) return [];
+
     let result: StallData[] = [];
     if (this.isFiltering()) {
       result = this.filterResults() ?? [];
@@ -57,7 +63,7 @@ export class ResultList implements OnInit {
       }
       return -1;
     });
-    return result;
+    return Array.from(result);
   });
 
   ngOnInit(): void {}
