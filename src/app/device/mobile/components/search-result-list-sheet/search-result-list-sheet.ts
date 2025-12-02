@@ -17,6 +17,8 @@ import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { addIcons } from 'ionicons';
 import { close } from 'ionicons/icons';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { TagPipe } from 'src/app/shared/pipe/tag-pipe';
 
 @Component({
   selector: 'app-search-result-list-sheet',
@@ -30,6 +32,7 @@ import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-
     Divider,
     SeriesPipe,
     StallZoneBadge,
+    TagPipe,
   ],
   templateUrl: './search-result-list-sheet.html',
   styleUrl: './search-result-list-sheet.scss',
@@ -40,8 +43,10 @@ export class SearchResultListSheet {
   private _searchAndFilterService = inject(SearchAndFilterService);
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
+  private _expoStateService = inject(ExpoStateService);
 
   results = toSignal(this._searchAndFilterService.filterStalls$);
+  multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
 
   constructor() {
     addIcons({ close });

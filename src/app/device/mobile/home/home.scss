@@ -11,4 +11,10 @@
   .p-speeddial .p-speeddial-action {
     pointer-events: auto !important;
   }
+  ion-searchbar {
+    .searchbar-input.sc-ion-searchbar-md {
+      -webkit-padding-end: 0.8rem;
+      padding-inline-end: 0.8rem;
+    }
+  }
 }

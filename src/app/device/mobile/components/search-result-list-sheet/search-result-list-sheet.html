@@ -48,11 +48,20 @@
                 }
               </div>
               <div class="flex flex-wrap gap-1 text-[10px]">
-                @for (series of item.filterSeries; track $index) {
-                  <span class="promo-tag inline-flex"> #{{ series | seriesPipe }} </span>
+                <!-- 非 only 場顯示作品、only 場顯示 tag -->
+                @if (multiSeriesExpo()) {
+                  @for (series of item.filterSeries; track $index) {
+                    <span class="promo-tag inline-flex"> #{{ series | seriesPipe }} </span>
+                  }
+                } @else {
+                  @for (tags of item.filterTags; track $index) {
+                    <span class="promo-tag inline-flex"> #{{ tags | tagPipe }} </span>
+                  }
                 }
-                @if (item.filterCustomTags) {
-                  <span class="promo-tag"> #{{ item.filterCustomTags }} </span>
+                @if (item.filterCustomTags.length) {
+                  @for (tag of item.filterCustomTags; track $index) {
+                    <span class="promo-tag inline-flex"> #{{ tag }} </span>
+                  }
                 }
               </div>
             </div>
