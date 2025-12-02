@@ -104,7 +104,6 @@ interface StallTag extends StallTagDto {
     BadgeModule,
     MatProgressSpinnerModule,
     CKEditorModule,
-    // StallSideNav,
     StallSideHeader,
     StallSideContent,
     StallInfoDrawer,
@@ -132,6 +131,9 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   previewStall = undefined;
 
   stallForm: FormGroup;
+
+  // 必填提示
+  invalidHint = signal<string[]>([]);
 
   // 場次設定
   multiSeries = toSignal(this._expoStateService.multiSeriesExpo$);
@@ -176,7 +178,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   constructor() {
     this.stallForm = this._fb.group({
       stallId: [''],
-      stallTitle: [''],
+      stallTitle: ['', Validators.required],
       stallImg: [''],
       stallLink: [''],
       promos: this._fb.array([]),
@@ -566,6 +568,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     this.stallForm.markAllAsDirty();
     this.stallForm.updateValueAndValidity();
     console.debug(this.stallForm, this.stallForm.invalid);
+    this.updateInvalidHint();
     if (this.stallForm.invalid) {
       return;
     }
@@ -595,6 +598,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   onSave() {
     this.stallForm.markAllAsDirty();
     this.stallForm.updateValueAndValidity();
+    this.updateInvalidHint();
     if (this.stallForm.invalid) {
       return;
     }
@@ -648,6 +652,12 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.visible = false;
     }
+  }
+
+  validateForm(op: Popover, e: Event) {
+    this.stallForm.updateValueAndValidity({ emitEvent: false });
+    this.updateInvalidHint();
+    op.toggle(e);
   }
 
   private _createPromoGroup() {
@@ -777,5 +787,30 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     if (!stall) return [];
 
     return stall.promoData;
+  }
+
+  private updateInvalidHint() {
+    const msgs: string[] = [];
+
+    if (this.stallForm.get('stallTitle')?.invalid) {
+      msgs.push(`「社團名稱」必填`);
+    }
+    this.promos.controls.forEach((item, index) => {
+      const promoName = item.get('name')?.value;
+      const promoInvalid = item.get('name')?.invalid;
+      if (promoInvalid) {
+        msgs.push(`第 ${index + 1} 台宣傳車缺少名稱`);
+      }
+      this.stallForm.get('');
+      const linkInvalid = item.get('links')?.invalid;
+      if (linkInvalid) {
+        if (promoInvalid) {
+          msgs.push(`第 ${index + 1} 台宣傳車的「宣傳連結網址、文字」必填`);
+        } else {
+          msgs.push(`宣傳車「${promoName}」的「宣傳連結網址、文字」必填`);
+        }
+      }
+    });
+    this.invalidHint.set(msgs);
   }
 }
