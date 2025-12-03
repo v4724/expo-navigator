@@ -14,10 +14,11 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmationService } from 'primeng/api';
 import { finalize } from 'rxjs';
+import { StallZoneBadge } from '../../stall-info/stall-zone-badge/stall-zone-badge';
 
 @Component({
   selector: 'app-bookmark-list',
-  imports: [CommonModule, MatIconModule, EditBtn, AccordionModule, ButtonModule],
+  imports: [CommonModule, MatIconModule, EditBtn, AccordionModule, ButtonModule, StallZoneBadge],
   templateUrl: './bookmark-list.html',
   styleUrl: './bookmark-list.scss',
 })

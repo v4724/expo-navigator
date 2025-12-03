@@ -17,11 +17,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { finalize, map, of, tap } from 'rxjs';
+import { finalize, tap } from 'rxjs';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { MarkedListUpdateDto } from 'src/app/core/models/marked-stall.model';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
-import { MatDialogActions, MatDialogContent } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Divider } from 'primeng/divider';
@@ -39,6 +38,8 @@ import { UserService } from 'src/app/core/services/state/user-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-edit-marked-list-modal',
@@ -56,6 +57,9 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
     CheckboxModule,
     MatTooltip,
     ButtonModule,
+    StallZoneBadge,
+    CdkDropList,
+    CdkDrag,
   ],
   templateUrl: './edit-marked-list-modal.html',
   styleUrl: './edit-marked-list-modal.scss',
@@ -153,7 +157,6 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('??', this.data());
     this.initFormVal(this.data());
     this.initIconEvent();
     this.initIconColorEvent();
@@ -310,6 +313,12 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
 
   openFontIconRef() {
     window.open(this.fontIconUrl, '_target');
+  }
+
+  drop(event: CdkDragDrop<StallData[]>) {
+    const cat = Array.from(this.selectedStalls);
+    moveItemInArray(cat, event.previousIndex, event.currentIndex);
+    this.list.patchValue(cat, { emitEvent: false });
   }
 
   private _update() {

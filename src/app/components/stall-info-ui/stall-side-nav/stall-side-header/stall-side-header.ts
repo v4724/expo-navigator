@@ -81,12 +81,7 @@ export class StallSideHeader implements OnInit {
       combineLatest([this.stall$, this._markedListService.fetchEnd$.pipe(first((val) => !!val))])
         .pipe()
         .subscribe(([stall]) => {
-          let isMarked = false;
-          if (stall) {
-            const stallId = stall.id;
-            isMarked = this._markedListService.isMarked(stallId);
-          }
-          this.isMarkedSignal.set(isMarked);
+          this.updateMarkedSignal(stall);
         });
     }
   }
@@ -109,6 +104,7 @@ export class StallSideHeader implements OnInit {
         if (res.success) {
           this._markedListService.update(dto);
         }
+        this.updateMarkedSignal(this.stall());
       });
   }
 
@@ -129,7 +125,17 @@ export class StallSideHeader implements OnInit {
         if (res.success) {
           this._markedListService.update(dto);
         }
+        this.updateMarkedSignal(this.stall());
       });
+  }
+
+  updateMarkedSignal(stall: StallData | undefined) {
+    let isMarked = false;
+    if (stall) {
+      const stallId = stall.id;
+      isMarked = this._markedListService.isMarked(stallId);
+    }
+    this.isMarkedSignal.set(isMarked);
   }
 
   // 開啟外部連結

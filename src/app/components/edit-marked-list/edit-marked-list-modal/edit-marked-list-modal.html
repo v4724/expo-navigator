@@ -121,13 +121,22 @@
         (onSelect)="onFilterSelect($event)"
       ></app-stall-filter-input>
 
-      <div class="flex gap-2 flex-wrap mt-2">
-        @for (stall of selectedStalls; track stall.id) {
+      <div
+        cdkDropList
+        cdkDropListOrientation="mixed"
+        class="flex gap-2 flex-wrap mt-2 example-list"
+        (cdkDropListDropped)="drop($event)"
+      >
+        @for (stall of selectedStalls; track stall) {
           <p-chip
-            [label]="`${stall.id}-${stall.stallTitle}`"
             [removable]="true"
             (onRemove)="remove($index)"
-          />
+            cdkDrag
+            class="border border-gray-200 !rounded-full !bg-white"
+          >
+            <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
+            <span class="">{{ stall.stallTitle }} </span>
+          </p-chip>
         }
       </div>
     </div>

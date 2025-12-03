@@ -9,7 +9,7 @@
 @if (allList().length) {
   <div class="flex flex-col">
     <p-accordion value="0">
-      @for (bookmark of allList(); track $index) {
+      @for (bookmark of allList(); track bookmark) {
         <p-accordion-panel [value]="$index">
           <p-accordion-header>
             <div class="w-full flex items-center py-1 gap-x-1">
@@ -62,7 +62,8 @@
                   size="small"
                   text="true"
                 >
-                  {{ stall.id }}-{{ stall.stallTitle }}
+                  <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
+                  <span class="text-xs">{{ stall.stallTitle }} </span>
                 </button>
               }
             </div>
