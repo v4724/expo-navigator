@@ -9,6 +9,8 @@ export interface StallGroupDto {
 
   groupName: string;
 
+  groupSort: number;
+
   seriesId: number;
 
   seriesName: string;
@@ -18,6 +20,8 @@ export interface StallTagDto {
   tagId: number;
 
   tagName: string;
+
+  tagSort: number;
 
   tagType: 'CHAR';
 

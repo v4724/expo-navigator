@@ -338,6 +338,9 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
           .forEach((group) => {
             const charTags = tags
               .filter((tag) => tag.groupId === group.groupId)
+              .sort((a, b) => {
+                return (a.tagSort ?? 1) > (b.tagSort ?? 1) ? 1 : -1;
+              })
               .map((obj) => {
                 return { ...obj, controlName: `tag-${obj.tagId}` };
               });

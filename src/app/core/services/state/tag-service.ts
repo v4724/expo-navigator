@@ -126,6 +126,7 @@ export class TagService {
     rawData.forEach((rawSeries) => {
       const groupId = Number(rawSeries['groupId']);
       const groupName = rawSeries['groupName'];
+      const groupSort = Number(rawSeries['groupSort']);
       const seriesId = rawSeries['seriesId'];
       const seriesName = rawSeries['seriesName'];
 
@@ -138,6 +139,7 @@ export class TagService {
         const group: StallGroupDto = {
           groupId: Number(groupId),
           groupName,
+          groupSort,
           seriesId: Number(seriesId),
           seriesName,
         };
@@ -150,6 +152,7 @@ export class TagService {
     rawData.forEach((rawSeries) => {
       const tagId = Number(rawSeries['tagId']);
       const tagName = rawSeries['tagName'];
+      const tagSort = Number(rawSeries['tagSort']);
       const tagType = rawSeries['tagType'];
       const groupId = Number(rawSeries['groupId']);
       const groupName = rawSeries['groupName'];
@@ -164,6 +167,7 @@ export class TagService {
         const tag: StallTagDto = {
           tagId,
           tagName,
+          tagSort,
           tagType: tagType as 'CHAR',
           groupId,
           groupName,
@@ -184,6 +188,9 @@ export class TagService {
         .forEach((group) => {
           const tags: StallTag[] = Array.from(this.allTags.values())
             .filter((tag) => tag.groupId === group.groupId)
+            .sort((a, b) => {
+              return (a.tagSort ?? 1) > (b.tagSort ?? 1) ? 1 : -1;
+            })
             .map((dto: StallTagDto) => {
               return {
                 id: dto.tagId,
@@ -205,7 +212,6 @@ export class TagService {
         checked: false,
       });
     });
-    console.log(data);
     return data;
   }
 
