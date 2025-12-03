@@ -15,10 +15,21 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmationService } from 'primeng/api';
 import { finalize } from 'rxjs';
 import { StallZoneBadge } from '../../stall-info/stall-zone-badge/stall-zone-badge';
+import { CheckboxModule } from 'primeng/checkbox';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-bookmark-list',
-  imports: [CommonModule, MatIconModule, EditBtn, AccordionModule, ButtonModule, StallZoneBadge],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    EditBtn,
+    AccordionModule,
+    ButtonModule,
+    StallZoneBadge,
+    CheckboxModule,
+    FormsModule,
+  ],
   templateUrl: './bookmark-list.html',
   styleUrl: './bookmark-list.scss',
 })
@@ -42,9 +53,8 @@ export class BookmarkList {
     }, 100);
   }
 
-  toggleList(list: MarkedList) {
-    list.show = !list.show;
-    this._markedListService.toggleList(list);
+  toggleList(bookmark: MarkedList) {
+    this._markedListService.toggleList(bookmark);
   }
 
   deleteList(e: Event, list: MarkedList) {

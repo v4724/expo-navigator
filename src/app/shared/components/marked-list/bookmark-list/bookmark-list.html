@@ -12,13 +12,13 @@
       @for (bookmark of allList(); track bookmark) {
         <p-accordion-panel [value]="$index">
           <p-accordion-header>
-            <div class="w-full flex items-center py-1 gap-x-1">
-              <input
-                type="checkbox"
-                [checked]="bookmark.show"
-                (change)="toggleList(bookmark)"
+            <div class="w-full flex items-center py-1 gap-x-2">
+              <p-checkbox
+                size="small"
+                [binary]="true"
+                [(ngModel)]="bookmark.show"
+                (onChange)="toggleList(bookmark)"
                 (click)="$event.stopPropagation()"
-                class="h-4 w-4 rounded accent-purple-800"
               />
               <button class="flex items-center">
                 <mat-icon

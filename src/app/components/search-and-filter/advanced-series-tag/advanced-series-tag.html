@@ -36,12 +36,14 @@
             <p-accordion-content>
               <div class="flex flex-wrap gap-x-2 gap-y-3">
                 @for (tag of group.tags; track tag.id) {
-                  <label class="flex items-center gap-x-1 cursor-pointer text-sm">
-                    <input
-                      type="checkbox"
-                      [checked]="isAdvancedTagSelected(series()?.id, group.id, tag.id)"
-                      (change)="toggleAdvancedTag(series()?.id, group.id, tag.id)"
-                      class="h-4 w-4 rounded accent-purple-500"
+                  <label class="flex items-center gap-x-2 cursor-pointer text-sm">
+                    <p-checkbox
+                      #checkbox
+                      size="small"
+                      [inputId]="`${group.id}-${tag.id}`"
+                      [(ngModel)]="tag.checked"
+                      [binary]="true"
+                      (onChange)="toggleAdvancedTag(series()?.id, group.id, tag)"
                     />
                     <span>{{ tag.name }}</span>
                   </label>

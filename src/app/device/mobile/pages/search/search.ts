@@ -44,7 +44,7 @@ export class Search implements AfterViewInit {
   tagFetchEnd = toSignal(this._tagService.fetchEnd$);
   allSeries = computed(() => {
     if (!this.tagFetchEnd()) return [];
-    const data: StallSeries[] = this._tagService.getSeriesData();
+    const data: StallSeries[] = this._searchAndFilterService.seriesData;
     return data;
   });
 

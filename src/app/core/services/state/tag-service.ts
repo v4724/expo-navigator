@@ -96,7 +96,7 @@ export class TagService {
   clearAdvancedTag(seriesId: number, groupId: number) {
     const newFilters = { ...this.selectedAdvancedTagsId };
     if (newFilters[seriesId]) {
-      newFilters[seriesId][groupId].clear();
+      newFilters[seriesId][groupId]?.clear();
     }
 
     this._selectedAdvancedTagsId.next(newFilters);
@@ -176,43 +176,6 @@ export class TagService {
         this.allTags.set(tagId, tag);
       }
     });
-  }
-
-  getSeriesData() {
-    const data: StallSeries[] = [];
-    this.allSeries.forEach((val, seriesId) => {
-      const groups: StallGroup[] = [];
-
-      Array.from(this.allGroups.values())
-        .filter((group) => group.seriesId === seriesId)
-        .forEach((group) => {
-          const tags: StallTag[] = Array.from(this.allTags.values())
-            .filter((tag) => tag.groupId === group.groupId)
-            .sort((a, b) => {
-              return (a.tagSort ?? 1) > (b.tagSort ?? 1) ? 1 : -1;
-            })
-            .map((dto: StallTagDto) => {
-              return {
-                id: dto.tagId,
-                name: dto.tagName,
-                checked: false,
-              };
-            });
-          groups.push({
-            id: group.groupId,
-            name: group.groupName,
-            tags,
-          });
-        });
-
-      data.push({
-        id: seriesId,
-        name: val.seriesName,
-        groups,
-        checked: false,
-      });
-    });
-    return data;
   }
 
   getSeriesById(id: number): StallSeriesDto | undefined {

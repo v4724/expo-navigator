@@ -11,6 +11,7 @@ import { AdvancedFilters, StallSeries } from 'src/app/core/interfaces/stall-seri
 import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { TooltipModule } from 'primeng/tooltip';
+import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 
 // desktop 進階搜尋畫面，根據設定檔可切換是否顯示單一場次
 @Component({
@@ -23,6 +24,7 @@ export class AdvancedSeriesTagDrawer implements OnInit {
   private readonly _leftSidebarService = inject(LeftSidebarService);
   private _tagService = inject(TagService);
   private _advancedSTService = inject(AdvancedSeriesTagService);
+  private _searchAndFilterService = inject(SearchAndFilterService);
   private _expoStateService = inject(ExpoStateService);
 
   // 場次設定
@@ -33,7 +35,7 @@ export class AdvancedSeriesTagDrawer implements OnInit {
   tagFetchEnd = toSignal(this._tagService.fetchEnd$);
   allSeries = computed(() => {
     if (!this.tagFetchEnd()) return [];
-    return this._tagService.getSeriesData();
+    return this._searchAndFilterService.seriesData;
   });
 
   selectedAdvancedTagsId = toSignal(this._tagService.selectedAdvancedTagsId$, { initialValue: {} });

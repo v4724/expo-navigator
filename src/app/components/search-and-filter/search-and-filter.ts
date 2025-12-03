@@ -12,6 +12,7 @@ import { PanelModule } from 'primeng/panel';
 import { AdvancedSeriesTag } from './advanced-series-tag/advanced-series-tag';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { TooltipModule } from 'primeng/tooltip';
+import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 
 @Component({
   selector: 'app-search-and-filter',
@@ -30,6 +31,7 @@ import { TooltipModule } from 'primeng/tooltip';
 export class SearchAndFilter implements OnInit {
   private _tagService = inject(TagService);
   private _advancedSTService = inject(AdvancedSeriesTagService);
+  private _searchAndFilterService = inject(SearchAndFilterService);
   private _expoStateService = inject(ExpoStateService);
 
   // 場次設定
@@ -40,7 +42,7 @@ export class SearchAndFilter implements OnInit {
   tagFetchEnd = toSignal(this._tagService.fetchEnd$);
   allSeries = computed(() => {
     if (!this.tagFetchEnd()) return [];
-    return this._tagService.getSeriesData();
+    return this._searchAndFilterService.seriesData;
   });
 
   selectedAdvancedTagsId = toSignal(this._tagService.selectedAdvancedTagsId$, { initialValue: {} });
