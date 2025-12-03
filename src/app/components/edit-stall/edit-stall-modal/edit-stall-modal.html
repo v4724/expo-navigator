@@ -5,6 +5,7 @@
   [draggable]="false"
   [style]="{ width: '80vw', maxWidth: '800px' }"
   [appendTo]="'body'"
+  (onShow)="recalculate()"
 >
   <ng-template #header>
     <div class="text-gray-600 flex w-full gap-3">

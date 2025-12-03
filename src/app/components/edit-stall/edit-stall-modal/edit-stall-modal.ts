@@ -5,8 +5,10 @@ import {
   inject,
   OnDestroy,
   OnInit,
+  QueryList,
   signal,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -48,7 +50,7 @@ import { StallService } from 'src/app/core/services/state/stall-service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
-import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { CKEditorComponent, CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { EditorConfig } from 'ckeditor5';
 import translations from 'ckeditor5/translations/zh.js';
 import { StallApiService } from 'src/app/core/services/api/stall-api.service';
@@ -115,6 +117,7 @@ interface StallTag extends StallTagDto {
 })
 export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(Tabs) promoTabs!: Tabs;
+  @ViewChildren(CKEditorComponent) ckeditors!: QueryList<CKEditorComponent>;
 
   private readonly _stallService = inject(StallService);
   private readonly _selectStallService = inject(SelectStallService);
@@ -565,6 +568,14 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       this.updateSeriesSeletedTagCnt();
       this.updateSeriesCheck();
     }
+
+    this.promoTabs.updateValue(0);
+    this.afterEditorInit.set(false);
+  }
+
+  // 重畫出 ckeditor，才能抓到 dialog 正確寬度
+  recalculate() {
+    this.afterEditorInit.set(true);
   }
 
   onTempSave() {
