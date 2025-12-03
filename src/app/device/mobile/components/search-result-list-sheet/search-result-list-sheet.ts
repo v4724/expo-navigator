@@ -19,6 +19,7 @@ import { close } from 'ionicons/icons';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { TagPipe } from 'src/app/shared/pipe/tag-pipe';
+import { ResultListService } from 'src/app/components/search-and-filter/result-list/result-list-service';
 
 @Component({
   selector: 'app-search-result-list-sheet',
@@ -44,9 +45,12 @@ export class SearchResultListSheet {
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
   private _expoStateService = inject(ExpoStateService);
+  private _resultListService = inject(ResultListService);
 
-  results = toSignal(this._searchAndFilterService.filterStalls$);
   multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
+  isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
+
+  list = this._resultListService.list;
 
   constructor() {
     addIcons({ close });

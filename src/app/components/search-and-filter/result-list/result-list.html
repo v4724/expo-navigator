@@ -6,7 +6,7 @@
   <div class="flex flex-col h-full">
     <div class="px-2 pb-3 flex items-center bg-white">
       @if (isFiltering()) {
-        <div class="text-gray-600">套用搜尋中 搜尋結果：{{ filterResults()?.length }} 筆</div>
+        <div class="text-gray-600">套用搜尋中 搜尋結果：{{ list().length }} 筆</div>
       } @else {
         <div class="text-gray-600">攤位列表</div>
       }
@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    @if (isFiltering() && filterResults()?.length === 0) {
+    @if (isFiltering() && list().length === 0) {
       <div class="flex-1 flex items-center justify-center">無查詢結果</div>
     }
 

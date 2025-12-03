@@ -51,14 +51,14 @@
             >
               套用搜尋中 共 {{ results()?.length }} 筆
             </div>
-            <p-button
-              class="bg-white/30 rounded-full backdrop-blur-sm"
-              [label]="`搜尋列表`"
-              [rounded]="true"
-              variant="outlined"
-              (click)="resultList.show()"
-            />
           }
+          <p-button
+            class="bg-white/30 rounded-full backdrop-blur-sm"
+            [label]="isFiltering() ? `搜尋列表` : `攤位列表`"
+            [rounded]="true"
+            variant="outlined"
+            (click)="resultList.show()"
+          />
         </div>
       </div>
     </div>
