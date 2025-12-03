@@ -136,6 +136,7 @@ export class StallService {
     const groups = new Map<string, StallGroupRule>();
     zoneDefRawData.forEach((group) => {
       const zoneId = group['zone_id'];
+      const zoneSort = Number(group['zone_sort']);
       const isGrouped = Boolean(group['is_grouped']);
       const defaultGroupStallId = group['default_group_stall_id'];
       const skipStart = Number(group['skip_start']);
@@ -145,6 +146,7 @@ export class StallService {
       const bottom = Number(group['bounding_box_bottom']);
       const right = Number(group['bounding_box_right']);
       const g: StallGroupRule = {
+        zoneSort,
         isGrouped,
         defaultStallId: defaultGroupStallId,
         skipStart,

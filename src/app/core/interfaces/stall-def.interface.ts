@@ -24,6 +24,7 @@ export interface StallRule {
 }
 
 export interface StallGroupRule {
+  zoneSort: number;
   isGrouped: boolean;
   defaultStallId: string;
   skipStart: number;

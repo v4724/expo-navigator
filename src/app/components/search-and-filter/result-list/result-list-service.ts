@@ -17,6 +17,7 @@ export class ResultListService {
   filterResults = toSignal(this._searchAndFilterService.filterStalls$);
   isFiltering = toSignal(this._searchAndFilterService.isFiltering$);
   tagFetched = toSignal(this._tagServcie.fetchEnd$);
+  stallZoneDef = toSignal(this._stallService.stallZoneDef$);
 
   list = computed(() => {
     const isTagFetched = this.tagFetched();
@@ -29,7 +30,9 @@ export class ResultListService {
       result = this.allStalls() ?? [];
     }
     result.sort((a, b) => {
-      if (a.stallZone === '範' && b.stallZone !== '範') {
+      const aZoneSort = this.stallZoneDef()?.get(a.stallZone)?.groupDef.zoneSort ?? 1;
+      const bZoneSort = this.stallZoneDef()?.get(b.stallZone)?.groupDef.zoneSort ?? 1;
+      if (aZoneSort > bZoneSort) {
         return 1;
       } else if (a.stallZone === b.stallZone && a.stallNum > b.stallNum) {
         return 1;
