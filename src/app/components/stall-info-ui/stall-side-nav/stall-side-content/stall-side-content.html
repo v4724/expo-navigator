@@ -29,10 +29,7 @@
   <div class="p-4 mb-2 flex-grow flex items-center justify-center">暫無宣傳資訊。</div>
 } @else {
   <p-tabs #promoTabs [value]="0" scrollable class="flex flex-grow">
-    <p-tablist
-      class="!sticky z-100 border-t-1 border-gray-100"
-      [ngClass]="{ 'top-[56px]': !isMobile, 'top-0': isMobile }"
-    >
+    <p-tablist class="!sticky z-100 border-t-1 border-gray-100 top-0">
       @for (promo of this.stall()?.promoData; track promo; let tabIndex = $index) {
         <p-tab [value]="tabIndex">
           <div class="flex gap-1 h-full">

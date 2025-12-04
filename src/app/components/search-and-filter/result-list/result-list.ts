@@ -15,10 +15,11 @@ import { ExpoStateService } from 'src/app/core/services/state/expo-state-service
 import { TagPipe } from 'src/app/shared/pipe/tag-pipe';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 import { ResultListService } from './result-list-service';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 
 @Component({
   selector: 'app-result-list',
-  imports: [Divider, SeriesPipe, TagPipe, Button, StallZoneBadge],
+  imports: [Divider, SeriesPipe, TagPipe, Button, StallZoneBadge, ScrollPanelModule],
   templateUrl: './result-list.html',
   styleUrl: './result-list.scss',
 })
