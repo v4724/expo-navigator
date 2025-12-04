@@ -1,8 +1,8 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { toJpeg } from 'html-to-image';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-download-map',
@@ -15,7 +15,7 @@ export class DownloadMap {
 
   downloadLoading = signal<boolean>(false);
 
-  private readonly _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
 
   download() {
     if (this.downloadLoading()) return;
@@ -26,7 +26,15 @@ export class DownloadMap {
       this.html2Image(element)
         .catch((e) => {
           console.error('下載地圖錯誤', e);
-          this._snackBar.open('下載地圖錯誤', e.message, { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `下載地圖錯誤 ${e.message}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
+          });
         })
         .finally(() => {
           this.downloadLoading.set(false);

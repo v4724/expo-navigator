@@ -1,12 +1,23 @@
+import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { isPlatform } from '@ionic/core';
+import { ButtonModule } from 'primeng/button';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, IonApp, IonRouterOutlet, ConfirmDialog],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    IonApp,
+    IonRouterOutlet,
+    ConfirmDialog,
+    Toast,
+    ButtonModule,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

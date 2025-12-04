@@ -21,7 +21,6 @@ import { finalize, tap } from 'rxjs';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { MarkedListUpdateDto } from 'src/app/core/models/marked-stall.model';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Divider } from 'primeng/divider';
 import { StallData } from '../../../core/interfaces/stall.interface';
@@ -36,7 +35,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -74,7 +73,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _userService = inject(UserService);
   private readonly _confirmService = inject(ConfirmationService);
   private readonly _fb = inject(FormBuilder);
-  private readonly _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
   private readonly _ref = inject(DynamicDialogRef);
 
   editForm: FormGroup;
@@ -276,9 +275,20 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((res) => {
         if (res.success) {
           this._ref.close();
-          this._snackBar.open('儲存成功', '', { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: '儲存成功',
+          });
         } else {
-          this._snackBar.open(`儲存失敗 ${res.errors[0]}`, '', { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `儲存失敗 ${res.errors[0]}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
+          });
         }
       });
   }

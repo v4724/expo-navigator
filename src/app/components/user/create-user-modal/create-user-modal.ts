@@ -11,7 +11,6 @@ import { Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ChipModule } from 'primeng/chip';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { FloatLabel } from 'primeng/floatlabel';
 import { CommonModule } from '@angular/common';
 import { StallService } from 'src/app/core/services/state/stall-service';
@@ -23,6 +22,7 @@ import { UserService } from 'src/app/core/services/state/user-service';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { StallFilterInput } from 'src/app/shared/components/stall-filter-input/stall-filter-input';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
 
 export interface DialogData {
   isEdit: boolean;
@@ -55,7 +55,7 @@ export class CreateUserModal implements OnInit {
   isEdit = input<boolean>(false);
 
   private readonly _fb = inject(FormBuilder);
-  private readonly _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
   private readonly _service = inject(StallService);
   private readonly _userService = inject(UserService);
   private readonly _userApiService = inject(UserApiService);
@@ -130,11 +130,23 @@ export class CreateUserModal implements OnInit {
     const selected = this.selectedStallIds;
 
     if (!validStallIds.has(input)) {
-      this._snackBar.open('此攤位代號不存在', '', { duration: 2000 });
+      this._messageService.add({
+        severity: 'custom',
+        summary: '此攤位代號不存在',
+        data: {
+          type: 'warning',
+        },
+      });
       return;
     }
     if (selected.includes(input)) {
-      this._snackBar.open('此攤位代號已設定', '', { duration: 2000 });
+      this._messageService.add({
+        severity: 'custom',
+        summary: '此攤位代號已設定',
+        data: {
+          type: 'warning',
+        },
+      });
       return;
     }
     (this.userForm.get('stallIds') as FormArray).push(this._fb.control(input));
@@ -194,7 +206,15 @@ export class CreateUserModal implements OnInit {
       .update(id, body)
       .pipe(
         catchError((err) => {
-          this._snackBar.open('使用者更新失敗', '伺服器錯誤', { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `儲存失敗 ${err}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
+          });
           console.error(err);
           return EMPTY;
         }),
@@ -204,12 +224,23 @@ export class CreateUserModal implements OnInit {
       )
       .subscribe((res) => {
         if (res.success) {
-          this._snackBar.open('使用者更新成功', '', { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `儲存成功`,
+          });
           body.id = id;
           this._userService.update(body);
           this._ref.close();
         } else {
-          this._snackBar.open('使用者更新失敗', res.errors[0], { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `儲存失敗 ${res.errors[0]}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
+          });
           console.error('Update user failed:', res);
         }
       });
@@ -220,7 +251,15 @@ export class CreateUserModal implements OnInit {
       .create(body)
       .pipe(
         catchError((err) => {
-          this._snackBar.open('使用者建立失敗', '伺服器錯誤', { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `新增失敗 ${err}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
+          });
           console.error(err);
           return EMPTY;
         }),
@@ -230,10 +269,21 @@ export class CreateUserModal implements OnInit {
       )
       .subscribe((res) => {
         if (res.success) {
-          this._snackBar.open('使用者建立成功', '', { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `新增成功`,
+          });
           this._ref.close();
         } else {
-          this._snackBar.open('使用者建立失敗', res.errors[0], { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `新增失敗 ${res.errors[0]}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
+          });
           console.error('Create user failed:', res);
         }
       });

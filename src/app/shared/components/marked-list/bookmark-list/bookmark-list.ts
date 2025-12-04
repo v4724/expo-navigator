@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { EditBtn } from 'src/app/components/edit-marked-list/edit-btn/edit-btn';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
@@ -12,7 +11,7 @@ import { AccordionModule } from 'primeng/accordion';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { ButtonModule } from 'primeng/button';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { finalize } from 'rxjs';
 import { StallZoneBadge } from '../../stall-info/stall-zone-badge/stall-zone-badge';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -40,7 +39,7 @@ export class BookmarkList {
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
   private _confirmService = inject(ConfirmationService);
-  private _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
 
   user = toSignal(this._userService.user$);
   fetchEnd = toSignal(this._markedListService.fetchEnd$);
@@ -85,11 +84,22 @@ export class BookmarkList {
           )
           .subscribe((res) => {
             if (res.success) {
-              this._snackBar.open('書籤刪除成功', '', { duration: 2000 });
+              this._messageService.add({
+                severity: 'custom',
+                summary: '刪除成功',
+              });
               this._markedListService.delete(list.id);
             } else {
               list.isUpdating = false;
-              this._snackBar.open('書籤刪除失敗', res.errors[0], { duration: 2000 });
+              this._messageService.add({
+                severity: 'custom',
+                summary: `刪除失敗 ${res.errors[0]}`,
+                sticky: true,
+                closable: true,
+                data: {
+                  type: 'warning',
+                },
+              });
             }
           });
       },

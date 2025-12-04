@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { finalize } from 'rxjs';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
@@ -18,7 +18,7 @@ export class CreateMarkedListBtn {
   private _userService = inject(UserService);
   private _markedListApiService = inject(MarkedListApiService);
   private _markedListService = inject(MarkedStallService);
-  private _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
 
   user = toSignal(this._userService.user$);
   allList = toSignal(this._markedListService.markedList$, { initialValue: [] });
@@ -52,11 +52,22 @@ export class CreateMarkedListBtn {
       )
       .subscribe((res) => {
         if (res.success) {
-          this._snackBar.open('書籤新增成功', '', { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: '新增成功',
+          });
           const id = res.data.id;
           this._markedListService.add({ ...body, id });
         } else {
-          this._snackBar.open('書籤新增失敗', res.errors[0], { duration: 2000 });
+          this._messageService.add({
+            severity: 'custom',
+            summary: `新增失敗 ${res.errors[0]}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
+          });
         }
       });
   }

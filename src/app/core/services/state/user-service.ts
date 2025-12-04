@@ -2,15 +2,15 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, EMPTY, tap } from 'rxjs';
 import { User } from '../../interfaces/user.interface';
 import { UserApiService } from '../api/user-api.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MarkedStallService } from './marked-stall-service';
 import { UiStateService } from './ui-state-service';
+import { MessageService } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private readonly _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
   private _userApiService = inject(UserApiService);
   private _markedStallService = inject(MarkedStallService);
   private _uiStateService = inject(UiStateService);
@@ -53,7 +53,15 @@ export class UserService {
   login(acc: string) {
     return this._userApiService.login(acc).pipe(
       catchError((err) => {
-        this._snackBar.open('使用者登入失敗', '伺服器錯誤', { duration: 2000 });
+        this._messageService.add({
+          severity: 'custom',
+          summary: `登入失敗 伺服器錯誤`,
+          sticky: true,
+          closable: true,
+          data: {
+            type: 'warning',
+          },
+        });
         console.error(err);
         return EMPTY;
       }),

@@ -6,3 +6,35 @@
   }
 </ion-app>
 <p-confirmdialog />
+<p-toast position="bottom-center">
+  <ng-template let-message #headless let-closeFn="closeFn">
+    <section
+      class="flex items-center px-3 py-2 gap-5 w-full rounded-xl"
+      [ngClass]="{
+        'bg-black/70': !message.data?.type,
+        'bg-amber-600/70': message.data?.type === 'warning',
+        'bg-red-600/70': message.data?.type === 'error',
+      }"
+    >
+      <i
+        class="pi pi-check text-white dark:text-black text-xl"
+        [ngClass]="{
+          'pi-check': !message.data?.type,
+          'pi-exclamation-triangle':
+            message.data?.type === 'warning' || message.data?.type === 'error',
+        }"
+      ></i>
+      <span class="font-bold text-base text-white dark:text-black">{{ message.summary }}</span>
+      @if (message.closable) {
+        <p-button
+          class="ml-auto close-btn"
+          icon="pi pi-times"
+          size="small"
+          [text]="true"
+          [rounded]="true"
+          (click)="closeFn($event)"
+        />
+      }
+    </section>
+  </ng-template>
+</p-toast>

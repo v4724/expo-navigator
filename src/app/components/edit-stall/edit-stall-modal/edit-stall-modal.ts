@@ -44,8 +44,6 @@ import { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
 import { BadgeModule } from 'primeng/badge';
 import { PromoStall } from 'src/app/core/interfaces/promo-stall.interface';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ResponseSnackBar } from 'src/app/shared/components/response-snack-bar/response-snack-bar';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
@@ -65,7 +63,7 @@ import { StallInfoDrawer } from 'src/app/device/mobile/components/stall-info-dra
 import { AccordionModule } from 'primeng/accordion';
 import { AdvancedFilters } from 'src/app/core/interfaces/stall-series-tag.interface';
 import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawer-on-mobile';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 interface MyTab {
@@ -124,9 +122,9 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _fb = inject(FormBuilder);
   private readonly _tagService = inject(TagService);
   private readonly _stallApiService = inject(StallApiService);
-  private readonly _snackBar = inject(MatSnackBar);
   private readonly _uiStateService = inject(UiStateService);
   private readonly _confirmService = inject(ConfirmationService);
+  private readonly _messageService = inject(MessageService);
   private _expoStateService = inject(ExpoStateService);
 
   visible = false;
@@ -596,14 +594,19 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe((res: any) => {
         if (res.success) {
-          this._snackBar.openFromComponent(ResponseSnackBar, {
-            duration: 2000,
-            data: { message: '暫存成功', isError: false },
+          this._messageService.add({
+            severity: 'custom',
+            summary: '暫存成功',
           });
         } else {
-          this._snackBar.openFromComponent(ResponseSnackBar, {
-            duration: 2000,
-            data: { message: '暫存失敗', isError: true },
+          this._messageService.add({
+            severity: 'custom',
+            summary: `暫存失敗 ${res.errors[0]}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
           });
         }
       });
@@ -627,14 +630,19 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((res: any) => {
         if (res.success) {
           this.visible = false;
-          this._snackBar.openFromComponent(ResponseSnackBar, {
-            duration: 3000,
-            data: { message: '儲存成功', isError: false },
+          this._messageService.add({
+            severity: 'custom',
+            summary: '儲存成功',
           });
         } else {
-          this._snackBar.openFromComponent(ResponseSnackBar, {
-            duration: 3000,
-            data: { message: '儲存失敗', isError: true },
+          this._messageService.add({
+            severity: 'custom',
+            summary: `儲存失敗 ${res.errors[0]}`,
+            sticky: true,
+            closable: true,
+            data: {
+              type: 'warning',
+            },
           });
         }
       });

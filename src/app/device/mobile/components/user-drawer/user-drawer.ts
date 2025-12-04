@@ -6,14 +6,13 @@ import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Drawer, DrawerModule } from 'primeng/drawer';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CreateUserModal } from 'src/app/components/user/create-user-modal/create-user-modal';
 import { UserApiService } from 'src/app/core/services/api/user-api.service';
 import { Avatar } from 'primeng/avatar';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogService } from 'primeng/dynamicdialog';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-user-drawer',
@@ -28,7 +27,7 @@ export class UserDrawer {
   private _stallMapService = inject(StallMapService);
   private _userService = inject(UserService);
   private _userApiService = inject(UserApiService);
-  private _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
   private _dialogService = inject(DialogService);
   private _confirmService = inject(ConfirmationService);
 
@@ -64,7 +63,13 @@ export class UserDrawer {
       .subscribe((res) => {
         if (res?.success) {
           if (res.data === null) {
-            this._snackBar.open('使用者不存在', '', { duration: 2000 });
+            this._messageService.add({
+              severity: 'custom',
+              summary: `使用者不存在`,
+              data: {
+                type: 'warning',
+              },
+            });
           } else {
             this.acc = '';
             this.close();
@@ -123,11 +128,22 @@ export class UserDrawer {
           .pipe()
           .subscribe((res) => {
             if (res.success) {
-              this._snackBar.open('使用者刪除成功', '', { duration: 2000 });
+              this._messageService.add({
+                severity: 'custom',
+                summary: '刪除成功',
+              });
               this._userService.logout();
               this.close();
             } else {
-              this._snackBar.open('使用者刪除失敗', res.errors[0], { duration: 2000 });
+              this._messageService.add({
+                severity: 'custom',
+                summary: `刪除失敗 ${res.errors[0]}`,
+                sticky: true,
+                closable: true,
+                data: {
+                  type: 'warning',
+                },
+              });
             }
           });
       },

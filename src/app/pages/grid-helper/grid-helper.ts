@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { MessageService } from 'primeng/api';
 
 interface Point {
   x: number;
@@ -34,7 +34,7 @@ export class GridHelper {
   private _expoStateService = inject(ExpoStateService);
 
   mapImgSrc = toSignal(this._expoStateService.mapImageUrl$);
-  private _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
 
   // 圖片比例
   private imageHeightToWidthRatio = signal<number>(0);
@@ -170,6 +170,9 @@ export class GridHelper {
 
   copyText(text: string, type: 'polygon' | 'point') {
     navigator.clipboard.writeText(text);
-    this._snackBar.open(`已複製 ${type} %`, '', { duration: 1000 });
+    this._messageService.add({
+      severity: 'custom',
+      summary: `已複製 ${type} %`,
+    });
   }
 }

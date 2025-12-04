@@ -9,10 +9,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CreateUserModal } from './create-user-modal/create-user-modal';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserInfoPopover } from 'src/app/shared/components/user/user-info-popover/user-info-popover';
 import { DialogService } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-user',
@@ -36,7 +35,7 @@ export class User implements OnInit {
 
   private _userService = inject(UserService);
   private _dialogService = inject(DialogService);
-  private _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
 
   isLogin = toSignal(this._userService.isLogin$);
   user = toSignal(this._userService.user$);
@@ -69,7 +68,13 @@ export class User implements OnInit {
       .subscribe((res) => {
         if (res?.success) {
           if (res.data === null) {
-            this._snackBar.open('使用者不存在', '', { duration: 2000 });
+            this._messageService.add({
+              severity: 'custom',
+              summary: '使用者不存在',
+              data: {
+                type: 'warning',
+              },
+            });
           } else {
             this.acc = '';
             this.userInfoPopover?.hide();

@@ -7,8 +7,7 @@ import { UserApiService } from 'src/app/core/services/api/user-api.service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { CreateUserModal } from 'src/app/components/user/create-user-modal/create-user-modal';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
@@ -26,7 +25,7 @@ export class UserInfoPopover {
   private _userApiService = inject(UserApiService);
   private _confirmService = inject(ConfirmationService);
   private _dialogService = inject(DialogService);
-  private _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
 
   user = toSignal(this._userService.user$);
 
@@ -82,11 +81,22 @@ export class UserInfoPopover {
           .pipe()
           .subscribe((res) => {
             if (res.success) {
-              this._snackBar.open('使用者刪除成功', '', { duration: 2000 });
+              this._messageService.add({
+                severity: 'custom',
+                summary: '使用者刪除成功',
+              });
               this._userService.logout();
               this.userInfoPopover?.hide();
             } else {
-              this._snackBar.open('使用者刪除失敗', res.errors[0], { duration: 2000 });
+              this._messageService.add({
+                severity: 'custom',
+                summary: `刪除失敗 ${res.errors[0]}`,
+                sticky: true,
+                closable: true,
+                data: {
+                  type: 'warning',
+                },
+              });
             }
           });
       },

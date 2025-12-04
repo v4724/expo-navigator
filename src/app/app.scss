@@ -41,6 +41,10 @@
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  .close-btn {
+    --p-button-text-primary-color: white;
+  }
 }
 
 h1 {

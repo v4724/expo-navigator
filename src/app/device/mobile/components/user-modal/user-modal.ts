@@ -3,7 +3,6 @@ import { Component, inject, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   AnimationController,
   IonModal,
@@ -15,6 +14,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close } from 'ionicons/icons';
+import { MessageService } from 'primeng/api';
 import { Avatar } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -52,7 +52,7 @@ export class UserModal {
   private _userApiService = inject(UserApiService);
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
-  private _snackBar = inject(MatSnackBar);
+  private readonly _messageService = inject(MessageService);
   private _dialog = inject(MatDialog);
 
   isLogin = toSignal(this._userService.isLogin$);
@@ -111,7 +111,13 @@ export class UserModal {
       .subscribe((res) => {
         if (res?.success) {
           if (res.data === null) {
-            this._snackBar.open('使用者不存在', '', { duration: 2000 });
+            this._messageService.add({
+              severity: 'custom',
+              summary: '使用者不存在',
+              data: {
+                type: 'warning',
+              },
+            });
           } else {
             this.acc = '';
             this.modal.dismiss();
@@ -166,11 +172,22 @@ export class UserModal {
           .pipe()
           .subscribe((res) => {
             if (res.success) {
-              this._snackBar.open('使用者刪除成功', '', { duration: 2000 });
+              this._messageService.add({
+                severity: 'custom',
+                summary: '刪除成功',
+              });
               this._userService.logout();
               this.modal.dismiss();
             } else {
-              this._snackBar.open('使用者刪除失敗', res.errors[0], { duration: 2000 });
+              this._messageService.add({
+                severity: 'custom',
+                summary: `刪除失敗 ${res.errors[0]}`,
+                sticky: true,
+                closable: true,
+                data: {
+                  type: 'warning',
+                },
+              });
             }
           });
       }
