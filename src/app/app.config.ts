@@ -65,7 +65,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideClientHydration(withEventReplay()),
+    // provideClientHydration(withEventReplay()), 造成 constructor 內的 (API stalls) 比 F12 DevTools 開始監控更早，導致 Prefetch 且不會出現在 F12 Network 上
     provideEnvironmentInitializer(() => {
       const matIconRegistry = inject(MatIconRegistry);
       // 設定預設字體集
