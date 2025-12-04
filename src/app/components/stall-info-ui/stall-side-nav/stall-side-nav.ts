@@ -27,12 +27,11 @@ export class StallSideNav implements OnInit, AfterViewInit {
     if (this.isPreview()) {
     } else {
       this._selectStallService.selectedStallId$
-        .pipe(
-          filter((stallId) => !!stallId),
-          distinctUntilChanged(),
-        )
+        .pipe(distinctUntilChanged())
         .subscribe((stallId) => {
-          this.open.emit(true);
+          if (stallId) {
+            this.open.emit(true);
+          }
         });
     }
   }

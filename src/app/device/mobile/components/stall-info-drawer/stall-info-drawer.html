@@ -1,8 +1,4 @@
-<app-drawer-on-mobile
-  [styleClass]="'stall-info-drawer'"
-  [modal]="isPreview()"
-  (onClose)="onClose()"
->
+<app-drawer-on-mobile [styleClass]="'stall-info-drawer'" [modal]="isPreview()" (onClose)="close()">
   <div title class="w-full flex">
     <div class="flex gap-1 items-center">
       <app-stall-zone-badge [stall]="stall()"></app-stall-zone-badge>

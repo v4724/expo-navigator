@@ -47,20 +47,15 @@ export class StallInfoDrawer {
         }
       });
     } else {
-      this._selectStallService.selectedStallId$
-        .pipe(
-          filter((id) => !!id),
-          distinctUntilChanged(),
-        )
-        .subscribe((id) => {
+      this._selectStallService.selectedStallId$.pipe(distinctUntilChanged()).subscribe((id) => {
+        if (id) {
           this.show();
-          if (id) {
-            this.stall.set(this._selectStallService.selectedStall);
-            setTimeout(() => {
-              this._stallMapService.focusStall(id);
-            }, 100);
-          }
-        });
+          this.stall.set(this._selectStallService.selectedStall);
+          setTimeout(() => {
+            this._stallMapService.focusStall(id);
+          }, 100);
+        }
+      });
     }
   }
 
@@ -70,14 +65,13 @@ export class StallInfoDrawer {
   }
 
   show() {
-    this.drawer.show();
+    this.drawer?.show();
   }
 
   close() {
-    this.drawer.close();
-  }
-
-  onClose() {
+    if (this.drawer.visible) {
+      this.drawer?.close();
+    }
     this._selectStallService.selected = null;
   }
 }
