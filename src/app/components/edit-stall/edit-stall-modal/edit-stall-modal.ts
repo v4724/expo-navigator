@@ -114,6 +114,7 @@ interface StallTag extends StallTagDto {
   styleUrl: './edit-stall-modal.scss',
 })
 export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(StallInfoDrawer) mobilePreviewDrawer!: StallInfoDrawer;
   @ViewChild(Tabs) promoTabs!: Tabs;
   @ViewChildren(CKEditorComponent) ckeditors!: QueryList<CKEditorComponent>;
 
@@ -526,7 +527,6 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  @ViewChild(StallInfoDrawer) mobilePreviewDrawer!: StallInfoDrawer;
   // TODO ckeditor 和 預覽的稍微不一樣，待檢查樣式
   preview() {
     const stall = JSON.parse(JSON.stringify(this._selectStallService.selectedStall));

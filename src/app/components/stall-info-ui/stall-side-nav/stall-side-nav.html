@@ -10,12 +10,10 @@
 
   <!-- content -->
 
-  <div class="flex-grow min-h-0 overflow-hidden">
-    <p-scrollpanel [style]="{ width: '100%', height: '100%' }">
-      <app-stall-side-content
-        [isPreview]="isPreview()"
-        [previewStall]="previewStall()"
-      ></app-stall-side-content>
-    </p-scrollpanel>
+  <div class="flex-grow overflow-auto">
+    <app-stall-side-content
+      [isPreview]="isPreview()"
+      [previewStall]="previewStall()"
+    ></app-stall-side-content>
   </div>
 </div>

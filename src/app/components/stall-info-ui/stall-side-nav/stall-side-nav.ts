@@ -7,18 +7,10 @@ import { StallSideHeader } from './stall-side-header/stall-side-header';
 import { StallSideContent } from './stall-side-content/stall-side-content';
 import { distinctUntilChanged, filter } from 'rxjs';
 import { EditBtn } from '../../edit-stall/edit-btn/edit-btn';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
 
 @Component({
   selector: 'app-stall-side-nav',
-  imports: [
-    CommonModule,
-    ButtonModule,
-    StallSideHeader,
-    StallSideContent,
-    EditBtn,
-    ScrollPanelModule,
-  ],
+  imports: [CommonModule, ButtonModule, StallSideHeader, StallSideContent, EditBtn],
   templateUrl: './stall-side-nav.html',
   styleUrl: './stall-side-nav.scss',
 })

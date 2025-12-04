@@ -441,19 +441,24 @@
     [closable]="false"
     [draggable]="false"
     [showHeader]="false"
-    [style]="{ width: '30vw', maxWidth: '800px', overflow: 'hidden' }"
+    [style]="{ width: '31vw', maxWidth: '800px', overflow: 'hidden' }"
     [styleClass]="'preview-stall-dialog'"
     [appendTo]="'body'"
   >
-    <app-stall-side-header
-      class="sticky top-0 z-11"
-      [isPreview]="true"
-      [previewStall]="previewStall"
-      (close)="previewVisible = false"
-    ></app-stall-side-header>
-    <app-stall-side-content
-      [isPreview]="true"
-      [previewStall]="previewStall"
-    ></app-stall-side-content>
+    <div class="flex flex-col h-[calc(100vh-70px)]">
+      <app-stall-side-header
+        class=""
+        [isPreview]="true"
+        [previewStall]="previewStall"
+        (close)="previewVisible = false"
+      ></app-stall-side-header>
+
+      <div class="flex-grow overflow-auto">
+        <app-stall-side-content
+          [isPreview]="true"
+          [previewStall]="previewStall"
+        ></app-stall-side-content>
+      </div>
+    </div>
   </p-dialog>
 }
