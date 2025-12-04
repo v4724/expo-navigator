@@ -10,8 +10,9 @@
 
   <!-- content -->
 
-  <div class="flex-grow overflow-auto">
+  <div class="flex flex-grow overflow-auto">
     <app-stall-side-content
+      class="flex flex-col flex-grow"
       [isPreview]="isPreview()"
       [previewStall]="previewStall()"
     ></app-stall-side-content>

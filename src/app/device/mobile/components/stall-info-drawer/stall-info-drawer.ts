@@ -72,6 +72,8 @@ export class StallInfoDrawer {
     if (this.drawer.visible) {
       this.drawer?.close();
     }
-    this._selectStallService.selected = null;
+    if (!this.isPreview()) {
+      this._selectStallService.selected = null;
+    }
   }
 }
