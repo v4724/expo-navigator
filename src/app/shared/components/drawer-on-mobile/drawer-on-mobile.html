@@ -6,6 +6,7 @@
   [style]="{ height: drawerHeight + 'px' }"
   [closable]="false"
   [dismissible]="false"
+  (onShow)="_onShow()"
 >
   <ng-template #header>
     <div class="absolute top-0 h-0 w-full flex justify-center">

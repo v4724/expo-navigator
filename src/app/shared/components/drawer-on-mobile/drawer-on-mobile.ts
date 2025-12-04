@@ -16,6 +16,7 @@ export class DrawerOnMobile {
   modal = input<boolean>(false);
   dismissible = input<boolean>(false);
 
+  onShow = output<number>();
   onClose = output<number>();
 
   visible = false;
@@ -37,6 +38,10 @@ export class DrawerOnMobile {
   show() {
     this.visible = true;
     this.drawerHeight = window.innerHeight * 0.5;
+  }
+
+  _onShow() {
+    this.onShow.emit(+new Date());
   }
 
   close() {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { EditBtn } from 'src/app/components/edit-marked-list/edit-btn/edit-btn';
@@ -7,7 +7,7 @@ import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { UserService } from 'src/app/core/services/state/user-service';
-import { AccordionModule } from 'primeng/accordion';
+import { Accordion, AccordionModule } from 'primeng/accordion';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { ButtonModule } from 'primeng/button';
@@ -33,6 +33,8 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './bookmark-list.scss',
 })
 export class BookmarkList {
+  @ViewChild(Accordion) accordion!: Accordion;
+
   private _userService = inject(UserService);
   private _markedListService = inject(MarkedStallService);
   private _markedListApiService = inject(MarkedListApiService);
@@ -44,6 +46,8 @@ export class BookmarkList {
   user = toSignal(this._userService.user$);
   fetchEnd = toSignal(this._markedListService.fetchEnd$);
   allList = toSignal(this._markedListService.markedList$, { initialValue: [] });
+
+  accordionShow = signal<boolean>(true);
 
   selectAndFocus(stallId: string) {
     this._selectStallService.selected = stallId;
@@ -105,5 +109,10 @@ export class BookmarkList {
       },
       reject: () => {},
     });
+  }
+
+  // 為了 drawer 開/關 後寬度問題，重畫元件
+  setAccordionShow(val: boolean) {
+    this.accordionShow.set(val);
   }
 }

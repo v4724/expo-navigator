@@ -24,6 +24,7 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 })
 export class MarkedListDrawer implements OnInit {
   @ViewChild(DrawerOnMobile) drawer!: DrawerOnMobile;
+  @ViewChild(BookmarkList) bookmarkList!: BookmarkList;
 
   private _markedListService = inject(MarkedStallService);
 
@@ -37,6 +38,11 @@ export class MarkedListDrawer implements OnInit {
 
   show() {
     this.drawer.show();
+    this.bookmarkList.setAccordionShow(false);
+  }
+
+  onShow() {
+    this.bookmarkList.setAccordionShow(true);
   }
 
   close() {

@@ -1,4 +1,4 @@
-<app-drawer-on-mobile>
+<app-drawer-on-mobile (onShow)="onShow()">
   <div title class="flex items-center gap-2">
     <div class="text-lg">書籤</div>
     <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />

@@ -6,7 +6,7 @@
     fontIcon="autorenew"
   ></mat-icon>
 }
-@if (allList().length) {
+@if (allList().length && accordionShow()) {
   <div class="flex flex-col">
     <p-accordion value="0">
       @for (bookmark of allList(); track bookmark) {
