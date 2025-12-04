@@ -58,6 +58,7 @@ export class Home {
 
   multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
   expoTitle = toSignal(this._expoStateService.expoTitle$);
+  expoUrl = toSignal(this._expoStateService.expoUrl$);
 
   items: MenuItem[] | null;
   constructor() {
@@ -79,5 +80,12 @@ export class Home {
     requestAnimationFrame(() => {
       this.router.navigate(['/mobile-search']);
     });
+  }
+
+  openUrl() {
+    const url = this.expoUrl();
+    if (url) {
+      window.open(url, '_blank');
+    }
   }
 }

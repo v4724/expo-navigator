@@ -64,13 +64,21 @@
     </div>
     <app-map class="flex-grow"></app-map>
 
-    <div class="absolute flex top-full left-1">
+    <div class="absolute flex top-full left-1 right-1">
       @if (expoTitle()) {
         <div
-          class="stroke-text text-gray-600 font-bold text -translate-y-full"
+          class="stroke-text text-gray-600 font-bold -translate-y-full"
           [attr.data-stroke]="expoTitle() + ' 互動地圖'"
         >
           {{ expoTitle() }} 互動地圖
+        </div>
+      }
+      @if (expoUrl()) {
+        <div class="ml-auto flex items-center text-xs -translate-y-full gap-1">
+          <div class="">資料來源</div>
+          <button pButton text size="small" class="pointer-events-auto" (click)="openUrl()">
+            同忍祭官網
+          </button>
         </div>
       }
     </div>
