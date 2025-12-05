@@ -146,11 +146,11 @@
                       class="w-full"
                       pInputText
                       type="text"
-                      id="name"
+                      [id]="`${promoIndex}-name`"
                       formControlName="name"
                       autocomplete="off"
                     />
-                    <label for="name">宣傳車名稱</label>
+                    <label [for]="`${promoIndex}-name`">宣傳車名稱</label>
                   </p-floatlabel>
                 </div>
                 <div class="flex flex-col gap-1">
@@ -159,11 +159,11 @@
                       class="w-full"
                       pInputText
                       type="text"
-                      id="icon"
+                      [id]="`${promoIndex}-icon`"
                       formControlName="icon"
                       autocomplete="off"
                     />
-                    <label for="icon">icon 網址</label>
+                    <label [for]="`${promoIndex}-icon`">icon 網址</label>
                   </p-floatlabel>
                 </div>
 
@@ -237,10 +237,10 @@
                                           <p-checkbox
                                             [formControlName]="tag.controlName"
                                             [binary]="true"
-                                            [inputId]="`${tag.controlName}`"
+                                            [inputId]="`${promoIndex}-${tag.controlName}`"
                                             (onChange)="updateCurrPromoTagCnt(promo)"
                                           />
-                                          <label [for]="`${tag.controlName}`">
+                                          <label [for]="`${promoIndex}-${tag.controlName}`">
                                             {{ tag.tagName }}
                                           </label>
                                         </div>
@@ -302,10 +302,10 @@
                                         <p-checkbox
                                           [formControlName]="tag.controlName"
                                           [binary]="true"
-                                          [inputId]="`${tag.controlName}`"
+                                          [inputId]="`${promoIndex}-${tag.controlName}`"
                                           (onChange)="updateCurrPromoTagCnt(promo)"
                                         />
-                                        <label [for]="`${tag.controlName}`">
+                                        <label [for]="`${promoIndex}-${tag.controlName}`">
                                           {{ tag.tagName }}
                                         </label>
                                       </div>
@@ -359,11 +359,11 @@
                                   class="w-full"
                                   pInputText
                                   type="text"
-                                  [id]="`href-${linkIndex}`"
+                                  [id]="`${promoIndex}-href-${linkIndex}`"
                                   formControlName="href"
                                   autocomplete="off"
                                 />
-                                <label [for]="`href-${linkIndex}`">網址</label>
+                                <label [for]="`${promoIndex}-href-${linkIndex}`">網址</label>
                               </p-floatlabel>
                             </div>
                             <div class="flex flex-col gap-1">
@@ -372,11 +372,11 @@
                                   class="w-full"
                                   pInputText
                                   type="text"
-                                  [id]="`text-${linkIndex}`"
+                                  [id]="`${promoIndex}-text-${linkIndex}`"
                                   formControlName="text"
                                   autocomplete="off"
                                 />
-                                <label [for]="`text-${linkIndex}`">顯示文字</label>
+                                <label [for]="`${promoIndex}-text-${linkIndex}`">顯示文字</label>
                               </p-floatlabel>
                             </div>
                             <button
