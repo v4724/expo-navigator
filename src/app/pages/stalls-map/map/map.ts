@@ -351,9 +351,7 @@ export class Map implements OnInit, AfterViewInit {
     console.debug('scale stall position on screen', screenX, screenY);
 
     // mobile 下方有攤位資訊，中心要再往上移
-    const centerY = this._uiStateService.isMobile()
-      ? (viewH - this.mobileStallInfoDefaultH) / 3
-      : 0;
+    const centerY = this._uiStateService.isMobile() ? viewH - this.mobileStallInfoDefaultH : 0;
     // 將攤位置中（相對於地圖中心 0,0）
     const newTranslateX = (scaledMapCenterX - scaledStallX) / this.scale();
     const newTranslateY = (scaledMapCenterY - scaledStallY) / this.scale() - Math.abs(centerY);
@@ -429,10 +427,14 @@ export class Map implements OnInit, AfterViewInit {
     const ch = content.offsetHeight;
 
     // 邊界，可拖曳的範圍值
-    // 假設左側元件寬度
-    const viewElH = this.mapContainer.nativeElement.offsetHeight;
+    // sidebarW desktop 假設左側元件寬度
+    // mobileStallInfoH mobile 有選擇攤位的時候，調整可視範圍高度
     const sidebarW = this._uiStateService.isMobile() ? 0 : 310;
-    const mobileStallInfoH = this._uiStateService.isMobile() ? viewElH / 4 : 0;
+    // mobile 且 有選擇攤位的時候，調整可視範圍高度
+    const mobileStallInfoH =
+      this._uiStateService.isMobile() && this._selectStallService.selected
+        ? this.mobileStallInfoDefaultH
+        : 0;
     let minX = (cw - displayWidth) / 2 / s;
     let maxX = ((displayWidth - cw) / 2 + sidebarW) / s;
     let minY = ((ch - displayHeight) / 2 - mobileStallInfoH) / s;
