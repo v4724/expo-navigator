@@ -116,6 +116,9 @@ export class StallSideContent implements OnInit {
       this.previewStall$.subscribe((stall) => {
         if (stall) {
           this.stall.set(stall);
+          requestAnimationFrame(() => {
+            this.initEmbedsContent();
+          });
         }
       });
     } else {
@@ -127,7 +130,9 @@ export class StallSideContent implements OnInit {
           requestAnimationFrame(() => {
             this.stall.set(this._selectStallService.selectedStall);
             if (stallId) {
-              this.initEmbedsContent();
+              requestAnimationFrame(() => {
+                this.initEmbedsContent();
+              });
             }
           });
         });

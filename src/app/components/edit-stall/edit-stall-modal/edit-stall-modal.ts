@@ -301,7 +301,14 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
                   attributes: true,
                   classes: true,
                   styles: true,
-                },
+                }, // 允許 <script> 標籤
+                { name: /script/, attributes: true },
+                // 允許 <blockquote> 標籤及其屬性
+                { name: 'blockquote', attributes: true },
+                // 允許 <div> 標籤及其屬性
+                { name: 'div', attributes: true },
+                // 允許 <iframe> 標籤及其屬性
+                { name: 'iframe', attributes: true },
               ],
             },
             image: {
@@ -418,6 +425,20 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.onPromoChange(0);
+  }
+
+  initEmbedsContent() {
+    // 動態嵌入 IG 貼文
+    if (window.instgrm) {
+      window.instgrm.Embeds.process();
+    }
+
+    // 動態嵌入 twitter 貼文
+    if (window.twttr) {
+      window.twttr?.widgets?.load(
+        document.getElementsByClassName('modal-wrapper')[0] as HTMLElement,
+      );
+    }
   }
 
   getLinksForm(promoIndex: number): FormArray {
