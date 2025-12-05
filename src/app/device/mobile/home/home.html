@@ -57,7 +57,7 @@
             [label]="isFiltering() ? `搜尋列表` : `攤位列表`"
             [rounded]="true"
             variant="outlined"
-            (click)="resultList.show(); stallInfoDrawer.close()"
+            (click)="resultList.show(); stallInfoDrawer.close(); markedListDrawer.close()"
           />
         </div>
       </div>

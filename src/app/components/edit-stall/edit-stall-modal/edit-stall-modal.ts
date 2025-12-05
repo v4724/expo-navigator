@@ -65,6 +65,7 @@ import { AdvancedFilters } from 'src/app/core/interfaces/stall-series-tag.interf
 import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawer-on-mobile';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { TooltipModule } from 'primeng/tooltip';
 
 interface MyTab {
   icon: string;
@@ -109,6 +110,7 @@ interface StallTag extends StallTagDto {
     StallInfoDrawer,
     AccordionModule,
     DrawerOnMobile,
+    TooltipModule,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -140,6 +142,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   // 場次設定
   multiSeries = toSignal(this._expoStateService.multiSeriesExpo$);
   specifiedSeriesId = toSignal(this._expoStateService.specifiedSeriesId$);
+  promoGuideUrl = toSignal(this._expoStateService.promoGuideUrl$);
 
   selectedStallId = toSignal(this._selectStallService.selectedStallId$);
 
@@ -543,6 +546,8 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       this.previewVisible = true;
     }
     this.previewStall = stall;
+
+    console.log('previewStall', stall);
   }
 
   // 切換宣傳車時，更新標籤數字
@@ -682,6 +687,10 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     op.toggle(e);
   }
 
+  openUrl() {
+    window.open(this.promoGuideUrl());
+  }
+
   private _createPromoGroup() {
     return this._fb.group({
       id: [''],
@@ -788,6 +797,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       delete promo.links;
       delete promo.seriesAndTags;
     });
+    console.log('???', promos);
 
     return promos;
   }

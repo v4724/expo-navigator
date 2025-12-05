@@ -25,7 +25,7 @@
     </div>
   </div>
 }
-@if (!this.stall()?.hasPromo) {
+@if (!(this.stall()?.promoData ?? []).length) {
   <div class="p-4 mb-2 flex-grow flex items-center justify-center">暫無宣傳資訊。</div>
 } @else {
   <p-tabs #promoTabs [value]="0" scrollable class="flex flex-grow">

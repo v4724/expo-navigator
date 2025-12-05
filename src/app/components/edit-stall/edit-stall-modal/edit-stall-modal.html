@@ -95,6 +95,15 @@
     <div formArrayName="promos" class="flex flex-col">
       <div class="flex items-center justify-center pb-2">
         <div class="relative text-lg">宣傳車資訊</div>
+        <p-button
+          icon="pi pi-question-circle"
+          size="small"
+          [rounded]="true"
+          [text]="true"
+          (click)="openUrl()"
+          pTooltip="如何複製現有的宣傳車"
+          tooltipPosition="top"
+        />
         <p-button class="ml-auto" label="新增" size="small" variant="text" (click)="addPromo()" />
       </div>
       <p-tabs #promoTabs [value]="0" scrollable (valueChange)="onPromoChange($event)">

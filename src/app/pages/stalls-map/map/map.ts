@@ -157,7 +157,7 @@ export class Map implements OnInit, AfterViewInit {
   constructor() {}
 
   ngOnInit() {
-    this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? 429 : 0;
+    this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? 345 : 0;
 
     this._mapImgLoaded.pipe(first((val) => !!val)).subscribe(() => {
       this._stallMapService.mapImage = this.mapImage.nativeElement;
@@ -349,61 +349,6 @@ export class Map implements OnInit, AfterViewInit {
     const screenX = stallCenterX;
     const screenY = stallCenterY;
     console.debug('scale stall position on screen', screenX, screenY);
-
-    // 檢查是否已在畫面中
-    const isInside =
-      screenX > scaledMapCenterX - viewCenterX - translateX &&
-      screenY > scaledMapCenterY - viewCenterY - translateY &&
-      screenX < scaledMapCenterX + viewCenterX - translateX &&
-      screenY < scaledMapCenterY + viewCenterY - translateY;
-
-    console.debug('isInside', isInside);
-    console.debug(
-      'isInside',
-      screenX,
-      '>',
-      scaledMapCenterX,
-      '-',
-      viewCenterX,
-      '-',
-      translateX,
-      screenX > scaledMapCenterX - viewCenterX - translateX,
-    );
-    console.debug(
-      'isInside',
-      screenY,
-      '>',
-      scaledMapCenterY,
-      '-',
-      viewCenterY,
-      '-',
-      translateY,
-      screenY > scaledMapCenterY - viewCenterY - translateY,
-    );
-    console.debug(
-      'isInside',
-      screenX,
-      '<',
-      scaledMapCenterX,
-      '+',
-      viewCenterX,
-      '+',
-      translateX,
-      screenX < scaledMapCenterX + viewCenterX + translateX,
-    );
-    console.debug(
-      'isInside',
-      screenY,
-      '<',
-      scaledMapCenterY,
-      '+',
-      viewCenterY,
-      '+',
-      translateY,
-      screenY < scaledMapCenterY + viewCenterY + translateY,
-    );
-
-    if (isInside) return;
 
     // mobile 下方有攤位資訊，中心要再往上移
     const centerY = this._uiStateService.isMobile()
