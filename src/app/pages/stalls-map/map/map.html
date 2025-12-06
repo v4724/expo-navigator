@@ -15,14 +15,15 @@
   <div
     id="download-map-container"
     #mapContainer
-    class="h-full w-full flex items-center justify-center overflow-hidden transition-transform duration-300"
-    [class.transition-none]="!autoFocusing()"
+    class="h-full w-full flex items-center justify-center overflow-hidden"
     [style.transform]="`scale(${scale()})`"
     (wheel)="onWheel($event)"
   >
     <div
       #mapContent
       class="relative max-w-full max-h-full rounded-lg overflow-hidden select-none cursor-grab active:cursor-grabbing touch-none"
+      [class.transition-transform]="autoFocusing()"
+      [class.duration-300]="autoFocusing()"
       [style.aspect-ratio]="imageAspectRatio()"
       cdkDrag
       (cdkDragStarted)="onDragStarted($event)"
