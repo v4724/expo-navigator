@@ -20,6 +20,7 @@ import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { TagPipe } from 'src/app/shared/pipe/tag-pipe';
 import { ResultListService } from 'src/app/components/search-and-filter/result-list/result-list-service';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-search-result-list-sheet',
@@ -34,6 +35,7 @@ import { ResultListService } from 'src/app/components/search-and-filter/result-l
     SeriesPipe,
     StallZoneBadge,
     TagPipe,
+    ButtonModule,
   ],
   templateUrl: './search-result-list-sheet.html',
   styleUrl: './search-result-list-sheet.scss',
@@ -81,5 +83,9 @@ export class SearchResultListSheet {
 
   close() {
     this.modal.dismiss();
+  }
+
+  clearFilter() {
+    this._searchAndFilterService.clearAll();
   }
 }

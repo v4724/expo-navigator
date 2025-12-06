@@ -11,6 +11,16 @@
         <div class="text-gray-600">攤位列表</div>
       }
       <div class="ml-auto">
+        @if (isFiltering()) {
+          <p-button
+            icon="pi pi-filter-slash"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            pTooltip="清除篩選條件"
+            (click)="clearFilter()"
+          ></p-button>
+        }
         <p-button
           icon="pi pi-times"
           size="small"

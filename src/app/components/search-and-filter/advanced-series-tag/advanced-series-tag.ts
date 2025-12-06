@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, QueryList, ViewChildren } from '@angular/core';
+import { Component, computed, inject, input, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -31,7 +31,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './advanced-series-tag.html',
   styleUrl: './advanced-series-tag.scss',
 })
-export class AdvancedSeriesTag {
+export class AdvancedSeriesTag implements OnInit {
   @ViewChildren('checkbox') checkboxes!: QueryList<Checkbox>;
 
   series = input<StallSeries | null>();
@@ -52,6 +52,21 @@ export class AdvancedSeriesTag {
 
     return null;
   });
+
+  ngOnInit() {
+    this._tagService.clearAll$.pipe().subscribe(() => {
+      const series = this.series();
+      if (!series) {
+        return;
+      }
+      series.checked = false;
+      this.series()?.groups.forEach((group) => {
+        group.tags.forEach((tag) => {
+          tag.checked = false;
+        });
+      });
+    });
+  }
 
   isAdvancedTagSelected(seriesId: number | undefined, groupId: number, tagId: number): boolean {
     if (!seriesId) return false;

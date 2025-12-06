@@ -1,13 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, filter, forkJoin, switchMap, take } from 'rxjs';
+import { BehaviorSubject, filter, forkJoin, Subject, switchMap, take } from 'rxjs';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
 import { StallGroupDto, StallSeriesDto, StallTagDto } from '../../models/stall-series-tag.model';
-import {
-  AdvancedFilters,
-  StallGroup,
-  StallSeries,
-  StallTag,
-} from '../../interfaces/stall-series-tag.interface';
+import { AdvancedFilters } from '../../interfaces/stall-series-tag.interface';
 import { ExpoStateService } from './expo-state-service';
 
 @Injectable({
@@ -19,9 +14,11 @@ export class TagService {
   allGroups = new Map<number, StallGroupDto>();
   allTags = new Map<number, StallTagDto>();
 
+  private _clearAll = new Subject<boolean>();
   private _selectedSeriesId = new BehaviorSubject<Set<number>>(new Set());
   private _selectedAdvancedTagsId = new BehaviorSubject<AdvancedFilters>({});
 
+  clearAll$ = this._clearAll.asObservable();
   selectedSeriesId$ = this._selectedSeriesId.asObservable();
   selectedAdvancedTagsId$ = this._selectedAdvancedTagsId.asObservable();
 
@@ -93,11 +90,34 @@ export class TagService {
     this._selectedAdvancedTagsId.next(newFilters);
   }
 
+  clearAll() {
+    this.clearAllSeries();
+    this.clearAllAdvancedTag();
+    this._clearAll.next(true);
+  }
+
   clearAdvancedTag(seriesId: number, groupId: number) {
     const newFilters = { ...this.selectedAdvancedTagsId };
     if (newFilters[seriesId]) {
       newFilters[seriesId][groupId]?.clear();
     }
+
+    this._selectedAdvancedTagsId.next(newFilters);
+  }
+
+  clearAllSeries() {
+    this._selectedSeriesId.next(new Set());
+  }
+
+  clearAllAdvancedTag() {
+    const newFilters = { ...this.selectedAdvancedTagsId };
+    Object.keys(newFilters).forEach((val) => {
+      const seriesId: number = Number(val);
+      Object.keys(newFilters[seriesId]).forEach((val2) => {
+        const groupId: number = Number(val2);
+        newFilters[seriesId][groupId]?.clear();
+      });
+    });
 
     this._selectedAdvancedTagsId.next(newFilters);
   }

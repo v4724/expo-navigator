@@ -11,7 +11,17 @@
       <div class="sticky top-0 z-1 p-4 pr-2 pb-3 flex shadow bg-white">
         <ion-title class="">
           @if (isFiltering()) {
-            <div class="text-gray-600">搜尋結果：{{ list().length }} 筆</div>
+            <div class="flex items-center text-gray-600">
+              搜尋結果：{{ list().length }} 筆
+              <p-button
+                class="ml-auto"
+                icon="pi pi-filter-slash"
+                [rounded]="true"
+                [text]="true"
+                size="small"
+                (click)="clearFilter()"
+              ></p-button>
+            </div>
           } @else {
             <div class="text-gray-600">攤位列表</div>
           }

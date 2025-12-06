@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { StallService } from './stall-service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounce, debounceTime } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { TagService } from './tag-service';
 import { StallGroup, StallSeries, StallTag } from '../../interfaces/stall-series-tag.interface';
@@ -49,7 +49,7 @@ export class SearchAndFilterService {
       this._tagService.selectedSeriesId$,
       this._tagService.selectedAdvancedTagsId$,
     ])
-      .pipe()
+      .pipe(debounceTime(50))
       .subscribe(([searchTerm, seriesIds, advancedFilter]) => {
         const allStalls = this._stallService.allStalls;
         const filter = allStalls.filter((stall) => {
@@ -141,5 +141,10 @@ export class SearchAndFilterService {
       });
     });
     return data;
+  }
+
+  clearAll() {
+    this.inputSearch = '';
+    this._tagService.clearAll();
   }
 }

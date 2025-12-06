@@ -16,10 +16,11 @@ import { TagPipe } from 'src/app/shared/pipe/tag-pipe';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 import { ResultListService } from './result-list-service';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-result-list',
-  imports: [Divider, SeriesPipe, TagPipe, Button, StallZoneBadge, ScrollPanelModule],
+  imports: [Divider, SeriesPipe, TagPipe, Button, StallZoneBadge, ScrollPanelModule, Tooltip],
   templateUrl: './result-list.html',
   styleUrl: './result-list.scss',
 })
@@ -51,6 +52,10 @@ export class ResultList implements OnInit {
     setTimeout(() => {
       this._stallMapService.focusStall(stall.id);
     }, 100);
+  }
+
+  clearFilter() {
+    this._searchAndFilterService.clearAll();
   }
 
   toLayerControl() {
