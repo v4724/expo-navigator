@@ -20,6 +20,7 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
+import { UiStateService } from '../../../../core/services/state/ui-state-service';
 
 @Component({
   selector: 'app-stall-side-header',
@@ -41,6 +42,7 @@ export class StallSideHeader implements OnInit {
   private _markedListService = inject(MarkedStallService);
   private _selectStallService = inject(SelectStallService);
   private _userService = inject(UserService);
+  private _uiStateService = inject(UiStateService);
 
   isLogin = toSignal(this._userService.isLogin$);
   user = toSignal(this._userService.user$);
@@ -72,9 +74,11 @@ export class StallSideHeader implements OnInit {
         .pipe(distinctUntilChanged())
         .subscribe((stallId) => {
           this.isMarkedSignal.set(false);
-          requestAnimationFrame(() => {
-            this.stall.set(this._selectStallService.selectedStall);
-          });
+          if (this._uiStateService.isPlatformBrowser()) {
+            requestAnimationFrame(() => {
+              this.stall.set(this._selectStallService.selectedStall);
+            });
+          }
         });
 
       // 切換 stall 時更新 marked 狀態

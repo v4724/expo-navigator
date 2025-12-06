@@ -127,14 +127,17 @@ export class StallSideContent implements OnInit {
         .subscribe((stallId) => {
           console.debug('stall modal select stall: ', stallId);
           this.imageLoaded.set(false);
-          requestAnimationFrame(() => {
-            this.stall.set(this._selectStallService.selectedStall);
-            if (stallId) {
-              requestAnimationFrame(() => {
-                this.initEmbedsContent();
-              });
-            }
-          });
+
+          if (this._uiStateService.isPlatformBrowser()) {
+            requestAnimationFrame(() => {
+              this.stall.set(this._selectStallService.selectedStall);
+              if (stallId) {
+                requestAnimationFrame(() => {
+                  this.initEmbedsContent();
+                });
+              }
+            });
+          }
         });
     }
   }

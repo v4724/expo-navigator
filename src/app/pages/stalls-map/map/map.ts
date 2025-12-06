@@ -175,7 +175,7 @@ export class Map implements OnInit, AfterViewInit {
       });
     });
 
-    this._stallMapService.focus$.subscribe((stallId) => {
+    this._stallMapService.focus$.pipe(filter((val) => !!val)).subscribe((stallId) => {
       const stallData = this._stallService.findStall(stallId);
 
       this.autoFocusing.set(true);
