@@ -370,12 +370,15 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
 
   initFormVal(stall: StallData) {
     this.stallForm.reset();
-    this.stallForm.patchValue({
-      stallId: stall.id,
-      stallTitle: stall.stallTitle,
-      stallImg: stall.stallImg,
-      stallLink: stall.stallLink,
-    });
+    this.stallForm.patchValue(
+      {
+        stallId: stall.id,
+        stallTitle: stall.stallTitle,
+        stallImg: stall.stallImg,
+        stallLink: stall.stallLink,
+      },
+      { emitEvent: false },
+    );
     this.promos.clear();
 
     stall.promoData.forEach((promo: PromoStall) => {
@@ -674,8 +677,13 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  onHide() {
+    this.stallForm.reset();
+    this.promos.clear();
+  }
+
   onClose() {
-    console.log(this.stallForm);
+    console.debug(this.stallForm);
     if (this.stallForm.dirty) {
       this._confirmService.confirm({
         message: '資料尚未儲存，是否結束編輯？',

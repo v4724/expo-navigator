@@ -6,6 +6,7 @@
   [style]="{ width: '80vw', maxWidth: '690px' }"
   [appendTo]="'body'"
   (onShow)="recalculate()"
+  (onHide)="onHide()"
 >
   <ng-template #header>
     <div class="text-gray-600 flex w-full gap-3">
