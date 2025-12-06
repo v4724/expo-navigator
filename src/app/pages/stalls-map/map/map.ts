@@ -157,7 +157,11 @@ export class Map implements OnInit, AfterViewInit {
   constructor() {}
 
   ngOnInit() {
-    this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? 345 : 0;
+    if (this._uiStateService.isPlatformBrowser()) {
+      const vH = window.visualViewport?.height;
+      const mobileStallInfoDefaultH = vH ? vH * 0.25 : 300;
+      this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? mobileStallInfoDefaultH : 0;
+    }
 
     this._mapImgLoaded.pipe(first((val) => !!val)).subscribe(() => {
       this._stallMapService.mapImage = this.mapImage.nativeElement;
@@ -351,7 +355,7 @@ export class Map implements OnInit, AfterViewInit {
     console.debug('scale stall position on screen', screenX, screenY);
 
     // mobile 下方有攤位資訊，中心要再往上移
-    const centerY = this._uiStateService.isMobile() ? viewH - this.mobileStallInfoDefaultH : 0;
+    const centerY = this._uiStateService.isMobile() ? this.mobileStallInfoDefaultH / 2 : 0;
     // 將攤位置中（相對於地圖中心 0,0）
     const newTranslateX = (scaledMapCenterX - scaledStallX) / this.scale();
     const newTranslateY = (scaledMapCenterY - scaledStallY) / this.scale() - Math.abs(centerY);
