@@ -32,6 +32,7 @@ import { Area } from 'src/app/core/interfaces/area.interface';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { AreaService } from 'src/app/core/services/state/area-service';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { LeftSidebarService } from 'src/app/core/services/state/left-sidebar-service';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
@@ -53,6 +54,7 @@ export class Map implements OnInit, AfterViewInit {
   private _uiStateService = inject(UiStateService);
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
+  private _leftSidebarService = inject(LeftSidebarService);
   private _expoStateService = inject(ExpoStateService);
 
   isMobile: WritableSignal<boolean> = signal<boolean>(false);
@@ -354,10 +356,12 @@ export class Map implements OnInit, AfterViewInit {
     const screenY = stallCenterY;
     console.debug('scale stall position on screen', screenX, screenY);
 
+    // desktop 左方有選單，中心要再往右移
+    const centerX = !this._uiStateService.isMobile() && this._leftSidebarService.curr ? 310 / 2 : 0;
     // mobile 下方有攤位資訊，中心要再往上移
     const centerY = this._uiStateService.isMobile() ? this.mobileStallInfoDefaultH / 2 : 0;
     // 將攤位置中（相對於地圖中心 0,0）
-    const newTranslateX = (scaledMapCenterX - scaledStallX) / this.scale();
+    const newTranslateX = (scaledMapCenterX - scaledStallX) / this.scale() + centerX;
     const newTranslateY = (scaledMapCenterY - scaledStallY) / this.scale() - Math.abs(centerY);
 
     console.debug('orig focus position');
@@ -432,9 +436,8 @@ export class Map implements OnInit, AfterViewInit {
 
     // 邊界，可拖曳的範圍值
     // sidebarW desktop 假設左側元件寬度
+    const sidebarW = !this._uiStateService.isMobile() && !!this._leftSidebarService.curr ? 310 : 0;
     // mobileStallInfoH mobile 有選擇攤位的時候，調整可視範圍高度
-    const sidebarW = this._uiStateService.isMobile() ? 0 : 310;
-    // mobile 且 有選擇攤位的時候，調整可視範圍高度
     const mobileStallInfoH =
       this._uiStateService.isMobile() && this._selectStallService.selected
         ? this.mobileStallInfoDefaultH
