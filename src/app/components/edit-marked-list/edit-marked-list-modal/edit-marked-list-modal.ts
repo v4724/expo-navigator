@@ -31,7 +31,6 @@ import { ColorPicker, ColorPickerModule } from 'primeng/colorpicker';
 import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { CheckboxModule } from 'primeng/checkbox';
-import { MatTooltip } from '@angular/material/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -39,6 +38,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-edit-marked-list-modal',
@@ -54,11 +54,11 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
     CommonModule,
     MatIcon,
     CheckboxModule,
-    MatTooltip,
     ButtonModule,
     StallZoneBadge,
     CdkDropList,
     CdkDrag,
+    TooltipModule,
   ],
   templateUrl: './edit-marked-list-modal.html',
   styleUrl: './edit-marked-list-modal.scss',

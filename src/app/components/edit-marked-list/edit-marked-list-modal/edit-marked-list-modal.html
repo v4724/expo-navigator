@@ -59,7 +59,7 @@
                     aria-hidden="false"
                     aria-label="open_in_new"
                     fontIcon="open_in_new"
-                    matTooltip="自訂圖示來源"
+                    pTooltip="自訂圖示來源"
                   ></mat-icon>
                 </button>
               </div>
@@ -132,7 +132,7 @@
             [removable]="true"
             (onRemove)="remove($index)"
             cdkDrag
-            class="border border-gray-200 !rounded-full !bg-white"
+            class="border border-gray-200 !rounded-full !bg-white cursor-grab"
           >
             <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
             <span class="">{{ stall.stallTitle }} </span>

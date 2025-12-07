@@ -46,7 +46,7 @@
       }
       <!-- 攤位 -->
       <div class="">
-        @for (stall of allStalls$ | async; track $index) {
+        @for (stall of allStalls$ | async; track stall) {
           <app-stall [stall]="stall" [hiddenIfGrouped]="true" [absolutePosition]="true"></app-stall>
         }
       </div>

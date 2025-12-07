@@ -12,8 +12,8 @@ import {
 } from '@angular/core';
 import { StallData } from '../../core/interfaces/stall.interface';
 import { CommonModule } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { first, forkJoin } from 'rxjs';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { DraggableService } from 'src/app/core/services/state/draggable-service';
@@ -39,6 +39,7 @@ export class Stall implements OnInit, AfterViewInit {
   @ViewChild('stallRef') stallRef!: ElementRef<HTMLDivElement>;
 
   stall: InputSignal<StallData> = input.required();
+  stall$ = toObservable(this.stall);
   absolutePosition = input();
   hiddenIfGrouped = input();
 
@@ -165,12 +166,15 @@ export class Stall implements OnInit, AfterViewInit {
       this.updateGroupAreaMatch();
     });
 
-    this._stallMapService.mapContentWH$
-      .pipe(
-        filter(({ w, h }) => {
+    forkJoin([
+      this._stallMapService.mapContentWH$.pipe(
+        first(({ w, h }) => {
           return !!w && !!h;
         }),
-      )
+      ),
+      this.stall$.pipe(first((val) => !!val)),
+    ])
+      .pipe()
       .subscribe(() => {
         this.resizeHandler();
       });
