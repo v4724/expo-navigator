@@ -37,7 +37,8 @@ html {
   @include mat.sidenav-overrides(
     (
       container-width: 600px,
-      container-background-color: white,
+      container-background-color: transparent,
+      content-background-color: transparent,
     )
   );
   @include mat.progress-spinner-overrides(

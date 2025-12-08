@@ -29,7 +29,7 @@
                   [fontIcon]="bookmark.icon || 'star'"
                 ></mat-icon>
               </button>
-              <div class="w-full flex items-center text-left text-gray-700 pr-1">
+              <div class="w-full flex items-center text-left pr-1">
                 <span class="flex text-nowrap pr-2">{{ bookmark.listName }}</span>
                 <div>({{ bookmark.list.length }})</div>
                 <div class="flex gap-1 items-center ml-auto">
@@ -57,7 +57,7 @@
               @for (stall of bookmark.list; track $index) {
                 <button
                   pButton
-                  class="w-full !justify-start"
+                  class="w-full !justify-start dark:text-gray-50!"
                   (click)="selectAndFocus(stall.id)"
                   size="small"
                   text="true"

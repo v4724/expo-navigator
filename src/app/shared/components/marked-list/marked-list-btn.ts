@@ -6,12 +6,9 @@ import { Button } from 'primeng/button';
 @Component({
   selector: 'app-marked-list-btn',
   imports: [CommonModule, Button],
-  template: `<p-button
-    icon="pi pi-bookmark-fill"
-    [rounded]="true"
-    [outlined]="true"
-    (click)="openModal()"
-  />`,
+  template: `<div class="bg-white/60 dark:bg-zinc-700/60 rounded-full">
+    <p-button icon="pi pi-bookmark-fill" [rounded]="true" [outlined]="true" (click)="openModal()" />
+  </div>`,
   styles: '',
 })
 export class MarkedListBtn {

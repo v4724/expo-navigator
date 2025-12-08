@@ -1,7 +1,7 @@
 @if (stall()?.stallImg) {
   <div class="p-4">
     <div
-      class="relative w-full bg-center bg-cover bg-gray-100 rounded-xl overflow-hidden border border-gray-100"
+      class="relative w-full bg-center bg-cover bg-gray-100 rounded-xl overflow-hidden border border-gray-100 dark:border-zinc-700"
       [style.background-image]="'url(' + stall()?.stallImg + ')'"
     >
       <!-- 毛玻璃遮罩 -->
@@ -29,7 +29,7 @@
   <div class="p-4 mb-2 flex-grow flex items-center justify-center">暫無宣傳資訊。</div>
 } @else {
   <p-tabs #promoTabs [value]="0" scrollable class="flex flex-grow">
-    <p-tablist class="!sticky z-1 border-t-1 border-gray-100 top-0">
+    <p-tablist class="!sticky z-1 border-t-1 border-gray-100 dark:border-zinc-700 top-0">
       @for (promo of this.stall()?.promoData; track promo; let tabIndex = $index) {
         <p-tab [value]="tabIndex">
           <div class="flex gap-1 h-full">
@@ -78,7 +78,7 @@
               </div>
             }
             @if (promo.promoHtml) {
-              <div class="promo-html-content ck-content">
+              <div class="promo-html-content">
                 <div [innerHTML]="promo.promoHtml | safeHtml"></div>
               </div>
             } @else {
@@ -89,7 +89,7 @@
           </div>
           @if (promo.promoLinks.length > 0) {
             <div
-              class="flex flex-wrap gap-2 sticky bottom-0 bg-linear-to-t from-white to-transparent w-full pr-3"
+              class="flex flex-wrap gap-2 sticky bottom-0 bg-linear-to-t from-white dark:from-zinc-900 to-transparent w-full pr-3"
             >
               @for (link of promo.promoLinks; track $index) {
                 <a [href]="link.href" class="footer-link" target="_blank" rel="noopener noreferrer">

@@ -9,10 +9,17 @@
   </div>
 
   <!-- 資料來源 -->
-  <div class="ml-auto flex items-center text-xs">
+  <div class="ml-auto flex items-center text-xs text-gray-600 dark:text-gray-300!">
     <div class="">資料來源</div>
-    <button pButton text size="small" class="pointer-events-auto" (click)="openUrl()">
-      同忍祭官網 2025 忍者亂太郎only
+    <button
+      pButton
+      text
+      link
+      size="small"
+      class="pointer-events-auto dark:text-gray-50!"
+      (click)="openUrl()"
+    >
+      {{ expoTitle() }} 官網
     </button>
   </div>
 

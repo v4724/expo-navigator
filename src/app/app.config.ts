@@ -45,9 +45,7 @@ const MyPreset = definePreset(Aura, {
   },
   components: {
     dialog: {
-      root: {
-        background: '{surface.50}', // 對應 --p-dialog-background
-      },
+      root: {},
     },
   },
 });

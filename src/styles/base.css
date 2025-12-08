@@ -48,21 +48,18 @@ h1 {
 }
 
 .legend-container {
-  border: 1px solid #ddd;
   border-radius: 1.75rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 15px;
-  background-color: #ffffffbd;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   font-size: 0.9rem;
-  color: #555;
 }
 
 .legend-box {
