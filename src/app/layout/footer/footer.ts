@@ -15,9 +15,9 @@ export class Footer {
 
   expoTitle = toSignal(this._expoStateService.expoTitle$);
   expoUrl = toSignal(this._expoStateService.expoUrl$);
+  reportUrl = toSignal(this._expoStateService.reportUrl$);
 
-  openUrl() {
-    const url = this.expoUrl();
+  openUrl(url: string | undefined) {
     if (url) {
       window.open(url, '_blank');
     }

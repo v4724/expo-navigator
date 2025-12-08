@@ -17,10 +17,24 @@
       link
       size="small"
       class="pointer-events-auto dark:text-gray-50!"
-      (click)="openUrl()"
+      (click)="openUrl(expoUrl())"
     >
       {{ expoTitle() }} 官網
     </button>
+
+    <div class="">/ 問題回報</div>
+    <div>
+      <button
+        class="pointer-events-auto"
+        icon="pi pi-external-link"
+        pButton
+        [text]="true"
+        [rounded]="true"
+        link
+        size="small"
+        (click)="openUrl(reportUrl())"
+      ></button>
+    </div>
   </div>
 
   <!-- desktop

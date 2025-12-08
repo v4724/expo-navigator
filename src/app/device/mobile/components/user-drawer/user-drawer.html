@@ -42,17 +42,20 @@
         />
       </div>
     }
+    <div class="mt-auto w-full flex justify-end">
+      <p-button class="" size="small" link (click)="openUrl()">>> 問題回報</p-button>
+    </div>
   </div>
 
   <ng-template #footer>
     <div class="w-full flex flex-row justify-between h-12 shadow-[0_-1px_5px_rgba(0,0,0,0.1)]">
       @if (isLogin()) {
-        <button pButton class="block w-1/3" (click)="delete()">刪除</button>
-        <button pButton class="block w-1/3" (click)="edit()">編輯</button>
-        <button pButton class="block w-1/3" (click)="logout()">登出</button>
+        <button class="block w-1/3" (click)="delete()">刪除</button>
+        <button class="block w-1/3" (click)="edit()">編輯</button>
+        <button class="block w-1/3" (click)="logout()">登出</button>
       } @else {
-        <button pButton class="block w-full" (click)="create()">新增</button>
-        <button pButton class="block w-full" (click)="login()">登入</button>
+        <button class="block w-full" (click)="create()">新增</button>
+        <button class="block w-full" (click)="login()">登入</button>
       }
     </div>
   </ng-template>

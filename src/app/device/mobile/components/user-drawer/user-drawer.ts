@@ -13,10 +13,12 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-user-drawer',
-  imports: [CommonModule, Avatar, FormsModule, InputTextModule, DrawerModule],
+  imports: [CommonModule, Avatar, FormsModule, InputTextModule, DrawerModule, ButtonModule],
   templateUrl: './user-drawer.html',
   styleUrl: './user-drawer.scss',
 })
@@ -30,10 +32,12 @@ export class UserDrawer {
   private readonly _messageService = inject(MessageService);
   private _dialogService = inject(DialogService);
   private _confirmService = inject(ConfirmationService);
+  private _expoStateService = inject(ExpoStateService);
 
   stall = signal<StallData | undefined>(undefined);
   isLogin = toSignal(this._userService.isLogin$);
   user = toSignal(this._userService.user$);
+  reportUrl = toSignal(this._expoStateService.reportUrl$);
 
   acc: string = '';
   visible = false;
@@ -149,5 +153,9 @@ export class UserDrawer {
       },
       reject: () => {},
     });
+  }
+
+  openUrl() {
+    window.open(this.reportUrl(), '_blank');
   }
 }

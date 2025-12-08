@@ -13,6 +13,7 @@ export class ExpoStateService {
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   private _expoTitle = new BehaviorSubject<string>('');
   private _expoUrl = new BehaviorSubject<string>('');
+  private _reportUrl = new BehaviorSubject<string>('');
   private _promoGuideUrl = new BehaviorSubject<string>('');
   private _multiSeriesExpo = new BehaviorSubject<boolean>(false);
   private _specifiedSeriesId = new BehaviorSubject<number>(-1);
@@ -31,6 +32,7 @@ export class ExpoStateService {
   fetchEnd$ = this._fetchEnd.asObservable();
   expoTitle$ = this._expoTitle.asObservable();
   expoUrl$ = this._expoUrl.asObservable();
+  reportUrl$ = this._reportUrl.asObservable();
   promoGuideUrl$ = this._promoGuideUrl.asObservable();
   multiSeriesExpo$ = this._multiSeriesExpo.asObservable();
   specifiedSeriesId$ = this._specifiedSeriesId.asObservable();
@@ -80,6 +82,9 @@ export class ExpoStateService {
             break;
           case 'EXPO_URL':
             this._expoUrl.next(value);
+            break;
+          case 'REPORT_URL':
+            this._reportUrl.next(value);
             break;
           case 'PROMO_GUIDE_URL':
             this._promoGuideUrl.next(value);
