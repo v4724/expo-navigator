@@ -17,14 +17,14 @@
       }"
     >
       <i
-        class="pi pi-check text-white dark:text-black text-xl"
+        class="pi pi-check text-white text-xl"
         [ngClass]="{
           'pi-check': !message.data?.type,
           'pi-exclamation-triangle':
             message.data?.type === 'warning' || message.data?.type === 'error',
         }"
       ></i>
-      <span class="font-bold text-base text-white dark:text-black">{{ message.summary }}</span>
+      <span class="font-bold text-base text-white">{{ message.summary }}</span>
       @if (message.closable) {
         <p-button
           class="ml-auto close-btn"

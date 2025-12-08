@@ -9,7 +9,9 @@
     @if (isLogin()) {
       <div class="flex flex-grow flex-col gap-2 px-4 overflow-y-auto">
         <div class="flex flex-grow flex-col gap-2">
-          <div class="flex">攤位編號</div>
+          @if ((user()?.stallIds ?? []).length) {
+            <div class="flex">攤位編號</div>
+          }
           <div
             class="flex flex-wrap items-center"
             [ngClass]="{

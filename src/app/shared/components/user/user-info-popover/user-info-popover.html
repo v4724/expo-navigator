@@ -5,7 +5,10 @@
       <div>{{ user()?.acc }}</div>
     </div>
     <div class="flex gap-2 items-center">
-      <div>攤位編號</div>
+      @if ((user()?.stallIds ?? []).length) {
+        <div>攤位編號</div>
+      }
+
       <div class="flex flex-wrap items-center gap-1">
         @for (id of user()?.stallIds; track $index) {
           <div

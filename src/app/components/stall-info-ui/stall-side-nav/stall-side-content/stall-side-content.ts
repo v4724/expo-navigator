@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { AvatarModule } from 'primeng/avatar';
+import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
 import { distinctUntilChanged } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
@@ -26,7 +27,7 @@ import { SafeHtmlPipe } from 'src/app/shared/pipe/safe-html-pipe';
 
 @Component({
   selector: 'app-stall-side-content',
-  imports: [CommonModule, AvatarModule, TabsModule, SafeHtmlPipe],
+  imports: [CommonModule, AvatarModule, TabsModule, SafeHtmlPipe, ButtonModule],
   templateUrl: './stall-side-content.html',
   styleUrl: './stall-side-content.scss',
 })
@@ -199,5 +200,9 @@ export class StallSideContent implements OnInit {
 
       this._lightboxService.openImageLightbox(src, target.alt);
     }
+  }
+
+  openUrl(url: string) {
+    window.open(url, '_blank');
   }
 }

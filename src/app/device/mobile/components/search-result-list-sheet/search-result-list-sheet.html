@@ -1,5 +1,6 @@
 <ion-modal
   #modal
+  [style]="'--ion-background-color:transparent;'"
   [expandToScroll]="false"
   [initialBreakpoint]="0.75"
   [breakpoints]="[0, 0.5, 0.75, 1]"
@@ -7,11 +8,15 @@
   [backdropBreakpoint]="0.5"
 >
   <ng-template>
-    <ion-content class="mt-2 border-t rounded-t-lg border-gray-300/50 overflow-hidden">
-      <div class="sticky top-0 z-1 p-4 pr-2 pb-3 flex shadow bg-white">
+    <ion-content
+      class="mt-2 border-t rounded-t-lg border-gray-300/50 overflow-hidden bg-white dark:bg-zinc-800"
+    >
+      <div
+        class="sticky top-0 z-1 p-4 pr-2 pb-3 flex shadow bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-50"
+      >
         <ion-title class="">
           @if (isFiltering()) {
-            <div class="flex items-center text-gray-600">
+            <div class="flex items-center">
               搜尋結果：{{ list().length }} 筆
               <p-button
                 class="ml-auto"
@@ -23,14 +28,14 @@
               ></p-button>
             </div>
           } @else {
-            <div class="text-gray-600">攤位列表</div>
+            <div class="">攤位列表</div>
           }
         </ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="modal.dismiss()"><ion-icon name="close"></ion-icon></ion-button>
         </ion-buttons>
       </div>
-      <div class="p-4 flex flex-col">
+      <div class="p-4 flex flex-col dark:bg-zinc-800 dark:text-gray-50">
         @if (isFiltering() && list().length === 0) {
           <div class="flex-1 flex items-center justify-center">無查詢結果</div>
         }
