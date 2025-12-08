@@ -1,15 +1,9 @@
 /* --- Stall Area Styles --- */
 /* Base class for all interactive areas */
 .stall-area {
-  background-color: rgba(255, 226, 101, 0.95); /* Default Yellowish tint */
-  border: 1px solid transparent;
+  --stall-shadow-color: color-mix(in srgb, var(--zone-color) 80%, white);
+
   cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    color 0.3s ease;
 
   /* Styles for the stall number text */
   display: flex;
@@ -20,6 +14,12 @@
   color: rgba(0, 0, 0, 0.6);
   user-select: none;
   text-shadow: 0 0 2px white;
+
+  border: 3px solid var(--zone-color);
+  box-shadow: 3px 3px 0 var(--stall-shadow-color);
+  background-color: var(--legend-default);
+  padding: 5px 10px;
+  transition: all 0.15s ease-in-out;
 }
 
 /* Default state for mobile-only group areas (hidden on desktop). */
@@ -28,14 +28,13 @@
 } */
 
 .stall-area.has-promo {
-  background-color: rgba(19, 174, 231, 0.95); /* Blue tint for promo stalls */
+  background-color: rgb(var(--legend-promo) / 0.95); /* Blue tint for promo stalls */
   color: rgba(0, 0, 0, 0.8);
 }
 
 .stall-area.is-search-match {
-  border: 1px solid rgba(184, 129, 225, 1); /* A vibrant violet for high visibility */
-  background-color: rgba(184, 129, 225, 0.9); /* A light violet fill */
-  z-index: 10;
+  border-color: rgb(var(--legend-search)); /* A vibrant violet for high visibility */
+  background-color: rgb(var(--legend-search) / 1); /* A light violet fill */
   color: white; /* Indigo, for readability on violet bg */
   text-shadow:
     -1px -1px 0 #00000045,
@@ -46,25 +45,26 @@
 }
 
 .stall-area:hover {
-  background-color: rgba(255, 69, 0, 0.8);
-  border-color: var(--primary-color);
-  color: white;
   text-shadow: none;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px var(--stall-shadow-color);
 }
 
 .stall-area.is-selected {
-  background-color: rgba(255, 69, 0, 0.95);
-  border: 2px solid var(--primary-color);
-  color: white;
   text-shadow: none;
-  z-index: 11;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--stall-shadow-color);
+
+  background-color: rgb(var(--legend-selected));
+  border-color: var(--primary-color);
+  color: white;
 }
 
 /* Special styling for large, grouped areas, providing a neutral look distinct from regular stalls. */
 .stall-group-area {
   font-size: 1rem;
   color: #666; /* Neutral dark gray text */
-  background-color: rgba(255, 193, 7, 0.2); /* Very light gray, almost transparent */
+  background-color: rgb(var(--group-area) / 0.2); /* Very light gray, almost transparent */
 
   text-shadow:
     -1px -1px 0 #ffffff8a,
@@ -75,7 +75,7 @@
 
 /* Custom hover state for grouped areas, different from regular stalls. */
 .stall-group-area:hover {
-  background-color: rgba(255, 69, 0, 0.5); /* Slightly darker gray */
+  background-color: rgb(var(--legend-hover)); /* Slightly darker gray */
   border-color: rgba(0, 0, 0, 0.2);
   color: #333;
 }
