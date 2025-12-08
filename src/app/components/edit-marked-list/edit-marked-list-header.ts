@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-edit-marked-list-modal',
   imports: [CommonModule],
-  template: `<div class="text-gray-600 flex">
+  template: `<div class="flex">
     <div class="text-lg">編輯書籤</div>
   </div>`,
   styles: '',

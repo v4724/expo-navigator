@@ -20,11 +20,10 @@
   @if (filteredStalls.length) {
     <ul
       [ngStyle]="popupStyle"
-      class=""
+      class="bg-white dark:bg-zinc-700"
       style="
         position: fixed;
         z-index: 10000;
-        background: white;
         border-radius: 0.5rem;
         box-shadow: 0 2px 8px #0002;
         border: 1px solid #eee;
@@ -36,7 +35,7 @@
         <li
           (mousedown)="addStallId(item)"
           style="padding: 0.5rem 1rem; cursor: pointer"
-          class="hover:bg-gray-100"
+          class="hover:bg-gray-100 dark:text-gray-300"
         >
           {{ item.id }}
           @if (showTitle()) {
