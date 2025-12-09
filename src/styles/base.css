@@ -15,6 +15,16 @@
   --group-area: 255 193 7;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #27272a; /* Dark mode 的背景色 bg-zinc-800*/
+  }
+}
+
+.p-dialog {
+  --p-dialog-background: var(--background-color);
+}
+
 html,
 body {
   box-sizing: border-box;
