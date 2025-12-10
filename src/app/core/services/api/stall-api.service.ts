@@ -15,7 +15,9 @@ export class StallApiService {
 
   fetch(): Observable<StallDto[]> {
     return this.http
-      .get<FetchResponse<StallDto[]>>(`${this.apiUrl}/api/stalls`)
+      .get<
+        FetchResponse<StallDto[]>
+      >(`${this.apiUrl}/api/stalls`, { params: { timestamp: +new Date() } })
       .pipe(map((res) => res.data));
   }
 

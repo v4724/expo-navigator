@@ -16,7 +16,9 @@ export class UserApiService {
 
   login(acc: string): Observable<FetchResponse<UserDto>> {
     return this.http
-      .get<FetchResponse<UserDto>>(`${this.apiUrl}/api/user/${acc}`)
+      .get<
+        FetchResponse<UserDto>
+      >(`${this.apiUrl}/api/user/${acc}`, { params: { timestamp: +new Date() } })
       .pipe(tap((res) => console.debug(res)));
   }
 
