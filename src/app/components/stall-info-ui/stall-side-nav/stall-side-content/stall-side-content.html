@@ -52,28 +52,33 @@
             class="promo-entry flex-grow flex flex-col"
             [ngClass]="{ 'mb-4': promo.promoLinks.length > 0 }"
           >
-            @if (promo.id && promoViewTagMap().has(promo.id)) {
+            @if (promo.id) {
               @let seriesAndTagMap = promoViewTagMap().get(promo.id);
               <div
                 class="promo-tags-container"
-                [ngClass]="{ hidden: Array.from(seriesAndTagMap?.keys() ?? []).length === 0 }"
+                [ngClass]="{
+                  hidden:
+                    Array.from(seriesAndTagMap?.keys() ?? []).length === 0 && !promo.customTags,
+                }"
               >
-                @for (series of Array.from(seriesAndTagMap?.keys() ?? []); track $index) {
-                  @if (multiSeriesExpo()) {
-                    <span class="promo-tag">#{{ series.seriesName }}</span>
-                  }
+                @if (promoViewTagMap().has(promo.id)) {
+                  @for (series of Array.from(seriesAndTagMap?.keys() ?? []); track $index) {
+                    @if (multiSeriesExpo()) {
+                      <span class="promo-tag">#{{ series.seriesName }}</span>
+                    }
 
-                  @let tagSet = seriesAndTagMap?.get(series);
-                  @for (tag of tagSet; track $index) {
-                    @if (tag.addGroupName) {
-                      <span class="promo-tag">#{{ tag.groupName }}-{{ tag.tagName }}</span>
-                    } @else {
-                      <span class="promo-tag">#{{ tag.tagName }}</span>
+                    @let tagSet = seriesAndTagMap?.get(series);
+                    @for (tag of tagSet; track $index) {
+                      @if (tag.addGroupName) {
+                        <span class="promo-tag">#{{ tag.groupName }}-{{ tag.tagName }}</span>
+                      } @else {
+                        <span class="promo-tag">#{{ tag.tagName }}</span>
+                      }
                     }
                   }
                 }
                 @if (promo.customTags) {
-                  <span class="promo-tag">#{{ promo.customTags }}</span>
+                  <span class="promo-tag text-start">#{{ promo.customTags }}</span>
                 }
               </div>
             }
