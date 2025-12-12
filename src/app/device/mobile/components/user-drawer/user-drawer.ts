@@ -15,6 +15,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { environment } from 'src/env';
 
 @Component({
   selector: 'app-user-drawer',
@@ -41,6 +42,7 @@ export class UserDrawer {
 
   acc: string = '';
   visible = false;
+  appVersion = environment.version;
 
   ngOnInit(): void {}
 
