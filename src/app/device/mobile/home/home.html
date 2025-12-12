@@ -76,9 +76,22 @@
         </div>
       }
       @if (expoUrl()) {
-        <div class="ml-auto flex items-center text-xs -translate-y-full gap-1 dark:text-gray-600">
+        <div
+          class="ml-auto flex flex-wrap justify-end items-end text-xs -translate-y-full gap-1 dark:text-gray-600"
+        >
+          <!-- 版權宣告 -->
+          <div class="mr-2">
+            © 2025 阿圖 /
+            <!-- 　｜　本作品由原作者 阿圖 非官方製作，現由「」正式授權使用。 -->
+          </div>
           <div class="">資料來源</div>
-          <button pButton text size="small" class="pointer-events-auto" (click)="openUrl()">
+          <button
+            pButton
+            text
+            size="small"
+            class="pointer-events-auto mb-[2px]"
+            (click)="openUrl()"
+          >
             {{ expoTitle() }} 官網
           </button>
         </div>
