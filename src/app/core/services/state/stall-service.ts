@@ -83,14 +83,14 @@ export class StallService {
     return this._allStalls.getValue().find((stall) => stall.id === id);
   }
 
-  updateStall(stallId: string, data: StallDto) {
+  updateStall(stallId: string, dto: StallDto) {
     const stall = this.findStall(stallId);
     if (stall) {
-      stall.stallTitle = data.stallTitle;
-      stall.stallImg = data.stallImg;
-      stall.stallLink = data.stallLink;
+      stall.stallTitle = dto.stallTitle;
+      stall.stallImg = dto.stallImg;
+      stall.stallLink = dto.stallLink;
 
-      const promos: PromoStall[] = data.promotion.map((dto) => {
+      const promos: PromoStall[] = dto.promotion.map((dto) => {
         return this._promoService.transformDtoToPromo(dto);
       });
       stall.promoData = promos;

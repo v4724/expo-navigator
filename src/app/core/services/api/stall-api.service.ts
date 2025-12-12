@@ -21,6 +21,14 @@ export class StallApiService {
       .pipe(map((res) => res.data));
   }
 
+  fetchById(id: string): Observable<StallDto> {
+    return this.http
+      .get<
+        FetchResponse<StallDto>
+      >(`${this.apiUrl}/api/stall/${id}`, { params: { timestamp: +new Date() } })
+      .pipe(map((res) => res.data));
+  }
+
   update(id: string, dto: UpdateStallDto): Observable<Response> {
     return this.http
       .put<Response>(`${this.apiUrl}/api/stall/${id}`, dto)

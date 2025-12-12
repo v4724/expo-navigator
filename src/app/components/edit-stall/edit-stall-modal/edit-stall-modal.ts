@@ -66,6 +66,7 @@ import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawe
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { TooltipModule } from 'primeng/tooltip';
+import { Skeleton } from 'primeng/skeleton';
 
 interface MyTab {
   icon: string;
@@ -111,6 +112,7 @@ interface StallTag extends StallTagDto {
     AccordionModule,
     DrawerOnMobile,
     TooltipModule,
+    Skeleton,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -135,6 +137,9 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   previewStall = undefined;
 
   stallForm: FormGroup;
+
+  // 載入中
+  isStallLoading = signal<boolean>(true);
 
   // 必填提示
   invalidHint = signal<string[]>([]);
@@ -587,17 +592,32 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     this.visible = true;
 
     // 取得標籤列表後再初始化資料
-    const stall = this._selectStallService.selectedStall;
-    if (stall) {
-      console.debug('edit stall', stall);
-      this.initFormVal(stall);
-      this.updateTabList();
-      this.updateSeriesSeletedTagCnt();
-      this.updateSeriesCheck();
-    }
+    const orig = this._selectStallService.selectedStall;
+    const stallId = this.selectedStallId();
 
-    this.promoTabs.updateValue(0);
-    this.afterEditorInit.set(false);
+    orig &&
+      stallId &&
+      this._stallApiService
+        .fetchById(stallId)
+        .pipe(
+          first(),
+          finalize(() => this.isStallLoading.set(false)),
+        )
+        .subscribe((dto) => {
+          if (orig && dto) {
+            this._stallService.updateStall(stallId, dto);
+            this.initFormVal(orig);
+            this.updateTabList();
+            this.updateSeriesSeletedTagCnt();
+            this.updateSeriesCheck();
+          }
+
+          this.promoTabs.updateValue(0);
+          this.afterEditorInit.set(false);
+          setTimeout(() => {
+            this.recalculate();
+          }, 50);
+        });
   }
 
   // 重畫出 ckeditor，才能抓到 dialog 正確寬度
@@ -680,6 +700,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   onHide() {
     this.stallForm.reset();
     this.promos.clear();
+    this.isStallLoading.set(true);
   }
 
   onClose() {
