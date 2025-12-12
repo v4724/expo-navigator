@@ -275,9 +275,12 @@ export class CreateUserModal implements OnInit {
           });
           this._ref.close();
         } else {
+          const msg = res.errors[0].includes('UNIQUE constraint failed: user.acc')
+            ? '帳號已存在'
+            : res.errors[0];
           this._messageService.add({
             severity: 'custom',
-            summary: `新增失敗 ${res.errors[0]}`,
+            summary: `新增失敗 ${msg}`,
             sticky: true,
             closable: true,
             data: {
