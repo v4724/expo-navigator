@@ -12,19 +12,18 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import { PopoverModule } from 'primeng/popover';
-import { combineLatest, distinctUntilChanged, finalize, first } from 'rxjs';
-import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
+import { distinctUntilChanged, map } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
-import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
-import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
+
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 import { UiStateService } from '../../../../core/services/state/ui-state-service';
+import { BookmarkPopover } from 'src/app/shared/components/bookmark-popover/bookmark-popover';
 
 @Component({
   selector: 'app-stall-side-header',
-  imports: [CommonModule, MatIcon, PopoverModule, StallZoneBadge],
+  imports: [CommonModule, MatIcon, PopoverModule, StallZoneBadge, BookmarkPopover],
   templateUrl: './stall-side-header.html',
   styleUrl: './stall-side-header.scss',
 })
@@ -36,20 +35,14 @@ export class StallSideHeader implements OnInit {
   close = output<boolean>();
 
   stall: WritableSignal<StallData | undefined> = signal<StallData | undefined>(undefined);
-  stall$ = toObservable(this.stall);
+  stall$ = toObservable(this.stall).pipe(map((val) => !!val));
 
-  private _markedListApiService = inject(MarkedListApiService);
-  private _markedListService = inject(MarkedStallService);
   private _selectStallService = inject(SelectStallService);
   private _userService = inject(UserService);
   private _uiStateService = inject(UiStateService);
 
   isLogin = toSignal(this._userService.isLogin$);
   user = toSignal(this._userService.user$);
-  allMarkedList = toSignal(this._markedListService.markedList$);
-  markedMapByStallId = toSignal(this._markedListService.markedMapByStallId$);
-  isMarkedFetchEnd = toSignal(this._markedListService.fetchEnd$);
-  isMarkedSignal = signal(false);
 
   stallId = computed(() => {
     return this.stall()?.id ?? '';
@@ -73,73 +66,13 @@ export class StallSideHeader implements OnInit {
       this._selectStallService.selectedStallId$
         .pipe(distinctUntilChanged())
         .subscribe((stallId) => {
-          this.isMarkedSignal.set(false);
           if (this._uiStateService.isPlatformBrowser()) {
             requestAnimationFrame(() => {
               this.stall.set(this._selectStallService.selectedStall);
             });
           }
         });
-
-      // 切換 stall 時更新 marked 狀態
-      combineLatest([this.stall$, this._markedListService.fetchEnd$.pipe(first((val) => !!val))])
-        .pipe()
-        .subscribe(([stall]) => {
-          this.updateMarkedSignal(stall);
-        });
     }
-  }
-
-  removeFromMarkedList(data: MarkedList) {
-    const dto = this._markedListApiService.transformToDto(data);
-
-    const index = dto.list.indexOf(this.stallId());
-    dto.list.splice(index, 1);
-
-    data.isUpdating = true;
-    this._markedListApiService
-      .update(data.id, this.user()?.acc!, dto)
-      .pipe(
-        finalize(() => {
-          data.isUpdating = false;
-        }),
-      )
-      .subscribe((res) => {
-        if (res.success) {
-          this._markedListService.update(dto);
-        }
-        this.updateMarkedSignal(this.stall());
-      });
-  }
-
-  addToMarkedList(data: MarkedList) {
-    const dto = this._markedListApiService.transformToDto(data);
-
-    dto.list.push(this.stallId());
-
-    data.isUpdating = true;
-    this._markedListApiService
-      .update(data.id, this.user()?.acc!, dto)
-      .pipe(
-        finalize(() => {
-          data.isUpdating = false;
-        }),
-      )
-      .subscribe((res) => {
-        if (res.success) {
-          this._markedListService.update(dto);
-        }
-        this.updateMarkedSignal(this.stall());
-      });
-  }
-
-  updateMarkedSignal(stall: StallData | undefined) {
-    let isMarked = false;
-    if (stall) {
-      const stallId = stall.id;
-      isMarked = this._markedListService.isMarked(stallId);
-    }
-    this.isMarkedSignal.set(isMarked);
   }
 
   // 開啟外部連結

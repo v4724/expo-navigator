@@ -22,6 +22,11 @@
     @if (!isPreview() && isEditable()) {
       <ng-content select="[editBtn]"></ng-content>
     }
+
+    <!-- 書籤 -->
+    @if (isLogin()) {
+      <app-bookmark-popover [stall]="stall()" [isPreview]="isPreview()"></app-bookmark-popover>
+    }
   </div>
   <app-stall-side-content
     (close)="close()"

@@ -11,10 +11,19 @@ import { UserService } from 'src/app/core/services/state/user-service';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
+import { BookmarkPopover } from 'src/app/shared/components/bookmark-popover/bookmark-popover';
 
 @Component({
   selector: 'app-stall-info-drawer',
-  imports: [CommonModule, ButtonModule, DrawerOnMobile, StallSideContent, MatIcon, StallZoneBadge],
+  imports: [
+    CommonModule,
+    ButtonModule,
+    DrawerOnMobile,
+    StallSideContent,
+    MatIcon,
+    StallZoneBadge,
+    BookmarkPopover,
+  ],
   templateUrl: './stall-info-drawer.html',
   styleUrl: './stall-info-drawer.scss',
 })
