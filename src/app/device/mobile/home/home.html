@@ -9,12 +9,14 @@
           [value]="currSearchTerm()"
         ></ion-searchbar>
         <div class="flex items-center pr-1">
-          <p-button
+          <button
+            pButton
             icon="pi pi-user"
-            [rounded]="true"
-            [outlined]="true"
+            rounded
+            outlined
+            class="dark:!text-gray-300"
             (click)="userDrawer.show()"
-          />
+          ></button>
         </div>
       </div>
 
@@ -97,8 +99,9 @@
           <button
             pButton
             text
+            link
             size="small"
-            class="pointer-events-auto mb-[2px]"
+            class="pointer-events-auto !p-0 dark:!text-gray-500"
             (click)="openUrl()"
           >
             官網
@@ -114,7 +117,8 @@
   >
     <button
       pButton
-      class="block"
+      text
+      class="block dark:!text-gray-300"
       [ngClass]="{
         hidden: !isLogin(),
         'w-1/2': isLogin() && multiSeriesExpo(),
