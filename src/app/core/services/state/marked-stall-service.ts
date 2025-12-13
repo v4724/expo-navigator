@@ -17,7 +17,7 @@ export class MarkedStallService {
   // sorted
   private _markedList = new BehaviorSubject<MarkedList[]>([]);
   private _fetchEnd = new BehaviorSubject<boolean>(false);
-  private _show = new BehaviorSubject<boolean>(false);
+  private _show = new BehaviorSubject<boolean>(true);
 
   // 快速查詢用 攤位有沒有被加在清單上 <stallId, Set<listId>>
   private _markedMapByStallId = new BehaviorSubject<Map<string, Set<number>>>(new Map());
