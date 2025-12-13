@@ -1,28 +1,44 @@
 <p-popover #userInfoPopover>
-  <div class="flex flex-col gap-2 max-w-sm">
+  <div class="flex flex-col gap-2 min-w-50 max-w-sm min-h-15">
     <div class="flex gap-2">
       <div>使用者</div>
       <div>{{ user()?.acc }}</div>
     </div>
-    <div class="flex gap-2 items-center">
+    <div class="flex flex-grow">
       @if ((user()?.stallIds ?? []).length) {
-        <div>攤位編號</div>
-      }
-
-      <div class="flex flex-wrap items-center gap-1">
-        @for (id of user()?.stallIds; track $index) {
-          <div
-            class="rounded-full py-1 px-2 border border-gray-400 transition hover:scale-110 cursor-default"
-            (click)="selectAndFocus(id)"
-          >
-            {{ id }}
+        <div class="flex items-start gap-2">
+          <div class="flex items-center h-full">攤位編號</div>
+          <div class="flex flex-wrap items-center gap-1">
+            @for (id of user()?.stallIds; track $index) {
+              <div
+                class="rounded-full py-1 px-2 border border-gray-400 transition hover:scale-110 cursor-default"
+                (click)="selectAndFocus(id)"
+              >
+                {{ id }}
+              </div>
+            }
           </div>
-        }
-      </div>
+        </div>
+      }
     </div>
     <div class="flex w-full items-center justify-end">
-      <p-button label="編輯" size="small" variant="text" (click)="edit()" />
-      <p-button label="刪除" severity="secondary" size="small" variant="text" (click)="delete()" />
+      <button
+        pButton
+        label="編輯"
+        class="dark:text-gray-300!"
+        size="small"
+        text
+        (click)="edit()"
+      ></button>
+      <button
+        pButton
+        label="刪除"
+        severity="secondary"
+        class="dark:text-gray-500!"
+        size="small"
+        text
+        (click)="delete()"
+      ></button>
     </div>
   </div>
 </p-popover>

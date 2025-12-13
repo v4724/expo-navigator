@@ -26,15 +26,17 @@
           [style]="{ position: 'absolute', left: '8px', top: 0, zIndex: 1 }"
         >
           <ng-template #button let-toggleCallback="toggleCallback">
-            <p-button
-              [rounded]="true"
-              [outlined]="true"
+            <button
+              pButton
+              rounded
+              outlined
+              size="small"
               severity="secondary"
               class="text-sm bg-white/30 dark:text-gray-300 rounded-full backdrop-blur-sm"
               (click)="toggleCallback($event)"
             >
               攤位說明
-            </p-button>
+            </button>
           </ng-template>
           <ng-template #item let-item let-toggleCallback="toggleCallback">
             <div
@@ -49,18 +51,19 @@
         <div class="absolute z-1 top-0 right-1 flex items-center gap-2 text-sm">
           @if (isFiltering()) {
             <div
-              class="flex items-center p-1 px-2 rounded-full bg-white/30 backdrop-blur-sm dark:text-gray-600"
+              class="text-xs flex items-center p-1 px-2 rounded-full bg-white/10 backdrop-blur-sm dark:text-gray-300"
             >
               套用搜尋中 共 {{ results()?.length }} 筆
             </div>
           }
-          <p-button
-            class="bg-white/30 rounded-full backdrop-blur-sm"
+          <button
+            pButton
+            class="bg-white/30 rounded-full backdrop-blur-sm dark:text-gray-500!"
             [label]="isFiltering() ? `搜尋列表` : `攤位列表`"
-            [rounded]="true"
-            variant="outlined"
+            rounded
+            outlined
             (click)="resultList.show(); stallInfoDrawer.close(); markedListDrawer.close()"
-          />
+          ></button>
         </div>
       </div>
     </div>

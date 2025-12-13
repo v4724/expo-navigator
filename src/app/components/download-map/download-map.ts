@@ -1,12 +1,12 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { toJpeg } from 'html-to-image';
 import { MessageService } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-download-map',
-  imports: [MatTooltipModule, MatIconModule],
+  imports: [TooltipModule, MatIconModule],
   templateUrl: './download-map.html',
   styleUrl: './download-map.scss',
 })

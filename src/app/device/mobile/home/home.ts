@@ -8,7 +8,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { CommonModule } from '@angular/common';
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
-import { Button } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { SearchResultListSheet } from '../components/search-result-list-sheet/search-result-list-sheet';
 import { MarkedListDrawer } from '../components/marked-list-drawer/marked-list-drawer';
 import { StallInfoDrawer } from '../components/stall-info-drawer/stall-info-drawer';
@@ -28,13 +28,13 @@ import { UiStateService } from 'src/app/core/services/state/ui-state-service';
     IonSearchbar,
     Map,
     SearchResultListSheet,
-    Button,
     MarkedListDrawer,
     StallInfoDrawer,
     EditBtn,
     UserDrawer,
     OnlyAreaDrawer,
     SpeedDialModule,
+    ButtonModule,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',

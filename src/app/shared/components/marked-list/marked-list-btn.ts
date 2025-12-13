@@ -1,13 +1,20 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LeftSidebarService } from 'src/app/core/services/state/left-sidebar-service';
-import { Button } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-marked-list-btn',
-  imports: [CommonModule, Button],
+  imports: [CommonModule, ButtonModule],
   template: `<div class="bg-white/60 dark:bg-zinc-700/60 rounded-full">
-    <p-button icon="pi pi-bookmark-fill" [rounded]="true" [outlined]="true" (click)="openModal()" />
+    <button
+      pButton
+      icon="pi pi-bookmark-fill"
+      rounded
+      outlined
+      class="dark:text-gray-300!"
+      (click)="openModal()"
+    ></button>
   </div>`,
   styles: '',
 })

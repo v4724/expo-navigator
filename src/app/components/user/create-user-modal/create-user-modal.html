@@ -56,12 +56,28 @@
   </form>
 </div>
 <div class="flex w-full justify-end items-center pt-2">
-  <p-button
-    [label]="isEdit() ? '儲存' : '新增'"
+  <button
+    pButton
+    text
+    label="關閉"
+    severity="secondary"
     size="small"
-    variant="text"
+    class="dark:text-gray-500!"
+    (click)="onClose()"
+  ></button>
+  <button
+    pButton
+    text
+    size="small"
+    class="dark:text-gray-300!"
     (click)="onSubmit()"
     [disabled]="isSubmitting()"
-  />
-  <p-button label="關閉" severity="secondary" size="small" variant="text" (click)="onClose()" />
+  >
+    <div class="flex items-center gap-2">
+      {{ isEdit() ? '儲存' : '新增' }}
+      @if (isSubmitting()) {
+        <i class="pi pi-spin pi-spinner" style="font-size: 0.8rem"></i>
+      }
+    </div>
+  </button>
 </div>

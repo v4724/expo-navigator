@@ -110,7 +110,14 @@
           pTooltip="如何複製現有的宣傳車"
           tooltipPosition="top"
         />
-        <p-button class="ml-auto" label="新增" size="small" variant="text" (click)="addPromo()" />
+        <button
+          pButton
+          text
+          label="新增"
+          size="small"
+          class="ml-auto dark:text-gray-300!"
+          (click)="addPromo()"
+        ></button>
       </div>
       <p-tabs #promoTabs [value]="0" scrollable (valueChange)="onPromoChange($event)">
         <p-tablist class="!sticky top-0 z-100 border-t-1 border-gray-100 dark:border-zinc-700">
@@ -430,27 +437,39 @@
 
   <ng-template #footer>
     <div class="flex gap-2">
-      <p-button label="關閉" severity="secondary" size="small" variant="text" (click)="onClose()" />
-      <p-button
+      <button
+        pButton
+        text
+        label="關閉"
+        severity="secondary"
         size="small"
-        variant="text"
+        class="dark:text-gray-500!"
+        (click)="onClose()"
+      ></button>
+      <button
+        pButton
+        text
+        size="small"
+        class="dark:text-gray-300!"
         (click)="onTempSave()"
         [disabled]="isTempSaving() || isSaving() || isStallLoading()"
       >
         <div class="flex items-center gap-2">
           暫存
           @if (isTempSaving()) {
-            <mat-spinner diameter="15"></mat-spinner>
+            <i class="pi pi-spin pi-spinner" style="font-size: 0.8rem"></i>
           }
         </div>
-      </p-button>
-      <p-button
+      </button>
+      <button
+        pButton
+        text
         label="儲存並關閉"
         size="small"
-        variant="text"
+        class="dark:text-gray-300!"
         (click)="onSave()"
         [disabled]="isTempSaving() || isSaving() || isStallLoading()"
-      />
+      ></button>
     </div>
   </ng-template>
 </p-dialog>

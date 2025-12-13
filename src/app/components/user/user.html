@@ -28,14 +28,23 @@
       <input #loginInput pInputText [(ngModel)]="acc" type="text" pSize="small" placeholder="" />
     </div>
     <div class="flex w-full items-center justify-end">
-      <p-button label="新增" severity="secondary" size="small" variant="text" (click)="create()" />
-      <p-button
+      <button
+        pButton
+        text
+        label="新增"
+        severity="secondary"
+        size="small"
+        class="dark:text-gray-500!"
+        (click)="create()"
+      ></button>
+      <button
+        pButton
+        text
         label="登入"
         size="small"
-        variant="text"
+        class="dark:text-gray-300!"
         (click)="login()"
-        [disabled]="acc.length === 0"
-      />
+      ></button>
     </div>
   </div>
 </p-popover>

@@ -97,9 +97,15 @@
               class="flex flex-wrap gap-2 sticky bottom-0 bg-linear-to-t from-white dark:from-zinc-900 to-transparent w-full pr-3"
             >
               @for (link of promo.promoLinks; track $index) {
-                <p-button rounded size="small" (click)="openUrl(link.href)">
+                <button
+                  pButton
+                  rounded
+                  size="small"
+                  class="dark:text-gray-300!"
+                  (click)="openUrl(link.href)"
+                >
                   {{ link.text ? link.text : `連結${$index + 1}` }}
-                </p-button>
+                </button>
               }
             </div>
           }

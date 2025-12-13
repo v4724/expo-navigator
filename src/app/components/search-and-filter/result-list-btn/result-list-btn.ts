@@ -5,11 +5,11 @@ import { LeftSidebarService } from 'src/app/core/services/state/left-sidebar-ser
 import { SearchAndFilterService } from 'src/app/core/services/state/search-and-filter-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Button } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-result-list-btn',
-  imports: [CommonModule, Button],
+  imports: [CommonModule, ButtonModule],
   templateUrl: './result-list-btn.html',
   styleUrl: './result-list-btn.scss',
 })

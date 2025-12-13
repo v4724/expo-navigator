@@ -62,6 +62,10 @@ export class User implements OnInit {
   }
 
   login() {
+    if (this.acc.length === 0) {
+      return;
+    }
+
     this._userService
       .login(this.acc)
       .pipe()
