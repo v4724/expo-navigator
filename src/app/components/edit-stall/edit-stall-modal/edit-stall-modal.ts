@@ -67,6 +67,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { TooltipModule } from 'primeng/tooltip';
 import { Skeleton } from 'primeng/skeleton';
+import { User } from 'src/app/core/interfaces/user.interface';
+import { UserService } from 'src/app/core/services/state/user-service';
 
 interface MyTab {
   icon: string;
@@ -122,6 +124,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(Tabs) promoTabs!: Tabs;
   @ViewChildren(CKEditorComponent) ckeditors!: QueryList<CKEditorComponent>;
 
+  private readonly _userService = inject(UserService);
   private readonly _stallService = inject(StallService);
   private readonly _selectStallService = inject(SelectStallService);
   private readonly _fb = inject(FormBuilder);
@@ -137,6 +140,17 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   previewStall = undefined;
 
   stallForm: FormGroup;
+
+  isAdmin = toSignal(
+    this._userService.user$.pipe(map((user: User | null) => user?.acc === 'test')),
+  );
+
+  // 禁止編輯特定攤位
+  prohibitEditing = computed(() => {
+    return (
+      !this.isAdmin() && (this.selectedStallId() === '範01' || this.selectedStallId() === '範02')
+    );
+  });
 
   // 載入中
   isStallLoading = signal<boolean>(true);

@@ -446,30 +446,32 @@
         class="dark:text-gray-500!"
         (click)="onClose()"
       ></button>
-      <button
-        pButton
-        text
-        size="small"
-        class="dark:text-gray-300!"
-        (click)="onTempSave()"
-        [disabled]="isTempSaving() || isSaving() || isStallLoading()"
-      >
-        <div class="flex items-center gap-2">
-          暫存
-          @if (isTempSaving()) {
-            <i class="pi pi-spin pi-spinner" style="font-size: 0.8rem"></i>
-          }
-        </div>
-      </button>
-      <button
-        pButton
-        text
-        label="儲存並關閉"
-        size="small"
-        class="dark:text-gray-300!"
-        (click)="onSave()"
-        [disabled]="isTempSaving() || isSaving() || isStallLoading()"
-      ></button>
+      @if (!prohibitEditing()) {
+        <button
+          pButton
+          text
+          size="small"
+          class="dark:text-gray-300!"
+          (click)="onTempSave()"
+          [disabled]="isTempSaving() || isSaving() || isStallLoading() || !isAdmin()"
+        >
+          <div class="flex items-center gap-2">
+            暫存
+            @if (isTempSaving()) {
+              <i class="pi pi-spin pi-spinner" style="font-size: 0.8rem"></i>
+            }
+          </div>
+        </button>
+        <button
+          pButton
+          text
+          label="儲存並關閉"
+          size="small"
+          class="dark:text-gray-300!"
+          (click)="onSave()"
+          [disabled]="isTempSaving() || isSaving() || isStallLoading()"
+        ></button>
+      }
     </div>
   </ng-template>
 </p-dialog>
