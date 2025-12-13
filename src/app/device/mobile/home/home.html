@@ -79,9 +79,15 @@
         <div
           class="ml-auto flex flex-wrap justify-end items-end text-xs -translate-y-full gap-1 dark:text-gray-600"
         >
+          @if (versionReady()) {
+            <div class="pi pi-exclamation-triangle animate-bounce !text-xs text-amber-500">
+              有新版本請重新整理頁面
+            </div>
+          }
+          <div></div>
           <!-- 版權宣告 -->
           <div class="mr-2">
-            © 2025 阿圖 /
+            © 2025 /
             <!-- 　｜　本作品由原作者 阿圖 非官方製作，現由「」正式授權使用。 -->
           </div>
           <div class="">資料來源</div>
@@ -92,7 +98,7 @@
             class="pointer-events-auto mb-[2px]"
             (click)="openUrl()"
           >
-            {{ expoTitle() }} 官網
+            官網
           </button>
         </div>
       }

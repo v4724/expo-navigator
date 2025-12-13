@@ -1,5 +1,12 @@
 <div class="flex pointer-events-none relative px-2 items-end">
-  <div class="text-xs mr-auto text-gray-600 dark:text-gray-300!">版本: v{{ appVersion }}</div>
+  <div class="flex items-end gap-2 text-xs text-gray-600 dark:text-gray-300!">
+    <div class="mb-[2px]">版本: v{{ appVersion }}</div>
+    @if (versionReady()) {
+      <div class="pi pi-exclamation-triangle animate-bounce !text-xs text-amber-500">
+        有新版本請重新整理頁面
+      </div>
+    }
+  </div>
 
   <div class="absolute flex gap-2 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
     <div

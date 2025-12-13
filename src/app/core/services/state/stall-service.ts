@@ -90,9 +90,11 @@ export class StallService {
       stall.stallImg = dto.stallImg;
       stall.stallLink = dto.stallLink;
 
-      const promos: PromoStall[] = dto.promotion.map((dto) => {
-        return this._promoService.transformDtoToPromo(dto);
-      });
+      const promos: PromoStall[] = dto.promotion
+        .map((dto) => {
+          return this._promoService.transformDtoToPromo(dto);
+        })
+        .sort((a, b) => (a.id && b.id ? a.id - b.id : -1));
       stall.promoData = promos;
       stall.hasPromo = promos.length > 0;
 
@@ -355,9 +357,11 @@ export class StallService {
         if (stallImg && stallImg.startsWith('assets/2025/')) {
           stallImg = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@d24cd07/${stallImg}`;
         }
-        const promoData = rawStall.promotion.map((data) => {
-          return this._promoService.transformDtoToPromo(data);
-        });
+        const promoData = rawStall.promotion
+          .map((data) => {
+            return this._promoService.transformDtoToPromo(data);
+          })
+          .sort((a, b) => (a.id && b.id ? a.id - b.id : -1));
         const stall = {
           id: id,
           stallZone,

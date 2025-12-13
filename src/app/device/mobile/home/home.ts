@@ -19,6 +19,7 @@ import { ExpoStateService } from 'src/app/core/services/state/expo-state-service
 import { SpeedDialModule } from 'primeng/speeddial';
 import { MenuItem } from 'primeng/api';
 import { ResultList } from 'src/app/components/search-and-filter/result-list/result-list';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 @Component({
   selector: 'app-home',
@@ -47,9 +48,11 @@ export class Home {
   private _userService = inject(UserService);
   private _searchAndFilterService = inject(SearchAndFilterService);
   private _expoStateService = inject(ExpoStateService);
+  private _uiStateService = inject(UiStateService);
   private router = inject(Router);
 
   isLogin = toSignal(this._userService.isLogin$);
+  versionReady = toSignal(this._uiStateService.versionReady$);
 
   // 搜尋
   isFiltering = toSignal(this._searchAndFilterService.isFiltering$);

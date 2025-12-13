@@ -4,6 +4,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideEnvironmentInitializer,
   provideZonelessChangeDetection,
+  isDevMode,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -19,6 +20,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { provideServiceWorker } from '@angular/service-worker';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -82,5 +84,9 @@ export const appConfig: ApplicationConfig = {
     DialogService,
     ConfirmationService,
     MessageService,
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };
