@@ -119,7 +119,7 @@ export class StallService {
 
     const customTags = new Set<string>();
     stall.promoData.forEach((promo) => {
-      customTags.add(promo.customTags);
+      !!promo.customTags && customTags.add(promo.customTags);
     });
     stall.filterCustomTags = Array.from(customTags);
   }
