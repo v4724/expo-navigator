@@ -86,6 +86,8 @@ export class UserService {
     this._isLogin.next(false);
     this._user.next(null);
     localStorage.removeItem('user');
+
+    this._markedStallService.resetLayerStatus();
   }
 
   update(user: User) {

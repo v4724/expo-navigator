@@ -3,12 +3,13 @@ import { BehaviorSubject, filter, Subject } from 'rxjs';
 import { MarkedListDto, MarkedListUpdateDto } from '../../models/marked-stall.model';
 import { StallService } from './stall-service';
 import { MarkedList } from '../../interfaces/marked-stall.interface';
-import { UserService } from './user-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MarkedStallService {
+  defaultLayerShown = true;
+
   private _origData: MarkedListDto[] = [];
   private _markedIds = new Set<string>();
 
@@ -17,7 +18,8 @@ export class MarkedStallService {
   // sorted
   private _markedList = new BehaviorSubject<MarkedList[]>([]);
   private _fetchEnd = new BehaviorSubject<boolean>(false);
-  private _show = new BehaviorSubject<boolean>(true);
+
+  private _show = new BehaviorSubject<boolean>(this.defaultLayerShown);
 
   // 快速查詢用 攤位有沒有被加在清單上 <stallId, Set<listId>>
   private _markedMapByStallId = new BehaviorSubject<Map<string, Set<number>>>(new Map());
@@ -64,6 +66,10 @@ export class MarkedStallService {
       return size > 0;
     }
     return false;
+  }
+
+  resetLayerStatus() {
+    this._show.next(this.defaultLayerShown);
   }
 
   toggleLayer() {

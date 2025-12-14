@@ -7,6 +7,7 @@ import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawe
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
+import { UserService } from 'src/app/core/services/state/user-service';
 
 @Component({
   selector: 'app-marked-list-drawer',
@@ -27,12 +28,19 @@ export class MarkedListDrawer implements OnInit {
   @ViewChild(BookmarkList) bookmarkList!: BookmarkList;
 
   private _markedListService = inject(MarkedStallService);
+  private _userService = inject(UserService);
 
   checked = false;
 
   ngOnInit(): void {
     this._markedListService.layerShown$.subscribe((val) => {
       this.checked = val;
+    });
+
+    this._userService.isLogin$.subscribe((val) => {
+      if (!val) {
+        this.close();
+      }
     });
   }
 
