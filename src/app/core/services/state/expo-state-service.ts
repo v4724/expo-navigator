@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
-import { DEF_CSV_URL } from '../../const/google-excel-csv-url';
 import { ExpoDef } from '../../models/expo-def.model';
+import { env } from '@env/env';
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +49,7 @@ export class ExpoStateService {
   mapImageUrl$ = this._mapImageUrl.asObservable();
 
   constructor() {
-    forkJoin([fetchExcelData(DEF_CSV_URL)])
+    forkJoin([fetchExcelData(env.defCsvUrl)])
       .pipe()
       .subscribe(([def]) => {
         this.processDef(def);

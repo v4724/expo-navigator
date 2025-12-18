@@ -1,7 +1,7 @@
 {
   "name": "expo-navigator",
   "short_name": "expo-navigator",
-  "display": "standalone",
+  "display": "browser",
   "scope": "./",
   "start_url": "./",
   "icons": [
