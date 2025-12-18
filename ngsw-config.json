@@ -27,8 +27,8 @@
   ],
   "dataGroups": [
     {
-      "name": "api-stalls-freshness",
-      "urls": ["https://expo-navigator-worker.v47244724.workers.dev/api/**"],
+      "name": "api-freshness",
+      "urls": ["**/api/**"],
       "cacheConfig": {
         "strategy": "freshness",
         "maxAge": "1d",

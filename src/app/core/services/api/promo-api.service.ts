@@ -6,14 +6,14 @@ import { PromoStallDto, UpdatePromoStallDto } from '../../models/promo-stall.mod
 import { PromoStall } from '../../interfaces/promo-stall.interface';
 import { UpdateResponse } from '../../models/update-response.model';
 import { PromoLink } from '../../interfaces/promo-link.interface';
-import DOMPurify from 'dompurify';
+import { env } from '@env/env'; // 根據實際路徑調整
 import { UiStateService } from '../state/ui-state-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PromoApiService {
-  private apiUrl = 'https://expo-navigator-worker.v47244724.workers.dev'; // 根據實際 API 路徑調整
+  private apiUrl = env.apiUrl;
 
   private readonly _uiStateService = inject(UiStateService);
 

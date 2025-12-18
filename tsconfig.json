@@ -7,7 +7,7 @@
     "baseUrl": "./",
     "paths": {
       "@assets/*": ["assets/*"],
-      "@env/*": ["environments/*"],
+      "@env/*": ["src/environments/*"],
       "@app/*": ["app/*"],
       "@core/*": ["app/core/*"],
       "@features/*": ["app/features/*"],

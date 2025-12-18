@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { FetchResponse, Response, UpdateResponse } from '../../models/update-response.model';
 import { StallDto, UpdateStallDto, UpdateStallDtoWithPromo } from '../../models/stall.model';
+import { env } from '@env/env'; // 根據實際路徑調整
 
 @Injectable({
   providedIn: 'root',
 })
 export class StallApiService {
-  private apiUrl = 'https://expo-navigator-worker.v47244724.workers.dev'; // 根據實際 API 路徑調整
+  private apiUrl = env.apiUrl;
 
   constructor(private http: HttpClient) {}
 

@@ -40,3 +40,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# 忽略環境設定檔中的具體數值
+src/environments/env.local.ts

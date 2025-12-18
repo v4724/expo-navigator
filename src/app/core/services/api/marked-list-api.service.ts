@@ -5,12 +5,13 @@ import { tap, map } from 'rxjs/operators';
 import { CreateResponse, Response } from '../../models/update-response.model';
 import { MarkedListCreateDto, MarkedListUpdateDto } from '../../models/marked-stall.model';
 import { MarkedList } from '../../interfaces/marked-stall.interface';
+import { env } from '@env/env'; // 根據實際路徑調整
 
 @Injectable({
   providedIn: 'root',
 })
 export class MarkedListApiService {
-  private apiUrl = 'https://expo-navigator-worker.v47244724.workers.dev'; // 根據實際 API 路徑調整
+  private apiUrl = env.apiUrl;
 
   constructor(private http: HttpClient) {}
 
