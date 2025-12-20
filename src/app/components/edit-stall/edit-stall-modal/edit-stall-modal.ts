@@ -530,9 +530,8 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     this.seriesSeletedTagCnt.set(arr);
   }
 
-  updateCurrPromoTagCnt(promo: AbstractControl) {
+  updateCurrPromoTagCnt(promo?: AbstractControl) {
     console.log('currPromo', promo);
-    const val = promo.get('seriesAndTags')?.value;
 
     const tagsCnt: AdvancedFilters = {};
     Array.from(this._tagService.allSeries.keys()).forEach((seriesId) => {
@@ -544,6 +543,12 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
         });
     });
 
+    if (!promo) {
+      this.currPromoTagCnt.set(tagsCnt);
+      return;
+    }
+
+    const val = promo.get('seriesAndTags')?.value;
     this.seriesAndTags().forEach((map, series) => {
       map.forEach((tags, group) => {
         tags.forEach((tag) => {
@@ -597,9 +602,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   onPromoChange(index: string | number | undefined) {
     index = Number(index);
     const currPromo = this.promos.controls[index];
-    if (currPromo) {
-      this.updateCurrPromoTagCnt(currPromo);
-    }
+    this.updateCurrPromoTagCnt(currPromo);
   }
 
   show() {
