@@ -32,7 +32,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { TagService } from 'src/app/core/services/state/tag-service';
-import { finalize, first, map, of } from 'rxjs';
+import { catchError, finalize, first, map, of } from 'rxjs';
 import {
   StallGroupDto,
   StallSeriesDto,
@@ -69,10 +69,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Skeleton } from 'primeng/skeleton';
 import { User } from 'src/app/core/interfaces/user.interface';
 import { UserService } from 'src/app/core/services/state/user-service';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 interface MyTab {
   icon: string;
   name: string;
+  promoSort?: number;
 }
 interface StallSeries extends StallSeriesDto {
   controlName: string;
@@ -115,6 +117,8 @@ interface StallTag extends StallTagDto {
     DrawerOnMobile,
     TooltipModule,
     Skeleton,
+    CdkDropList,
+    CdkDrag,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -400,7 +404,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     );
     this.promos.clear();
 
-    stall.promoData.forEach((promo: PromoStall) => {
+    stall.promoData.forEach((promo: PromoStall, index: number) => {
       const promoGroup = this._createPromoGroup();
       const promoLink = promoGroup.get('links');
       const seriesAndTags = promoGroup.get('seriesAndTags');
@@ -409,6 +413,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       promoGroup.patchValue({
         id: promo.id?.toString(),
         stallId: promo.stallId,
+        promoSort: promo.promoSort ?? index,
         name: promo.promoTitle,
         icon: promo.promoAvatar,
         html: promo.promoHtml,
@@ -501,7 +506,8 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     this.promos.controls.forEach((promo) => {
       const icon = promo.get('icon')?.value;
       const name = promo.get('name')?.value;
-      tabList.push({ icon, name });
+      const promoSort = promo.get('promoSort')?.value;
+      tabList.push({ icon, name, promoSort });
     });
     this.tabList.set(tabList);
   }
@@ -578,6 +584,22 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  drop(event: CdkDragDrop<any[]>) {
+    const cat = Array.from(this.promos.value ?? []);
+    moveItemInArray(cat, event.previousIndex, event.currentIndex);
+    cat.forEach((item: any, index) => {
+      item.promoSort = index;
+    });
+    this.promos.patchValue(cat, { emitEvent: false });
+
+    const catTab = Array.from(this.tabList());
+    moveItemInArray(catTab, event.previousIndex, event.currentIndex);
+    catTab.forEach((item: any, index) => {
+      item.promoSort = index;
+    });
+    this.tabList.set(catTab);
+  }
+
   // TODO ckeditor 和 預覽的稍微不一樣，待檢查樣式
   preview() {
     const stall = JSON.parse(JSON.stringify(this._selectStallService.selectedStall));
@@ -619,6 +641,18 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
         .pipe(
           first(),
           finalize(() => this.isStallLoading.set(false)),
+          catchError((err) => {
+            this._messageService.add({
+              severity: 'custom',
+              summary: `取得攤位資料失敗 ${err.message || err}`,
+              sticky: true,
+              closable: true,
+              data: {
+                type: 'warning',
+              },
+            });
+            return of(null);
+          }),
         )
         .subscribe((dto) => {
           if (orig && dto) {
@@ -627,13 +661,14 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
             this.updateTabList();
             this.updateSeriesSeletedTagCnt();
             this.updateSeriesCheck();
+            this.promoTabs.updateValue(0);
+            this.afterEditorInit.set(false);
+            setTimeout(() => {
+              this.recalculate();
+            }, 50);
+          } else {
+            this.onHide();
           }
-
-          this.promoTabs.updateValue(0);
-          this.afterEditorInit.set(false);
-          setTimeout(() => {
-            this.recalculate();
-          }, 50);
         });
   }
 
@@ -762,6 +797,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     return this._fb.group({
       id: [''],
       stallId: [this._selectStallService.selectedStall?.id || ''],
+      promoSort: [this.promos.length],
       name: ['', Validators.required],
       icon: [''],
       links: this._fb.array([]),

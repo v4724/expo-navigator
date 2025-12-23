@@ -91,10 +91,10 @@ export class StallService {
       stall.stallLink = dto.stallLink;
 
       const promos: PromoStall[] = dto.promotion
-        .map((dto) => {
-          return this._promoService.transformDtoToPromo(dto);
+        .map((dto, index: number) => {
+          return this._promoService.transformDtoToPromo(dto, index);
         })
-        .sort((a, b) => (a.id && b.id ? a.id - b.id : -1));
+        .sort((a, b) => (a.promoSort && b.promoSort ? a.promoSort - b.promoSort : -1));
       stall.promoData = promos;
       stall.hasPromo = promos.length > 0;
 
@@ -358,10 +358,10 @@ export class StallService {
           stallImg = `https://cdn.jsdelivr.net/gh/v4724/nice-0816@d24cd07/${stallImg}`;
         }
         const promoData = rawStall.promotion
-          .map((data) => {
-            return this._promoService.transformDtoToPromo(data);
+          .map((data, index) => {
+            return this._promoService.transformDtoToPromo(data, index);
           })
-          .sort((a, b) => (a.id && b.id ? a.id - b.id : -1));
+          .sort((a, b) => (a.promoSort && b.promoSort ? a.promoSort - b.promoSort : -1));
         const stall = {
           id: id,
           stallZone,

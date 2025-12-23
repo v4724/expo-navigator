@@ -120,9 +120,14 @@
         ></button>
       </div>
       <p-tabs #promoTabs [value]="0" scrollable (valueChange)="onPromoChange($event)">
-        <p-tablist class="!sticky top-0 z-100 border-t-1 border-gray-100 dark:border-zinc-700">
+        <p-tablist
+          class="!sticky top-0 z-100 border-t-1 border-gray-100 dark:border-zinc-700 example-list"
+          cdkDropList
+          cdkDropListOrientation="mixed"
+          (cdkDropListDropped)="drop($event)"
+        >
           @for (tab of tabList(); track tab; let tabIndex = $index) {
-            <p-tab [value]="tabIndex">
+            <p-tab [value]="tab.promoSort" cdkDrag>
               <div class="flex gap-1 h-full">
                 @if (tab.icon) {
                   <p-avatar [image]="tab.icon" shape="circle" />
@@ -151,7 +156,7 @@
         </p-tablist>
         <p-tabpanels class="min-h-[calc(100dvh-465px)]">
           @for (promo of promos.controls; track promo; let promoIndex = $index) {
-            <p-tabpanel [value]="promoIndex">
+            <p-tabpanel [value]="promo.get('promoSort')?.value">
               <div [formGroupName]="promoIndex" class="flex flex-col gap-3 mt-4">
                 <div class="flex flex-col gap-1 w-full md:w-1/2">
                   <p-floatlabel variant="on">

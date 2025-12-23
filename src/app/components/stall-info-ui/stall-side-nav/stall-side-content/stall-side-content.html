@@ -31,7 +31,7 @@
   <p-tabs #promoTabs [value]="0" scrollable class="flex flex-grow">
     <p-tablist class="!sticky z-1 border-t-1 border-gray-100 dark:border-zinc-700 top-0">
       @for (promo of this.stall()?.promoData; track promo; let tabIndex = $index) {
-        <p-tab [value]="tabIndex">
+        <p-tab [value]="promo.promoSort">
           <div class="flex gap-1 h-full">
             @if (promo.promoAvatar) {
               <p-avatar [image]="promo.promoAvatar" shape="circle" />
@@ -47,7 +47,7 @@
     </p-tablist>
     <p-tabpanels class="flex flex-grow">
       @for (promo of stall()?.promoData ?? []; track promo; let promoIndex = $index) {
-        <p-tabpanel [value]="promoIndex" class="flex flex-col flex-grow w-full">
+        <p-tabpanel [value]="promo.promoSort" class="flex flex-col flex-grow w-full">
           <div
             class="promo-entry flex-grow flex flex-col"
             [ngClass]="{ 'mb-4': promo.promoLinks.length > 0 }"

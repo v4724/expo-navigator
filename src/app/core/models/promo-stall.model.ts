@@ -7,6 +7,9 @@ export interface PromoStallDto {
 
   /** The ID of the stall this promotion belongs to. */
   stallId: string;
+
+  promoSort: number;
+
   /** The name of the user who submitted the promotion. */
   promoTitle: string;
   /** The URL of the user's avatar image. */

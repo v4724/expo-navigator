@@ -31,10 +31,11 @@ export class PromoApiService {
     stallId: string,
     promos: UpdatePromoStallDto[],
   ): Observable<UpdateResponse<PromoStallDto>> {
-    const data = promos.map((promo) => {
+    const data = promos.map((promo, index: number) => {
       const dto: PromoStallDto = {
         ...(promo.id && { id: promo.id }),
         stallId: promo.stallId,
+        promoSort: promo.promoSort ?? index,
         promoTitle: promo.promoTitle,
         promoAvatar: promo.promoAvatar,
         promoHtml: promo.promoHtml,
@@ -51,12 +52,13 @@ export class PromoApiService {
       .pipe(tap((res) => console.debug(res)));
   }
 
-  transformDtoToPromo(dto: PromoStallDto): PromoStall {
+  transformDtoToPromo(dto: PromoStallDto, index: number): PromoStall {
     // --- Promotion Data Aggregation ---
     // If the current row contains promotion data, create a PromoStall object
     // and add it to the stall's promoData array.
     const id = dto.id;
     const stallId = dto.stallId;
+    const promoSort = dto.promoSort;
     const promoTitle = dto.promoTitle;
     const promoAvatar = dto.promoAvatar;
     const promoHtml = dto.promoHtml || '';
@@ -64,6 +66,7 @@ export class PromoApiService {
     const promo: PromoStall = {
       id,
       stallId,
+      promoSort: promoSort ?? index,
       promoTitle: promoTitle,
       promoAvatar: promoAvatar,
       promoHtml: promoHtml,

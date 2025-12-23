@@ -27,7 +27,14 @@ export class StallApiService {
       .get<
         FetchResponse<StallDto>
       >(`${this.apiUrl}/api/stall/${id}`, { params: { timestamp: +new Date() } })
-      .pipe(map((res) => res.data));
+      .pipe(
+        map((res) => {
+          (res.data.promotion ?? []).sort((a, b) =>
+            a.promoSort && b.promoSort ? a.promoSort - b.promoSort : -1,
+          );
+          return res.data;
+        }),
+      );
   }
 
   update(id: string, dto: UpdateStallDto): Observable<Response> {
@@ -42,7 +49,13 @@ export class StallApiService {
   ): Observable<UpdateResponse<StallDto>> {
     return this.http
       .put<UpdateResponse<StallDto>>(`${this.apiUrl}/api/stallWithPromo/${id}`, dto)
-      .pipe(tap((res) => console.debug(res)));
+      .pipe(
+        tap((res) =>
+          res.data.promotion?.sort((a, b) =>
+            a.promoSort && b.promoSort ? a.promoSort - b.promoSort : -1,
+          ),
+        ),
+      );
   }
 
   // transformDtoToStall(dto: UserDto): User {
