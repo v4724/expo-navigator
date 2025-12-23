@@ -2,17 +2,19 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
+  ElementRef,
   HostListener,
   inject,
   input,
   OnInit,
   signal,
+  ViewChild,
   WritableSignal,
 } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { TabsModule } from 'primeng/tabs';
+import { TabsModule, Tabs } from 'primeng/tabs';
 import { distinctUntilChanged } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { StallSeriesDto, StallTagDto } from 'src/app/core/models/stall-series-tag.model';
@@ -32,12 +34,15 @@ import { SafeHtmlPipe } from 'src/app/shared/pipe/safe-html-pipe';
   styleUrl: './stall-side-content.scss',
 })
 export class StallSideContent implements OnInit {
+  @ViewChild(Tabs) promoTabs!: Tabs;
+
   isPreview = input<boolean>(false);
   previewStall = input<StallData>();
   previewStall$ = toObservable(this.previewStall);
 
-  private _selectStallService = inject(SelectStallService);
+  private _el = inject(ElementRef);
 
+  private _selectStallService = inject(SelectStallService);
   private _lightboxService = inject(LightboxService);
   private _stallService = inject(StallService);
   private _userService = inject(UserService);
@@ -128,10 +133,13 @@ export class StallSideContent implements OnInit {
         .subscribe((stallId) => {
           console.debug('stall modal select stall: ', stallId);
           this.imageLoaded.set(false);
+          this.promoTabs?.updateValue(-1);
 
           if (this._uiStateService.isPlatformBrowser()) {
             requestAnimationFrame(() => {
               this.stall.set(this._selectStallService.selectedStall);
+              this.promoTabs?.updateValue(0);
+              this.scrollToTop();
               if (stallId) {
                 requestAnimationFrame(() => {
                   this.initEmbedsContent();
@@ -157,6 +165,31 @@ export class StallSideContent implements OnInit {
       window.twttr?.widgets?.load(
         document.getElementsByClassName('modal-wrapper')[0] as HTMLElement,
       );
+    }
+  }
+
+  // 確保圖片完全載入後再顯示 (為了淡入效果正常)
+  afterImageLoaded() {
+    requestAnimationFrame(() => {
+      this.imageLoaded.set(true);
+    });
+  }
+
+  onTabChange() {
+    this.scrollToTabTop();
+  }
+
+  scrollToTop() {
+    const element = this._el?.nativeElement;
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  scrollToTabTop() {
+    const element = this.promoTabs?.el.nativeElement;
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 

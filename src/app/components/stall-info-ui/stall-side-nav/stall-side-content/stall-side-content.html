@@ -20,97 +20,106 @@
         [class.opacity-100]="imageLoaded()"
         [class.blur-none]="imageLoaded()"
         loading="lazy"
-        (load)="imageLoaded.set(true)"
+        (load)="afterImageLoaded()"
       />
     </div>
   </div>
 }
-@if (!(this.stall()?.promoData ?? []).length) {
-  <div class="p-4 mb-2 flex-grow flex items-center justify-center">暫無宣傳資訊。</div>
-} @else {
-  <p-tabs #promoTabs [value]="0" scrollable class="flex flex-grow">
-    <p-tablist class="!sticky z-1 border-t-1 border-gray-100 dark:border-zinc-700 top-0">
-      @for (promo of this.stall()?.promoData; track promo; let tabIndex = $index) {
-        <p-tab [value]="promo.promoSort">
-          <div class="flex gap-1 h-full">
-            @if (promo.promoAvatar) {
-              <p-avatar [image]="promo.promoAvatar" shape="circle" />
-            }
-            <div class="flex items-center">
-              <div class="font-bold whitespace-nowrap flex items-center mx-2">
-                {{ promo.promoTitle }}
-              </div>
+<!-- 條件顯示 -->
+<div
+  class="p-4 mb-2 flex-grow flex items-center justify-center"
+  [ngClass]="{ hidden: (this.stall()?.promoData ?? []).length }"
+>
+  暫無宣傳資訊。
+</div>
+<!-- 條件顯示 -->
+<p-tabs
+  #promoTabs
+  [value]="0"
+  class="flex flex-grow"
+  [ngClass]="{ hidden: !(this.stall()?.promoData ?? []).length }"
+  (valueChange)="onTabChange()"
+>
+  <p-tablist class="!sticky z-1 border-t-1 border-gray-100 dark:border-zinc-700 top-0">
+    @for (promo of this.stall()?.promoData; track promo; let tabIndex = $index) {
+      <p-tab [value]="promo.promoSort">
+        <div class="flex gap-1 h-full">
+          @if (promo.promoAvatar) {
+            <p-avatar [image]="promo.promoAvatar" shape="circle" />
+          }
+          <div class="flex items-center">
+            <div class="font-bold whitespace-nowrap flex items-center mx-2">
+              {{ promo.promoTitle }}
             </div>
           </div>
-        </p-tab>
-      }
-    </p-tablist>
-    <p-tabpanels class="flex flex-grow">
-      @for (promo of stall()?.promoData ?? []; track promo; let promoIndex = $index) {
-        <p-tabpanel [value]="promo.promoSort" class="flex flex-col flex-grow w-full">
-          <div
-            class="promo-entry flex-grow flex flex-col"
-            [ngClass]="{ 'mb-4': promo.promoLinks.length > 0 }"
-          >
-            @if (promo.id) {
-              @let seriesAndTagMap = promoViewTagMap().get(promo.id);
-              <div
-                class="promo-tags-container"
-                [ngClass]="{
-                  hidden:
-                    Array.from(seriesAndTagMap?.keys() ?? []).length === 0 && !promo.customTags,
-                }"
-              >
-                @if (promoViewTagMap().has(promo.id)) {
-                  @for (series of Array.from(seriesAndTagMap?.keys() ?? []); track $index) {
-                    @if (multiSeriesExpo()) {
-                      <span class="promo-tag">#{{ series.seriesName }}</span>
-                    }
+        </div>
+      </p-tab>
+    }
+  </p-tablist>
+  <p-tabpanels class="flex flex-grow">
+    @for (promo of stall()?.promoData ?? []; track promo; let promoIndex = $index) {
+      <p-tabpanel [value]="promo.promoSort" class="flex flex-col flex-grow w-full">
+        <div
+          class="promo-entry flex-grow flex flex-col"
+          [ngClass]="{ 'mb-4': promo.promoLinks.length > 0 }"
+        >
+          @if (promo.id) {
+            @let seriesAndTagMap = promoViewTagMap().get(promo.id);
+            <div
+              class="promo-tags-container"
+              [ngClass]="{
+                hidden: Array.from(seriesAndTagMap?.keys() ?? []).length === 0 && !promo.customTags,
+              }"
+            >
+              @if (promoViewTagMap().has(promo.id)) {
+                @for (series of Array.from(seriesAndTagMap?.keys() ?? []); track $index) {
+                  @if (multiSeriesExpo()) {
+                    <span class="promo-tag">#{{ series.seriesName }}</span>
+                  }
 
-                    @let tagSet = seriesAndTagMap?.get(series);
-                    @for (tag of tagSet; track $index) {
-                      @if (tag.addGroupName) {
-                        <span class="promo-tag">#{{ tag.groupName }}-{{ tag.tagName }}</span>
-                      } @else {
-                        <span class="promo-tag">#{{ tag.tagName }}</span>
-                      }
+                  @let tagSet = seriesAndTagMap?.get(series);
+                  @for (tag of tagSet; track $index) {
+                    @if (tag.addGroupName) {
+                      <span class="promo-tag">#{{ tag.groupName }}-{{ tag.tagName }}</span>
+                    } @else {
+                      <span class="promo-tag">#{{ tag.tagName }}</span>
                     }
                   }
                 }
-                @if (promo.customTags) {
-                  <span class="promo-tag text-start">#{{ promo.customTags }}</span>
-                }
-              </div>
-            }
-            @if (promo.promoHtml) {
-              <div class="promo-html-content">
-                <div [innerHTML]="promo.promoHtml | safeHtml"></div>
-              </div>
-            } @else {
-              <div class="flex-grow flex items-center justify-center ng-star-inserted">
-                暫無宣傳資訊
-              </div>
-            }
-          </div>
-          @if (promo.promoLinks.length > 0) {
-            <div
-              class="flex flex-wrap gap-2 sticky bottom-0 bg-linear-to-t from-white dark:from-zinc-900 to-transparent w-full pr-3"
-            >
-              @for (link of promo.promoLinks; track $index) {
-                <button
-                  pButton
-                  rounded
-                  size="small"
-                  class="dark:text-gray-300!"
-                  (click)="openUrl(link.href)"
-                >
-                  {{ link.text ? link.text : `連結${$index + 1}` }}
-                </button>
+              }
+              @if (promo.customTags) {
+                <span class="promo-tag text-start">#{{ promo.customTags }}</span>
               }
             </div>
           }
-        </p-tabpanel>
-      }
-    </p-tabpanels>
-  </p-tabs>
-}
+          @if (promo.promoHtml) {
+            <div class="promo-html-content">
+              <div [innerHTML]="promo.promoHtml | safeHtml"></div>
+            </div>
+          } @else {
+            <div class="flex-grow flex items-center justify-center ng-star-inserted">
+              暫無宣傳資訊
+            </div>
+          }
+        </div>
+        @if (promo.promoLinks.length > 0) {
+          <div
+            class="flex flex-wrap gap-2 sticky bottom-0 bg-linear-to-t from-white dark:from-zinc-900 to-transparent w-full pr-3"
+          >
+            @for (link of promo.promoLinks; track $index) {
+              <button
+                pButton
+                rounded
+                size="small"
+                class="dark:text-gray-300!"
+                (click)="openUrl(link.href)"
+              >
+                {{ link.text ? link.text : `連結${$index + 1}` }}
+              </button>
+            }
+          </div>
+        }
+      </p-tabpanel>
+    }
+  </p-tabpanels>
+</p-tabs>
