@@ -64,6 +64,15 @@ export class Home {
   expoUrl = toSignal(this._expoStateService.expoUrl$);
 
   items: MenuItem[] | null;
+
+  // 滑動更新
+  touchStartY = 0;
+  pullDistance = 0; // 目前下拉的距離 (px)
+  threshold = 100; // 觸發更新的門檻 (px)
+  isReadyToRefresh = false; // 是否已經拉到位（放開就會更新）
+
+  Math = Math;
+
   constructor() {
     addIcons({ person });
 
@@ -90,5 +99,32 @@ export class Home {
     if (url) {
       window.open(url, '_blank');
     }
+  }
+
+  updateTouchStart(e: TouchEvent) {
+    this.touchStartY = e.touches[0].pageY;
+  }
+
+  updateTouchMove(e: TouchEvent) {
+    const currentY = e.touches[0].pageY;
+    const distance = currentY - this.touchStartY;
+
+    // 只有當使用者在頂部且向下劃時才計算
+    if (window.scrollY === 0 && distance > 0) {
+      // 阻尼效果：讓拉動感不會太輕，越往下拉阻力越大
+      this.pullDistance = Math.pow(distance, 0.85);
+
+      // 判斷是否超過門檻
+      this.isReadyToRefresh = this.pullDistance > this.threshold;
+    }
+  }
+
+  updateTouchEnd(e: TouchEvent) {
+    if (this.isReadyToRefresh) {
+      window.location.reload();
+    }
+    // 重置狀態
+    this.pullDistance = 0;
+    this.isReadyToRefresh = false;
   }
 }

@@ -1,6 +1,28 @@
+<!-- 滑動刷新 -->
+<div class="flex flex-col flex-grow relative min-h-0">
+  <div
+    class="absolute top-0 left-0 right-0 mx-auto flex flex-col items-center justify-center transition-auto size-[36px] z-1000 rounded rounded-full bg-gray-900 dark:bg-zinc-900"
+    [style.transform]="'translateY(' + Math.min(pullDistance * 0.5, threshold * 0.5) + 'px)'"
+    [style.opacity]="pullDistance / threshold"
+    [ngClass]="{ hidden: pullDistance === 0 }"
+  >
+    <i
+      class="pi pi-refresh text-white dark:text-gray-300 transition-transform"
+      style="line-height: 1; transform-origin: center 55%; transition: transform 0.1s linear"
+      [style.transform]="'rotate(' + Math.min(360, (pullDistance / threshold) * 360) + 'deg)'"
+    ></i>
+  </div>
+</div>
+
 <div class="flex flex-col h-full dark:bg-zinc-900 text-gray-600 dark:text-gray-50">
   <div class="flex flex-col flex-grow relative min-h-0">
-    <div class="flex flex-col">
+    <!-- 搜尋與過濾器 -->
+    <div
+      class="flex flex-col transition-transform duration-200"
+      (touchstart)="updateTouchStart($event)"
+      (touchmove)="updateTouchMove($event)"
+      (touchend)="updateTouchEnd($event)"
+    >
       <div class="flex">
         <ion-searchbar
           placeholder="搜尋攤位編號、名稱、作者或標籤..."
@@ -69,6 +91,8 @@
         </div>
       </div>
     </div>
+
+    <!-- 地圖 -->
     <app-map class="flex-grow min-h-0"></app-map>
 
     <div class="absolute flex top-full left-1 right-1">
