@@ -207,6 +207,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     this.stallForm = this._fb.group({
       stallId: [''],
       stallTitle: ['', Validators.required],
+      stallAuthor: [''],
       stallImg: [''],
       stallLink: [''],
       promos: this._fb.array([]),
@@ -397,6 +398,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       {
         stallId: stall.id,
         stallTitle: stall.stallTitle,
+        stallAuthor: stall.stallAuthor,
         stallImg: stall.stallImg,
         stallLink: stall.stallLink,
       },
@@ -603,9 +605,10 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   // TODO ckeditor 和 預覽的稍微不一樣，待檢查樣式
   preview() {
     const stall = JSON.parse(JSON.stringify(this._selectStallService.selectedStall));
-    const { stallTitle, stallImg, stallLink } = this._getStallFromForm();
+    const { stallTitle, stallAuthor, stallImg, stallLink } = this._getStallFromForm();
     const promos = this._getPromoFromForm();
     stall.stallTitle = stallTitle;
+    stall.stallAuthor = stallAuthor;
     stall.stallImg = stallImg;
     stall.stallLink = stallLink;
     stall.promoData = promos;
@@ -860,9 +863,10 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private _getStallFromForm(): UpdateStallDto {
-    const { stallId, stallTitle, stallImg, stallLink } = this.stallForm.getRawValue();
+    const { stallId, stallTitle, stallAuthor, stallImg, stallLink } = this.stallForm.getRawValue();
     const dto = {
       stallTitle: stallTitle,
+      stallAuthor: stallAuthor,
       stallImg: stallImg || '',
       stallLink: stallLink || '',
     };
@@ -909,9 +913,10 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     const stall = this._selectStallService.selectedStall;
     if (!stall) return null;
 
-    const { stallTitle, stallImg, stallLink } = stall;
+    const { stallTitle, stallAuthor, stallImg, stallLink } = stall;
     return {
       stallTitle: stallTitle,
+      stallAuthor: stallAuthor,
       stallImg: stallImg || '',
       stallLink: stallLink || '',
     };

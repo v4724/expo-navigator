@@ -20,6 +20,8 @@ export interface StallDto {
   /** The official title or name of the stall. */
   stallTitle: string;
 
+  stallAuthor: string;
+
   /** The optional URL for the stall's official promotional image. */
   stallImg?: string;
 
@@ -34,6 +36,8 @@ export interface UpdateStallDto {
   // Official data from event site
   /** The official title or name of the stall. */
   stallTitle: string;
+
+  stallAuthor: string;
 
   /** The optional URL for the stall's official promotional image. */
   stallImg?: string;

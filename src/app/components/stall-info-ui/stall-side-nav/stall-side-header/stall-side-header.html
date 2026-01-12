@@ -5,7 +5,12 @@
   <div class="flex mr-auto items-center h-6">
     <div class="flex gap-1">
       <app-stall-zone-badge [stall]="stall()"></app-stall-zone-badge>
-      <div class="mt-[1px]">{{ stall()?.stallTitle }}</div>
+      <div class="flex items-center mt-[1px] gap-1">
+        {{ stall()?.stallTitle }}
+        @if (stall()?.stallAuthor) {
+          <div class="text-xs">({{ stall()?.stallAuthor }})</div>
+        }
+      </div>
     </div>
     @if (stall()?.stallLink) {
       <button

@@ -2,7 +2,12 @@
   <div title class="w-full flex">
     <div class="flex gap-1 items-center">
       <app-stall-zone-badge [stall]="stall()"></app-stall-zone-badge>
-      <div class="mt-[2px]">{{ stall()?.stallTitle }}</div>
+      <div class="flex items-center mt-[2px] gap-1">
+        {{ stall()?.stallTitle }}
+        @if (stall()?.stallAuthor) {
+          <div class="text-xs">({{ stall()?.stallAuthor }})</div>
+        }
+      </div>
     </div>
 
     @if (stall()?.stallLink) {

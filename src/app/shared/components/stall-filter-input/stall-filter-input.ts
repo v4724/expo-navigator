@@ -79,7 +79,8 @@ export class StallFilterInput implements ControlValueAccessor {
     const filter = this.allStalls.filter(
       (stall) =>
         stall.id.toLowerCase().includes(keyword) ||
-        stall.stallTitle.toLowerCase().includes(keyword),
+        stall.stallTitle.toLowerCase().includes(keyword) ||
+        stall.stallAuthor.toLowerCase().includes(keyword),
     );
 
     return filter;

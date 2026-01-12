@@ -87,6 +87,7 @@ export class StallService {
     const stall = this.findStall(stallId);
     if (stall) {
       stall.stallTitle = dto.stallTitle;
+      stall.stallAuthor = dto.stallAuthor;
       stall.stallImg = dto.stallImg;
       stall.stallLink = dto.stallLink;
 
@@ -368,7 +369,8 @@ export class StallService {
           stallNum,
           padNum,
           stallCnt: stallCnt,
-          stallTitle: rawStall['stallTitle'] || 'N/A',
+          stallTitle: rawStall['stallTitle'] || '',
+          stallAuthor: rawStall['stallAuthor'] || '',
           stallImg: stallImg,
           stallLink: rawStall['stallLink'] || undefined,
           coords: myCoords,

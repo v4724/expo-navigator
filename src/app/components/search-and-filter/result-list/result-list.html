@@ -73,6 +73,10 @@
                   <app-stall-zone-badge [stall]="item"></app-stall-zone-badge>
                   <div class="mb-[1px] text-sm">{{ item.stallTitle }}</div>
                 </div>
+                @if (item.stallAuthor) {
+                  <div class="text-xs">{{ item.stallAuthor }}</div>
+                }
+
                 <div class="flex flex-wrap">
                   @for (promo of item.promoData; track $index) {
                     @if ($index > 0) {
