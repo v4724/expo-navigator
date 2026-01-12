@@ -90,6 +90,7 @@ export class StallService {
       stall.stallAuthor = dto.stallAuthor;
       stall.stallImg = dto.stallImg;
       stall.stallLink = dto.stallLink;
+      stall.hasPrintSurvey = dto.hasPrintSurvey || false;
 
       const promos: PromoStall[] = dto.promotion
         .map((dto, index: number) => {
@@ -373,6 +374,7 @@ export class StallService {
           stallAuthor: rawStall['stallAuthor'] || '',
           stallImg: stallImg,
           stallLink: rawStall['stallLink'] || undefined,
+          hasPrintSurvey: rawStall['hasPrintSurvey'] || false,
           coords: myCoords,
           promoData: promoData || [],
           hasPromo: !!(promoData || []).length,

@@ -26,6 +26,18 @@
 /* .mobile-only-group {
   display: none;
 } */
+/* 設定印量調查偽元素樣式 */
+.stall-area.has-print-survey::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 12px 12px 0; /* 控制三角形大小 */
+  border-color: transparent rgb(var(--legend-print-survey)) transparent transparent;
+}
 
 .stall-area.has-promo {
   background-color: rgb(var(--legend-promo) / 0.95); /* Blue tint for promo stalls */

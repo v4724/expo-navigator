@@ -98,8 +98,18 @@
             formControlName="stallImg"
             autocomplete="off"
           />
-          <label for="stallImg">攤位圖</label>
+          <label for="stallImg">攤位圖 url</label>
         </p-floatlabel>
+      </div>
+
+      <div class="flex gap-1 w-full">
+        <label for="hasPrintSurvey"> 印量調查中 </label>
+        <p-toggleswitch
+          name="hasPrintSurvey"
+          formControlName="hasPrintSurvey"
+          inputId="hasPrintSurvey"
+          [size]="'small'"
+        />
       </div>
     </div>
     <!-- 社團資訊 skeleton -->

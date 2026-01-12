@@ -75,6 +75,7 @@ export class Home {
 
     this.items = [
       { label: '攤位', styleClass: 'legend-default' },
+      { label: '印調', styleClass: 'legend-default legend-print-survey relative ' },
       { label: '宣傳車', styleClass: 'legend-promo' },
       { label: '搜尋結果', styleClass: 'legend-search' },
       { label: '選擇中', styleClass: 'legend-selected' },

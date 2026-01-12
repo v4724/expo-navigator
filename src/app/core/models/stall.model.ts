@@ -28,6 +28,8 @@ export interface StallDto {
   /** The optional URL for the stall's main website or social media. */
   stallLink?: string;
 
+  hasPrintSurvey?: boolean;
+
   /** An array of all user-submitted promotions associated with this stall. */
   promotion: PromoStallDto[];
 }
@@ -44,6 +46,8 @@ export interface UpdateStallDto {
 
   /** The optional URL for the stall's main website or social media. */
   stallLink?: string;
+
+  hasPrintSurvey?: boolean;
 }
 
 export interface UpdateStallDtoWithPromo extends UpdateStallDto {

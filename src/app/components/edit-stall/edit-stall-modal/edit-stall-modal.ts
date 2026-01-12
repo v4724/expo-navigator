@@ -70,6 +70,7 @@ import { Skeleton } from 'primeng/skeleton';
 import { User } from 'src/app/core/interfaces/user.interface';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 interface MyTab {
   icon: string;
@@ -119,6 +120,7 @@ interface StallTag extends StallTagDto {
     Skeleton,
     CdkDropList,
     CdkDrag,
+    ToggleSwitchModule,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -210,6 +212,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       stallAuthor: [''],
       stallImg: [''],
       stallLink: [''],
+      hasPrintSurvey: [false],
       promos: this._fb.array([]),
     });
   }
@@ -401,6 +404,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
         stallAuthor: stall.stallAuthor,
         stallImg: stall.stallImg,
         stallLink: stall.stallLink,
+        hasPrintSurvey: stall.hasPrintSurvey,
       },
       { emitEvent: false },
     );
@@ -605,12 +609,14 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   // TODO ckeditor 和 預覽的稍微不一樣，待檢查樣式
   preview() {
     const stall = JSON.parse(JSON.stringify(this._selectStallService.selectedStall));
-    const { stallTitle, stallAuthor, stallImg, stallLink } = this._getStallFromForm();
+    const { stallTitle, stallAuthor, stallImg, stallLink, hasPrintSurvey } =
+      this._getStallFromForm();
     const promos = this._getPromoFromForm();
     stall.stallTitle = stallTitle;
     stall.stallAuthor = stallAuthor;
     stall.stallImg = stallImg;
     stall.stallLink = stallLink;
+    stall.hasPrintSurvey = hasPrintSurvey;
     stall.promoData = promos;
 
     if (this.isMobile) {
@@ -863,12 +869,14 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private _getStallFromForm(): UpdateStallDto {
-    const { stallId, stallTitle, stallAuthor, stallImg, stallLink } = this.stallForm.getRawValue();
+    const { stallId, stallTitle, stallAuthor, stallImg, stallLink, hasPrintSurvey } =
+      this.stallForm.getRawValue();
     const dto = {
       stallTitle: stallTitle,
       stallAuthor: stallAuthor,
       stallImg: stallImg || '',
       stallLink: stallLink || '',
+      hasPrintSurvey: hasPrintSurvey || false,
     };
 
     return dto;
@@ -913,12 +921,13 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     const stall = this._selectStallService.selectedStall;
     if (!stall) return null;
 
-    const { stallTitle, stallAuthor, stallImg, stallLink } = stall;
+    const { stallTitle, stallAuthor, stallImg, stallLink, hasPrintSurvey } = stall;
     return {
       stallTitle: stallTitle,
       stallAuthor: stallAuthor,
       stallImg: stallImg || '',
       stallLink: stallLink || '',
+      hasPrintSurvey: hasPrintSurvey || false,
     };
   }
 
