@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { isPlatform } from '@ionic/core';
@@ -8,17 +8,11 @@ import { isPlatform } from '@ionic/core';
 })
 export class UiStateService {
   private _showUiState = new BehaviorSubject<boolean>(false);
-  private _versionReady = new BehaviorSubject<boolean>(false);
 
   showUiState$ = this._showUiState.asObservable();
-  versionReady$ = this._versionReady.asObservable();
 
   // 避免 SSR 錯誤
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
-
-  set versionReady(value: boolean) {
-    this._versionReady.next(value);
-  }
 
   isPlatformBrowser() {
     return isPlatformBrowser(this.platformId);

@@ -19,15 +19,11 @@ export class Footer implements OnInit {
   expoTitle = toSignal(this._expoStateService.expoTitle$);
   expoUrl = toSignal(this._expoStateService.expoUrl$);
   reportUrl = toSignal(this._expoStateService.reportUrl$);
-  versionReady = toSignal(this._uiStateService.versionReady$);
 
   appVersion: string = 'x.x.x';
 
   ngOnInit(): void {
-    this._uiStateService.versionReady$.pipe().subscribe(() => {
-      // 版本準備好後再取得，避免 SSR 時抓不到 window 物件
-      this.appVersion = packageJson.version;
-    });
+    this.appVersion = packageJson.version;
   }
 
   openUrl(url: string | undefined) {
