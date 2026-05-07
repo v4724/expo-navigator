@@ -1,0 +1,10 @@
+@switch (wishlistId()) {
+  @case ('COOMIC4_R1') {
+    <app-coomic4-r1></app-coomic4-r1>
+  }
+  @default {
+    @if (wishlistId()) {
+      <div class="py-4">無對應來源</div>
+    }
+  }
+}

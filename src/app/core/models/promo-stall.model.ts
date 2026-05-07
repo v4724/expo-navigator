@@ -14,8 +14,14 @@ export interface PromoStallDto {
   promoTitle: string;
   /** The URL of the user's avatar image. */
   promoAvatar: string;
+
+  // 宣傳車 HTML 來源選項
+  promoHtmlSourceOption: 'CUSTOM' | 'WISHLIST';
+  promoHtmlWishlistId?: string;
+  promoHtmlWishlistConfigJson?: string; // API 取出來會是 object，保持轉成 string
   /** The main content of the promotion, can contain HTML. */
   promoHtml: string;
+
   /** An array of links associated with this specific promotion. */
   promoLinks: PromoLink[] | null;
 

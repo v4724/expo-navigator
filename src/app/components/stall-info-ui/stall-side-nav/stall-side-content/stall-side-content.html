@@ -92,14 +92,24 @@
               }
             </div>
           }
-          @if (promo.promoHtml) {
-            <div class="promo-html-content">
-              <div [innerHTML]="promo.promoHtml | safeHtml"></div>
-            </div>
-          } @else {
-            <div class="flex-grow flex items-center justify-center ng-star-inserted">
-              暫無宣傳資訊
-            </div>
+          @switch (promo.promoHtmlSourceOption) {
+            @case ('WISHLIST') {
+              <div class="promo-wishlist-content">
+                <app-wishlist-entrance-view [promo]="promo"></app-wishlist-entrance-view>
+              </div>
+            }
+            @case ('CUSTOM') {
+              @if (promo.promoHtml) {
+                <div class="promo-html-content">
+                  <div [innerHTML]="promo.promoHtml | safeHtml"></div>
+                </div>
+              } @else {
+                <div class="flex-grow flex items-center justify-center ng-star-inserted">
+                  暫無宣傳資訊
+                </div>
+              }
+            }
+            @default {}
           }
         </div>
         @if (promo.promoLinks.length > 0) {

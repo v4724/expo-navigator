@@ -26,10 +26,18 @@ import { TagService } from 'src/app/core/services/state/tag-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { SafeHtmlPipe } from 'src/app/shared/pipe/safe-html-pipe';
+import { WishlistEntranceView } from 'src/app/components/edit-stall/html-source-wishlist/wishlist-entrance-view/wishlist-entrance-view';
 
 @Component({
   selector: 'app-stall-side-content',
-  imports: [CommonModule, AvatarModule, TabsModule, SafeHtmlPipe, ButtonModule],
+  imports: [
+    CommonModule,
+    AvatarModule,
+    TabsModule,
+    SafeHtmlPipe,
+    ButtonModule,
+    WishlistEntranceView,
+  ],
   templateUrl: './stall-side-content.html',
   styleUrl: './stall-side-content.scss',
 })

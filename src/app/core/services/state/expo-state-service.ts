@@ -28,6 +28,7 @@ export class ExpoStateService {
   private _mobileMapScaleMax = new BehaviorSubject<number>(-1);
   private _mobileMapScaleFocus = new BehaviorSubject<number>(-1);
   private _mapImageUrl = new BehaviorSubject<string>('');
+  private _wishlistUrl = new BehaviorSubject<string>('');
 
   fetchEnd$ = this._fetchEnd.asObservable();
   expoTitle$ = this._expoTitle.asObservable();
@@ -47,6 +48,7 @@ export class ExpoStateService {
   mobileMapScaleMax$ = this._mobileMapScaleMax.asObservable();
   mobileMapScaleFocus$ = this._mobileMapScaleFocus.asObservable();
   mapImageUrl$ = this._mapImageUrl.asObservable();
+  wishlistUrl$ = this._wishlistUrl.asObservable();
 
   constructor() {
     forkJoin([fetchExcelData(env.defCsvUrl)])
@@ -127,6 +129,9 @@ export class ExpoStateService {
             break;
           case 'MAP_IMAGE_URL':
             this._mapImageUrl.next(value);
+            break;
+          case 'WISHLIST_URL':
+            this._wishlistUrl.next(value);
             break;
         }
       }

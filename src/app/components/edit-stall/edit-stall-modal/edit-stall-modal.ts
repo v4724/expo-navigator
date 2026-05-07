@@ -39,6 +39,7 @@ import {
   StallTagDto,
 } from 'src/app/core/models/stall-series-tag.model';
 import { Checkbox, CheckboxModule } from 'primeng/checkbox';
+import { SelectModule } from 'primeng/select';
 import { PanelModule } from 'primeng/panel';
 import { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
@@ -71,6 +72,8 @@ import { User } from 'src/app/core/interfaces/user.interface';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { WishlistService } from 'src/app/core/services/state/wishlist-service';
+import { WishlistEntrance } from '../html-source-wishlist/wishlist-entrance/wishlist-entrance';
 
 interface MyTab {
   icon: string;
@@ -111,6 +114,7 @@ interface StallTag extends StallTagDto {
     BadgeModule,
     MatProgressSpinnerModule,
     CKEditorModule,
+    SelectModule,
     StallSideHeader,
     StallSideContent,
     StallInfoDrawer,
@@ -121,6 +125,7 @@ interface StallTag extends StallTagDto {
     CdkDropList,
     CdkDrag,
     ToggleSwitchModule,
+    WishlistEntrance,
   ],
   templateUrl: './edit-stall-modal.html',
   styleUrl: './edit-stall-modal.scss',
@@ -135,6 +140,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly _selectStallService = inject(SelectStallService);
   private readonly _fb = inject(FormBuilder);
   private readonly _tagService = inject(TagService);
+  private readonly _wishlistService = inject(WishlistService);
   private readonly _stallApiService = inject(StallApiService);
   private readonly _uiStateService = inject(UiStateService);
   private readonly _confirmService = inject(ConfirmationService);
@@ -188,6 +194,12 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     });
     return arr;
   });
+
+  wishlist = signal<{ id: string; name: string; url: string }[]>([]);
+  htmlSourceOptionList = signal<{ name: string; value: string }[]>([
+    { name: '外部來源(吃土單)', value: 'WISHLIST' },
+    { name: '自訂', value: 'CUSTOM' },
+  ]);
 
   // key (seriesId)
   seriesSeletedTagCnt = signal<{ [key: string]: number }[]>([]);
@@ -389,6 +401,14 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       });
       this.seriesAndTags.set(map);
     });
+
+    // 取得吃土單 list
+    this._wishlistService.fetchEnd$.pipe(first((val) => !!val)).subscribe(() => {
+      const list = Array.from(this._wishlistService.allWishlistItems.values()).map((item) => {
+        return { id: item.id, name: item.name, url: item.url };
+      });
+      this.wishlist.set(list);
+    });
   }
 
   ngAfterViewInit(): void {}
@@ -422,6 +442,9 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
         promoSort: promo.promoSort ?? index,
         name: promo.promoTitle,
         icon: promo.promoAvatar,
+        htmlSourceOption: promo.promoHtmlSourceOption as string,
+        htmlWishlistId: promo.promoHtmlWishlistId?.toString() || '',
+        htmlWishlistConfigJson: promo.promoHtmlWishlistConfigJson || '{}',
         html: promo.promoHtml,
         customTags: promo.customTags,
       });
@@ -802,6 +825,11 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
     window.open(this.promoGuideUrl());
   }
 
+  oenpLink(wishlistId: string) {
+    const link = this._wishlistService.getWishlistItemById(wishlistId)?.url;
+    link && window.open(link);
+  }
+
   private _createPromoGroup() {
     return this._fb.group({
       id: [''],
@@ -810,6 +838,9 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       name: ['', Validators.required],
       icon: [''],
       links: this._fb.array([]),
+      htmlSourceOption: ['WISHLIST'],
+      htmlWishlistId: [''],
+      htmlWishlistConfigJson: ['{}'],
       html: [''],
       seriesAndTags: this._createSeriesAndTagsGroup(),
       customTags: [''],
@@ -900,8 +931,12 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       } else {
         delete promo.id;
       }
+
       promo.promoTitle = promo.name.toString();
       promo.promoAvatar = promo.icon;
+      promo.promoHtmlSourceOption = promo.htmlSourceOption || 'CUSTOM';
+      promo.promoHtmlWishlistId = promo.htmlWishlistId || '';
+      promo.promoHtmlWishlistConfigJson = promo.htmlWishlistConfigJson || '{}';
       promo.promoHtml = promo.html;
       promo.promoLinks = promo.links;
       promo.series = series;
@@ -909,6 +944,9 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       delete promo.name;
       delete promo.icon;
       delete promo.html;
+      delete promo.htmlSourceOption;
+      delete promo.htmlWishlistId;
+      delete promo.htmlWishlistConfigJson;
       delete promo.links;
       delete promo.seriesAndTags;
     });

@@ -38,6 +38,9 @@ export class PromoApiService {
         promoSort: promo.promoSort ?? index,
         promoTitle: promo.promoTitle,
         promoAvatar: promo.promoAvatar,
+        promoHtmlSourceOption: promo.promoHtmlSourceOption,
+        promoHtmlWishlistId: promo.promoHtmlWishlistId,
+        promoHtmlWishlistConfigJson: promo.promoHtmlWishlistConfigJson,
         promoHtml: promo.promoHtml,
         promoLinks: promo.promoLinks,
         series: promo.series,
@@ -61,7 +64,12 @@ export class PromoApiService {
     const promoSort = dto.promoSort;
     const promoTitle = dto.promoTitle;
     const promoAvatar = dto.promoAvatar;
-    const promoHtml = dto.promoHtml || '';
+    const promoHtmlSourceOption = dto.promoHtmlSourceOption;
+    const promoHtmlWishlistId = dto.promoHtmlWishlistId;
+    const promoHtmlWishlistConfigJson = dto.promoHtmlWishlistConfigJson
+      ? JSON.stringify(dto.promoHtmlWishlistConfigJson)
+      : '';
+    const promoHtml = dto.promoHtml;
 
     const promo: PromoStall = {
       id,
@@ -69,7 +77,10 @@ export class PromoApiService {
       promoSort: promoSort ?? index,
       promoTitle: promoTitle,
       promoAvatar: promoAvatar,
-      promoHtml: promoHtml,
+      promoHtmlSourceOption: promoHtmlSourceOption || 'WISHLIST',
+      promoHtmlWishlistId: promoHtmlWishlistId || '',
+      promoHtmlWishlistConfigJson: promoHtmlWishlistConfigJson || '{}',
+      promoHtml: promoHtml || '',
       promoLinks: dto.promoLinks || [],
       series: dto.series || [],
       tags: dto.tags || [],
