@@ -14,4 +14,8 @@ export interface AreaDto {
   textPointY: string;
 
   textColor: string;
+
+  textLayout: 'VERTICAL' | 'HORIZONTAL';
+
+  link: string;
 }

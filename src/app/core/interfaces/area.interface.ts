@@ -15,6 +15,10 @@ export interface Area {
   textPointY: number;
 
   textColor: string;
+
+  textLayout: 'VERTICAL' | 'HORIZONTAL';
+
+  link: string;
 }
 
 export interface Point {

@@ -6,6 +6,10 @@
       }
       <app-result-list-btn></app-result-list-btn>
 
+      @if (areaCnt() > 0) {
+        <app-only-area-btn></app-only-area-btn>
+      }
+
       <div class="w-80">
         <app-input-search></app-input-search>
       </div>

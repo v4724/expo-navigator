@@ -54,7 +54,7 @@ export class MarkedListDrawer implements OnInit {
   }
 
   close() {
-    this.drawer.close();
+    this.drawer?.close();
   }
 
   toggleLayer() {

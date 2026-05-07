@@ -34,6 +34,10 @@ export class AreaService {
     });
   }
 
+  get cnt(): number {
+    return this._allAreas.size;
+  }
+
   get allAreas(): AreaDto[] {
     return Array.from(this._allAreas.values());
   }
@@ -87,6 +91,8 @@ export class AreaService {
       textPointX: (Number(areaDto.textPointX) * mapW) / 100,
       textPointY: (Number(areaDto.textPointY) * mapH) / 100,
       textColor: areaDto.textColor,
+      textLayout: areaDto.textLayout,
+      link: areaDto.link,
     };
 
     return area;
@@ -101,6 +107,9 @@ export class AreaService {
       const textPointX = rawSeries['textPointX'];
       const textPointY = rawSeries['textPointY'];
       const textColor = rawSeries['textColor'];
+      let textLayout = rawSeries['textLayout'] as 'VERTICAL' | 'HORIZONTAL';
+      textLayout = !!textLayout ? textLayout : 'HORIZONTAL';
+      const link = rawSeries['link'];
 
       if (!areaPoints) return;
 
@@ -113,6 +122,8 @@ export class AreaService {
           textPointX,
           textPointY,
           textColor,
+          textLayout,
+          link,
         };
         this._allAreas.set(areaId, area);
       }

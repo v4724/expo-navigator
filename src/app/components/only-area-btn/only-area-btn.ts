@@ -1,34 +1,30 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, ViewChild } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DrawerOnMobile } from 'src/app/shared/components/drawer-on-mobile/drawer-on-mobile';
 import { FormsModule } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
+import { ButtonModule } from 'primeng/button';
+import { Popover, PopoverModule } from 'primeng/popover';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { AreaService } from 'src/app/core/services/state/area-service';
-import { MatIcon } from '@angular/material/icon';
-import { Chip } from 'primeng/chip';
 
 @Component({
-  selector: 'app-only-area-drawer',
-  imports: [CommonModule, ButtonModule, ToggleSwitch, FormsModule, DrawerOnMobile, MatIcon, Chip],
-  templateUrl: './only-area-drawer.html',
-  styleUrl: './only-area-drawer.scss',
+  selector: 'app-only-area-btn',
+  imports: [CommonModule, PopoverModule, ToggleSwitch, FormsModule, ButtonModule, MatIcon],
+  templateUrl: './only-area-btn.html',
+  styleUrl: './only-area-btn.scss',
 })
-export class OnlyAreaDrawer implements OnInit {
-  @ViewChild(DrawerOnMobile) drawer!: DrawerOnMobile;
+export class OnlyAreaBtn implements OnInit {
+  @ViewChild(Popover) popover!: Popover;
 
   private _areaService = inject(AreaService);
 
-  // Data
-  // 場內 only
   areaFetchEnd = toSignal(this._areaService.fetchEnd$);
   allAreas = computed(() => {
     if (!this.areaFetchEnd()) return [];
 
     return this._areaService.allAreas;
   });
-
   checked = false;
 
   ngOnInit() {
@@ -37,20 +33,8 @@ export class OnlyAreaDrawer implements OnInit {
     });
   }
 
-  show() {
-    this.drawer.show();
-  }
-
-  close() {
-    this.drawer.close();
-  }
-
   toggleLayer() {
     this._areaService.toggleLayer();
-  }
-
-  toggleArea(areaId: string) {
-    this._areaService.toggleArea(areaId);
   }
 
   openUrl(url: string) {

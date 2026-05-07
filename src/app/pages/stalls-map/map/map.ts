@@ -487,6 +487,10 @@ export class Map implements OnInit, AfterViewInit {
     const dy = touch2.clientY - touch1.clientY;
     return Math.sqrt(dx * dx + dy * dy);
   }
+
+  openUrl(link: string) {
+    link && window.open(link);
+  }
 }
 
 // function renderDebugBorders(mapContainer: HTMLElement) {

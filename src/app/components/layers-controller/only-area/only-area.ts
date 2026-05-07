@@ -38,4 +38,8 @@ export class OnlyArea {
   toggleArea(areaId: string) {
     this._areaService.toggleArea(areaId);
   }
+
+  openUrl(url: string) {
+    url && window.open(url);
+  }
 }

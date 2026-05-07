@@ -66,7 +66,11 @@
       <div class="pointer-events-none">
         @if (showAreas()) {
           @for (area of selectedAreas(); track $index) {
-            <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+            <div
+              class="absolute top-0 left-0 w-full h-full pointer-events-none"
+              [ngClass]="{ 'hover:cursor-pointer': area.link }"
+              (click)="openUrl(area.link)"
+            >
               <svg [attr.viewBox]="`0 0 ${mapWidth()} ${mapHeight()}`" class="pointer-events-none">
                 <!-- 動態繪製攤位的多邊形 -->
                 <polygon
@@ -85,6 +89,7 @@
                   alignment-baseline="middle"
                   font-size="8"
                   style="pointer-events: none"
+                  [style.writingMode]="area.textLayout === 'VERTICAL' ? 'vertical-rl' : ''"
                 >
                   {{ area.name }}
                 </text>

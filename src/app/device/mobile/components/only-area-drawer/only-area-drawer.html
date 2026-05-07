@@ -13,17 +13,27 @@
       ></mat-icon>
     }
     @if (allAreas().length) {
-      <div class="mt-2 space-y-2 pl-2" animate.enter="fade-in" animate.leave="fade-out">
+      <div
+        class="flex flex-wrap mt-2 space-y-2 pl-2"
+        animate.enter="fade-in"
+        animate.leave="fade-out"
+      >
         @for (area of allAreas(); track area.areaId) {
-          <label class="flex items-center gap-x-2 cursor-pointer">
+          <p-chip
+            class="border border-gray-200 !rounded-full"
+            [ngClass]="{ 'cursor-pointer': area.link }"
+            [style.backgroundColor]="area.fillColor"
+            [style.fontColor]="area.textColor"
+            (click)="openUrl(area.link)"
+          >
             <!-- <input
                 type="checkbox"
                 [checked]="activeAreas().has(area.areaId)"
                 (change)="toggleArea(area.areaId)"
                 class="h-4 w-4 rounded accent-blue-500"
               /> -->
-            <span class="text-sm text-gray-600">{{ area.areaName }}</span>
-          </label>
+            <span class="text-sm text-gray-600">{{ area.areaName }} </span>
+          </p-chip>
         }
       </div>
     }

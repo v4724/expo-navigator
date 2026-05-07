@@ -22,7 +22,11 @@
   @if (allAreas().length) {
     <div class="mt-2 space-y-2 pl-2" animate.enter="fade-in" animate.leave="fade-out">
       @for (area of allAreas(); track area.areaId) {
-        <label class="flex items-center gap-x-2 cursor-pointer">
+        <label
+          class="flex items-center gap-x-2 cursor-pointer p-2"
+          [style.backgroundColor]="area.fillColor"
+          [style.fontColor]="area.textColor"
+        >
           <!-- <input
                 type="checkbox"
                 [checked]="activeAreas().has(area.areaId)"
