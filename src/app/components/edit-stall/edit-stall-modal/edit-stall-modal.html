@@ -209,14 +209,207 @@
                   </p-floatlabel>
                 </div>
 
+                <!-- 標籤 -->
+                <div class="flex flex-col gap-2">
+                  @if (promoCustomTagOnly()) {
+                    <p-floatlabel variant="on">
+                      <input
+                        class="w-full"
+                        pInputText
+                        type="text"
+                        [id]="`${promoIndex}-customTags`"
+                        formControlName="customTags"
+                        autocomplete="off"
+                      />
+                      <label [for]="`${promoIndex}-customTags`">自訂 TAG</label>
+                    </p-floatlabel>
+                  } @else {
+                    <p-fieldset [toggleable]="true" legend="標籤" collapsed class="w-full">
+                      @if (multiSeries()) {
+                        <div>作品</div>
+                      }
+                      <div class="flex flex-wrap" formGroupName="seriesAndTags">
+                        @for (series of seriesAndTags().keys(); track series) {
+                          @if (multiSeries()) {
+                            <div class="flex items-center gap-2 p-2 w-1/2 md:w-1/4">
+                              <p-checkbox
+                                [formControlName]="series.controlName"
+                                [binary]="true"
+                                [inputId]="series.seriesId.toString()"
+                              />
+                              <label
+                                [for]="series.seriesId.toString()"
+                                class="text-nowrap overflow-hidden text-ellipsis"
+                              >
+                                {{ series.seriesName }}
+                              </label>
+                              @if (seriesSeletedTagCnt()[promoIndex][series.controlName] > 0) {
+                                <p-badge
+                                  [value]="seriesSeletedTagCnt()[promoIndex][series.controlName]"
+                                  badgeSize="small"
+                                  severity="info"
+                                />
+                              }
+                              <button
+                                (click)="openTags($event, op, drawer)"
+                                class="text-gray-500 hover:text-gray-800 flex items-center"
+                              >
+                                <mat-icon
+                                  [inline]="true"
+                                  aria-hidden="false"
+                                  aria-label="Example filter icon"
+                                  fontIcon="filter_alt"
+                                ></mat-icon>
+                              </button>
+                            </div>
+                          } @else {
+                            @if (series.seriesId === specifiedSeriesId()) {
+                              @if (isMobile) {
+                                <ng-container *ngTemplateOutlet="tags"></ng-container>
+                              } @else {
+                                <div class="flex flex-col gap-3 w-full">
+                                  @let groups = seriesAndTags().get(series);
+                                  @for (group of groups?.keys(); track $index) {
+                                    <div class="grid grid-cols-5 gap-3 w-full">
+                                      <div class="col-span-1 flex gap-1 w-25">
+                                        <span class="text-nowrap">{{ group.groupName }}</span>
+
+                                        @let tagsCnt = currPromoTagCnt();
+                                        @if (
+                                          tagsCnt &&
+                                          tagsCnt[series.seriesId] &&
+                                          tagsCnt[series.seriesId][group.groupId]
+                                        ) {
+                                          @let size = tagsCnt[series.seriesId][group.groupId].size;
+                                          @if (!!size) {
+                                            <p-badge [value]="size" badgeSize="small" />
+                                          }
+                                        }
+                                      </div>
+                                      <div class="col-span-4 flex grow flex-wrap gap-x-2 gap-y-3">
+                                        @for (tag of groups?.get(group) ?? []; track tag.tagId) {
+                                          <div class="inline-flex flex-nowrap gap-x-1">
+                                            <p-checkbox
+                                              [formControlName]="tag.controlName"
+                                              [binary]="true"
+                                              [inputId]="`${promoIndex}-${tag.controlName}`"
+                                              (onChange)="updateCurrPromoTagCnt(promo)"
+                                            />
+                                            <label [for]="`${promoIndex}-${tag.controlName}`">
+                                              {{ tag.tagName }}
+                                            </label>
+                                          </div>
+                                        }
+                                      </div>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            }
+                          }
+
+                          <!-- desktop 用 -->
+                          <p-popover #op>
+                            <div
+                              class="flex flex-col min-w-[200px] w-[250px] md:w-[400px] min-h-[200px] h-[300px] overflow-y-auto edit-stall-tags"
+                            >
+                              <ng-container *ngTemplateOutlet="tags"></ng-container>
+                            </div>
+                          </p-popover>
+
+                          <!-- mobile 用 -->
+                          <app-drawer-on-mobile
+                            #drawer
+                            [modal]="true"
+                            [styleClass]="'edit-stall-tags__mobile'"
+                          >
+                            <div title>{{ series.seriesName }}</div>
+                            <ng-container *ngTemplateOutlet="tags"></ng-container>
+                          </app-drawer-on-mobile>
+
+                          <!-- 共用結構 -->
+                          <ng-template #tags>
+                            @let groups = seriesAndTags().get(series);
+                            @for (group of groups?.keys(); track $index) {
+                              <p-accordion>
+                                <p-accordion-panel [value]="$index">
+                                  <p-accordion-header>
+                                    <div class="flex gap-1">
+                                      <span>{{ group.groupName }}</span>
+
+                                      @let tagsCnt = currPromoTagCnt();
+                                      @if (
+                                        tagsCnt &&
+                                        tagsCnt[series.seriesId] &&
+                                        tagsCnt[series.seriesId][group.groupId]
+                                      ) {
+                                        @let size = tagsCnt[series.seriesId][group.groupId].size;
+                                        @if (!!size) {
+                                          <p-badge [value]="size" badgeSize="small" />
+                                        }
+                                      }
+                                    </div>
+                                  </p-accordion-header>
+                                  <p-accordion-content>
+                                    <div class="flex flex-wrap gap-x-2 gap-y-3">
+                                      @for (tag of groups?.get(group) ?? []; track tag.tagId) {
+                                        <div class="inline-flex flex-nowrap gap-x-1">
+                                          <p-checkbox
+                                            [formControlName]="tag.controlName"
+                                            [binary]="true"
+                                            [inputId]="`${promoIndex}-${tag.controlName}`"
+                                            (onChange)="updateCurrPromoTagCnt(promo)"
+                                          />
+                                          <label [for]="`${promoIndex}-${tag.controlName}`">
+                                            {{ tag.tagName }}
+                                          </label>
+                                        </div>
+                                      }
+                                    </div>
+                                  </p-accordion-content>
+                                </p-accordion-panel>
+                              </p-accordion>
+                            }
+                          </ng-template>
+                        }
+                      </div>
+                      <div class="flex w-full gap-4 mt-3">
+                        <label class="flex items-center text-nowrap w-6"> 自訂 </label>
+                        <input
+                          formControlName="customTags"
+                          pSize="small"
+                          class="flex-grow"
+                          pInputText
+                          type="text"
+                          placeholder=""
+                          autocomplete="off"
+                        />
+                      </div>
+                    </p-fieldset>
+                  }
+                </div>
+
                 <!-- HTML 來源選項 -->
+                <div class="flex items-center mt-2">
+                  <div class="flex items-center text-base">宣傳車內容</div>
+                  <p-button
+                    icon="pi pi-question-circle"
+                    size="small"
+                    disabled
+                    [rounded]="true"
+                    [text]="true"
+                    pTooltip="依照儲存時所選擇的分頁(外部/自訂)顯示宣傳車內容"
+                    tooltipPosition="top"
+                  />
+                </div>
+
                 <p-tabs
                   [value]="promo.get('htmlSourceOption')?.value"
                   scrollable
                   (valueChange)="promo.get('htmlSourceOption')?.setValue($event)"
                 >
                   <p-tablist
-                    class="!sticky top-0 z-100 border-t-1 border-gray-100 dark:border-zinc-700 example-list"
+                    class="!sticky top-[48px] z-100 border-t-1 border-gray-100 dark:border-zinc-700 example-list"
                   >
                     @for (option of htmlSourceOptionList(); track option; let idx = $index) {
                       <p-tab [value]="option.value">
@@ -230,9 +423,9 @@
                       </p-tab>
                     }
                   </p-tablist>
-                  <p-tabpanels class="min-h-[calc(100dvh-465px)]">
+                  <p-tabpanels class="min-h-[calc(100dvh-465px)] flex w-full">
                     <!-- 外部來源(吃土單) -->
-                    <p-tabpanel [value]="'WISHLIST'">
+                    <p-tabpanel [value]="'WISHLIST'" class="flex flex-col flex-grow w-full">
                       <div class="flex flex-wrap gap-4 w-full">
                         <p-select
                           formControlName="htmlWishlistId"
@@ -258,186 +451,11 @@
                         </button>
                       </div>
 
-                      <app-wishlist-entrance></app-wishlist-entrance>
+                      <app-wishlist-entrance class="w-full flex-grow"></app-wishlist-entrance>
                     </p-tabpanel>
 
                     <!-- 自訂 -->
-                    <p-tabpanel [value]="'CUSTOM'">
-                      <!-- 標籤 -->
-                      <div class="flex flex-col gap-2">
-                        <p-fieldset [toggleable]="true" legend="標籤" collapsed class="w-full">
-                          @if (multiSeries()) {
-                            <div>作品</div>
-                          }
-                          <div class="flex flex-wrap" formGroupName="seriesAndTags">
-                            @for (series of seriesAndTags().keys(); track series) {
-                              @if (multiSeries()) {
-                                <div class="flex items-center gap-2 p-2 w-1/2 md:w-1/4">
-                                  <p-checkbox
-                                    [formControlName]="series.controlName"
-                                    [binary]="true"
-                                    [inputId]="series.seriesId.toString()"
-                                  />
-                                  <label
-                                    [for]="series.seriesId.toString()"
-                                    class="text-nowrap overflow-hidden text-ellipsis"
-                                  >
-                                    {{ series.seriesName }}
-                                  </label>
-                                  @if (seriesSeletedTagCnt()[promoIndex][series.controlName] > 0) {
-                                    <p-badge
-                                      [value]="
-                                        seriesSeletedTagCnt()[promoIndex][series.controlName]
-                                      "
-                                      badgeSize="small"
-                                      severity="info"
-                                    />
-                                  }
-                                  <button
-                                    (click)="openTags($event, op, drawer)"
-                                    class="text-gray-500 hover:text-gray-800 flex items-center"
-                                  >
-                                    <mat-icon
-                                      [inline]="true"
-                                      aria-hidden="false"
-                                      aria-label="Example filter icon"
-                                      fontIcon="filter_alt"
-                                    ></mat-icon>
-                                  </button>
-                                </div>
-                              } @else {
-                                @if (series.seriesId === specifiedSeriesId()) {
-                                  @if (isMobile) {
-                                    <ng-container *ngTemplateOutlet="tags"></ng-container>
-                                  } @else {
-                                    <div class="flex flex-col gap-3 w-full">
-                                      @let groups = seriesAndTags().get(series);
-                                      @for (group of groups?.keys(); track $index) {
-                                        <div class="grid grid-cols-5 gap-3 w-full">
-                                          <div class="col-span-1 flex gap-1 w-25">
-                                            <span class="text-nowrap">{{ group.groupName }}</span>
-
-                                            @let tagsCnt = currPromoTagCnt();
-                                            @if (
-                                              tagsCnt &&
-                                              tagsCnt[series.seriesId] &&
-                                              tagsCnt[series.seriesId][group.groupId]
-                                            ) {
-                                              @let size =
-                                                tagsCnt[series.seriesId][group.groupId].size;
-                                              @if (!!size) {
-                                                <p-badge [value]="size" badgeSize="small" />
-                                              }
-                                            }
-                                          </div>
-                                          <div
-                                            class="col-span-4 flex grow flex-wrap gap-x-2 gap-y-3"
-                                          >
-                                            @for (
-                                              tag of groups?.get(group) ?? [];
-                                              track tag.tagId
-                                            ) {
-                                              <div class="inline-flex flex-nowrap gap-x-1">
-                                                <p-checkbox
-                                                  [formControlName]="tag.controlName"
-                                                  [binary]="true"
-                                                  [inputId]="`${promoIndex}-${tag.controlName}`"
-                                                  (onChange)="updateCurrPromoTagCnt(promo)"
-                                                />
-                                                <label [for]="`${promoIndex}-${tag.controlName}`">
-                                                  {{ tag.tagName }}
-                                                </label>
-                                              </div>
-                                            }
-                                          </div>
-                                        </div>
-                                      }
-                                    </div>
-                                  }
-                                }
-                              }
-
-                              <!-- desktop 用 -->
-                              <p-popover #op>
-                                <div
-                                  class="flex flex-col min-w-[200px] w-[250px] md:w-[400px] min-h-[200px] h-[300px] overflow-y-auto edit-stall-tags"
-                                >
-                                  <ng-container *ngTemplateOutlet="tags"></ng-container>
-                                </div>
-                              </p-popover>
-
-                              <!-- mobile 用 -->
-                              <app-drawer-on-mobile
-                                #drawer
-                                [modal]="true"
-                                [styleClass]="'edit-stall-tags__mobile'"
-                              >
-                                <div title>{{ series.seriesName }}</div>
-                                <ng-container *ngTemplateOutlet="tags"></ng-container>
-                              </app-drawer-on-mobile>
-
-                              <!-- 共用結構 -->
-                              <ng-template #tags>
-                                @let groups = seriesAndTags().get(series);
-                                @for (group of groups?.keys(); track $index) {
-                                  <p-accordion>
-                                    <p-accordion-panel [value]="$index">
-                                      <p-accordion-header>
-                                        <div class="flex gap-1">
-                                          <span>{{ group.groupName }}</span>
-
-                                          @let tagsCnt = currPromoTagCnt();
-                                          @if (
-                                            tagsCnt &&
-                                            tagsCnt[series.seriesId] &&
-                                            tagsCnt[series.seriesId][group.groupId]
-                                          ) {
-                                            @let size =
-                                              tagsCnt[series.seriesId][group.groupId].size;
-                                            @if (!!size) {
-                                              <p-badge [value]="size" badgeSize="small" />
-                                            }
-                                          }
-                                        </div>
-                                      </p-accordion-header>
-                                      <p-accordion-content>
-                                        <div class="flex flex-wrap gap-x-2 gap-y-3">
-                                          @for (tag of groups?.get(group) ?? []; track tag.tagId) {
-                                            <div class="inline-flex flex-nowrap gap-x-1">
-                                              <p-checkbox
-                                                [formControlName]="tag.controlName"
-                                                [binary]="true"
-                                                [inputId]="`${promoIndex}-${tag.controlName}`"
-                                                (onChange)="updateCurrPromoTagCnt(promo)"
-                                              />
-                                              <label [for]="`${promoIndex}-${tag.controlName}`">
-                                                {{ tag.tagName }}
-                                              </label>
-                                            </div>
-                                          }
-                                        </div>
-                                      </p-accordion-content>
-                                    </p-accordion-panel>
-                                  </p-accordion>
-                                }
-                              </ng-template>
-                            }
-                          </div>
-                          <div class="flex w-full gap-4 mt-3">
-                            <label class="flex items-center text-nowrap w-6"> 自訂 </label>
-                            <input
-                              formControlName="customTags"
-                              pSize="small"
-                              class="flex-grow"
-                              pInputText
-                              type="text"
-                              placeholder=""
-                              autocomplete="off"
-                            />
-                          </div>
-                        </p-fieldset>
-                      </div>
-
+                    <p-tabpanel [value]="'CUSTOM'" class="flex flex-col w-full">
                       <!-- 宣傳車 -->
                       <div class="flex flex-col gap-1 mt-2">
                         <label>宣傳內容</label>

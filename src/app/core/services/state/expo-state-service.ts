@@ -15,6 +15,7 @@ export class ExpoStateService {
   private _expoUrl = new BehaviorSubject<string>('');
   private _reportUrl = new BehaviorSubject<string>('');
   private _promoGuideUrl = new BehaviorSubject<string>('');
+  private _promoCustomTagOnly = new BehaviorSubject<string>('');
   private _multiSeriesExpo = new BehaviorSubject<boolean>(false);
   private _specifiedSeriesId = new BehaviorSubject<number>(-1);
   private _areaCSVUrl = new BehaviorSubject<string>('');
@@ -35,6 +36,7 @@ export class ExpoStateService {
   expoUrl$ = this._expoUrl.asObservable();
   reportUrl$ = this._reportUrl.asObservable();
   promoGuideUrl$ = this._promoGuideUrl.asObservable();
+  promoCustomTagOnly$ = this._promoCustomTagOnly.asObservable();
   multiSeriesExpo$ = this._multiSeriesExpo.asObservable();
   specifiedSeriesId$ = this._specifiedSeriesId.asObservable();
   areaCSVUrl$ = this._areaCSVUrl.asObservable();
@@ -90,6 +92,9 @@ export class ExpoStateService {
             break;
           case 'PROMO_GUIDE_URL':
             this._promoGuideUrl.next(value);
+            break;
+          case 'PROMO_CUSTOM_TAG_ONLY':
+            this._promoCustomTagOnly.next(value);
             break;
           case 'MULTI_SERIES_EXPO':
             this._multiSeriesExpo.next(value.toLowerCase() === 'false' ? false : true);

@@ -174,6 +174,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
   multiSeries = toSignal(this._expoStateService.multiSeriesExpo$);
   specifiedSeriesId = toSignal(this._expoStateService.specifiedSeriesId$);
   promoGuideUrl = toSignal(this._expoStateService.promoGuideUrl$);
+  promoCustomTagOnly = toSignal(this._expoStateService.promoCustomTagOnly$);
 
   selectedStallId = toSignal(this._selectStallService.selectedStallId$);
 
