@@ -10,68 +10,33 @@
  * @param csvText The raw CSV string.
  * @returns An array of objects, where keys are headers.
  */
-function parseCsv(csvText: string): Record<string, string>[] {
+
+import Papa from 'papaparse';
+
+function parseCsv(csvText: string, headerIdx: number = 1): Record<string, string>[] {
   // Standardize line endings and split into lines.
-  const lines = csvText.trim().replace(/\r\n/g, '\n').split('\n');
+  // const lines = csvText.trim().replace(/\r\n/g, '\n').split('\n');
+  const lines = Papa.parse(csvText, { skipEmptyLines: true }).data as string[][];
 
   // Need at least 2 lines: one for description (skipped) and one for headers.
   if (lines.length < 2) {
     return [];
   }
 
-  /**
-   * Parses a single line of CSV, respecting quotes.
-   * @param line The string for a single CSV row.
-   * @returns An array of string values for that row.
-   */
-  const parseLine = (line: string): string[] => {
-    const values: string[] = [];
-    let currentVal = '';
-    let inQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-
-      if (char === '"') {
-        // If we see a quote, and the next character is also a quote (""),
-        // it's an escaped quote, so add a single " to the value and skip the next character.
-        if (inQuotes && line[i + 1] === '"') {
-          currentVal += '"';
-          i++; // Skip the second quote of the pair.
-        } else {
-          // Otherwise, it's a quote that starts or ends a quoted field.
-          inQuotes = !inQuotes;
-        }
-      } else if (char === ',' && !inQuotes) {
-        // If it's a comma and we're not inside a quoted field, it's a field separator.
-        values.push(currentVal);
-        currentVal = ''; // Reset for the next value.
-      } else {
-        // Any other character is part of the current value.
-        currentVal += char;
-      }
-    }
-    // Add the final value after the loop finishes.
-    values.push(currentVal);
-    return values;
-  };
-
   // The first line is a description, so we skip it.
   // The second line (index 1) contains the headers.
-  const headers = parseLine(lines[1]).map((h) => h.trim());
+  const headers = lines[headerIdx].map((header) => header.trim());
   const results: Record<string, string>[] = [];
 
   // Process the rest of the lines (starting from the third line, index 2) as data rows.
   for (let i = 2; i < lines.length; i++) {
     const line = lines[i];
-    if (!line.trim()) continue; // Skip empty lines in the sheet.
 
-    const values = parseLine(line);
     const obj: Record<string, string> = {};
     let hasContent = false;
 
     headers.forEach((header, index) => {
-      const value = values[index] || ''; // Default to empty string if a value is missing.
+      const value = line[index]?.trim() || ''; // Default to empty string if a value is missing.
       obj[header] = value;
       if (value.trim() !== '') hasContent = true; // Track if the row has any data at all.
     });
