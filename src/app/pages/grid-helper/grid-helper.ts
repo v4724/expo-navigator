@@ -68,7 +68,7 @@ export class GridHelper {
       return this.getRatioXY(data.x, data.y);
     });
     const str =
-      perPolygon[0].y + ' ' + perPolygon[1].x + ' ' + perPolygon[2].y + ' ' + perPolygon[0].x;
+      perPolygon[0].y + '\t' + perPolygon[1].x + '\t' + perPolygon[2].y + '\t' + perPolygon[0].x;
     return str;
   });
   drawingPolygonRatioJSONStr = computed(() => {
