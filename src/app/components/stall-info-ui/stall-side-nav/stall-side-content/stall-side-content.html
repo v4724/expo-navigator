@@ -88,7 +88,10 @@
                 }
               }
               @if (promo.customTags) {
-                <span class="promo-tag text-start">#{{ promo.customTags }}</span>
+                @let tags = promo.customTags.split(',');
+                @for (tag of tags; track tag) {
+                  <span class="promo-tag text-start">#{{ tag }}</span>
+                }
               }
             </div>
           }

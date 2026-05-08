@@ -221,7 +221,7 @@
                         formControlName="customTags"
                         autocomplete="off"
                       />
-                      <label [for]="`${promoIndex}-customTags`">自訂 TAG</label>
+                      <label [for]="`${promoIndex}-customTags`">自訂 TAG (多個用,分隔)</label>
                     </p-floatlabel>
                   } @else {
                     <p-fieldset [toggleable]="true" legend="標籤" collapsed class="w-full">
@@ -464,74 +464,81 @@
                           </ckeditor>
                         }
                       </div>
+
+                      <!-- 連結 -->
+                      <div class="flex flex-col gap-3" formArrayName="links">
+                        <div class="flex justify-center">
+                          <p-fieldset
+                            [toggleable]="true"
+                            legend="宣傳連結"
+                            collapsed
+                            class="w-full"
+                          >
+                            <div class="pt-3 flex flex-col gap-3 w-full">
+                              @for (
+                                link of getLinksForm(promoIndex).controls;
+                                let linkIndex = $index;
+                                track link
+                              ) {
+                                <div class="flex gap-3 w-full" [formGroupName]="linkIndex">
+                                  <div class="flex flex-col gap-1 w-1/2">
+                                    <p-floatlabel variant="on">
+                                      <input
+                                        class="w-full"
+                                        pInputText
+                                        type="text"
+                                        [id]="`${promoIndex}-href-${linkIndex}`"
+                                        formControlName="href"
+                                        autocomplete="off"
+                                      />
+                                      <label [for]="`${promoIndex}-href-${linkIndex}`">網址</label>
+                                    </p-floatlabel>
+                                  </div>
+                                  <div class="flex flex-col gap-1">
+                                    <p-floatlabel variant="on">
+                                      <input
+                                        class="w-full"
+                                        pInputText
+                                        type="text"
+                                        [id]="`${promoIndex}-text-${linkIndex}`"
+                                        formControlName="text"
+                                        autocomplete="off"
+                                      />
+                                      <label [for]="`${promoIndex}-text-${linkIndex}`"
+                                        >顯示文字</label
+                                      >
+                                    </p-floatlabel>
+                                  </div>
+                                  <button
+                                    class="text-base transition hover:scale-110"
+                                    (click)="removeLink(promoIndex, linkIndex)"
+                                  >
+                                    <mat-icon [inline]="true">close</mat-icon>
+                                  </button>
+                                </div>
+                              }
+
+                              <div class="flex justify-center items-center">
+                                <button
+                                  class="text-sm transition hover:scale-105 flex"
+                                  (click)="addLink($event, promoIndex)"
+                                >
+                                  <mat-icon
+                                    [inline]="true"
+                                    aria-hidden="false"
+                                    aria-label="auto add"
+                                    fontIcon="add"
+                                  ></mat-icon>
+                                  新增
+                                </button>
+                              </div>
+                            </div>
+                          </p-fieldset>
+                        </div>
+                      </div>
                     </p-tabpanel>
                   </p-tabpanels>
                 </p-tabs>
-
-                <!-- 連結 -->
-                <div class="flex flex-col gap-3" formArrayName="links">
-                  <div class="flex justify-center">
-                    <p-fieldset [toggleable]="true" legend="宣傳連結" collapsed class="w-full">
-                      <div class="pt-3 flex flex-col gap-3 w-full">
-                        @for (
-                          link of getLinksForm(promoIndex).controls;
-                          let linkIndex = $index;
-                          track link
-                        ) {
-                          <div class="flex gap-3 w-full" [formGroupName]="linkIndex">
-                            <div class="flex flex-col gap-1 w-1/2">
-                              <p-floatlabel variant="on">
-                                <input
-                                  class="w-full"
-                                  pInputText
-                                  type="text"
-                                  [id]="`${promoIndex}-href-${linkIndex}`"
-                                  formControlName="href"
-                                  autocomplete="off"
-                                />
-                                <label [for]="`${promoIndex}-href-${linkIndex}`">網址</label>
-                              </p-floatlabel>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                              <p-floatlabel variant="on">
-                                <input
-                                  class="w-full"
-                                  pInputText
-                                  type="text"
-                                  [id]="`${promoIndex}-text-${linkIndex}`"
-                                  formControlName="text"
-                                  autocomplete="off"
-                                />
-                                <label [for]="`${promoIndex}-text-${linkIndex}`">顯示文字</label>
-                              </p-floatlabel>
-                            </div>
-                            <button
-                              class="text-base transition hover:scale-110"
-                              (click)="removeLink(promoIndex, linkIndex)"
-                            >
-                              <mat-icon [inline]="true">close</mat-icon>
-                            </button>
-                          </div>
-                        }
-
-                        <div class="flex justify-center items-center">
-                          <button
-                            class="text-sm transition hover:scale-105 flex"
-                            (click)="addLink($event, promoIndex)"
-                          >
-                            <mat-icon
-                              [inline]="true"
-                              aria-hidden="false"
-                              aria-label="auto add"
-                              fontIcon="add"
-                            ></mat-icon>
-                            新增
-                          </button>
-                        </div>
-                      </div>
-                    </p-fieldset>
-                  </div>
-                </div>
               </div>
             </p-tabpanel>
           }

@@ -1,7 +1,8 @@
 <div
-  class="rounded-full px-2 py-1 font-sans font-semibold text-xs text-nowrap"
+  class="rounded-full px-2 py-1 font-sans font-semibold text-xs text-nowrap border-gray-400"
   [style.backgroundColor]="stall()?.rule?.zoneColor ? stall()?.rule?.zoneColor : 'transparent'"
   [style.color]="stall()?.rule?.fontColor ? stall()?.rule?.fontColor : 'text-gray-600'"
+  [style.borderWidth.px]="stall()?.rule?.zoneColor ? '0' : '1'"
 >
   {{ stall()?.id }}
 </div>

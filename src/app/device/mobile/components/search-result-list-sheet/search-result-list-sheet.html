@@ -95,7 +95,10 @@
                 }
                 @if (item.filterCustomTags.length) {
                   @for (tag of item.filterCustomTags; track $index) {
-                    <span class="promo-tag inline-flex"> #{{ tag }} </span>
+                    @let list = tag.split(',');
+                    @for (text of list; track text) {
+                      <span class="promo-tag inline-flex">#{{ text }}</span>
+                    }
                   }
                 }
               </div>
