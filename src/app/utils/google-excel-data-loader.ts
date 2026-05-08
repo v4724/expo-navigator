@@ -13,10 +13,14 @@
 
 import Papa from 'papaparse';
 
-function parseCsv(csvText: string, headerIdx: number = 1): Record<string, string>[] {
+function parseCsv(
+  csvText: string,
+  dataStart: number = 2,
+  headerIdx: number = 1,
+): Record<string, string>[] {
   // Standardize line endings and split into lines.
   // const lines = csvText.trim().replace(/\r\n/g, '\n').split('\n');
-  const lines = Papa.parse(csvText, { skipEmptyLines: true }).data as string[][];
+  const lines = Papa.parse(csvText, { skipEmptyLines: false }).data as string[][];
 
   // Need at least 2 lines: one for description (skipped) and one for headers.
   if (lines.length < 2) {
@@ -29,7 +33,7 @@ function parseCsv(csvText: string, headerIdx: number = 1): Record<string, string
   const results: Record<string, string>[] = [];
 
   // Process the rest of the lines (starting from the third line, index 2) as data rows.
-  for (let i = 2; i < lines.length; i++) {
+  for (let i = dataStart; i < lines.length; i++) {
     const line = lines[i];
 
     const obj: Record<string, string> = {};
@@ -42,9 +46,9 @@ function parseCsv(csvText: string, headerIdx: number = 1): Record<string, string
     });
 
     // Only add the row to results if it's not completely empty.
-    if (hasContent) {
-      results.push(obj);
-    }
+    // if (hasContent) {
+    results.push(obj);
+    // }
   }
 
   return results;
@@ -57,14 +61,17 @@ function parseCsv(csvText: string, headerIdx: number = 1): Record<string, string
  * @param googleSheetCSVUrl In Google Sheets: File > Share > Publish to web > Select a sheet & "Comma-separated values (.csv)" > Publish.
  * @returns A promise that resolves to an array of stall objects.
  */
-export async function fetchExcelData(googleSheetCSVUrl: string): Promise<Record<string, string>[]> {
+export async function fetchExcelData(
+  googleSheetCSVUrl: string,
+  dataStart: number = 2,
+): Promise<Record<string, string>[]> {
   const urlWithTimestamp = `${googleSheetCSVUrl}&_=${Date.now()}`;
   // --- First Attempt: With Cache-Busting Timestamp ---
   try {
     const response = await fetch(urlWithTimestamp);
     if (response.ok) {
       const csvText = await response.text();
-      return parseCsv(csvText);
+      return parseCsv(csvText, dataStart);
     }
     // Log non-critical server errors and proceed to fallback.
     console.warn(

@@ -1,50 +1,61 @@
 import { Component, inject, input, InputSignal, signal, WritableSignal } from '@angular/core';
-import { C4R1Config, loadData } from '../../model/coomic4-r1';
-import { finalize } from 'rxjs';
+import { C4R1Author, C4R1Config } from '../../model/coomic4-r1/coomic4-r1';
+import { filter, finalize } from 'rxjs';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 import { Skeleton } from 'primeng/skeleton';
+import { Coomic4R1Service } from '../../model/coomic4-r1/coomic4-r1-service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-coomic4-r1-view',
-  imports: [Skeleton],
+  imports: [Skeleton, TagModule],
   templateUrl: './coomic4-r1-view.html',
   styleUrl: './coomic4-r1-view.scss',
 })
 export class Coomic4R1View {
   wishlistId: InputSignal<string> = input.required();
   wishlistConfigJson: InputSignal<string> = input.required();
-  data?: C4R1Config;
-  items: any[] = [];
-
-  isLoading: WritableSignal<boolean> = signal(false);
+  config?: C4R1Config;
+  author?: C4R1Author;
 
   private _wishlistService = inject(WishlistService);
+  private _service = inject(Coomic4R1Service);
+
+  isLoading = toSignal(this._service.isLoading$);
 
   get stallId() {
-    return this.data?.stallId || '';
+    return this.config?.stallId || '';
   }
   get authorName() {
-    return this.data?.authorName || '';
+    return this.config?.authorName || '';
   }
 
   constructor() {}
 
   ngOnInit() {
-    this.loadData();
+    this.config = JSON.parse(this.wishlistConfigJson()) as C4R1Config;
+
+    if (!this._service.fetchEnd()) {
+      this.loadData();
+    }
+
+    this._service.fetchEnd$.pipe(filter((end) => end)).subscribe(() => {
+      this.getData();
+    });
+  }
+
+  getData() {
+    if (!this.config) return;
+    this.author = this._service.getAuthor(this.config);
   }
 
   loadData() {
-    this.data = JSON.parse(this.wishlistConfigJson()) as C4R1Config;
-
     if (this.wishlistId() && this.wishlistConfigJson()) {
-      this.isLoading.set(true);
       const csvUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.data ?? '';
+      const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
 
-      loadData(csvUrl, this.data)
-        .pipe(finalize(() => this.isLoading.set(false)))
-        .subscribe((res) => {
-          this.items = res;
-        });
+      this._service.initial(csvUrl, htmlUrl);
     }
   }
 }

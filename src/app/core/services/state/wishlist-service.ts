@@ -39,10 +39,11 @@ export class WishlistService {
       const id = rawSeries['id'];
       const name = rawSeries['name'];
       const data = rawSeries['data'];
+      const html = rawSeries['html'];
       const url = rawSeries['url'];
 
       if (!id || !name || !data || !url) {
-        console.warn('wishlist item 缺少設定', id, name, data, url);
+        console.warn('wishlist item 缺少設定', id, name, data, html, url);
         return;
       }
 
@@ -51,6 +52,7 @@ export class WishlistService {
           id,
           name,
           data,
+          html,
           url,
         };
         this.allWishlistItems.set(id, item);

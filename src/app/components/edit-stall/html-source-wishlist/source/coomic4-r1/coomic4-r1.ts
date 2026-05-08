@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -7,8 +7,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { tap } from 'rxjs';
 import { Divider } from 'primeng/divider';
 import { BaseWishlist } from '../../base-wishlist';
-import { C4R1Config, loadData } from '../../model/coomic4-r1';
+import { C4R1Config } from '../../model/coomic4-r1/coomic4-r1';
 import { Coomic4R1View } from '../../view/coomic4-r1-view/coomic4-r1-view';
+import { Coomic4R1Service } from '../../model/coomic4-r1/coomic4-r1-service';
 
 @Component({
   selector: 'app-coomic4-r1',

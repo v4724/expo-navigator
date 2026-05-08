@@ -5,5 +5,7 @@ export interface WishlistItemDto {
 
   data: string;
 
+  html: string;
+
   url: string;
 }
