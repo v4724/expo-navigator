@@ -16,6 +16,7 @@ export class UserApiService {
   constructor(private http: HttpClient) {}
 
   login(acc: string): Observable<FetchResponse<UserDto>> {
+    acc = encodeURIComponent(acc);
     return this.http
       .get<
         FetchResponse<UserDto>

@@ -50,6 +50,7 @@ export class PromoApiService {
       return dto;
     });
 
+    stallId = encodeURIComponent(stallId);
     return this.http
       .put<UpdateResponse<PromoStallDto>>(`${this.apiUrl}/api/promos/${stallId}`, data)
       .pipe(tap((res) => console.debug(res)));

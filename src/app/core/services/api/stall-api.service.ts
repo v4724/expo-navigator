@@ -23,6 +23,7 @@ export class StallApiService {
   }
 
   fetchById(id: string): Observable<StallDto> {
+    id = encodeURIComponent(id);
     return this.http
       .get<
         FetchResponse<StallDto>
@@ -38,6 +39,7 @@ export class StallApiService {
   }
 
   update(id: string, dto: UpdateStallDto): Observable<Response> {
+    id = encodeURIComponent(id);
     return this.http
       .put<Response>(`${this.apiUrl}/api/stall/${id}`, dto)
       .pipe(tap((res) => console.debug(res)));
@@ -47,6 +49,7 @@ export class StallApiService {
     id: string,
     dto: UpdateStallDtoWithPromo,
   ): Observable<UpdateResponse<StallDto>> {
+    id = encodeURIComponent(id);
     return this.http
       .put<UpdateResponse<StallDto>>(`${this.apiUrl}/api/stallWithPromo/${id}`, dto)
       .pipe(
