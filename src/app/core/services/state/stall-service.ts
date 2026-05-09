@@ -25,6 +25,11 @@ export class StallService {
   private _stallUpdatedAt = new BehaviorSubject<number>(-1);
   private _stallZoneDef = new BehaviorSubject<Map<string, StallGridDef>>(new Map());
 
+  // 為了正確抓到 tooltip 的位置，因為地圖層是使用 scale() 進行縮放，顯示用的 div 畫面上看起來是正確大小，但 tooltip 不會知道 scale 的結果，所以把結果傳出來在不受到scale影響的位置處理。
+  private _hoveredStallInfo = new BehaviorSubject<{ rect: DOMRect; s?: StallData } | undefined>(
+    undefined,
+  );
+
   private _stallApiService = inject(StallApiService);
   private _promoService = inject(PromoApiService);
   private _expoStateService = inject(ExpoStateService);
@@ -39,6 +44,7 @@ export class StallService {
   fetchEnd$ = this._fetchEnd.asObservable();
   stallUpdatedAt$ = this._stallUpdatedAt.asObservable();
   stallZoneDef$ = this._stallZoneDef.asObservable();
+  hoveredStallInfo$ = this._hoveredStallInfo.asObservable();
 
   constructor() {
     forkJoin([
@@ -65,6 +71,10 @@ export class StallService {
     this.allStalls$.subscribe((stalls) => {
       this._validStallIds = new Set(stalls.map((s) => s.id));
     });
+  }
+
+  set hoveredStallInfo(val: { rect: DOMRect; s?: StallData }) {
+    this._hoveredStallInfo.next(val);
   }
 
   get allStalls() {

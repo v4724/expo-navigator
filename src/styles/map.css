@@ -58,7 +58,7 @@
 
 .stall-area:hover {
   text-shadow: none;
-  transform: translate(-2px, -2px);
+  /* transform: translate(-2px, -2px); */
   box-shadow: 5px 5px 0px var(--stall-shadow-color);
 }
 

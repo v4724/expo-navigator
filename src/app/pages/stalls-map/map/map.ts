@@ -26,7 +26,6 @@ import {
   take,
 } from 'rxjs';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
-import { Stall } from 'src/app/components/stall/stall';
 import { TargetXY } from 'src/app/core/directives/draggable';
 import { Area } from 'src/app/core/interfaces/area.interface';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
@@ -37,10 +36,23 @@ import { SelectStallService } from 'src/app/core/services/state/select-stall-ser
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
+import { StallsCanvas } from '../layers/stalls-canvas/stalls-canvas';
+import { InteractiveLayer } from '../layers/interactive-layer/interactive-layer';
+import { SearchLayer } from '../layers/search-layer/search-layer';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-map',
-  imports: [CommonModule, Stall, StallGroupArea, MatIcon, DragDropModule],
+  imports: [
+    CommonModule,
+    StallGroupArea,
+    MatIcon,
+    DragDropModule,
+    StallsCanvas,
+    InteractiveLayer,
+    SearchLayer,
+    TooltipModule,
+  ],
   templateUrl: './map.html',
   styleUrl: './map.scss',
 })
@@ -122,6 +134,7 @@ export class Map implements OnInit, AfterViewInit {
       }),
     ),
   );
+  hoveredStallInfo = toSignal(this._stallService.hoveredStallInfo$);
 
   // 圖片比例
   private imageHeightToWidthRatio = signal<number>(0);
@@ -384,7 +397,7 @@ export class Map implements OnInit, AfterViewInit {
   _setPosition(newTranslateXY: TargetXY) {
     const { x, y } = this.clampPosition(newTranslateXY.x, newTranslateXY.y);
 
-    console.debug('set map position', x, y);
+    // console.debug('set map position', x, y);
     this.freePosition = {
       x,
       y,
@@ -490,6 +503,32 @@ export class Map implements OnInit, AfterViewInit {
 
   openUrl(link: string) {
     link && window.open(link);
+  }
+
+  // 為了讓 click 事件可以傳到底下的互動層
+  passThroughEvent(event: MouseEvent) {
+    // 1. 暫時隱藏自己
+    const target = event.currentTarget as HTMLElement;
+    target.style.pointerEvents = 'none';
+
+    // 2. 找到點擊位置下方的真正元素
+    const underlyingElement = document.elementFromPoint(event.clientX, event.clientY);
+
+    // 3. 手動觸發該元素的點擊
+    if (underlyingElement) {
+      underlyingElement.dispatchEvent(
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          clientX: event.clientX,
+          clientY: event.clientY,
+        }),
+      );
+    }
+
+    // 4. 恢復自己的 pointer-events
+    target.style.pointerEvents = 'auto';
   }
 }
 

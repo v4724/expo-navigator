@@ -30,6 +30,10 @@ export class SearchAndFilterService {
     this._inputSearch.next(input);
   }
 
+  get inputSearch(): string {
+    return this._inputSearch.value ?? '';
+  }
+
   private set filterStalls(data: StallData[]) {
     this._filterStalls.next(data);
   }

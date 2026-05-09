@@ -50,9 +50,9 @@
       }
       <!-- 攤位 -->
       <div class="">
-        @for (stall of allStalls$ | async; track stall) {
-          <app-stall [stall]="stall" [hiddenIfGrouped]="true" [absolutePosition]="true"></app-stall>
-        }
+        <app-stalls-canvas></app-stalls-canvas>
+        <app-search-layer></app-search-layer>
+        <app-interactive-layer></app-interactive-layer>
       </div>
 
       <!-- group 攤位 -->
@@ -100,4 +100,17 @@
       </div>
     </div>
   </div>
+
+  @let ref = hoveredStallInfo();
+  @if (ref) {
+    <div
+      class="absolute bg-transparent"
+      [style.top.px]="ref.rect.top - 20"
+      [style.left.px]="ref.rect.left - 20"
+      [style.width.px]="ref.rect.width"
+      [style.height.px]="ref.rect.height"
+      [pTooltip]="ref.s?.stallTitle ?? ''"
+      (click)="passThroughEvent($event)"
+    ></div>
+  }
 </div>
