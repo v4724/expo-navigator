@@ -10,6 +10,10 @@
         <app-only-area-btn></app-only-area-btn>
       }
 
+      @if (wishlistCnt() > 0) {
+        <app-wishlist-layer-btn></app-wishlist-layer-btn>
+      }
+
       <div class="w-80">
         <app-input-search></app-input-search>
       </div>

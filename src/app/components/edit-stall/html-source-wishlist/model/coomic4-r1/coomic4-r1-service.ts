@@ -8,8 +8,10 @@ import { C4R1Author, C4R1Config, C4R1Data, Link } from './coomic4-r1';
 })
 export class Coomic4R1Service {
   cache = new Map<string, C4R1Author>();
-  url: string = '';
-  htmlUrl: string = '';
+  cacheByStallId = new Set<string>();
+
+  url: string = ''; // csv data
+  htmlUrl: string = ''; // html data
   htmlText: string = '';
   htmlDoc?: Document;
 
@@ -27,9 +29,12 @@ export class Coomic4R1Service {
   initial(url: string, htmlUrl: string) {
     if (!url || !htmlUrl) return;
 
+    if (this.url === url && this.htmlUrl === htmlUrl) {
+      return;
+    }
+
     this.url = url;
     this.htmlUrl = htmlUrl;
-    console.log('Loading data with url:', url, htmlUrl);
 
     // 防止重複抓取資料
     if (!this._isLoading.value) {
@@ -96,6 +101,10 @@ export class Coomic4R1Service {
       if (!stallId && !authorName && !itemName) {
         console.warn('wishlist item 缺少資料', stallId, authorName, 'rowIdx:', rowIdx);
         return;
+      }
+
+      if (!!stallId) {
+        this.cacheByStallId.add(stallId);
       }
 
       // 當前作者的第一列 (新的一位)

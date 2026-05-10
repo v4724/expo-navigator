@@ -8,4 +8,9 @@ export interface WishlistItemDto {
   html: string;
 
   url: string;
+
+  fillColor: string;
+}
+export interface WishlistLayerItem extends WishlistItemDto {
+  checked: boolean;
 }

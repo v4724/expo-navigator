@@ -40,6 +40,7 @@ import { StallsCanvas } from '../layers/stalls-canvas/stalls-canvas';
 import { InteractiveLayer } from '../layers/interactive-layer/interactive-layer';
 import { SearchLayer } from '../layers/search-layer/search-layer';
 import { TooltipModule } from 'primeng/tooltip';
+import { WishlistLayer } from '../layers/wishlist-layer/wishlist-layer';
 
 @Component({
   selector: 'app-map',
@@ -52,6 +53,7 @@ import { TooltipModule } from 'primeng/tooltip';
     InteractiveLayer,
     SearchLayer,
     TooltipModule,
+    WishlistLayer,
   ],
   templateUrl: './map.html',
   styleUrl: './map.scss',

@@ -16,6 +16,10 @@ export class WishlistService {
 
   private _expoStateService = inject(ExpoStateService);
 
+  get cnt(): number {
+    return this.allWishlistItems.size;
+  }
+
   constructor() {
     forkJoin([
       this._expoStateService.wishlistUrl$.pipe(
@@ -41,9 +45,10 @@ export class WishlistService {
       const data = rawSeries['data'];
       const html = rawSeries['html'];
       const url = rawSeries['url'];
+      const fillColor = rawSeries['fillColor'];
 
-      if (!id || !name || !data || !url) {
-        console.warn('wishlist item 缺少設定', id, name, data, html, url);
+      if (!id || !name || !data || !url || !fillColor) {
+        console.warn('wishlist item 缺少設定', id, name, data, html, url, fillColor);
         return;
       }
 
@@ -54,6 +59,7 @@ export class WishlistService {
           data,
           html,
           url,
+          fillColor,
         };
         this.allWishlistItems.set(id, item);
       }
