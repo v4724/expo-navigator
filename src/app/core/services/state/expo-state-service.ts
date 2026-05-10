@@ -16,6 +16,9 @@ export class ExpoStateService {
   private _reportUrl = new BehaviorSubject<string>('');
   private _promoGuideUrl = new BehaviorSubject<string>('');
   private _promoCustomTagOnly = new BehaviorSubject<string>('');
+  private _wishlistSwitch = new BehaviorSubject<boolean>(false);
+  private _downloadMapSwitch = new BehaviorSubject<boolean>(false);
+  private _bookmarkSwitch = new BehaviorSubject<boolean>(false);
   private _multiSeriesExpo = new BehaviorSubject<boolean>(false);
   private _specifiedSeriesId = new BehaviorSubject<number>(-1);
   private _areaCSVUrl = new BehaviorSubject<string>('');
@@ -37,6 +40,9 @@ export class ExpoStateService {
   reportUrl$ = this._reportUrl.asObservable();
   promoGuideUrl$ = this._promoGuideUrl.asObservable();
   promoCustomTagOnly$ = this._promoCustomTagOnly.asObservable();
+  wishlistSwtich$ = this._wishlistSwitch.asObservable();
+  downloadMapSwtich$ = this._downloadMapSwitch.asObservable();
+  bookmarkSwtich$ = this._bookmarkSwitch.asObservable();
   multiSeriesExpo$ = this._multiSeriesExpo.asObservable();
   specifiedSeriesId$ = this._specifiedSeriesId.asObservable();
   areaCSVUrl$ = this._areaCSVUrl.asObservable();
@@ -95,6 +101,15 @@ export class ExpoStateService {
             break;
           case 'PROMO_CUSTOM_TAG_ONLY':
             this._promoCustomTagOnly.next(value);
+            break;
+          case 'WISHLIST_SWITCH':
+            this._wishlistSwitch.next(value.toLowerCase() === 'false' ? false : true);
+            break;
+          case 'DOWNLOAD_MAP_SWITCH':
+            this._downloadMapSwitch.next(value.toLowerCase() === 'false' ? false : true);
+            break;
+          case 'BOOKMARK_SWITCH':
+            this._bookmarkSwitch.next(value.toLowerCase() === 'false' ? false : true);
             break;
           case 'MULTI_SERIES_EXPO':
             this._multiSeriesExpo.next(value.toLowerCase() === 'false' ? false : true);
