@@ -1,0 +1,47 @@
+<app-drawer-on-mobile>
+  <div title class="flex items-center gap-2">
+    <div class="text-lg">場內 Only</div>
+    <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
+  </div>
+  <div class="flex flex-col gap-2">
+    @if (!fetchEnd()) {
+      <mat-icon
+        class="animate-spin"
+        aria-hidden="false"
+        aria-label="auto renew"
+        fontIcon="autorenew"
+      ></mat-icon>
+    }
+    @if (wishlist().length) {
+      <div class="flex flex-col mt-2 gap-2" animate.enter="fade-in" animate.leave="fade-out">
+        @for (item of wishlist(); track item) {
+          <div class="flex items-center rounded-full py-1 px-2 gap-1">
+            <p-toggleswitch
+              [size]="'small'"
+              [(ngModel)]="item.checked"
+              (change)="toggleWishlistItem(item.id)"
+            />
+
+            <div class="relative">
+              <span class="text-sm text-gray-600">{{ item.name }} </span>
+              <div
+                class="absolute w-full h-1/5 bottom-0 left-0"
+                [style.backgroundColor]="item.fillColor"
+              ></div>
+            </div>
+
+            @if (item.url) {
+              <mat-icon
+                inline
+                aria-hidden="false"
+                aria-label="open_in_new"
+                fontIcon="open_in_new"
+                (click)="openUrl(item.url)"
+              ></mat-icon>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</app-drawer-on-mobile>

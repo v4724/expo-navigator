@@ -19,6 +19,7 @@ import { ExpoStateService } from 'src/app/core/services/state/expo-state-service
 import { SpeedDialModule } from 'primeng/speeddial';
 import { MenuItem } from 'primeng/api';
 import { ResultList } from 'src/app/components/search-and-filter/result-list/result-list';
+import { WishlistDrawer } from '../components/wishlist-drawer/wishlist-drawer';
 
 @Component({
   selector: 'app-home',
@@ -34,6 +35,7 @@ import { ResultList } from 'src/app/components/search-and-filter/result-list/res
     OnlyAreaDrawer,
     SpeedDialModule,
     ButtonModule,
+    WishlistDrawer,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',

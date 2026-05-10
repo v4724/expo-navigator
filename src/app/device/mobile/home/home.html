@@ -134,6 +134,18 @@
     class="flex flex-row mt-auto justify-between h-12 shadow-[0_-1px_5px_rgba(0,0,0,0.1)] z-1"
     [ngClass]="{ hidden: !isLogin() && !multiSeriesExpo() }"
   >
+    <button
+      pButton
+      class="block dark:!text-gray-300"
+      [ngClass]="{
+        'w-1/2': multiSeriesExpo(),
+        'w-full': !multiSeriesExpo(),
+      }"
+      (click)="wishlistDrawer.show()"
+    >
+      吃土單
+    </button>
+
     @if (bookmarkSwitch()) {
       <button
         pButton
@@ -165,6 +177,7 @@
 
 <app-marked-list-drawer #markedListDrawer></app-marked-list-drawer>
 <app-only-area-drawer #onlyAreaDrawer></app-only-area-drawer>
+<app-wishlist-drawer #wishlistDrawer></app-wishlist-drawer>
 <app-stall-info-drawer #stallInfoDrawer>
   <app-edit-btn editBtn class="flex items-center"> </app-edit-btn>
 </app-stall-info-drawer>
