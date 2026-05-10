@@ -134,19 +134,21 @@
     class="flex flex-row mt-auto justify-between h-12 shadow-[0_-1px_5px_rgba(0,0,0,0.1)] z-1"
     [ngClass]="{ hidden: !isLogin() && !multiSeriesExpo() }"
   >
-    <button
-      pButton
-      text
-      class="block dark:!text-gray-300"
-      [ngClass]="{
-        hidden: !isLogin(),
-        'w-1/2': isLogin() && multiSeriesExpo(),
-        'w-full': isLogin() && !multiSeriesExpo(),
-      }"
-      (click)="markedListDrawer.show()"
-    >
-      書籤
-    </button>
+    @if (bookmarkSwitch()) {
+      <button
+        pButton
+        text
+        class="block dark:!text-gray-300"
+        [ngClass]="{
+          hidden: !isLogin(),
+          'w-1/2': isLogin() && multiSeriesExpo(),
+          'w-full': isLogin() && !multiSeriesExpo(),
+        }"
+        (click)="markedListDrawer.show()"
+      >
+        書籤
+      </button>
+    }
 
     @if (multiSeriesExpo()) {
       <button

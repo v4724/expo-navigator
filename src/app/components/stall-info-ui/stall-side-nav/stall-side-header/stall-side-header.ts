@@ -20,6 +20,7 @@ import { UserService } from 'src/app/core/services/state/user-service';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 import { UiStateService } from '../../../../core/services/state/ui-state-service';
 import { BookmarkPopover } from 'src/app/shared/components/bookmark-popover/bookmark-popover';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-stall-side-header',
@@ -40,8 +41,10 @@ export class StallSideHeader implements OnInit {
   private _selectStallService = inject(SelectStallService);
   private _userService = inject(UserService);
   private _uiStateService = inject(UiStateService);
+  private _expoStateService = inject(ExpoStateService);
 
   isLogin = toSignal(this._userService.isLogin$);
+  bookmarkSwitch = toSignal(this._expoStateService.bookmarkSwitch$);
   user = toSignal(this._userService.user$);
 
   stallId = computed(() => {

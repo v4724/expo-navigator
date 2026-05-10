@@ -12,6 +12,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import { StallZoneBadge } from 'src/app/shared/components/stall-info/stall-zone-badge/stall-zone-badge';
 import { BookmarkPopover } from 'src/app/shared/components/bookmark-popover/bookmark-popover';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-stall-info-drawer',
@@ -37,9 +38,11 @@ export class StallInfoDrawer {
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
   private _userService = inject(UserService);
+  private _expoStateService = inject(ExpoStateService);
 
   stall = signal<StallData | undefined>(undefined);
   isLogin = toSignal(this._userService.isLogin$);
+  bookmarkSwitch = toSignal(this._expoStateService.bookmarkSwitch$);
 
   isEditable = computed(() => {
     const stall = this.stall();

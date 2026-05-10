@@ -35,7 +35,8 @@ export class Topbar {
   private _expoStateService = inject(ExpoStateService);
 
   isLogin = toSignal(this._userService.isLogin$);
-  downloadMapSwitch = toSignal(this._expoStateService.downloadMapSwtich$);
+  downloadMapSwitch = toSignal(this._expoStateService.downloadMapSwitch$);
+  bookmarkSwitch = toSignal(this._expoStateService.bookmarkSwitch$);
   areaCnt: WritableSignal<number> = signal(0);
   wishlistCnt: WritableSignal<number> = signal(0);
 

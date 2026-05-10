@@ -59,6 +59,8 @@ export class Home {
   multiSeriesExpo = toSignal(this._expoStateService.multiSeriesExpo$);
   expoTitle = toSignal(this._expoStateService.expoTitle$);
   expoUrl = toSignal(this._expoStateService.expoUrl$);
+  promoCustomTagOnly = toSignal(this._expoStateService.promoCustomTagOnly$);
+  bookmarkSwitch = toSignal(this._expoStateService.bookmarkSwitch$);
 
   items: MenuItem[] | null;
 
@@ -83,6 +85,8 @@ export class Home {
   }
 
   toSearch() {
+    if (this.promoCustomTagOnly()) return;
+
     this.markedListDrawer.close();
     this.onlyAreaDrawer.close();
     this.stallInfoDrawer.close();

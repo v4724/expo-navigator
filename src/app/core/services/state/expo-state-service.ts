@@ -40,9 +40,9 @@ export class ExpoStateService {
   reportUrl$ = this._reportUrl.asObservable();
   promoGuideUrl$ = this._promoGuideUrl.asObservable();
   promoCustomTagOnly$ = this._promoCustomTagOnly.asObservable();
-  wishlistSwtich$ = this._wishlistSwitch.asObservable();
-  downloadMapSwtich$ = this._downloadMapSwitch.asObservable();
-  bookmarkSwtich$ = this._bookmarkSwitch.asObservable();
+  wishlistSwitch$ = this._wishlistSwitch.asObservable();
+  downloadMapSwitch$ = this._downloadMapSwitch.asObservable();
+  bookmarkSwitch$ = this._bookmarkSwitch.asObservable();
   multiSeriesExpo$ = this._multiSeriesExpo.asObservable();
   specifiedSeriesId$ = this._specifiedSeriesId.asObservable();
   areaCSVUrl$ = this._areaCSVUrl.asObservable();

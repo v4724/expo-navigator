@@ -41,7 +41,7 @@
   </button>
 
   <!-- 書籤 -->
-  @if (isLogin()) {
+  @if (isLogin() && bookmarkSwitch()) {
     <app-bookmark-popover [stall]="stall()" [isPreview]="isPreview()"></app-bookmark-popover>
   }
 </div>

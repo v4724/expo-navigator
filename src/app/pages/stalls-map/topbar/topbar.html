@@ -1,7 +1,7 @@
 <div class="fixed top-0 left-0 layout-topbar px-4 z-2 w-full pointer-events-none">
   <div class="py-2 flex items-center gap-2">
     <div class="flex items-center pointer-events-auto gap-2">
-      @if (isLogin()) {
+      @if (isLogin() && bookmarkSwitch()) {
         <app-marked-list-btn></app-marked-list-btn>
       }
       <app-result-list-btn></app-result-list-btn>
