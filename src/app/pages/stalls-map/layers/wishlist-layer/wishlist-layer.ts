@@ -1,12 +1,11 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Coomic4R1Service } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-r1/coomic4-r1-service';
-import { StallMapService } from 'src/app/core/services/state/stall-map-service';
-import { StallService } from 'src/app/core/services/state/stall-service';
 import { WishlistLayerService } from 'src/app/core/services/state/wishlist-layer-service';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 import { BaseLayer } from '../base-layer';
 import { filter, take } from 'rxjs';
+import { Coomic4UotoService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-uoto/coomic4-uoto-service';
 
 @Component({
   selector: 'app-wishlist-layer',
@@ -22,6 +21,7 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
 
   // 為了取得攤位id
   private _coomic4R1Service = inject(Coomic4R1Service);
+  private _coomic4UotoService = inject(Coomic4UotoService);
 
   wishlistLayerShow = toSignal(this._wishlistLayerService.show$);
 
@@ -66,29 +66,38 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
       const wishlist = this._wishlistService.getWishlistItemById(id);
       if (!wishlist) return;
 
+      let service;
       switch (id) {
         case 'COOMIC4_R1': {
-          this._coomic4R1Service.initial(wishlist.data, wishlist.html);
-          this._coomic4R1Service.fetchEnd$
-            .pipe(
-              filter((val) => !!val),
-              take(1),
-            )
-            .subscribe((val) => {
-              const stallIds = Array.from(this._coomic4R1Service.cacheByStallId.values());
-              stallIds.forEach((stallId) => {
-                const s = this._stallService.findStall(stallId);
-                if (!s) return;
-
-                const { x, y, w, h } = this.getCanvasCoord(s);
-                ctx.fillStyle = wishlist.fillColor;
-                ctx.fillRect(x, y, w, h);
-
-                ctx.fillStyle = '#000';
-                ctx.fillText(s.padNum, x + w / 2, y + h / 2 + 4);
-              });
-            });
+          service = this._coomic4R1Service;
+          break;
         }
+        case 'COOMIC4_UOTO': {
+          service = this._coomic4UotoService;
+          break;
+        }
+      }
+      if (service) {
+        service.initial(wishlist.data, wishlist.html);
+        service.fetchEnd$
+          .pipe(
+            filter((val) => !!val),
+            take(1),
+          )
+          .subscribe((val) => {
+            const stallIds = Array.from(service.cacheByStallId.values()) as string[];
+            stallIds.forEach((stallId) => {
+              const s = this._stallService.findStall(stallId);
+              if (!s) return;
+
+              const { x, y, w, h } = this.getCanvasCoord(s);
+              ctx.fillStyle = wishlist.fillColor;
+              ctx.fillRect(x, y, w, h);
+
+              ctx.fillStyle = '#000';
+              ctx.fillText(s.padNum, x + w / 2, y + h / 2 + 4);
+            });
+          });
       }
     });
   }

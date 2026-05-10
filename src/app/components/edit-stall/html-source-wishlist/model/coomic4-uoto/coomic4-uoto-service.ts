@@ -1,19 +1,20 @@
-import { Injectable } from '@angular/core';
-import { C4R1Author, C4R1Config, C4R1Data } from './coomic4-r1';
+import { inject, Injectable } from '@angular/core';
+import { C4UotoAuthor, C4UotoConfig, C4UotoData } from './coomic4-uoto';
 import { BaseService } from '../base-service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class Coomic4R1Service extends BaseService<C4R1Author> {
-  override htmlDocThKey = '2067136178';
-  override hrefClass = 's12';
+export class Coomic4UotoService extends BaseService<C4UotoAuthor> {
+  override headerIdx = 2;
+  override hrefClass = 's15';
+  override htmlDocThKey = '0';
 
-  override processData(rawData: Record<string, string>[], htmlText: string) {
-    let currAuthor: C4R1Author;
+  override processData(rawData: Record<string, string>[]) {
+    let currAuthor: C4UotoAuthor;
 
     rawData.forEach((rawSeries, rowIdx) => {
-      const stallId = rawSeries['社團編號'];
+      const stallId = rawSeries['攤位號'];
       const authorName = rawSeries['作者'];
       const itemName = rawSeries['品項名稱'];
 
@@ -28,14 +29,14 @@ export class Coomic4R1Service extends BaseService<C4R1Author> {
       }
 
       // 當前作者的第一列 (新的一位)
-      if (authorName) {
+      if (authorName && authorName !== currAuthor?.authorName) {
         currAuthor = {
           stallId,
           authorName,
           sns: [],
           items: [],
         };
-        const key = this.keyForMapping({ stallId, authorName } as C4R1Config);
+        const key = this.keyForMapping({ stallId, authorName } as C4UotoConfig);
         this.cache.set(key, currAuthor);
       }
       if (!currAuthor) return;
@@ -43,38 +44,40 @@ export class Coomic4R1Service extends BaseService<C4R1Author> {
       const thId = `${this.htmlDocThKey}R${rowIdx}`;
       const snsTitle = rawSeries['作者SNS'];
       if (snsTitle) {
-        const sns = this.getLink(snsTitle, thId, 1, 6);
+        const sns = this.getLink(snsTitle, thId, 7, 13);
         currAuthor.sns.push(sns);
       }
 
       if (!itemName) return;
 
-      const onlyEvent = rawSeries['是否參加場內only的集章活動'];
-      const rated18 = rawSeries['一般向/R18向'];
-      const cp = rawSeries['全員/單人/cp(可複選)'];
-      const category = rawSeries['商品類別'];
-      const newProduct = rawSeries['新品/既品'];
+      const category = rawSeries['品項類別'];
+      const originalWork = rawSeries['原作'];
       const price = rawSeries['價格'];
-      const promotionalTitle = rawSeries['宣傳頁面'];
+      const cp = rawSeries['CP向'];
+      const rated18 = rawSeries['是否有R18'];
+      const detailTitle = rawSeries['詳細資訊'];
+      const promotionalTitle = rawSeries['工商連結'];
       const note = rawSeries['備註'];
-      const onlineSale = rawSeries['是否通販'];
 
+      let detail = { title: detailTitle, href: '' };
+      if (detailTitle) {
+        detail = this.getLink(detailTitle, thId, 3, 14);
+      }
       let promotional = { title: promotionalTitle, href: '' };
       if (promotionalTitle) {
-        promotional = this.getLink(promotionalTitle, thId, 7, 15);
+        promotional = this.getLink(promotionalTitle, thId, 3, 15);
       }
 
-      const item: C4R1Data = {
-        onlyEvent: onlyEvent === '是' ? true : false,
+      const item: C4UotoData = {
         itemName,
         rated18: rated18 === 'R18' ? true : false,
-        cp: cp.split(','),
-        category: category.split(', '),
-        newProduct: newProduct === '新品' ? true : false,
+        cp,
+        originalWork,
+        category,
         price,
+        detail,
         promotional,
         note,
-        onlineSale,
       };
 
       currAuthor.items.push(item);

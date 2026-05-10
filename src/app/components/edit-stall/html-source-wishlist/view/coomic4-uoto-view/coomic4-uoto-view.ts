@@ -1,26 +1,26 @@
 import { Component, effect, inject, input, InputSignal } from '@angular/core';
-import { C4R1Author, C4R1Config } from '../../model/coomic4-r1/coomic4-r1';
-import { filter } from 'rxjs';
-import { WishlistService } from 'src/app/core/services/state/wishlist-service';
-import { Skeleton } from 'primeng/skeleton';
-import { Coomic4R1Service } from '../../model/coomic4-r1/coomic4-r1-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, take } from 'rxjs';
+import { WishlistService } from 'src/app/core/services/state/wishlist-service';
+import { Coomic4UotoService } from '../../model/coomic4-uoto/coomic4-uoto-service';
+import { Skeleton } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
+import { C4UotoConfig, C4UotoAuthor } from '../../model/coomic4-uoto/coomic4-uoto';
 
 @Component({
-  selector: 'app-coomic4-r1-view',
+  selector: 'app-coomic4-uoto-view',
   imports: [Skeleton, TagModule],
-  templateUrl: './coomic4-r1-view.html',
-  styleUrl: './coomic4-r1-view.scss',
+  templateUrl: './coomic4-uoto-view.html',
+  styleUrl: './coomic4-uoto-view.scss',
 })
-export class Coomic4R1View {
+export class Coomic4UotoView {
   wishlistId: InputSignal<string> = input.required();
   wishlistConfigJson: InputSignal<string> = input.required();
-  config?: C4R1Config;
-  author?: C4R1Author;
+  config?: C4UotoConfig;
+  author?: C4UotoAuthor;
 
   private _wishlistService = inject(WishlistService);
-  private _service = inject(Coomic4R1Service);
+  private _service = inject(Coomic4UotoService);
 
   isLoading = toSignal(this._service.isLoading$);
 
@@ -33,12 +33,12 @@ export class Coomic4R1View {
 
   constructor() {
     effect(() => {
-      this.config = JSON.parse(this.wishlistConfigJson()) as C4R1Config;
+      this.config = JSON.parse(this.wishlistConfigJson()) as C4UotoConfig;
     });
   }
 
   ngOnInit() {
-    this.config = JSON.parse(this.wishlistConfigJson()) as C4R1Config;
+    this.config = JSON.parse(this.wishlistConfigJson()) as C4UotoConfig;
 
     if (!this._service.fetchEnd()) {
       this.loadData();
@@ -61,5 +61,13 @@ export class Coomic4R1View {
 
       this._service.initial(csvUrl, htmlUrl);
     }
+    this._service.fetchEnd$
+      .pipe(
+        filter((end) => end),
+        take(1),
+      )
+      .subscribe(() => {
+        this.getData();
+      });
   }
 }

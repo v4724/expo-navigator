@@ -1,17 +1,12 @@
-export interface C4R1Config {
-  stallId: string; // excel 上的社團編號
-  authorName: string;
-}
+import { WishlistConfig, WishlistLink } from '../base-model';
 
-export interface Link {
-  title: string;
-  href: string;
-}
+export interface C4R1Config extends WishlistConfig {}
+
 export interface C4R1Author {
   stallId: string;
   authorName: string;
 
-  sns: Link[];
+  sns: WishlistLink[];
   items: C4R1Data[];
 }
 export interface C4R1Data {
@@ -22,7 +17,7 @@ export interface C4R1Data {
   category: string[];
   newProduct: boolean;
   price: string;
-  promotional: Link;
+  promotional: WishlistLink;
   note: string;
   onlineSale: string;
 }

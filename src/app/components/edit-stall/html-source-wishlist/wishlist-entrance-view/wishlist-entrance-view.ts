@@ -1,18 +1,8 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  InputSignal,
-  OnInit,
-  signal,
-  WritableSignal,
-} from '@angular/core';
+import { Component, computed, input, InputSignal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Coomic4R1 } from '../source/coomic4-r1/coomic4-r1';
-import { Input } from 'ckeditor5';
 import { PromoStall } from 'src/app/core/interfaces/promo-stall.interface';
 import { Coomic4R1View } from '../view/coomic4-r1-view/coomic4-r1-view';
+import { Coomic4UotoView } from '../view/coomic4-uoto-view/coomic4-uoto-view';
 
 /**
  * 攤位編輯 - 吃土單入口
@@ -20,7 +10,7 @@ import { Coomic4R1View } from '../view/coomic4-r1-view/coomic4-r1-view';
  */
 @Component({
   selector: 'app-wishlist-entrance-view',
-  imports: [CommonModule, Coomic4R1View],
+  imports: [CommonModule, Coomic4R1View, Coomic4UotoView],
   templateUrl: './wishlist-entrance-view.html',
   styleUrl: './wishlist-entrance-view.scss',
 })

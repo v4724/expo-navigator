@@ -64,6 +64,7 @@ function parseCsv(
 export async function fetchExcelData(
   googleSheetCSVUrl: string,
   dataStart: number = 2,
+  headerIdx: number = 1,
 ): Promise<Record<string, string>[]> {
   const urlWithTimestamp = `${googleSheetCSVUrl}&_=${Date.now()}`;
   // --- First Attempt: With Cache-Busting Timestamp ---
@@ -71,7 +72,7 @@ export async function fetchExcelData(
     const response = await fetch(urlWithTimestamp);
     if (response.ok) {
       const csvText = await response.text();
-      return parseCsv(csvText, dataStart);
+      return parseCsv(csvText, dataStart, headerIdx);
     }
     // Log non-critical server errors and proceed to fallback.
     console.warn(
@@ -96,7 +97,7 @@ export async function fetchExcelData(
       );
     }
     const csvText = await fallbackResponse.text();
-    return parseCsv(csvText);
+    return parseCsv(csvText, dataStart, headerIdx);
   } catch (error) {
     // If both attempts fail, log the final error and return empty.
     console.error('Error fetching or parsing stall data after fallback:', error);

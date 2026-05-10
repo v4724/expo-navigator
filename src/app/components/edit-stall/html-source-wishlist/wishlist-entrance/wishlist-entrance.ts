@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Coomic4R1 } from '../source/coomic4-r1/coomic4-r1';
 import { ControlContainer, FormGroup } from '@angular/forms';
+import { Coomic4Uoto } from '../source/coomic4-uoto/coomic4-uoto';
 
 /**
  * 攤位編輯 - 吃土單入口
@@ -17,7 +18,7 @@ import { ControlContainer, FormGroup } from '@angular/forms';
  */
 @Component({
   selector: 'app-wishlist-entrance',
-  imports: [CommonModule, Coomic4R1],
+  imports: [CommonModule, Coomic4R1, Coomic4Uoto],
   templateUrl: './wishlist-entrance.html',
   styleUrl: './wishlist-entrance.scss',
   viewProviders: [
