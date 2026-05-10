@@ -11,6 +11,7 @@ import { AreaService } from 'src/app/core/services/state/area-service';
 import { OnlyAreaBtn } from 'src/app/components/only-area-btn/only-area-btn';
 import { WishlistLayerBtn } from 'src/app/components/wishlist-layer-btn/wishlist-layer-btn';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-topbar',
@@ -31,8 +32,10 @@ export class Topbar {
   private _userService = inject(UserService);
   private _areaService = inject(AreaService);
   private _wishlistService = inject(WishlistService);
+  private _expoStateService = inject(ExpoStateService);
 
   isLogin = toSignal(this._userService.isLogin$);
+  downloadMapSwitch = toSignal(this._expoStateService.downloadMapSwtich$);
   areaCnt: WritableSignal<number> = signal(0);
   wishlistCnt: WritableSignal<number> = signal(0);
 
