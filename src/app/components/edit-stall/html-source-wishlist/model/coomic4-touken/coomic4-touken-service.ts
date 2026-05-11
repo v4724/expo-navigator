@@ -82,7 +82,7 @@ export class Coomic4ToukenService extends BaseService<C4ToukenAuthor> {
         cp,
         category,
         itemName,
-        rated18: rated18 === 'R18' ? true : false,
+        rated18: rated18 === 'TRUE' ? true : false,
         price,
         newProduct: newProduct === '新刊/品' ? true : false,
         promotional,

@@ -23,6 +23,12 @@
       [wishlistConfigJson]="wishlistConfigJson()"
     ></app-coomic4-touken-view>
   }
+  @case ('COOMIC4_KOREA') {
+    <app-coomic4-korea-view
+      [wishlistId]="wishlistId()"
+      [wishlistConfigJson]="wishlistConfigJson()"
+    ></app-coomic4-korea-view>
+  }
   @default {
     @if (wishlistId()) {
       <div class="py-4">無對應來源</div>
