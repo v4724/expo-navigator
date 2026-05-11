@@ -6,18 +6,22 @@
       <p-skeleton class="!w-1/2" height="1.2rem"></p-skeleton>
     </div>
   } @else {
-    <div class="flex flex-col px-2">
+    <div class="flex flex-col px-2 w-full">
       @if (author) {
         <div class="flex gap-2 items-center">
           作者：
           <div>{{ author.authorName }}</div>
-        </div>
-        <div class="flex gap-2 items-center">
-          SNS：
-          @for (sns of author.sns; track sns) {
-            @if (sns.href) {
-              <a [href]="sns.href" target="_blank">{{ sns.title }}</a>
+          @if (author.sns.length > 0) {
+            (
+            @for (sns of author.sns; track sns) {
+              @if ($index > 0) {
+                、
+              }
+              @if (sns.href) {
+                <a [href]="sns.href" target="_blank">{{ sns.title }}</a>
+              }
             }
+            )
           }
         </div>
       }
@@ -25,7 +29,7 @@
       @if (items.length === 0 && stallId && authorName) {
         <p>沒有找到對應的品項</p>
       } @else {
-        <table>
+        <!-- <table>
           <thead>
             <th>品項名稱</th>
             <th>CP/全員向</th>
@@ -86,7 +90,77 @@
               </tr>
             }
           </tbody>
-        </table>
+        </table> -->
+        <div class="flex flex-col w-full gap-1 mt-2">
+          @for (item of items; track item) {
+            <div class="relative rounded-xl border border-gray-200 flex flex-col w-full p-2">
+              <div class="absolute top-2 left-0 flex flex-col flex-inline">
+                @if (item.newProduct) {
+                  <p-tag
+                    class="-rotate-30 -translate-y-2 -translate-x-6 !text-[0.6rem] !p-[0.25rem] leading-none"
+                    severity="success"
+                    [rounded]="true"
+                    value="New"
+                  />
+                }
+
+                @if (item.rated18) {
+                  <p-tag
+                    class="-rotate-30 -translate-y-2 -translate-x-6 !text-[0.6rem] !p-x-[0.25rem] leading-none"
+                    severity="danger"
+                    [rounded]="true"
+                    value="R18"
+                  />
+                }
+
+                @if (item.category === '無料 Free') {
+                  <p-tag
+                    class="-rotate-30 -translate-y-2 -translate-x-6 !text-[0.6rem] !p-x-[0.25rem] leading-none"
+                    severity="info"
+                    [rounded]="true"
+                    value="無料"
+                  />
+                }
+              </div>
+
+              <div class="flex flex-wrap justify-between gap-1">
+                <div class="flex flex-wrap gap-2">
+                  <div class="flex font-bold text-base">{{ item.itemName }}</div>
+                  <div class="flex rounded-full bg-gray-100 px-2 py-1 text-xs">
+                    {{ item.category }}
+                  </div>
+                </div>
+                <div class="flex ml-auto items-center justify-center gap-1">
+                  <i
+                    class="pi pi-dollar border border-gray-400 rounded-full p-[2px] bg-yellow-100"
+                    style="font-size: 0.75rem"
+                  ></i>
+                  {{ item.price }}
+                </div>
+              </div>
+              <div class="flex justify-between gap-1">
+                <div class="flex relative">
+                  <div class="absolute bottom-0 left-0 w-full bg-gray-300 h-1/5"></div>
+                  <div class="z-2">{{ item.cp }}</div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 justify-between mt-1">
+                @if (item.note) {
+                  <div class="flex text-xs">{{ item.note }}</div>
+                }
+                @if (item.promotional.href) {
+                  <div class="ml-auto">
+                    宣傳：
+                    <a [href]="item.promotional.href" target="_blank">{{
+                      item.promotional.title
+                    }}</a>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
       }
     </div>
   }
