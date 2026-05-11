@@ -15,6 +15,7 @@ import { Coomic4Nucarnival } from '../source/coomic4-nucarnival/coomic4-nucarniv
 import { Coomic4Touken } from '../source/coomic4-touken/coomic4-touken';
 import { Coomic4Korea } from '../source/coomic4-korea/coomic4-korea';
 import { Coomic4100M } from '../source/coomic4-100-m/coomic4-100-m';
+import { Coomic4Kimetsu } from '../source/coomic4-kimetsu/coomic4-kimetsu';
 
 /**
  * 攤位編輯 - 吃土單入口
@@ -30,6 +31,7 @@ import { Coomic4100M } from '../source/coomic4-100-m/coomic4-100-m';
     Coomic4Touken,
     Coomic4Korea,
     Coomic4100M,
+    Coomic4Kimetsu,
   ],
   templateUrl: './wishlist-entrance.html',
   styleUrl: './wishlist-entrance.scss',

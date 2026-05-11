@@ -10,6 +10,7 @@ import { Coomic4NucarnivalService } from 'src/app/components/edit-stall/html-sou
 import { Coomic4ToukenService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-touken/coomic4-touken-service';
 import { Coomic4KoreaService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-korea/coomic4-korea-service';
 import { Coomic4100MService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-100-m/coomic4-100-m-service';
+import { Coomic4KimetsuService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-kimetsu/coomic4-kimetsu-service';
 
 @Component({
   selector: 'app-wishlist-layer',
@@ -30,6 +31,7 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
   private _coomic4ToukenService = inject(Coomic4ToukenService);
   private _coomic4KoreaService = inject(Coomic4KoreaService);
   private _coomic4100MService = inject(Coomic4100MService);
+  private _coomic4KimetsuService = inject(Coomic4KimetsuService);
 
   wishlistLayerShow = toSignal(this._wishlistLayerService.show$);
 
@@ -98,6 +100,10 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
         }
         case 'COOMIC4_100_M': {
           service = this._coomic4100MService;
+          break;
+        }
+        case 'COOMIC4_KIMETSU': {
+          service = this._coomic4KimetsuService;
           break;
         }
       }

@@ -35,6 +35,12 @@
       [wishlistConfigJson]="wishlistConfigJson()"
     ></app-coomic4-100-m-view>
   }
+  @case ('COOMIC4_KIMETSU') {
+    <app-coomic4-kimetsu-view
+      [wishlistId]="wishlistId()"
+      [wishlistConfigJson]="wishlistConfigJson()"
+    ></app-coomic4-kimetsu-view>
+  }
   @default {
     @if (wishlistId()) {
       <div class="py-4">無對應來源</div>
