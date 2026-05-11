@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PromoStall } from 'src/app/core/interfaces/promo-stall.interface';
 import { Coomic4R1View } from '../view/coomic4-r1-view/coomic4-r1-view';
 import { Coomic4UotoView } from '../view/coomic4-uoto-view/coomic4-uoto-view';
+import { Coomic4NucarnivalView } from '../view/coomic4-nucarnival-view/coomic4-nucarnival-view';
 
 /**
  * 攤位編輯 - 吃土單入口
@@ -10,7 +11,7 @@ import { Coomic4UotoView } from '../view/coomic4-uoto-view/coomic4-uoto-view';
  */
 @Component({
   selector: 'app-wishlist-entrance-view',
-  imports: [CommonModule, Coomic4R1View, Coomic4UotoView],
+  imports: [CommonModule, Coomic4R1View, Coomic4UotoView, Coomic4NucarnivalView],
   templateUrl: './wishlist-entrance-view.html',
   styleUrl: './wishlist-entrance-view.scss',
 })

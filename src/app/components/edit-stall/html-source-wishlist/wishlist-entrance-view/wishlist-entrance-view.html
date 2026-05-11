@@ -11,6 +11,12 @@
       [wishlistConfigJson]="wishlistConfigJson()"
     ></app-coomic4-uoto-view>
   }
+  @case ('COOMIC4_NUCARNIVAL') {
+    <app-coomic4-nucarnival-view
+      [wishlistId]="wishlistId()"
+      [wishlistConfigJson]="wishlistConfigJson()"
+    ></app-coomic4-nucarnival-view>
+  }
   @default {
     @if (wishlistId()) {
       <div class="py-4">無對應來源</div>

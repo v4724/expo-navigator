@@ -6,6 +6,7 @@ import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 import { BaseLayer } from '../base-layer';
 import { filter, take } from 'rxjs';
 import { Coomic4UotoService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-uoto/coomic4-uoto-service';
+import { Coomic4NucarnivalService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nucarnival/coomic4-nucarnival-service';
 
 @Component({
   selector: 'app-wishlist-layer',
@@ -22,6 +23,7 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
   // 為了取得攤位id
   private _coomic4R1Service = inject(Coomic4R1Service);
   private _coomic4UotoService = inject(Coomic4UotoService);
+  private _coomic4NucarnivalService = inject(Coomic4NucarnivalService);
 
   wishlistLayerShow = toSignal(this._wishlistLayerService.show$);
 
@@ -74,6 +76,10 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
         }
         case 'COOMIC4_UOTO': {
           service = this._coomic4UotoService;
+          break;
+        }
+        case 'COOMIC4_NUCARNIVAL': {
+          service = this._coomic4NucarnivalService;
           break;
         }
       }
