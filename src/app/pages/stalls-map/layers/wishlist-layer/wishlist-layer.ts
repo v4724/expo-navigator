@@ -7,6 +7,7 @@ import { BaseLayer } from '../base-layer';
 import { filter, take } from 'rxjs';
 import { Coomic4UotoService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-uoto/coomic4-uoto-service';
 import { Coomic4NucarnivalService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nucarnival/coomic4-nucarnival-service';
+import { Coomic4ToukenService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-touken/coomic4-touken-service';
 
 @Component({
   selector: 'app-wishlist-layer',
@@ -24,6 +25,7 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
   private _coomic4R1Service = inject(Coomic4R1Service);
   private _coomic4UotoService = inject(Coomic4UotoService);
   private _coomic4NucarnivalService = inject(Coomic4NucarnivalService);
+  private _coomic4ToukenService = inject(Coomic4ToukenService);
 
   wishlistLayerShow = toSignal(this._wishlistLayerService.show$);
 
@@ -80,6 +82,10 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
         }
         case 'COOMIC4_NUCARNIVAL': {
           service = this._coomic4NucarnivalService;
+          break;
+        }
+        case 'COOMIC4_TOUKEN': {
+          service = this._coomic4ToukenService;
           break;
         }
       }

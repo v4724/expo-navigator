@@ -17,6 +17,12 @@
       [wishlistConfigJson]="wishlistConfigJson()"
     ></app-coomic4-nucarnival-view>
   }
+  @case ('COOMIC4_TOUKEN') {
+    <app-coomic4-touken-view
+      [wishlistId]="wishlistId()"
+      [wishlistConfigJson]="wishlistConfigJson()"
+    ></app-coomic4-touken-view>
+  }
   @default {
     @if (wishlistId()) {
       <div class="py-4">無對應來源</div>
