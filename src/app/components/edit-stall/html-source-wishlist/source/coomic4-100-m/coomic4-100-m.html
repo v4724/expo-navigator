@@ -1,0 +1,27 @@
+<form [formGroup]="formGroup" class="flex gap-3 w-full">
+  <div class="flex flex-wrap justify-center gap-2 pt-4 w-full">
+    <p-floatlabel variant="on">
+      <input id="stallId" pInputText formControlName="stallId" autocomplete="off" />
+      <label for="stallId">攤位號碼</label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <input id="authorName" pInputText formControlName="authorName" autocomplete="off" />
+      <label for="authorName">作者名稱</label>
+    </p-floatlabel>
+    <button
+      pButton
+      text
+      label="查詢對應品項"
+      size="small"
+      class="ml-auto dark:text-gray-300!"
+      (click)="loadMappingWishlist()"
+    ></button>
+  </div>
+</form>
+
+<p-divider class="mb-0">品項列表</p-divider>
+
+<app-coomic4-100-m-view
+  [wishlistId]="wishlistId"
+  [wishlistConfigJson]="toStr()"
+></app-coomic4-100-m-view>

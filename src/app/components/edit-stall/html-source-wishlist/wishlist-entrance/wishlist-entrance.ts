@@ -14,6 +14,7 @@ import { Coomic4Uoto } from '../source/coomic4-uoto/coomic4-uoto';
 import { Coomic4Nucarnival } from '../source/coomic4-nucarnival/coomic4-nucarnival';
 import { Coomic4Touken } from '../source/coomic4-touken/coomic4-touken';
 import { Coomic4Korea } from '../source/coomic4-korea/coomic4-korea';
+import { Coomic4100M } from '../source/coomic4-100-m/coomic4-100-m';
 
 /**
  * 攤位編輯 - 吃土單入口
@@ -21,7 +22,15 @@ import { Coomic4Korea } from '../source/coomic4-korea/coomic4-korea';
  */
 @Component({
   selector: 'app-wishlist-entrance',
-  imports: [CommonModule, Coomic4R1, Coomic4Uoto, Coomic4Nucarnival, Coomic4Touken, Coomic4Korea],
+  imports: [
+    CommonModule,
+    Coomic4R1,
+    Coomic4Uoto,
+    Coomic4Nucarnival,
+    Coomic4Touken,
+    Coomic4Korea,
+    Coomic4100M,
+  ],
   templateUrl: './wishlist-entrance.html',
   styleUrl: './wishlist-entrance.scss',
   viewProviders: [
