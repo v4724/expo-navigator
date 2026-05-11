@@ -2,7 +2,7 @@ import { Component, effect, inject, input, InputSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Skeleton } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
-import { filter } from 'rxjs';
+import { filter, take } from 'rxjs';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 import { C4KoreaConfig, C4KoreaAuthor } from '../../model/coomic4-korea/coomic4-korea';
 import { Coomic4KoreaService } from '../../model/coomic4-korea/coomic4-korea-service';
@@ -60,6 +60,14 @@ export class Coomic4KoreaView {
       const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
 
       this._service.initial(csvUrl, htmlUrl);
+      this._service.fetchEnd$
+        .pipe(
+          filter((end) => end),
+          take(1),
+        )
+        .subscribe(() => {
+          this.getData();
+        });
     }
   }
 }

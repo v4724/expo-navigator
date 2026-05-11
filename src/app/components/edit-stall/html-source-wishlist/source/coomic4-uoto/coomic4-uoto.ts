@@ -47,7 +47,7 @@ export class Coomic4Uoto extends BaseWishlist<WishlistConfig> implements OnInit 
   ngOnInit(): void {
     this.formGroup.patchValue({
       authorName: this.data.authorName,
-      stallId: this.data.stallId,
+      stallId: this.data.stallId ?? this._stallId,
     });
 
     this.formGroup.valueChanges.subscribe(() => {

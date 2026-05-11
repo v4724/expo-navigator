@@ -60,14 +60,14 @@ export class Coomic4UotoView {
       const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
 
       this._service.initial(csvUrl, htmlUrl);
+      this._service.fetchEnd$
+        .pipe(
+          filter((end) => end),
+          take(1),
+        )
+        .subscribe(() => {
+          this.getData();
+        });
     }
-    this._service.fetchEnd$
-      .pipe(
-        filter((end) => end),
-        take(1),
-      )
-      .subscribe(() => {
-        this.getData();
-      });
   }
 }

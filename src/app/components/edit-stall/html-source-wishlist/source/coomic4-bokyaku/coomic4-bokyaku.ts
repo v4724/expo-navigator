@@ -47,7 +47,7 @@ export class Coomic4Bokyaku extends BaseWishlist<C4BokyakuConfig> implements OnI
   ngOnInit(): void {
     this.formGroup.patchValue({
       authorName: this.data.authorName,
-      stallId: this.data.stallId,
+      stallId: this.data.stallId ?? this._stallId,
     });
 
     this.formGroup.valueChanges.subscribe(() => {

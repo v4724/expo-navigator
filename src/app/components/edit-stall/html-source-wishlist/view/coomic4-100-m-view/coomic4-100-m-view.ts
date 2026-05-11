@@ -1,6 +1,6 @@
 import { Component, effect, inject, input, InputSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
+import { filter, take } from 'rxjs';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 import { C4100MConfig, C4100MAuthor } from '../../model/coomic4-100-m/coomic4-100-m';
 import { Coomic4100MService } from '../../model/coomic4-100-m/coomic4-100-m-service';
@@ -60,6 +60,14 @@ export class Coomic4100MView {
       const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
 
       this._service.initial(csvUrl, htmlUrl);
+      this._service.fetchEnd$
+        .pipe(
+          filter((end) => end),
+          take(1),
+        )
+        .subscribe(() => {
+          this.getData();
+        });
     }
   }
 }

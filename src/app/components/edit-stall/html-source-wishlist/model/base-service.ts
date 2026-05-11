@@ -30,6 +30,7 @@ export class BaseService<T> {
   isLoading$ = this._isLoading.asObservable();
   fetchEnd$ = this._fetchEnd.asObservable();
 
+  // 依照來源調整
   headerIdx = 1; // google excel title(0 base)
   htmlDocThKey = '0'; // google excel gid
   hrefClass = 's13'; // class for the link cells
@@ -116,7 +117,7 @@ export class BaseService<T> {
       return { title: text, href: '' };
     }
 
-    const tds = tr.querySelectorAll(`td.${this.hrefClass}`);
+    const tds = tr.querySelectorAll(`td:has(a)`);
     const link = { title: text, href: '' };
     tds.forEach((td) => {
       const innerText = (td as HTMLTableCellElement).innerText;
@@ -127,9 +128,6 @@ export class BaseService<T> {
         link.href = href;
       }
     });
-    if (thId === '2067136178R140') {
-      console.log(thId, startCellIdx, endCellIdx, tds);
-    }
 
     return link;
   }

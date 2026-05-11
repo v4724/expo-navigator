@@ -4,12 +4,10 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { tap } from 'rxjs';
 import { Divider } from 'primeng/divider';
 import { BaseWishlist } from '../../base-wishlist';
 import { C4R1Config } from '../../model/coomic4-r1/coomic4-r1';
 import { Coomic4R1View } from '../../view/coomic4-r1-view/coomic4-r1-view';
-import { Coomic4R1Service } from '../../model/coomic4-r1/coomic4-r1-service';
 
 @Component({
   selector: 'app-coomic4-r1',
@@ -49,7 +47,7 @@ export class Coomic4R1 extends BaseWishlist<C4R1Config> implements OnInit {
   ngOnInit(): void {
     this.formGroup.patchValue({
       authorName: this.data.authorName,
-      stallId: this.data.stallId,
+      stallId: this.data.stallId ?? this._stallId,
     });
 
     this.formGroup.valueChanges.subscribe(() => {

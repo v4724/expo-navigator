@@ -1,6 +1,6 @@
 import { Component, effect, inject, input, InputSignal } from '@angular/core';
 import { C4R1Author, C4R1Config } from '../../model/coomic4-r1/coomic4-r1';
-import { filter } from 'rxjs';
+import { filter, take } from 'rxjs';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 import { Skeleton } from 'primeng/skeleton';
 import { Coomic4R1Service } from '../../model/coomic4-r1/coomic4-r1-service';
@@ -60,6 +60,14 @@ export class Coomic4R1View {
       const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
 
       this._service.initial(csvUrl, htmlUrl);
+      this._service.fetchEnd$
+        .pipe(
+          filter((end) => end),
+          take(1),
+        )
+        .subscribe(() => {
+          this.getData();
+        });
     }
   }
 }

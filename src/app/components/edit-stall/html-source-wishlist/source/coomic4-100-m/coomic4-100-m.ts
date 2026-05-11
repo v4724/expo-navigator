@@ -47,7 +47,7 @@ export class Coomic4100M extends BaseWishlist<C4100MConfig> implements OnInit {
   ngOnInit(): void {
     this.formGroup.patchValue({
       authorName: this.data.authorName,
-      stallId: this.data.stallId,
+      stallId: this.data.stallId ?? this._stallId,
     });
 
     this.formGroup.valueChanges.subscribe(() => {

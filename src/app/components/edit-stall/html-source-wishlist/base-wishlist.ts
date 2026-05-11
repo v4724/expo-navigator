@@ -1,8 +1,5 @@
 import { inject, signal, WritableSignal } from '@angular/core';
 import { ControlContainer, FormGroup } from '@angular/forms';
-import { finalize, from, of } from 'rxjs';
-import { WishlistService } from 'src/app/core/services/state/wishlist-service';
-
 export class BaseWishlist<T> {
   protected _stallId = '';
   protected _wishlistId = '';
@@ -10,7 +7,6 @@ export class BaseWishlist<T> {
   private _configJson: string = '';
 
   private parentContainer = inject(ControlContainer);
-  private readonly _wishlistService = inject(WishlistService);
 
   // 取得父層的 FormGroup
   get parentForm() {
