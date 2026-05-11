@@ -1,4 +1,4 @@
-import { inject, signal, WritableSignal } from '@angular/core';
+import { inject } from '@angular/core';
 import { ControlContainer, FormGroup } from '@angular/forms';
 export class BaseWishlist<T> {
   protected _stallId = '';
@@ -22,6 +22,14 @@ export class BaseWishlist<T> {
 
   get wishlistId() {
     return this._wishlistId;
+  }
+
+  get customTags() {
+    return this.parentForm.get('customTags')?.value || '';
+  }
+
+  set customTags(value: string) {
+    this.parentForm.get('customTags')?.setValue(value);
   }
 
   constructor() {
@@ -53,4 +61,10 @@ export class BaseWishlist<T> {
 
   // 預設實作，子類別可覆寫以提供具體的驗證邏輯
   loadMappingWishlist() {}
+
+  customTagsFromView(value: string) {
+    if (!this.customTags) {
+      this.customTags = value;
+    }
+  }
 }

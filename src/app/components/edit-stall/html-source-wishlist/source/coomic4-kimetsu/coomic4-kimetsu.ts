@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { Divider } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { BaseWishlist } from '../../base-wishlist';
+import { BaseWishlist } from '../base-wishlist';
 import { C4KimetsuConfig } from '../../model/coomic4-kimetsu/coomic4-kimetsu';
 import { Coomic4KimetsuView } from '../../view/coomic4-kimetsu-view/coomic4-kimetsu-view';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Coomic4KimetsuService } from '../../model/coomic4-kimetsu/coomic4-kimetsu-service';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-coomic4-kimetsu',
@@ -20,6 +23,7 @@ import { Coomic4KimetsuView } from '../../view/coomic4-kimetsu-view/coomic4-kime
     ReactiveFormsModule,
     Divider,
     Coomic4KimetsuView,
+    Tooltip,
   ],
   templateUrl: './coomic4-kimetsu.html',
   styleUrl: './coomic4-kimetsu.scss',
@@ -31,6 +35,9 @@ export class Coomic4Kimetsu extends BaseWishlist<C4KimetsuConfig> implements OnI
     authorName: new FormControl(''),
     stallId: new FormControl(''),
   });
+
+  private _service = inject(Coomic4KimetsuService);
+  fetchEnd = toSignal(this._service.fetchEnd$);
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

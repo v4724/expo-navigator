@@ -74,6 +74,16 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
     ctx.font = '12px Arial';
     ctx.textAlign = 'center';
 
+    // 避免混亂，先將所有攤位圖上灰色
+    this.stalls().forEach((s) => {
+      const { x, y, w, h } = this.getCanvasCoord(s);
+      ctx.fillStyle = '#f3f4f6';
+      ctx.fillRect(x, y, w, h);
+
+      ctx.fillStyle = '#4a5565';
+      ctx.fillText(s.padNum, x + w / 2, y + h / 2 + 4);
+    });
+
     this.checkedIds.forEach((id) => {
       const wishlist = this._wishlistService.getWishlistItemById(id);
       if (!wishlist) return;

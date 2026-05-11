@@ -9,6 +9,8 @@ export interface WishlistItemDto {
 
   url: string;
 
+  tag: string;
+
   fillColor: string;
 }
 export interface WishlistLayerItem extends WishlistItemDto {

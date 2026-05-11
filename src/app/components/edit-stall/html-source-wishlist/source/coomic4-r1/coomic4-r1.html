@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup" class="flex gap-3 w-full">
-  <div class="flex flex-wrap justify-center gap-2 pt-4 w-full">
+  <div class="flex flex-wrap justify-between gap-2 pt-4 w-full">
     <p-floatlabel variant="on">
       <input id="stallId" pInputText formControlName="stallId" autocomplete="off" />
       <label for="stallId">攤位號碼</label>
@@ -8,17 +8,30 @@
       <input id="authorName" pInputText formControlName="authorName" autocomplete="off" />
       <label for="authorName">作者名稱</label>
     </p-floatlabel>
-    <button
-      pButton
-      text
-      label="查詢對應品項"
-      size="small"
-      class="ml-auto dark:text-gray-300!"
-      (click)="loadMappingWishlist()"
-    ></button>
+    <div class="flex items-center ml-auto">
+      <button
+        pButton
+        text
+        label="查詢對應品項"
+        size="small"
+        class="dark:text-gray-300!"
+        (click)="loadMappingWishlist()"
+        [disabled]="!fetchEnd()"
+      ></button>
+      <i
+        class="pi pi-question-circle text-gray-400 !text-sm"
+        pTooltip="若自訂TAG為空值，查詢時會帶入cp類別"
+        tooltipPosition="top"
+      >
+      </i>
+    </div>
   </div>
 </form>
 
 <p-divider class="mb-0">品項列表</p-divider>
 
-<app-coomic4-r1-view [wishlistId]="wishlistId" [wishlistConfigJson]="toStr()"></app-coomic4-r1-view>
+<app-coomic4-r1-view
+  [wishlistId]="wishlistId"
+  [wishlistConfigJson]="toStr()"
+  (customTagsFromView)="customTagsFromView($event)"
+></app-coomic4-r1-view>

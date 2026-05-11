@@ -11,8 +11,16 @@
 
 <p-popover #popover>
   <div class="flex flex-col gap-2 max-w-sm">
-    <div title class="flex items-center gap-2">
+    <div title class="flex items-center">
       <div class="text-base">開啟攤位分布</div>
+      <p-button
+        icon="pi pi-question-circle"
+        size="small"
+        text
+        rounded
+        pTooltip="重複出現的攤位會被後顯示的吃土單顏色覆蓋。"
+        tooltipPosition="top"
+      ></p-button>
       <p-toggleswitch [size]="'small'" [(ngModel)]="checked" (change)="toggleLayer()" />
     </div>
     <div class="flex flex-col gap-2">

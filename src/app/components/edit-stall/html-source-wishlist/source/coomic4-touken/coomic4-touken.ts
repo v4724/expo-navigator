@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BaseWishlist } from '../../base-wishlist';
+import { BaseWishlist } from '../base-wishlist';
 import { C4ToukenConfig } from '../../model/coomic4-touken/coomic4-touken';
 import { Coomic4ToukenView } from '../../view/coomic4-touken-view/coomic4-touken-view';
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,9 @@ import { ButtonModule } from 'primeng/button';
 import { Divider } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
+import { Coomic4ToukenService } from '../../model/coomic4-touken/coomic4-touken-service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-coomic4-touken',
@@ -20,6 +23,7 @@ import { InputTextModule } from 'primeng/inputtext';
     ReactiveFormsModule,
     Divider,
     Coomic4ToukenView,
+    Tooltip,
   ],
   templateUrl: './coomic4-touken.html',
   styleUrl: './coomic4-touken.scss',
@@ -31,6 +35,8 @@ export class Coomic4Touken extends BaseWishlist<C4ToukenConfig> implements OnIni
     authorName: new FormControl(''),
     stallId: new FormControl(''),
   });
+  private _service = inject(Coomic4ToukenService);
+  fetchEnd = toSignal(this._service.fetchEnd$);
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

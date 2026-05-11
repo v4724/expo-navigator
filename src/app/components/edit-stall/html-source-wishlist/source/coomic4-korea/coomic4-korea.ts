@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { Divider } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { BaseWishlist } from '../../base-wishlist';
+import { BaseWishlist } from '../base-wishlist';
 import { C4KoreaConfig } from '../../model/coomic4-korea/coomic4-korea';
 import { Coomic4KoreaView } from '../../view/coomic4-korea-view/coomic4-korea-view';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Coomic4KoreaService } from '../../model/coomic4-korea/coomic4-korea-service';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-coomic4-korea',
@@ -20,6 +23,7 @@ import { Coomic4KoreaView } from '../../view/coomic4-korea-view/coomic4-korea-vi
     ReactiveFormsModule,
     Divider,
     Coomic4KoreaView,
+    Tooltip,
   ],
   templateUrl: './coomic4-korea.html',
   styleUrl: './coomic4-korea.scss',
@@ -31,6 +35,9 @@ export class Coomic4Korea extends BaseWishlist<C4KoreaConfig> implements OnInit 
     authorName: new FormControl(''),
     stallId: new FormControl(''),
   });
+
+  private _service = inject(Coomic4KoreaService);
+  fetchEnd = toSignal(this._service.fetchEnd$);
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, InputSignal } from '@angular/core';
+import { Component, effect, inject, input, InputSignal, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Skeleton } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
@@ -16,6 +16,7 @@ import { Coomic4KimetsuService } from '../../model/coomic4-kimetsu/coomic4-kimet
 export class Coomic4KimetsuView {
   wishlistId: InputSignal<string> = input.required();
   wishlistConfigJson: InputSignal<string> = input.required();
+  customTagsFromView = output<string>();
   config?: C4KimetsuConfig;
   author?: C4KimetsuAuthor;
 
@@ -29,6 +30,9 @@ export class Coomic4KimetsuView {
   }
   get authorName() {
     return this.config?.authorName || '';
+  }
+  get wishlistItem() {
+    return this._wishlistService.getWishlistItemById(this.wishlistId());
   }
 
   constructor() {
@@ -50,8 +54,18 @@ export class Coomic4KimetsuView {
   }
 
   getData() {
-    if (!this.config) return;
+    if (!this.config || !this.config?.authorName) return;
     this.author = this._service.getAuthor(this.config);
+
+    const set = new Set<string>();
+    const defaultTag = this.wishlistItem?.tag;
+    defaultTag && set.add(defaultTag);
+    this.author?.items.forEach((item) => {
+      if (item.cp) {
+        item.cp.forEach((cat) => set.add(cat.trim()));
+      }
+    });
+    this.customTagsFromView.emit(Array.from(set).join(', '));
   }
 
   loadData() {

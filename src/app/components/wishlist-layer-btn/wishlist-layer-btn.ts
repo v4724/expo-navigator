@@ -3,8 +3,10 @@ import { Component, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
+import { ButtonModule } from 'primeng/button';
 import { PopoverModule } from 'primeng/popover';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { TooltipModule } from 'primeng/tooltip';
 import { map } from 'rxjs';
 import { WishlistLayerItem } from 'src/app/core/models/wishlist-item.model';
 import { WishlistLayerService } from 'src/app/core/services/state/wishlist-layer-service';
@@ -12,7 +14,15 @@ import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 
 @Component({
   selector: 'app-wishlist-layer-btn',
-  imports: [CommonModule, PopoverModule, ToggleSwitch, FormsModule, MatIcon],
+  imports: [
+    CommonModule,
+    PopoverModule,
+    ToggleSwitch,
+    FormsModule,
+    MatIcon,
+    ButtonModule,
+    TooltipModule,
+  ],
   templateUrl: './wishlist-layer-btn.html',
   styleUrl: './wishlist-layer-btn.scss',
 })

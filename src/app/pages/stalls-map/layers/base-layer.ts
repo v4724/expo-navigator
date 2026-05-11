@@ -110,7 +110,7 @@ export class BaseLayer {
     h: number,
   ) {
     const hasPrintSurvey = s.hasPrintSurvey;
-    if (!this.isBackground || !hasPrintSurvey) return;
+    if (!hasPrintSurvey) return;
 
     const color = this.getRGBColor(this.legendColor?.printSurvey);
     ctx.strokeStyle = color;

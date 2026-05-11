@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { Divider } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { BaseWishlist } from '../../base-wishlist';
+import { BaseWishlist } from '../base-wishlist';
 import { C4100MConfig } from '../../model/coomic4-100-m/coomic4-100-m';
 import { Coomic4100MView } from '../../view/coomic4-100-m-view/coomic4-100-m-view';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Coomic4100MService } from '../../model/coomic4-100-m/coomic4-100-m-service';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-coomic4-100-m',
@@ -20,6 +23,7 @@ import { Coomic4100MView } from '../../view/coomic4-100-m-view/coomic4-100-m-vie
     ReactiveFormsModule,
     Divider,
     Coomic4100MView,
+    Tooltip,
   ],
   templateUrl: './coomic4-100-m.html',
   styleUrl: './coomic4-100-m.scss',
@@ -31,6 +35,9 @@ export class Coomic4100M extends BaseWishlist<C4100MConfig> implements OnInit {
     authorName: new FormControl(''),
     stallId: new FormControl(''),
   });
+
+  private _service = inject(Coomic4100MService);
+  fetchEnd = toSignal(this._service.fetchEnd$);
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

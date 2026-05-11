@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { BaseWishlist } from '../../base-wishlist';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { BaseWishlist } from '../base-wishlist';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { WishlistConfig } from '../../model/base-model';
 import { Coomic4UotoView } from '../../view/coomic4-uoto-view/coomic4-uoto-view';
@@ -8,6 +8,9 @@ import { ButtonModule } from 'primeng/button';
 import { Divider } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
+import { Coomic4UotoService } from '../../model/coomic4-uoto/coomic4-uoto-service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-coomic4-uoto',
@@ -20,6 +23,7 @@ import { InputTextModule } from 'primeng/inputtext';
     ReactiveFormsModule,
     Divider,
     Coomic4UotoView,
+    Tooltip,
   ],
   templateUrl: './coomic4-uoto.html',
   styleUrl: './coomic4-uoto.scss',
@@ -31,6 +35,9 @@ export class Coomic4Uoto extends BaseWishlist<WishlistConfig> implements OnInit 
     authorName: new FormControl(''),
     stallId: new FormControl(''),
   });
+
+  private _service = inject(Coomic4UotoService);
+  fetchEnd = toSignal(this._service.fetchEnd$);
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

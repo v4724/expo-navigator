@@ -45,6 +45,7 @@ export class WishlistService {
       const data = rawSeries['data'];
       const html = rawSeries['html'];
       const url = rawSeries['url'];
+      const tag = rawSeries['tag'];
       const fillColor = rawSeries['fillColor'];
 
       if (!id || !name || !data || !url || !fillColor) {
@@ -60,6 +61,7 @@ export class WishlistService {
           html,
           url,
           fillColor,
+          tag,
         };
         this.allWishlistItems.set(id, item);
       }

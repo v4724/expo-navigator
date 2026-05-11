@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { Divider } from 'primeng/divider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { BaseWishlist } from '../../base-wishlist';
+import { BaseWishlist } from '../base-wishlist';
 import { C4BokyakuConfig } from '../../model/coomic4-bokyaku/coomic4-bokyaku';
 import { Coomic4BokyakuView } from '../../view/coomic4-bokyaku-view/coomic4-bokyaku-view';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Coomic4BokyakuService } from '../../model/coomic4-bokyaku/coomic4-bokyaku-service';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-coomic4-bokyaku',
@@ -20,6 +23,7 @@ import { Coomic4BokyakuView } from '../../view/coomic4-bokyaku-view/coomic4-boky
     ReactiveFormsModule,
     Divider,
     Coomic4BokyakuView,
+    Tooltip,
   ],
   templateUrl: './coomic4-bokyaku.html',
   styleUrl: './coomic4-bokyaku.scss',
@@ -31,6 +35,9 @@ export class Coomic4Bokyaku extends BaseWishlist<C4BokyakuConfig> implements OnI
     authorName: new FormControl(''),
     stallId: new FormControl(''),
   });
+
+  private _service = inject(Coomic4BokyakuService);
+  fetchEnd = toSignal(this._service.fetchEnd$);
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

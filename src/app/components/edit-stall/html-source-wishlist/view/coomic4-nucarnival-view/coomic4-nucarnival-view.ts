@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, InputSignal } from '@angular/core';
+import { Component, effect, inject, input, InputSignal, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, take } from 'rxjs';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
@@ -19,6 +19,7 @@ import { TagModule } from 'primeng/tag';
 export class Coomic4NucarnivalView {
   wishlistId: InputSignal<string> = input.required();
   wishlistConfigJson: InputSignal<string> = input.required();
+  customTagsFromView = output<string>();
   config?: C4NucarnivalConfig;
   author?: C4NucarnivalAuthor;
 
@@ -32,6 +33,10 @@ export class Coomic4NucarnivalView {
   }
   get authorName() {
     return this.config?.authorName || '';
+  }
+
+  get wishlistItem() {
+    return this._wishlistService.getWishlistItemById(this.wishlistId());
   }
 
   constructor() {
@@ -53,8 +58,18 @@ export class Coomic4NucarnivalView {
   }
 
   getData() {
-    if (!this.config) return;
+    if (!this.config || !this.config?.authorName) return;
     this.author = this._service.getAuthor(this.config);
+
+    const set = new Set<string>();
+    const defaultTag = this.wishlistItem?.tag;
+    defaultTag && set.add(defaultTag);
+    this.author?.items.forEach((item) => {
+      if (item.cp) {
+        set.add(item.cp.trim());
+      }
+    });
+    this.customTagsFromView.emit(Array.from(set).join(', '));
   }
 
   loadData() {

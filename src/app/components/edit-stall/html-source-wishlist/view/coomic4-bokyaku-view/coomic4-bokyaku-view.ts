@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, InputSignal } from '@angular/core';
+import { Component, effect, inject, input, InputSignal, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Skeleton } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
@@ -16,6 +16,7 @@ import { Coomic4BokyakuService } from '../../model/coomic4-bokyaku/coomic4-bokya
 export class Coomic4BokyakuView {
   wishlistId: InputSignal<string> = input.required();
   wishlistConfigJson: InputSignal<string> = input.required();
+  customTagsFromView = output<string>();
   config?: C4BokyakuConfig;
   author?: C4BokyakuAuthor;
 
@@ -29,6 +30,10 @@ export class Coomic4BokyakuView {
   }
   get authorName() {
     return this.config?.authorName || '';
+  }
+
+  get wishlistItem() {
+    return this._wishlistService.getWishlistItemById(this.wishlistId());
   }
 
   constructor() {
@@ -50,8 +55,18 @@ export class Coomic4BokyakuView {
   }
 
   getData() {
-    if (!this.config) return;
+    if (!this.config || !this.config?.authorName) return;
     this.author = this._service.getAuthor(this.config);
+
+    const set = new Set<string>();
+    const defaultTag = this.wishlistItem?.tag;
+    defaultTag && set.add(defaultTag);
+    this.author?.items.forEach((item) => {
+      if (item.cp) {
+        set.add(item.cp.trim());
+      }
+    });
+    this.customTagsFromView.emit(Array.from(set).join(', '));
   }
 
   loadData() {
