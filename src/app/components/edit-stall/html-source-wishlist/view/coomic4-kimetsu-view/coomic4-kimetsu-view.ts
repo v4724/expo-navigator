@@ -62,7 +62,7 @@ export class Coomic4KimetsuView {
     defaultTag && set.add(defaultTag);
     this.author?.items.forEach((item) => {
       if (item.cp) {
-        item.cp.forEach((cat) => set.add(cat.trim()));
+        item.cp.forEach((cat) => cat.trim() && set.add(cat.trim()));
       }
     });
     this.customTagsFromView.emit(Array.from(set).join(', '));

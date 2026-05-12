@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { C4KoreaAuthor, C4KoreaConfig, C4KoreaData } from './coomic4-korea';
 import { BaseService } from '../base-service';
+import { WishlistLink } from '../base-model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,7 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
         rawSeries[
           '書名或商品名稱（R18請標紅字）\nName of Products（red text for R-18）\n책 제목  / 굿즈（18금 품목은 빨간색으로 표기）'
         ];
+      const cp = rawSeries['配對 / 角色\nCP / Character\n커플 / 인물'];
 
       // 任一有值代表是下一筆攤位資料
       if (stallZone || stallNum) {
@@ -33,7 +35,12 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
       if (stallNum) {
         currStallNum = stallNum.padStart(2, '0');
       }
-      const stallId = currStallZone + currStallNum;
+      let stallId = currStallZone + currStallNum;
+      if (currStallNum === '30/31') {
+        stallId = `${currStallZone}30/${currStallZone}31`;
+      } else if (currStallNum === '33/34') {
+        stallId = `${currStallZone}33/${currStallZone}34`;
+      }
 
       // 非品項列 (ex: 標題或空白列)
       if (!stallId && !authorName && !itemName) {
@@ -45,15 +52,18 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
       }
 
       // 當前作者的第一列 (新的一位)
-      if (authorName) {
+      const key = this.keyForMapping({ stallId, authorName } as C4KoreaConfig);
+      const existAuthor = this.cache.get(key);
+      if (authorName && !existAuthor) {
         currAuthor = {
           stallId,
           authorName,
           sns: [],
           items: [],
         };
-        const key = this.keyForMapping({ stallId, authorName } as C4KoreaConfig);
         this.cache.set(key, currAuthor);
+      } else if (authorName && existAuthor) {
+        currAuthor = existAuthor;
       }
       if (!currAuthor) {
         return;
@@ -62,15 +72,26 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
       const thId = `${this.htmlDocThKey}R${rowIdx}`;
       const snsTitle = rawSeries['作者\nAuthor\n작가'];
       if (snsTitle) {
-        const sns = this.getLink(snsTitle, thId, 1, 15);
-        currAuthor.sns.push(sns);
+        // 特別處理
+        if (snsTitle === '司藍的空想旅團\nKOPAKO') {
+          const links = this.getN75Link(thId);
+          currAuthor.sns = currAuthor.sns.concat(links);
+        } else {
+          const sns = this.getLink(snsTitle, thId, 1, 15);
+          const find = currAuthor.sns.find(
+            (item) => item.href === sns.href || item.title === sns.title,
+          );
+          if (!find) {
+            currAuthor.sns.push(sns);
+          }
+        }
       }
 
-      if (!itemName) {
+      if (!itemName && !cp) {
         return;
       }
 
-      const cp = rawSeries['配對 / 角色\nCP / Character\n커플 / 인물'];
+      const subject = rawSeries['韓國創作主題\nFandoms\n팬덤'];
       const category = rawSeries['主題類型\nCategorires\n카테고리'];
       const newProduct = rawSeries['新品 / 既品\nNew or Released\n신상품 / 새상품'];
       const price = rawSeries['售價\nPrice\n가격'];
@@ -84,6 +105,7 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
       const rated18 = this.isRated18Item(thId, itemName);
 
       const item: C4KoreaData = {
+        subject,
         cp,
         category,
         itemName,
@@ -93,7 +115,6 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
         promotional,
         note,
       };
-
       currAuthor.items.push(item);
     });
   }
@@ -108,7 +129,8 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
       return false;
     }
 
-    const tds = tr.querySelectorAll(`td.s20`);
+    // class樣式不一定
+    const tds = tr.querySelectorAll(`td.s19`);
     let isRated18 = false;
     tds.forEach((td) => {
       const innerText = (td as HTMLTableCellElement).innerText;
@@ -119,5 +141,30 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
     });
 
     return isRated18;
+  }
+
+  getN75Link(thId: string): WishlistLink[] {
+    // 建立一個暫時的 DOM 解析器
+    const th = this.htmlDoc?.getElementById(thId);
+    const tr = th ? th.closest('tr') : null;
+
+    if (!tr) {
+      console.debug('未找到指定 TR', thId, th, !!this.htmlDoc);
+      return [];
+    }
+
+    const links: WishlistLink[] = [];
+    const tds = tr.querySelectorAll(`td:has(a)`);
+    tds.forEach((td) => {
+      if (td.children.length > 1) {
+        Array.from(td.children).forEach((a) => {
+          const innerText = (a as HTMLLinkElement).innerText;
+          const href = (a as HTMLLinkElement)?.href;
+          links.push({ title: innerText, href: href });
+        });
+      }
+    });
+
+    return links;
   }
 }

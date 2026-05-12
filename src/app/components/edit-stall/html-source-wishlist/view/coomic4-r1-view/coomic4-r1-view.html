@@ -8,7 +8,7 @@
   } @else {
     <div class="flex flex-col px-2 w-full">
       @if (author) {
-        <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center relatvie">
           作者：
           <div>{{ author.authorName }}</div>
           @if (author.sns.length > 0) {
@@ -19,9 +19,19 @@
               }
               @if (sns.href) {
                 <a [href]="sns.href" target="_blank">{{ sns.title }}</a>
+              } @else {
+                {{ sns.title }}
               }
             }
             )
+          }
+          @if (author.onlyEvent) {
+            <p-tag
+              class="!text-[0.6rem] !p-[0.25rem] leading-none"
+              severity="warn"
+              [rounded]="true"
+              value="場內 Only"
+            />
           }
         </div>
       }
@@ -97,7 +107,7 @@
               <div class="absolute top-2 left-0 flex flex-col flex-inline">
                 @if (item.newProduct) {
                   <p-tag
-                    class="-rotate-30 -translate-y-2 -translate-x-4 !text-[0.6rem] !p-[0.25rem] leading-none"
+                    class="-rotate-30 -translate-y-2 -translate-x-6 !text-[0.6rem] !p-[0.25rem] leading-none"
                     severity="success"
                     [rounded]="true"
                     value="New"
@@ -106,10 +116,19 @@
 
                 @if (item.rated18) {
                   <p-tag
-                    class="-rotate-30 -translate-y-2 -translate-x-4 !text-[0.6rem] !p-x-[0.25rem] leading-none"
+                    class="-rotate-30 -translate-y-2 -translate-x-6 !text-[0.6rem] !p-x-[0.25rem] leading-none"
                     severity="danger"
                     [rounded]="true"
                     value="R18"
+                  />
+                }
+
+                @if (item.freeCategory) {
+                  <p-tag
+                    class="-rotate-30 -translate-y-2 -translate-x-6 !text-[0.6rem] !p-x-[0.25rem] leading-none"
+                    severity="info"
+                    [rounded]="true"
+                    value="無料"
                   />
                 }
               </div>

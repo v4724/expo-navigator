@@ -62,7 +62,7 @@ export class Coomic4ToukenView implements OnInit {
     const defaultTag = this.wishlistItem?.tag;
     defaultTag && set.add(defaultTag);
     this.author?.items.forEach((item) => {
-      if (item.cp) {
+      if (item.cp.trim()) {
         set.add(item.cp.trim());
       }
     });

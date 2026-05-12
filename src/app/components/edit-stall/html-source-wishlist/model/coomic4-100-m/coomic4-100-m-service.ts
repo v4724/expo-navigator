@@ -21,6 +21,7 @@ export class Coomic4100MService extends BaseService<C4100MAuthor> {
       const stallIdDay2 = rawSeries['攤位編號D2'];
       const authorName = rawSeries['作者'];
       const itemName = rawSeries['商品名稱'];
+      const cp = rawSeries['CP/角色'];
 
       // 任一有值代表是下一筆攤位資料
       if (stallIdDay1 || stallIdDay2) {
@@ -64,11 +65,10 @@ export class Coomic4100MService extends BaseService<C4100MAuthor> {
         currAuthor.sns.push(sns);
       }
 
-      if (!itemName) {
+      if (!itemName && !cp) {
         return;
       }
 
-      const cp = rawSeries['CP/角色'];
       const category = rawSeries['商品類別'];
       const newProduct = rawSeries['新/既'];
       const price = rawSeries['金額'];

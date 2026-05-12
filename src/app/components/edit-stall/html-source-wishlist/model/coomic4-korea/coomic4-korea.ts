@@ -10,6 +10,7 @@ export interface C4KoreaAuthor {
   items: C4KoreaData[];
 }
 export interface C4KoreaData {
+  subject: string; // 主題
   itemName: string;
   rated18: boolean;
   cp: string;

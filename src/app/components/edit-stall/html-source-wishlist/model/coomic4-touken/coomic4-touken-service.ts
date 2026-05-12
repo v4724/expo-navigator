@@ -35,7 +35,7 @@ export class Coomic4ToukenService extends BaseService<C4ToukenAuthor> {
 
       // 非品項列 (ex: 標題或空白列)
       if (!stallId && !authorName && !itemName) {
-        // console.warn('wishlist item 缺少資料', stallId, authorName, 'rowIdx:', rowIdx);
+        // console.warn('wishlist item 缺少資料', stallId, authorName, 'rowIdx:', rowIdx, rawSeries);
         return;
       }
 
@@ -46,12 +46,15 @@ export class Coomic4ToukenService extends BaseService<C4ToukenAuthor> {
       // 當前作者的第一列 (新的一位)
       if (authorName) {
         currAuthor = {
-          stallId,
+          stallId: currDay1,
           authorName,
           sns: [],
           items: [],
         };
-        const key = this.keyForMapping({ stallId, authorName } as C4ToukenConfig);
+        const key = this.keyForMapping({
+          stallId: currDay1,
+          authorName,
+        } as C4ToukenConfig);
         this.cache.set(key, currAuthor);
       }
       if (!currAuthor) return;

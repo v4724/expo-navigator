@@ -7,8 +7,7 @@ import { BaseService } from '../base-service';
 })
 export class Coomic4KimetsuService extends BaseService<C4KimetsuAuthor> {
   override headerIdx = 3;
-  override htmlDocThKey = '0';
-  // override hrefClass = 's12';
+  override htmlDocThKey = '420670038';
 
   override processData(rawData: Record<string, string>[], htmlText: string) {
     let currAuthor: C4KimetsuAuthor;
@@ -18,9 +17,10 @@ export class Coomic4KimetsuService extends BaseService<C4KimetsuAuthor> {
       const stallId = rawSeries['攤位號碼'];
       const authorName = rawSeries['創作者'];
       const itemName = rawSeries['刊物／品項名稱'];
+      const cp = rawSeries['全員／單人／CP／CB（可複選）'];
 
       // 非品項列 (ex: 標題或空白列)
-      if (!stallId && !authorName && !itemName) {
+      if (!stallId && !authorName && !itemName && !cp) {
         // console.warn('wishlist item 缺少資料', stallId, authorName, itemName, 'rowIdx:', rowIdx);
         return;
       }
@@ -50,11 +50,9 @@ export class Coomic4KimetsuService extends BaseService<C4KimetsuAuthor> {
         currAuthor.sns.push(sns);
       }
 
-      if (!itemName) {
-        return;
-      }
+      // 資料上出現只有 CP 沒有商品名稱，可能是作者沒有更新，但其他人有設定該作者 CP 向
+      if (!itemName && !cp) return;
 
-      const cp = rawSeries['全員／單人／CP／CB（可複選）'];
       const category = rawSeries['品項類別'];
       const rated18 = rawSeries['一般向／R18向'];
       const price = rawSeries['價格'];

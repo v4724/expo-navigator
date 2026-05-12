@@ -13,7 +13,8 @@ export class Coomic4NucarnivalService extends BaseService<C4NucarnivalAuthor> {
   override processData(rawData: Record<string, string>[], htmlText: string) {
     let currAuthor: C4NucarnivalAuthor;
     let currDay1 = false,
-      currDay2 = false;
+      currDay2 = false,
+      currStallId = '';
 
     console.log('processData', rawData);
     rawData.forEach((rawSeries, rowIdx) => {
@@ -41,18 +42,19 @@ export class Coomic4NucarnivalService extends BaseService<C4NucarnivalAuthor> {
       }
 
       if (!!stallId) {
+        currStallId = stallId;
         this.cacheByStallId.add(stallId);
       }
 
       // 當前作者的第一列 (新的一位)
       if (authorName) {
         currAuthor = {
-          stallId,
+          stallId: currStallId,
           authorName,
           sns: [],
           items: [],
         };
-        const key = this.keyForMapping({ stallId, authorName } as C4NucarnivalConfig);
+        const key = this.keyForMapping({ stallId: currStallId, authorName } as C4NucarnivalConfig);
         this.cache.set(key, currAuthor);
       }
       if (!currAuthor) return;
@@ -83,7 +85,7 @@ export class Coomic4NucarnivalService extends BaseService<C4NucarnivalAuthor> {
         cp,
         category,
         itemName,
-        rated18: rated18 === 'R18' ? true : false,
+        rated18: rated18 === 'TRUE' ? true : false,
         price,
         productType,
         promotional,

@@ -6,11 +6,11 @@ export interface C4R1Author {
   stallId: string;
   authorName: string;
 
+  onlyEvent: boolean;
   sns: WishlistLink[];
   items: C4R1Data[];
 }
 export interface C4R1Data {
-  onlyEvent: boolean;
   itemName: string;
   rated18: boolean;
   cp: string[];
@@ -20,4 +20,5 @@ export interface C4R1Data {
   promotional: WishlistLink;
   note: string;
   onlineSale: string;
+  freeCategory: boolean;
 }
