@@ -86,6 +86,14 @@ export class Home {
     ];
   }
 
+  handleInput(event: Event) {
+    if (!this.promoCustomTagOnly()) return;
+
+    const target = event.target as HTMLIonSearchbarElement;
+    const query = target.value?.toLowerCase() || '';
+    this._searchAndFilterService.inputSearch = query;
+  }
+
   toSearch() {
     if (this.promoCustomTagOnly()) return;
 

@@ -28,6 +28,7 @@
           placeholder="搜尋攤位編號、名稱、作者或標籤..."
           show-clear-button="never"
           (click)="toSearch()"
+          (ionInput)="handleInput($event)"
           [value]="currSearchTerm()"
         ></ion-searchbar>
         <div class="flex items-center pr-1">
