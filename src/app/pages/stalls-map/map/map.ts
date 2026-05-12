@@ -374,7 +374,9 @@ export class Map implements OnInit, AfterViewInit {
     // desktop 左方有選單，中心要再往右移
     const centerX = !this._uiStateService.isMobile() && this._leftSidebarService.curr ? 310 / 2 : 0;
     // mobile 下方有攤位資訊，中心要再往上移
-    const centerY = this._uiStateService.isMobile() ? this.mobileStallInfoDefaultH / 2 : 0;
+    const centerY = this._uiStateService.isMobile()
+      ? this.mobileStallInfoDefaultH / this.scale() / 2
+      : 0;
     // 將攤位置中（相對於地圖中心 0,0）
     const newTranslateX = (scaledMapCenterX - scaledStallX) / this.scale() + centerX;
     const newTranslateY = (scaledMapCenterY - scaledStallY) / this.scale() - Math.abs(centerY);
