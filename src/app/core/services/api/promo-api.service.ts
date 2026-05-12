@@ -56,6 +56,26 @@ export class PromoApiService {
       .pipe(tap((res) => console.debug(res)));
   }
 
+  create(promo: UpdatePromoStallDto): Observable<UpdateResponse<PromoStallDto>> {
+    const data: PromoStallDto = {
+      stallId: promo.stallId,
+      promoSort: promo.promoSort,
+      promoTitle: promo.promoTitle,
+      promoAvatar: promo.promoAvatar,
+      promoHtmlSourceOption: promo.promoHtmlSourceOption,
+      promoHtmlWishlistId: promo.promoHtmlWishlistId,
+      promoHtmlWishlistConfigJson: promo.promoHtmlWishlistConfigJson,
+      promoHtml: promo.promoHtml,
+      promoLinks: promo.promoLinks,
+      series: promo.series,
+      tags: promo.tags,
+      customTags: promo.customTags,
+    };
+    return this.http
+      .put<UpdateResponse<PromoStallDto>>(`${this.apiUrl}/api/promo`, data)
+      .pipe(tap((res) => console.debug(res)));
+  }
+
   transformDtoToPromo(dto: PromoStallDto, index: number): PromoStall {
     // --- Promotion Data Aggregation ---
     // If the current row contains promotion data, create a PromoStall object

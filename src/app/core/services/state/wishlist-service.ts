@@ -47,6 +47,7 @@ export class WishlistService {
       const url = rawSeries['url'];
       const tag = rawSeries['tag'];
       const fillColor = rawSeries['fillColor'];
+      const permission = rawSeries['permission'];
 
       if (!id || !name || !data || !url || !fillColor) {
         console.warn('wishlist item 缺少設定', id, name, data, html, url, fillColor);
@@ -62,7 +63,11 @@ export class WishlistService {
           url,
           fillColor,
           tag,
+          permission: permission === 'TRUE' ? true : false,
         };
+
+        if (!item.permission) return;
+
         this.allWishlistItems.set(id, item);
       }
     });

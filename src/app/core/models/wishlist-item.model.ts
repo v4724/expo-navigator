@@ -12,6 +12,8 @@ export interface WishlistItemDto {
   tag: string;
 
   fillColor: string;
+
+  permission: boolean;
 }
 export interface WishlistLayerItem extends WishlistItemDto {
   checked: boolean;

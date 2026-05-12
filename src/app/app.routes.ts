@@ -14,6 +14,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/grid-helper/grid-helper').then((m) => m.GridHelper),
   },
   {
+    path: 'insert-default-promo',
+    loadComponent: () =>
+      import('./pages/insert-default-promo/insert-default-promo').then((m) => m.InsertDefaultPromo),
+  },
+  {
     path: 'mobile-search',
     loadComponent: () => import('./device/mobile/pages/search/search').then((m) => m.Search),
   },
