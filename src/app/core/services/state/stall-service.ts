@@ -373,7 +373,8 @@ export class StallService {
           .map((data, index) => {
             return this._promoService.transformDtoToPromo(data, index);
           })
-          .sort((a, b) => (a.promoSort && b.promoSort ? a.promoSort - b.promoSort : -1));
+          .sort((a, b) => (a.promoSort >= 0 && b.promoSort >= 0 ? a.promoSort - b.promoSort : 0));
+
         const stall = {
           id: id,
           stallZone,

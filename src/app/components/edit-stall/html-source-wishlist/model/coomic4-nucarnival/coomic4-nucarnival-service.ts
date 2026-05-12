@@ -31,7 +31,7 @@ export class Coomic4NucarnivalService extends BaseService<C4NucarnivalAuthor> {
       }
       // 只有 Day2
       if (!currDay1 && currDay2) {
-        console.log('Skipping row:', rowIdx, rawSeries);
+        // console.log('Skipping row:', rowIdx, rawSeries);
         return;
       }
 

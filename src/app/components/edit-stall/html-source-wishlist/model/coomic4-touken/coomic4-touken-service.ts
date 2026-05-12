@@ -29,7 +29,7 @@ export class Coomic4ToukenService extends BaseService<C4ToukenAuthor> {
       }
       // 只有 Day2
       if (!currDay1 && currDay2) {
-        console.log('Skipping row:', rowIdx, rawSeries);
+        // console.log('Skipping row:', rowIdx, rawSeries);
         return;
       }
 
