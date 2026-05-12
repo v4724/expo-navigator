@@ -47,6 +47,12 @@
       [wishlistConfigJson]="wishlistConfigJson()"
     ></app-coomic4-bokyaku-view>
   }
+  @case ('COOMIC4_DEFAULT') {
+    <app-default-view
+      [wishlistId]="wishlistId()"
+      [wishlistConfigJson]="wishlistConfigJson()"
+    ></app-default-view>
+  }
   @default {
     @if (wishlistId()) {
       <div class="py-4">無對應來源</div>

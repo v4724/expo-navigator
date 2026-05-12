@@ -15,6 +15,7 @@ import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { BaseService } from 'src/app/components/edit-stall/html-source-wishlist/model/base-service';
 import { PromoApiService } from 'src/app/core/services/api/promo-api.service';
 import { UpdatePromoStallDto } from 'src/app/core/models/promo-stall.model';
+import { WishlistDefaultService } from 'src/app/components/edit-stall/html-source-wishlist/model/default-service';
 
 // 堪用，找到每個吃土單上的攤位，檢查目前攤位有沒有設定該吃土單資訊，若無則(根據吃土單上的作者)新增該攤位對應的宣傳車。
 
@@ -35,6 +36,7 @@ export class InsertDefaultPromo {
   private _coomic4100MService = inject(Coomic4100MService);
   private _coomic4KimetsuService = inject(Coomic4KimetsuService);
   private _coomic4BokyakuService = inject(Coomic4BokyakuService);
+  private _defaultService = inject(WishlistDefaultService);
 
   private _promoApiService = inject(PromoApiService);
 
@@ -67,10 +69,10 @@ export class InsertDefaultPromo {
             //   service = this._coomic4ToukenService;
             //   break;
             // }
-            case 'COOMIC4_KOREA': {
-              service = this._coomic4KoreaService;
-              break;
-            }
+            // case 'COOMIC4_KOREA': {
+            //   service = this._coomic4KoreaService;
+            //   break;
+            // }
             // case 'COOMIC4_100_M': {
             //   service = this._coomic4100MService;
             //   break;
@@ -83,6 +85,10 @@ export class InsertDefaultPromo {
             //   service = this._coomic4BokyakuService;
             //   break;
             // }
+            case 'COOMIC4_DEFAULT': {
+              service = this._defaultService;
+              break;
+            }
           }
 
           if (!service) return;
@@ -115,8 +121,8 @@ export class InsertDefaultPromo {
                   .forEach((key, idx) => {
                     const author = service.cache.get(key);
 
-                    // 沒有商品不新增宣傳車
-                    if (!author.items.length) return;
+                    // 沒有商品不新增宣傳車 >> 先綁起來再說吧
+                    // if (!author.items.length) return;
 
                     const set = new Set<string>([wishlist.tag]);
                     author.items.forEach((item: any) => {
@@ -144,6 +150,15 @@ export class InsertDefaultPromo {
                           }
                           if (item.cp.trim()) {
                             set.add(item.cp.trim());
+                          }
+                          break;
+                        }
+                        case 'COOMIC4_DEFAULT': {
+                          if (item.subject.trim()) {
+                            set.add(item.subject.trim());
+                          }
+                          if (item.cp.length) {
+                            item.cp.forEach((cat: string) => cat.trim() && set.add(cat.trim()));
                           }
                           break;
                         }
@@ -175,8 +190,8 @@ export class InsertDefaultPromo {
                         .filter((val) => !!val)
                         .join(','),
                     };
-                    // console.log(sId, author, data);
-                    this._promoApiService.create(data).subscribe((res) => {});
+                    console.log(sId, author, data);
+                    // this._promoApiService.create(data).subscribe((res) => {});
                   });
               });
             });

@@ -17,6 +17,7 @@ import { Coomic4Korea } from '../source/coomic4-korea/coomic4-korea';
 import { Coomic4100M } from '../source/coomic4-100-m/coomic4-100-m';
 import { Coomic4Kimetsu } from '../source/coomic4-kimetsu/coomic4-kimetsu';
 import { Coomic4Bokyaku } from '../source/coomic4-bokyaku/coomic4-bokyaku';
+import { Default } from '../source/default/default';
 
 /**
  * 攤位編輯 - 吃土單入口
@@ -34,6 +35,7 @@ import { Coomic4Bokyaku } from '../source/coomic4-bokyaku/coomic4-bokyaku';
     Coomic4100M,
     Coomic4Kimetsu,
     Coomic4Bokyaku,
+    Default,
   ],
   templateUrl: './wishlist-entrance.html',
   styleUrl: './wishlist-entrance.scss',

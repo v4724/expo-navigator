@@ -1,0 +1,90 @@
+import { Component, effect, inject, input, InputSignal, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, take } from 'rxjs';
+import { WishlistService } from 'src/app/core/services/state/wishlist-service';
+import { WishlistConfig, WishlistAuthor } from '../../model/base-model';
+import { WishlistDefaultService } from '../../model/default-service';
+import { Skeleton } from 'primeng/skeleton';
+import { TagModule } from 'primeng/tag';
+
+@Component({
+  selector: 'app-default-view',
+  imports: [Skeleton, TagModule],
+  templateUrl: './default-view.html',
+  styleUrl: './default-view.scss',
+})
+export class DefaultView {
+  wishlistId: InputSignal<string> = input.required();
+  wishlistConfigJson: InputSignal<string> = input.required();
+  customTagsFromView = output<string>();
+  config?: WishlistConfig;
+  author?: WishlistAuthor;
+
+  private _wishlistService = inject(WishlistService);
+  private _service = inject(WishlistDefaultService);
+
+  isLoading = toSignal(this._service.isLoading$);
+
+  get stallId() {
+    return this.config?.stallId || '';
+  }
+  get authorName() {
+    return this.config?.authorName || '';
+  }
+  get wishlistItem() {
+    return this._wishlistService.getWishlistItemById(this.wishlistId());
+  }
+
+  constructor() {
+    effect(() => {
+      this.config = JSON.parse(this.wishlistConfigJson()) as WishlistConfig;
+    });
+  }
+
+  ngOnInit() {
+    this.config = JSON.parse(this.wishlistConfigJson()) as WishlistConfig;
+
+    if (!this._service.fetchEnd()) {
+      this.loadData();
+    }
+
+    this._service.fetchEnd$.pipe(filter((end) => end)).subscribe(() => {
+      this.getData();
+    });
+  }
+
+  getData() {
+    if (!this.config || !this.config?.authorName) return;
+    this.author = this._service.getAuthor(this.config);
+
+    const set = new Set<string>();
+    const defaultTag = this.wishlistItem?.tag;
+    defaultTag && set.add(defaultTag);
+    this.author?.items.forEach((item) => {
+      if (item.subject.trim()) {
+        set.add(item.subject.trim());
+      }
+      if (item.cp) {
+        item.cp.forEach((cat) => cat.trim() && set.add(cat.trim()));
+      }
+    });
+    this.customTagsFromView.emit(Array.from(set).join(', '));
+  }
+
+  loadData() {
+    if (this.wishlistId() && this.wishlistConfigJson()) {
+      const csvUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.data ?? '';
+      const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
+
+      this._service.initial(csvUrl, htmlUrl);
+      this._service.fetchEnd$
+        .pipe(
+          filter((end) => end),
+          take(1),
+        )
+        .subscribe(() => {
+          this.getData();
+        });
+    }
+  }
+}
