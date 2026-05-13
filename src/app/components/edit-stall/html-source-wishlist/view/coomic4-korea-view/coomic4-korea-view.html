@@ -128,13 +128,16 @@
               <div class="flex flex-wrap justify-between gap-1">
                 <div class="flex flex-wrap gap-2">
                   <div class="flex font-bold text-base">{{ item.itemName }}</div>
+                  @if (item.subject) {
+                    <div
+                      class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-200 dark:bg-gray-700"
+                    >
+                      {{ item.subject }}
+                    </div>
+                  }
                   <div
                     class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-200 dark:bg-gray-700"
                   >
-                    {{ item.subject }}
-                    @if (item.subject && item.category) {
-                      ,
-                    }
                     {{ item.category }}
                   </div>
                 </div>
