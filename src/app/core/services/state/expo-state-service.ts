@@ -18,6 +18,7 @@ export class ExpoStateService {
   private _promoCustomTagOnly = new BehaviorSubject<string>('');
   private _wishlistSwitch = new BehaviorSubject<boolean>(false);
   private _wishlistStaleTime = new BehaviorSubject<number>(-1);
+  private _allStallsStaleTime = new BehaviorSubject<number>(-1);
   private _downloadMapSwitch = new BehaviorSubject<boolean>(false);
   private _bookmarkSwitch = new BehaviorSubject<boolean>(false);
   private _multiSeriesExpo = new BehaviorSubject<boolean>(false);
@@ -43,6 +44,7 @@ export class ExpoStateService {
   promoCustomTagOnly$ = this._promoCustomTagOnly.asObservable();
   wishlistSwitch$ = this._wishlistSwitch.asObservable();
   wishlistStaleTime$ = this._wishlistStaleTime.asObservable();
+  allStallsStaleTime$ = this._allStallsStaleTime.asObservable();
   downloadMapSwitch$ = this._downloadMapSwitch.asObservable();
   bookmarkSwitch$ = this._bookmarkSwitch.asObservable();
   multiSeriesExpo$ = this._multiSeriesExpo.asObservable();
@@ -109,6 +111,9 @@ export class ExpoStateService {
             break;
           case 'WISHLIST_STALE_TIME':
             this._wishlistStaleTime.next(Number(value));
+            break;
+          case 'ALL_STALLS_STALE_TIME':
+            this._allStallsStaleTime.next(Number(value));
             break;
           case 'DOWNLOAD_MAP_SWITCH':
             this._downloadMapSwitch.next(value.toLowerCase() === 'false' ? false : true);

@@ -54,13 +54,13 @@ export class SearchAndFilterService {
       this._tagService.selectedAdvancedTagsId$,
     ])
       .pipe(
-        debounceTime(50),
+        debounceTime(200),
         switchMap(([searchTerm, seriesIds, advancedFilter]) => {
           return forkJoin([
             of(searchTerm),
             of(seriesIds),
             of(advancedFilter),
-            this._stallService.fetchAllStall(),
+            this._stallService.fetchAllStall(searchTerm),
           ]);
         }),
       )

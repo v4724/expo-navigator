@@ -71,7 +71,7 @@ export class StallService {
         this.lastUpdatedTime = +new Date();
       });
 
-    this._expoStateService.wishlistStaleTime$.subscribe((val) => {
+    this._expoStateService.allStallsStaleTime$.subscribe((val) => {
       this.staleTime = val;
     });
 
@@ -97,13 +97,22 @@ export class StallService {
   }
 
   // 只用在初始化資料後，有需要更新的情況下
-  fetchAllStall() {
+  fetchAllStall(searchTerm?: string | null) {
     if (!this.fetchEnd)
       return of([]).pipe(
         tap(() => {
           console.info('initial all stalls []');
         }),
       );
+
+    // 沒有查詢條件則不打 API 直接使用 cache
+    if (!searchTerm) {
+      of(this.allStalls).pipe(
+        tap(() => {
+          console.log('all stalls cache');
+        }),
+      );
+    }
 
     const currTime = +new Date();
     const diff = currTime - this.lastUpdatedTime;
