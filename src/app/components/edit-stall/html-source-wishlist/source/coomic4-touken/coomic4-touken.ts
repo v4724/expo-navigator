@@ -36,7 +36,7 @@ export class Coomic4Touken extends BaseWishlist<C4ToukenConfig> implements OnIni
     stallId: new FormControl(''),
   });
   private _service = inject(Coomic4ToukenService);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

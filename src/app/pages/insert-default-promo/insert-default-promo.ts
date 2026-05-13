@@ -93,120 +93,112 @@ export class InsertDefaultPromo {
 
           if (!service) return;
           service.initial(wishlist.data, wishlist.html);
-          service.fetchEnd$
-            .pipe(
-              filter((val) => val),
-              take(1),
-            )
-            .subscribe(() => {
-              Array.from(service.cacheByStallId.values()).forEach((sId) => {
-                const s: StallData = this._stallService.findStall(sId as string) as StallData;
-                if (!s) return;
+          service.fetchEnd$().subscribe(() => {
+            Array.from(service.cacheByStallId.values()).forEach((sId) => {
+              const s: StallData = this._stallService.findStall(sId as string) as StallData;
+              if (!s) return;
 
-                // 紀錄已經設定過的吃土單
-                const setConfig = new Set<string>();
-                s.promoData.forEach((p) => {
-                  if (p.promoHtmlWishlistId === wishlist.id && p.promoHtmlWishlistConfigJson) {
-                    const json = JSON.parse(p.promoHtmlWishlistConfigJson);
-                    json.authorName = json.authorName.toString();
-                    setConfig.add(JSON.stringify(json));
-                  }
-                });
-
-                // 找出符合的攤位 keys (有多位作者時會有多筆資料)
-                Array.from(service.cache.keys())
-                  .filter((key) => {
-                    return key.indexOf(sId) > -1;
-                  })
-                  .forEach((key, idx) => {
-                    const author = service.cache.get(key);
-
-                    // 沒有商品不新增宣傳車 >> 先綁起來再說吧
-                    // if (!author.items.length) return;
-
-                    const set = new Set<string>([wishlist.tag]);
-                    author.items.forEach((item: any) => {
-                      switch (wishlist.id) {
-                        case 'COOMIC4_R1':
-                        case 'COOMIC4_KIMETSU': {
-                          if (item.cp.length) {
-                            item.cp.forEach((cat: string) => cat.trim() && set.add(cat.trim()));
-                          }
-                          break;
-                        }
-                        case 'COOMIC4_UOTO': {
-                          if (item.originalWork.trim()) {
-                            set.add(item.originalWork.trim());
-                          }
-                          if (item.cp.trim()) {
-                            set.add(item.cp.trim());
-                          }
-                          break;
-                        }
-                        case 'COOMIC4_NUCARNIVAL':
-                        case 'COOMIC4_TOUKEN':
-                        case 'COOMIC4_100_M':
-                        case 'COOMIC4_BOKYAKU': {
-                          if (item.cp.trim()) {
-                            set.add(item.cp.trim());
-                          }
-                          break;
-                        }
-                        case 'COOMIC4_KOREA': {
-                          if (item.subject.trim()) {
-                            set.add(item.subject.trim());
-                          }
-                          if (item.cp.trim()) {
-                            set.add(item.cp.trim());
-                          }
-                          break;
-                        }
-                        case 'COOMIC4_DEFAULT': {
-                          if (item.subject.trim()) {
-                            set.add(item.subject.trim());
-                          }
-                          if (item.cp.length) {
-                            item.cp.forEach((cat: string) => cat.trim() && set.add(cat.trim()));
-                          }
-                          break;
-                        }
-                      }
-                    });
-
-                    const config = JSON.stringify({
-                      authorName: author.authorName,
-                      stallId: sId,
-                    });
-                    if (setConfig.has(config)) {
-                      return;
-                    } else {
-                      setConfig.add(config);
-                    }
-                    const data: UpdatePromoStallDto = {
-                      stallId: sId,
-                      promoSort: s.promoData.length + idx,
-                      promoTitle: wishlist.name,
-                      promoAvatar: '',
-                      promoLinks: [],
-                      promoHtml: '',
-                      promoHtmlSourceOption: 'WISHLIST',
-                      promoHtmlWishlistId: wishlist.id,
-                      promoHtmlWishlistConfigJson: config,
-                      series: [],
-                      tags: [],
-                      customTags: Array.from(set)
-                        .filter((val) => !!val)
-                        .join(','),
-                    };
-                    if (wishlist.id === 'COOMIC4_UOTO' && author.originalWork === '一百公尺') {
-                      console.log(author, data);
-                      return;
-                    }
-                    console.log(sId, author, data);
-                    // this._promoApiService.create(data).subscribe((res) => {});
-                  });
+              // 紀錄已經設定過的吃土單
+              const setConfig = new Set<string>();
+              s.promoData.forEach((p) => {
+                if (p.promoHtmlWishlistId === wishlist.id && p.promoHtmlWishlistConfigJson) {
+                  const json = JSON.parse(p.promoHtmlWishlistConfigJson);
+                  json.authorName = json.authorName.toString();
+                  setConfig.add(JSON.stringify(json));
+                }
               });
+
+              // 找出符合的攤位 keys (有多位作者時會有多筆資料)
+              Array.from(service.cache.keys())
+                .filter((key) => {
+                  return key.indexOf(sId) > -1;
+                })
+                .forEach((key, idx) => {
+                  const author = service.cache.get(key);
+
+                  // 沒有商品不新增宣傳車 >> 先綁起來再說吧
+                  // if (!author.items.length) return;
+
+                  const set = new Set<string>([wishlist.tag]);
+                  author.items.forEach((item: any) => {
+                    switch (wishlist.id) {
+                      case 'COOMIC4_R1':
+                      case 'COOMIC4_KIMETSU': {
+                        if (item.cp.length) {
+                          item.cp.forEach((cat: string) => cat.trim() && set.add(cat.trim()));
+                        }
+                        break;
+                      }
+                      case 'COOMIC4_UOTO': {
+                        if (item.originalWork.trim()) {
+                          set.add(item.originalWork.trim());
+                        }
+                        if (item.cp.trim()) {
+                          set.add(item.cp.trim());
+                        }
+                        break;
+                      }
+                      case 'COOMIC4_NUCARNIVAL':
+                      case 'COOMIC4_TOUKEN':
+                      case 'COOMIC4_100_M':
+                      case 'COOMIC4_BOKYAKU': {
+                        if (item.cp.trim()) {
+                          set.add(item.cp.trim());
+                        }
+                        break;
+                      }
+                      case 'COOMIC4_KOREA': {
+                        if (item.subject.trim()) {
+                          set.add(item.subject.trim());
+                        }
+                        if (item.cp.trim()) {
+                          set.add(item.cp.trim());
+                        }
+                        break;
+                      }
+                      case 'COOMIC4_DEFAULT': {
+                        if (item.subject.trim()) {
+                          set.add(item.subject.trim());
+                        }
+                        if (item.cp.length) {
+                          item.cp.forEach((cat: string) => cat.trim() && set.add(cat.trim()));
+                        }
+                        break;
+                      }
+                    }
+                  });
+
+                  const config = JSON.stringify({
+                    authorName: author.authorName,
+                    stallId: sId,
+                  });
+                  if (setConfig.has(config)) {
+                    return;
+                  } else {
+                    setConfig.add(config);
+                  }
+                  const data: UpdatePromoStallDto = {
+                    stallId: sId,
+                    promoSort: s.promoData.length + idx,
+                    promoTitle: wishlist.name,
+                    promoAvatar: '',
+                    promoLinks: [],
+                    promoHtml: '',
+                    promoHtmlSourceOption: 'WISHLIST',
+                    promoHtmlWishlistId: wishlist.id,
+                    promoHtmlWishlistConfigJson: config,
+                    series: [],
+                    tags: [],
+                    customTags: Array.from(set)
+                      .filter((val) => !!val)
+                      .join(','),
+                  };
+
+                  console.log(sId, author, data);
+                  // this._promoApiService.create(data).subscribe((res) => {});
+                });
             });
+          });
         });
       });
   }

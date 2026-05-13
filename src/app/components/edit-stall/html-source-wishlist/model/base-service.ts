@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   BehaviorSubject,
   combineLatest,
@@ -12,6 +12,8 @@ import {
 } from 'rxjs';
 import { fetchExcelData } from 'src/app/utils/google-excel-data-loader';
 import { WishlistConfig, WishlistLink } from './base-model';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
@@ -25,28 +27,32 @@ export class BaseService<T> {
   htmlText: string = '';
   htmlDoc?: Document;
 
+  private _expoStateService = inject(ExpoStateService);
+  staleTime = toSignal(this._expoStateService.wishlistStaleTime$, { initialValue: 300000 });
+  lastUpdatedTime = -1;
+
   private _isLoading = new BehaviorSubject<boolean>(false);
   private _fetchEnd = new BehaviorSubject<boolean>(false);
   isLoading$ = this._isLoading.asObservable();
-  fetchEnd$ = this._fetchEnd.asObservable();
+  private _fetchEnd$ = this._fetchEnd.asObservable();
 
   // 依照來源調整
   headerIdx = 1; // google excel title(0 base)
   htmlDocThKey = '0'; // google excel gid
-  hrefClass = 's13'; // class for the link cells
 
   constructor() {}
 
-  fetchEnd() {
-    return this._fetchEnd.value;
+  // 資料完成載入的狀態
+  fetchEnd$() {
+    return combineLatest([this.isLoading$, this._fetchEnd$]).pipe(
+      filter((val) => !val[0] && !!val[1]),
+      take(1),
+      map(() => true),
+    );
   }
 
   initial(url: string, htmlUrl: string) {
     if (!url || !htmlUrl) return;
-
-    if (this.url === url && this.htmlUrl === htmlUrl) {
-      return;
-    }
 
     this.url = url;
     this.htmlUrl = htmlUrl;
@@ -56,20 +62,39 @@ export class BaseService<T> {
     });
   }
 
-  fetchData() {
+  fetchData(force?: boolean) {
+    // 沒有人在查詢的話，才查
     // 正在查詢的話不重打 API，防止重複抓取資料
-    if (!this._isLoading.value) {
-      this._isLoading.next(true);
-      return this._fetchData().pipe(
+    if (this._isLoading.value) {
+      return combineLatest([this.isLoading$, this._fetchEnd$]).pipe(
+        filter((val) => !!val[0] && !!val[1]),
+        take(1),
         map(() => true),
-        finalize(() => {
-          this._isLoading.next(false);
+        tap(() => {
+          console.log('fetchData isLoading');
         }),
       );
     }
-    return this.fetchEnd$.pipe(
+
+    // 資料過期
+    const currTime = +new Date();
+    const diff = currTime - this.lastUpdatedTime;
+    if (diff > this.staleTime() || force) {
+      return this._fetchData().pipe(
+        map(() => true),
+        tap(() => {
+          console.log('fetchData staleTime');
+        }),
+      );
+    }
+
+    // 不查
+    return this._fetchEnd$.pipe(
       filter((val) => !!val),
       take(1),
+      tap(() => {
+        console.log('fetchData cache');
+      }),
     );
   }
 
@@ -81,9 +106,10 @@ export class BaseService<T> {
   protected processData(rawData: Record<string, string>[], htmlText: string) {}
 
   private _fetchData() {
+    this._isLoading.next(true);
+
     this.cache = new Map<string, T>();
     this.cacheByStallId = new Set<string>();
-
     return combineLatest({
       rawData: from(fetchExcelData(this.url, 0, this.headerIdx)),
       htmlText: from(this.fetchHtmlText(this.htmlUrl)),
@@ -94,7 +120,9 @@ export class BaseService<T> {
         this.processData(rawData, htmlText);
       }),
       finalize(() => {
+        this.lastUpdatedTime = +new Date();
         this._fetchEnd.next(true);
+        this._isLoading.next(false);
       }),
     );
   }

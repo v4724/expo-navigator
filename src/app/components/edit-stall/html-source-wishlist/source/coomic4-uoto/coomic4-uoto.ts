@@ -37,7 +37,7 @@ export class Coomic4Uoto extends BaseWishlist<WishlistConfig> implements OnInit 
   });
 
   private _service = inject(Coomic4UotoService);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

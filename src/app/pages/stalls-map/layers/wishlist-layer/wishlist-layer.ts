@@ -130,25 +130,20 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
       }
       if (service) {
         service.initial(wishlist.data, wishlist.html);
-        service.fetchEnd$
-          .pipe(
-            filter((val) => !!val),
-            take(1),
-          )
-          .subscribe((val) => {
-            const stallIds = Array.from(service.cacheByStallId.values()) as string[];
-            stallIds.forEach((stallId) => {
-              const s = this._stallService.findStall(stallId);
-              if (!s) return;
+        service.fetchEnd$().subscribe((val) => {
+          const stallIds = Array.from(service.cacheByStallId.values()) as string[];
+          stallIds.forEach((stallId) => {
+            const s = this._stallService.findStall(stallId);
+            if (!s) return;
 
-              const { x, y, w, h } = this.getCanvasCoord(s);
-              ctx.fillStyle = wishlist.fillColor;
-              ctx.fillRect(x, y, w, h);
+            const { x, y, w, h } = this.getCanvasCoord(s);
+            ctx.fillStyle = wishlist.fillColor;
+            ctx.fillRect(x, y, w, h);
 
-              ctx.fillStyle = '#000';
-              ctx.fillText(s.padNum, x + w / 2, y + h / 2 + 4);
-            });
+            ctx.fillStyle = '#000';
+            ctx.fillText(s.padNum, x + w / 2, y + h / 2 + 4);
           });
+        });
       }
     });
   }

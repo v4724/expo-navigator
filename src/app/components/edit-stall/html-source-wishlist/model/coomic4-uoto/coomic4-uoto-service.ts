@@ -7,7 +7,6 @@ import { BaseService } from '../base-service';
 })
 export class Coomic4UotoService extends BaseService<C4UotoAuthor> {
   override headerIdx = 2;
-  override hrefClass = 's15';
   override htmlDocThKey = '0';
 
   override processData(rawData: Record<string, string>[]) {

@@ -37,7 +37,7 @@ export class Coomic4100M extends BaseWishlist<C4100MConfig> implements OnInit {
   });
 
   private _service = inject(Coomic4100MService);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

@@ -37,7 +37,7 @@ export class Coomic4Korea extends BaseWishlist<C4KoreaConfig> implements OnInit 
   });
 
   private _service = inject(Coomic4KoreaService);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

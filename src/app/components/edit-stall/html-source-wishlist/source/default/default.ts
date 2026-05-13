@@ -37,7 +37,7 @@ export class Default extends BaseWishlist<WishlistConfig> implements OnInit {
   });
 
   private _service = inject(WishlistDefaultService);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

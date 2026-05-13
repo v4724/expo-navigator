@@ -37,7 +37,7 @@ export class Coomic4Nucarnival extends BaseWishlist<C4NucarnivalConfig> implemen
   });
 
   private _service = inject(Coomic4NucarnivalService);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

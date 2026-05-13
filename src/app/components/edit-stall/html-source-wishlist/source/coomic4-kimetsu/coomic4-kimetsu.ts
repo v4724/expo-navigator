@@ -37,7 +37,7 @@ export class Coomic4Kimetsu extends BaseWishlist<C4KimetsuConfig> implements OnI
   });
 
   private _service = inject(Coomic4KimetsuService);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

@@ -6,6 +6,8 @@ import { filter, take } from 'rxjs';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 import { C4KimetsuConfig, C4KimetsuAuthor } from '../../model/coomic4-kimetsu/coomic4-kimetsu';
 import { Coomic4KimetsuService } from '../../model/coomic4-kimetsu/coomic4-kimetsu-service';
+import { WishlistConfig } from '../../model/base-model';
+import { BaseWishlistView } from '../base-wishlist-view';
 
 @Component({
   selector: 'app-coomic4-kimetsu-view',
@@ -13,49 +15,36 @@ import { Coomic4KimetsuService } from '../../model/coomic4-kimetsu/coomic4-kimet
   templateUrl: './coomic4-kimetsu-view.html',
   styleUrl: './coomic4-kimetsu-view.scss',
 })
-export class Coomic4KimetsuView {
+export class Coomic4KimetsuView extends BaseWishlistView<C4KimetsuAuthor> {
   wishlistId: InputSignal<string> = input.required();
   wishlistConfigJson: InputSignal<string> = input.required();
   customTagsFromView = output<string>();
   config?: C4KimetsuConfig;
   author?: C4KimetsuAuthor;
 
-  private _wishlistService = inject(WishlistService);
-  private _service = inject(Coomic4KimetsuService);
+  protected _service = inject(Coomic4KimetsuService);
 
   isLoading = toSignal(this._service.isLoading$);
 
-  get stallId() {
-    return this.config?.stallId || '';
-  }
-  get authorName() {
-    return this.config?.authorName || '';
-  }
-  get wishlistItem() {
-    return this._wishlistService.getWishlistItemById(this.wishlistId());
-  }
-
   constructor() {
+    super();
     effect(() => {
-      this.config = JSON.parse(this.wishlistConfigJson()) as C4KimetsuConfig;
+      this._config = JSON.parse(this.wishlistConfigJson()) as WishlistConfig;
+      this.initData(this.wishlistConfigJson(), this.wishlistId()).subscribe((valid) => {
+        if (!valid) return;
+
+        this._service.fetchEnd$().subscribe(() => {
+          this.loadData();
+        });
+      });
     });
   }
 
-  ngOnInit() {
-    this.config = JSON.parse(this.wishlistConfigJson()) as C4KimetsuConfig;
-
-    if (!this._service.fetchEnd()) {
-      this.loadData();
-    }
-
-    this._service.fetchEnd$.pipe(filter((end) => end)).subscribe(() => {
-      this.getData();
-    });
-  }
+  ngOnInit() {}
 
   getData() {
-    if (!this.config || !this.config?.authorName) return;
-    this.author = this._service.getAuthor(this.config);
+    if (!this._config || !this._config?.authorName) return;
+    this.author = this._service.getAuthor(this._config);
 
     const set = new Set<string>();
     const defaultTag = this.wishlistItem?.tag;
@@ -69,26 +58,10 @@ export class Coomic4KimetsuView {
   }
 
   loadData(force?: boolean) {
-    if (this.wishlistId() && this.wishlistConfigJson()) {
-      const csvUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.data ?? '';
-      const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
-
-      this._service.initial(csvUrl, htmlUrl);
-
-      if (force) {
-        this._service.fetchData().subscribe(() => {
-          this.getData();
-        });
-      } else {
-        this._service.fetchEnd$
-          .pipe(
-            filter((end) => end),
-            take(1),
-          )
-          .subscribe(() => {
-            this.getData();
-          });
-      }
+    if (this.valid()) {
+      this._service.fetchData(force).subscribe(() => {
+        this.getData();
+      });
     }
   }
 }

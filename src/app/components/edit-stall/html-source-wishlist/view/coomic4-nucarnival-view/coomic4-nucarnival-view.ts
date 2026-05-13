@@ -1,14 +1,11 @@
 import { Component, effect, inject, input, InputSignal, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { filter, take } from 'rxjs';
-import { WishlistService } from 'src/app/core/services/state/wishlist-service';
-import {
-  C4NucarnivalConfig,
-  C4NucarnivalAuthor,
-} from '../../model/coomic4-nucarnival/coomic4-nucarnival';
+import { C4NucarnivalAuthor } from '../../model/coomic4-nucarnival/coomic4-nucarnival';
 import { Coomic4NucarnivalService } from '../../model/coomic4-nucarnival/coomic4-nucarnival-service';
 import { Skeleton } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
+import { WishlistConfig } from '../../model/base-model';
+import { BaseWishlistView } from '../base-wishlist-view';
 
 @Component({
   selector: 'app-coomic4-nucarnival-view',
@@ -16,50 +13,35 @@ import { TagModule } from 'primeng/tag';
   templateUrl: './coomic4-nucarnival-view.html',
   styleUrl: './coomic4-nucarnival-view.scss',
 })
-export class Coomic4NucarnivalView {
+export class Coomic4NucarnivalView extends BaseWishlistView<C4NucarnivalAuthor> {
   wishlistId: InputSignal<string> = input.required();
   wishlistConfigJson: InputSignal<string> = input.required();
   customTagsFromView = output<string>();
-  config?: C4NucarnivalConfig;
   author?: C4NucarnivalAuthor;
 
-  private _wishlistService = inject(WishlistService);
-  private _service = inject(Coomic4NucarnivalService);
+  protected _service = inject(Coomic4NucarnivalService);
 
   isLoading = toSignal(this._service.isLoading$);
 
-  get stallId() {
-    return this.config?.stallId || '';
-  }
-  get authorName() {
-    return this.config?.authorName || '';
-  }
-
-  get wishlistItem() {
-    return this._wishlistService.getWishlistItemById(this.wishlistId());
-  }
-
   constructor() {
+    super();
     effect(() => {
-      this.config = JSON.parse(this.wishlistConfigJson()) as C4NucarnivalConfig;
+      this._config = JSON.parse(this.wishlistConfigJson()) as WishlistConfig;
+      this.initData(this.wishlistConfigJson(), this.wishlistId()).subscribe((valid) => {
+        if (!valid) return;
+
+        this._service.fetchEnd$().subscribe(() => {
+          this.loadData();
+        });
+      });
     });
   }
 
-  ngOnInit() {
-    this.config = JSON.parse(this.wishlistConfigJson()) as C4NucarnivalConfig;
-
-    if (!this._service.fetchEnd()) {
-      this.loadData();
-    }
-
-    this._service.fetchEnd$.pipe(filter((end) => end)).subscribe(() => {
-      this.getData();
-    });
-  }
+  ngOnInit() {}
 
   getData() {
-    if (!this.config || !this.config?.authorName) return;
-    this.author = this._service.getAuthor(this.config);
+    if (!this._config || !this._config?.authorName) return;
+    this.author = this._service.getAuthor(this._config);
 
     const set = new Set<string>();
     const defaultTag = this.wishlistItem?.tag;
@@ -73,26 +55,10 @@ export class Coomic4NucarnivalView {
   }
 
   loadData(force?: boolean) {
-    if (this.wishlistId() && this.wishlistConfigJson()) {
-      const csvUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.data ?? '';
-      const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
-
-      this._service.initial(csvUrl, htmlUrl);
-
-      if (force) {
-        this._service.fetchData().subscribe(() => {
-          this.getData();
-        });
-      } else {
-        this._service.fetchEnd$
-          .pipe(
-            filter((end) => end),
-            take(1),
-          )
-          .subscribe(() => {
-            this.getData();
-          });
-      }
+    if (this.valid()) {
+      this._service.fetchData(force).subscribe(() => {
+        this.getData();
+      });
     }
   }
 }

@@ -37,7 +37,7 @@ export class Coomic4Bokyaku extends BaseWishlist<C4BokyakuConfig> implements OnI
   });
 
   private _service = inject(Coomic4BokyakuService);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';

@@ -36,7 +36,7 @@ export class Coomic4R1 extends BaseWishlist<C4R1Config> implements OnInit {
     stallId: new FormControl(''),
   });
   private _service = inject(Coomic4R1Service);
-  fetchEnd = toSignal(this._service.fetchEnd$);
+  fetchEnd = toSignal(this._service.fetchEnd$());
 
   get authorName() {
     return this.formGroup.get('authorName')?.value || '';
