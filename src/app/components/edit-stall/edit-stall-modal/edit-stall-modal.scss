@@ -1,3 +1,10 @@
+::ng-deep :root {
+  // 拉高link視窗顯示層級
+  .ck.ck-balloon-panel {
+    --ck-z-panel: 8888 !important;
+  }
+}
+
 ::ng-deep {
   --p-fieldset-legend-background: transparent;
   --p-fieldset-legend-hover-background: transparent;
