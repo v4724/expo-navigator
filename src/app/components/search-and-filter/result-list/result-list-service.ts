@@ -32,10 +32,10 @@ export class ResultListService {
     result.sort((a, b) => {
       const aZoneSort = this.stallZoneDef()?.get(a.stallZone)?.groupDef.zoneSort ?? 1;
       const bZoneSort = this.stallZoneDef()?.get(b.stallZone)?.groupDef.zoneSort ?? 1;
-      if (aZoneSort > bZoneSort) {
-        return 1;
-      } else if (a.stallZone === b.stallZone && a.stallNum > b.stallNum) {
-        return 1;
+      if (aZoneSort !== bZoneSort) {
+        return aZoneSort - bZoneSort;
+      } else if (aZoneSort === bZoneSort) {
+        return a.stallNum - b.stallNum;
       }
       return -1;
     });

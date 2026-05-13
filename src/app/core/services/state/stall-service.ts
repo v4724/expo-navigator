@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, filter, forkJoin, map, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { PromoApiService } from '../api/promo-api.service';
 import { PromoStall } from '../../interfaces/promo-stall.interface';
@@ -46,6 +46,8 @@ export class StallService {
   stallZoneDef$ = this._stallZoneDef.asObservable();
   hoveredStallInfo$ = this._hoveredStallInfo.asObservable();
 
+  staleTime: number = 300000;
+  lastUpdatedTime = -1;
   constructor() {
     forkJoin([
       this._stallApiService.fetch().pipe(),
@@ -66,7 +68,12 @@ export class StallService {
         const stalls = this._processStalls(rawStallData);
         this._allStalls.next(stalls);
         this._fetchEnd.next(true);
+        this.lastUpdatedTime = +new Date();
       });
+
+    this._expoStateService.wishlistStaleTime$.subscribe((val) => {
+      this.staleTime = val;
+    });
 
     this.allStalls$.subscribe((stalls) => {
       this._validStallIds = new Set(stalls.map((s) => s.id));
@@ -87,6 +94,38 @@ export class StallService {
 
   get fetchEnd() {
     return this._fetchEnd.getValue();
+  }
+
+  // 只用在初始化資料後，有需要更新的情況下
+  fetchAllStall() {
+    if (!this.fetchEnd)
+      return of([]).pipe(
+        tap(() => {
+          console.info('initial all stalls []');
+        }),
+      );
+
+    const currTime = +new Date();
+    const diff = currTime - this.lastUpdatedTime;
+    if (diff > this.staleTime) {
+      return this._stallApiService.fetch().pipe(
+        map((rawStallData) => {
+          const stalls = this._processStalls(rawStallData);
+          this._allStalls.next(stalls);
+          this.lastUpdatedTime = +new Date();
+          return stalls;
+        }),
+        tap(() => {
+          console.log('all stalls staleTime');
+        }),
+      );
+    }
+
+    return of(this.allStalls).pipe(
+      tap(() => {
+        console.log('all stalls cache');
+      }),
+    );
   }
 
   findStall(id: string): StallData | undefined {

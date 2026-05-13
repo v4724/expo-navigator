@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { StallService } from './stall-service';
-import { BehaviorSubject, combineLatest, debounce, debounceTime } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime, forkJoin, of, switchMap } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { TagService } from './tag-service';
 import { StallGroup, StallSeries, StallTag } from '../../interfaces/stall-series-tag.interface';
@@ -53,9 +53,18 @@ export class SearchAndFilterService {
       this._tagService.selectedSeriesId$,
       this._tagService.selectedAdvancedTagsId$,
     ])
-      .pipe(debounceTime(50))
-      .subscribe(([searchTerm, seriesIds, advancedFilter]) => {
-        const allStalls = this._stallService.allStalls;
+      .pipe(
+        debounceTime(50),
+        switchMap(([searchTerm, seriesIds, advancedFilter]) => {
+          return forkJoin([
+            of(searchTerm),
+            of(seriesIds),
+            of(advancedFilter),
+            this._stallService.fetchAllStall(),
+          ]);
+        }),
+      )
+      .subscribe(([searchTerm, seriesIds, advancedFilter, allStalls]) => {
         const filter = allStalls.filter((stall) => {
           if (!!searchTerm) {
             const term = searchTerm.trim().toLocaleLowerCase();
@@ -92,7 +101,6 @@ export class SearchAndFilterService {
 
           return isSeriesMatch || isTagMatch;
         });
-        console.debug('filter stalls', filter);
         this.filterStalls = filter;
 
         const hasFilter = Object.keys(advancedFilter).some((seriesId) => {
