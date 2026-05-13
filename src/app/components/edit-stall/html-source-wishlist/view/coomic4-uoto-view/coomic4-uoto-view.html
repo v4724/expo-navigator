@@ -113,13 +113,15 @@
               <div class="flex flex-wrap justify-between gap-1">
                 <div class="flex flex-wrap gap-2">
                   <div class="flex font-bold text-base">{{ item.itemName }}</div>
-                  <div class="flex rounded-full bg-gray-100 px-2 py-1 text-xs">
+                  <div
+                    class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-600 dark:bg-gray-300 dark:text-gray-600"
+                  >
                     {{ item.category }}
                   </div>
                 </div>
                 <div class="flex ml-auto items-center justify-center gap-1">
                   <i
-                    class="pi pi-dollar border border-gray-400 rounded-full p-[2px] bg-yellow-100"
+                    class="pi pi-dollar border border-gray-400 rounded-full p-[2px] bg-yellow-100 dark:text-gray-600"
                     style="font-size: 0.75rem"
                   ></i>
                   {{ item.price }}
