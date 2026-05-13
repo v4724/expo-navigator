@@ -76,6 +76,6 @@ export class Coomic4Kimetsu extends BaseWishlist<C4KimetsuConfig> implements OnI
   }
 
   override loadMappingWishlist() {
-    this.view?.loadData();
+    this.view?.loadData(true);
   }
 }

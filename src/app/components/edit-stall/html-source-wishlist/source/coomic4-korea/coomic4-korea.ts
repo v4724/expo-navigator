@@ -76,6 +76,6 @@ export class Coomic4Korea extends BaseWishlist<C4KoreaConfig> implements OnInit 
   }
 
   override loadMappingWishlist() {
-    this.view?.loadData();
+    this.view?.loadData(true);
   }
 }

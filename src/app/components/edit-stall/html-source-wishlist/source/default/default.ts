@@ -76,6 +76,6 @@ export class Default extends BaseWishlist<WishlistConfig> implements OnInit {
   }
 
   override loadMappingWishlist() {
-    this.view?.loadData();
+    this.view?.loadData(true);
   }
 }

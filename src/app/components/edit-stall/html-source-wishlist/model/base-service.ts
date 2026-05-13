@@ -1,11 +1,11 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   BehaviorSubject,
   combineLatest,
   filter,
   finalize,
-  forkJoin,
   from,
+  map,
   switchMap,
   take,
   tap,
@@ -51,19 +51,26 @@ export class BaseService<T> {
     this.url = url;
     this.htmlUrl = htmlUrl;
 
-    // 防止重複抓取資料
+    this.fetchData().subscribe(() => {
+      console.log(this.cache);
+    });
+  }
+
+  fetchData() {
+    // 正在查詢的話不重打 API，防止重複抓取資料
     if (!this._isLoading.value) {
       this._isLoading.next(true);
-      this.fetchData()
-        .pipe(
-          finalize(() => {
-            this._isLoading.next(false);
-          }),
-        )
-        .subscribe(() => {
-          console.log(this.cache);
-        });
+      return this._fetchData().pipe(
+        map(() => true),
+        finalize(() => {
+          this._isLoading.next(false);
+        }),
+      );
     }
+    return this.fetchEnd$.pipe(
+      filter((val) => !!val),
+      take(1),
+    );
   }
 
   getAuthor(config: WishlistConfig): T | undefined {
@@ -73,7 +80,7 @@ export class BaseService<T> {
 
   protected processData(rawData: Record<string, string>[], htmlText: string) {}
 
-  private fetchData() {
+  private _fetchData() {
     this.cache = new Map<string, T>();
     this.cacheByStallId = new Set<string>();
 

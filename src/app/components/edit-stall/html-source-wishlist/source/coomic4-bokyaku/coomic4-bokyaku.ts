@@ -76,6 +76,6 @@ export class Coomic4Bokyaku extends BaseWishlist<C4BokyakuConfig> implements OnI
   }
 
   override loadMappingWishlist() {
-    this.view?.loadData();
+    this.view?.loadData(true);
   }
 }

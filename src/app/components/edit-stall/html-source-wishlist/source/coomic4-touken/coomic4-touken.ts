@@ -75,6 +75,6 @@ export class Coomic4Touken extends BaseWishlist<C4ToukenConfig> implements OnIni
   }
 
   override loadMappingWishlist() {
-    this.view?.loadData();
+    this.view?.loadData(true);
   }
 }

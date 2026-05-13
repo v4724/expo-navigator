@@ -54,6 +54,7 @@ export class WishlistEntrance implements OnInit {
   ngOnInit() {
     const control = this.parentForm.get('htmlWishlistId') as FormGroup;
     this.wishlistId.set(control?.value || '');
+
     control?.valueChanges.pipe().subscribe((val) => {
       this.wishlistId.set(val);
     });

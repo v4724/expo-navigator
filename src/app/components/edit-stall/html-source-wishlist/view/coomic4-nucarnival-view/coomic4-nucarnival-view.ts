@@ -72,20 +72,27 @@ export class Coomic4NucarnivalView {
     this.customTagsFromView.emit(Array.from(set).join(', '));
   }
 
-  loadData() {
+  loadData(force?: boolean) {
     if (this.wishlistId() && this.wishlistConfigJson()) {
       const csvUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.data ?? '';
       const htmlUrl = this._wishlistService.getWishlistItemById(this.wishlistId())?.html ?? '';
 
       this._service.initial(csvUrl, htmlUrl);
-      this._service.fetchEnd$
-        .pipe(
-          filter((end) => end),
-          take(1),
-        )
-        .subscribe(() => {
+
+      if (force) {
+        this._service.fetchData().subscribe(() => {
           this.getData();
         });
+      } else {
+        this._service.fetchEnd$
+          .pipe(
+            filter((end) => end),
+            take(1),
+          )
+          .subscribe(() => {
+            this.getData();
+          });
+      }
     }
   }
 }

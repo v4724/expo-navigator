@@ -76,6 +76,6 @@ export class Coomic4Nucarnival extends BaseWishlist<C4NucarnivalConfig> implemen
   }
 
   override loadMappingWishlist() {
-    this.view?.loadData();
+    this.view?.loadData(true);
   }
 }

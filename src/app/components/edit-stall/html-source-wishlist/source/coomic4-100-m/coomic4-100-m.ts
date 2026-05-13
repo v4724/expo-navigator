@@ -76,6 +76,6 @@ export class Coomic4100M extends BaseWishlist<C4100MConfig> implements OnInit {
   }
 
   override loadMappingWishlist() {
-    this.view?.loadData();
+    this.view?.loadData(true);
   }
 }
