@@ -90,6 +90,7 @@ export class SearchLayer extends BaseLayer implements OnInit {
       isMatch =
         stall.id.toLowerCase().includes(searchTerm) ||
         stall.stallTitle.toLowerCase().includes(searchTerm) ||
+        stall.stallAuthor.toLowerCase().includes(searchTerm) ||
         hasPromoTitleMatch ||
         hasTagMatch;
     }

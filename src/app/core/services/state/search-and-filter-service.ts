@@ -70,6 +70,7 @@ export class SearchAndFilterService {
             const term = searchTerm.trim().toLocaleLowerCase();
             const isIdMatch = stall.id.toLowerCase().includes(term);
             const isTitleMatch = stall.stallTitle.toLowerCase().includes(term);
+            const isStallAuthor = stall.stallAuthor.toLowerCase().includes(term);
             const isPromoTitleMatch = stall.promoData.some((promo) =>
               promo.promoTitle.toLocaleLowerCase().includes(term),
             );
@@ -77,7 +78,13 @@ export class SearchAndFilterService {
               return data.toLocaleLowerCase().includes(term);
             });
 
-            if (isIdMatch || isTitleMatch || isPromoTitleMatch || isCustomTagMatch) {
+            if (
+              isIdMatch ||
+              isTitleMatch ||
+              isPromoTitleMatch ||
+              isCustomTagMatch ||
+              isStallAuthor
+            ) {
               return true;
             }
           }
