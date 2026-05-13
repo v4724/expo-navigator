@@ -30,13 +30,14 @@ export class Coomic4UotoService extends BaseService<C4UotoAuthor> {
 
       // 當前作者的第一列 (新的一位)
       if (authorName && authorName !== currAuthor?.authorName) {
+        const currStallId = stallId ? stallId : currAuthor.stallId;
         currAuthor = {
-          stallId,
+          stallId: currStallId,
           authorName,
           sns: [],
           items: [],
         };
-        const key = this.keyForMapping({ stallId, authorName } as C4UotoConfig);
+        const key = this.keyForMapping({ stallId: currStallId, authorName } as C4UotoConfig);
         this.cache.set(key, currAuthor);
       }
       if (!currAuthor) return;
@@ -57,6 +58,7 @@ export class Coomic4UotoService extends BaseService<C4UotoAuthor> {
       const rated18 = rawSeries['是否有R18'];
       const detailTitle = rawSeries['詳細資訊'];
       const promotionalTitle = rawSeries['工商連結'];
+      const onlineSaleTitle = rawSeries['通販連結'];
       const note = rawSeries['備註'];
 
       let detail = { title: detailTitle, href: '' };
@@ -67,16 +69,21 @@ export class Coomic4UotoService extends BaseService<C4UotoAuthor> {
       if (promotionalTitle) {
         promotional = this.getLink(promotionalTitle, thId, 3, 15);
       }
+      let onlineSale = { title: onlineSaleTitle, href: '' };
+      if (onlineSaleTitle) {
+        onlineSale = this.getLink(onlineSaleTitle, thId, 3, 15);
+      }
 
       const item: C4UotoData = {
         itemName,
-        rated18: rated18 === 'R18' ? true : false,
+        rated18: rated18 === 'TRUE' ? true : false,
         cp,
         originalWork,
         category,
         price,
         detail,
         promotional,
+        onlineSale,
         note,
       };
 

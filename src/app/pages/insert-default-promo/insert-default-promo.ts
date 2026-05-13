@@ -57,10 +57,10 @@ export class InsertDefaultPromo {
             //   service = this._coomic4R1Service;
             //   break;
             // }
-            // case 'COOMIC4_UOTO': {
-            //   service = this._coomic4UotoService;
-            //   break;
-            // }
+            case 'COOMIC4_UOTO': {
+              service = this._coomic4UotoService;
+              break;
+            }
             // case 'COOMIC4_NUCARNIVAL': {
             //   service = this._coomic4NucarnivalService;
             //   break;
@@ -85,10 +85,10 @@ export class InsertDefaultPromo {
             //   service = this._coomic4BokyakuService;
             //   break;
             // }
-            case 'COOMIC4_DEFAULT': {
-              service = this._defaultService;
-              break;
-            }
+            // case 'COOMIC4_DEFAULT': {
+            //   service = this._defaultService;
+            //   break;
+            // }
           }
 
           if (!service) return;
@@ -134,7 +134,15 @@ export class InsertDefaultPromo {
                           }
                           break;
                         }
-                        case 'COOMIC4_UOTO':
+                        case 'COOMIC4_UOTO': {
+                          if (item.originalWork.trim()) {
+                            set.add(item.originalWork.trim());
+                          }
+                          if (item.cp.trim()) {
+                            set.add(item.cp.trim());
+                          }
+                          break;
+                        }
                         case 'COOMIC4_NUCARNIVAL':
                         case 'COOMIC4_TOUKEN':
                         case 'COOMIC4_100_M':
@@ -190,6 +198,10 @@ export class InsertDefaultPromo {
                         .filter((val) => !!val)
                         .join(','),
                     };
+                    if (wishlist.id === 'COOMIC4_UOTO' && author.originalWork === '一百公尺') {
+                      console.log(author, data);
+                      return;
+                    }
                     console.log(sId, author, data);
                     // this._promoApiService.create(data).subscribe((res) => {});
                   });

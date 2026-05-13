@@ -108,11 +108,26 @@
                     value="R18"
                   />
                 }
+                @if (item.price === '無料' || item.category === '無料') {
+                  <p-tag
+                    class="-rotate-30 -translate-y-2 -translate-x-6 !text-[0.6rem] !p-x-[0.25rem] leading-none"
+                    severity="info"
+                    [rounded]="true"
+                    value="無料"
+                  />
+                }
               </div>
 
               <div class="flex flex-wrap justify-between gap-1">
                 <div class="flex flex-wrap gap-2">
                   <div class="flex font-bold text-base">{{ item.itemName }}</div>
+                  @if (item.originalWork) {
+                    <div
+                      class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-600 dark:text-gray-200 dark:bg-gray-700"
+                    >
+                      {{ item.originalWork }}
+                    </div>
+                  }
                   <div
                     class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-600 dark:text-gray-200 dark:bg-gray-700"
                   >
@@ -147,6 +162,18 @@
                   </div>
                 }
               </div>
+
+              @if (item.detail.title) {
+                <div class="flex flex-wrap gap-2 justify-between mt-1">
+                  @if (item.detail.href) {
+                    <a [href]="item.detail.href" target="_blank">
+                      {{ item.detail.title }}
+                    </a>
+                  } @else {
+                    {{ item.detail.title }}
+                  }
+                </div>
+              }
             </div>
           }
         </div>

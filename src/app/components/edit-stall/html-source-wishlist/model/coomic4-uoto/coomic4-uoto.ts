@@ -18,5 +18,6 @@ export interface C4UotoData {
   rated18: boolean; // 是否有R18
   detail: WishlistLink; // 詳細資訊
   promotional: WishlistLink; // 工商連結
+  onlineSale: WishlistLink; // 通販連結
   note: string; // 備註
 }
