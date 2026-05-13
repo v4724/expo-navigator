@@ -167,7 +167,7 @@
     @if (multiSeriesExpo()) {
       <button
         pButton
-        class="block"
+        class="block dark:!text-gray-300"
         [ngClass]="{ 'w-full': !isLogin(), 'w-1/2': isLogin() }"
         (click)="onlyAreaDrawer.show()"
       >
