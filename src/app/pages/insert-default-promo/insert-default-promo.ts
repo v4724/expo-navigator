@@ -57,10 +57,10 @@ export class InsertDefaultPromo {
             //   service = this._coomic4R1Service;
             //   break;
             // }
-            case 'COOMIC4_UOTO': {
-              service = this._coomic4UotoService;
-              break;
-            }
+            // case 'COOMIC4_UOTO': {
+            //   service = this._coomic4UotoService;
+            //   break;
+            // }
             // case 'COOMIC4_NUCARNIVAL': {
             //   service = this._coomic4NucarnivalService;
             //   break;
@@ -69,10 +69,10 @@ export class InsertDefaultPromo {
             //   service = this._coomic4ToukenService;
             //   break;
             // }
-            // case 'COOMIC4_KOREA': {
-            //   service = this._coomic4KoreaService;
-            //   break;
-            // }
+            case 'COOMIC4_KOREA': {
+              service = this._coomic4KoreaService;
+              break;
+            }
             // case 'COOMIC4_100_M': {
             //   service = this._coomic4100MService;
             //   break;
@@ -194,8 +194,9 @@ export class InsertDefaultPromo {
                       .join(','),
                   };
 
-                  console.log(sId, author, data);
-                  // this._promoApiService.create(data).subscribe((res) => {});
+                  // this._promoApiService.create(data).subscribe((res) => {
+                  //   console.log(sId, author, data);
+                  // });
                 });
             });
           });
