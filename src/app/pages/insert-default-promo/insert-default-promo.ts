@@ -69,10 +69,10 @@ export class InsertDefaultPromo {
             //   service = this._coomic4ToukenService;
             //   break;
             // }
-            case 'COOMIC4_KOREA': {
-              service = this._coomic4KoreaService;
-              break;
-            }
+            // case 'COOMIC4_KOREA': {
+            //   service = this._coomic4KoreaService;
+            //   break;
+            // }
             // case 'COOMIC4_100_M': {
             //   service = this._coomic4100MService;
             //   break;
@@ -81,10 +81,10 @@ export class InsertDefaultPromo {
             //   service = this._coomic4KimetsuService;
             //   break;
             // }
-            // case 'COOMIC4_BOKYAKU': {
-            //   service = this._coomic4BokyakuService;
-            //   break;
-            // }
+            case 'COOMIC4_BOKYAKU': {
+              service = this._coomic4BokyakuService;
+              break;
+            }
             // case 'COOMIC4_DEFAULT': {
             //   service = this._defaultService;
             //   break;
@@ -195,7 +195,7 @@ export class InsertDefaultPromo {
                   };
 
                   // this._promoApiService.create(data).subscribe((res) => {
-                  //   console.log(sId, author, data);
+                  console.log(sId, author, data);
                   // });
                 });
             });

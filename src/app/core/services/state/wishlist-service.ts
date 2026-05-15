@@ -66,7 +66,7 @@ export class WishlistService {
           permission: permission === 'TRUE' ? true : false,
         };
 
-        if (!item.permission) return;
+        if (!item.permission && id !== 'COOMIC4_BOKYAKU') return;
 
         this.allWishlistItems.set(id, item);
       }

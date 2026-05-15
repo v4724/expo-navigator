@@ -17,5 +17,5 @@ export interface C4BokyakuData {
   newProduct: boolean;
   price: string;
   promotional: WishlistLink;
-  note: string;
+  note: WishlistLink;
 }

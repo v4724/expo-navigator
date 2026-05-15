@@ -28,7 +28,7 @@ export class Coomic4BokyakuService extends BaseService<C4BokyakuAuthor> {
         currDay2 = stallIdDay2;
       }
       // 只有 Day2
-      if (!stallIdDay1 && stallIdDay2) {
+      if (!currDay1 && currDay2) {
         return;
       }
       const stallId = currDay1;
@@ -73,11 +73,15 @@ export class Coomic4BokyakuService extends BaseService<C4BokyakuAuthor> {
       const newProduct = rawSeries['新/既品'];
       const price = rawSeries['金額'];
       const promotionalTitle = rawSeries['資訊頁'];
-      const note = rawSeries[''];
+      const noteTitle = rawSeries[''];
 
       let promotional = { title: promotionalTitle, href: '' };
       if (promotionalTitle) {
         promotional = this.getLink(promotionalTitle, thId, 1, 15);
+      }
+      let note = { title: noteTitle, href: '' };
+      if (noteTitle) {
+        note = this.getLink(noteTitle, thId, 1, 15);
       }
       const rated18 = category === 'R18本';
 
