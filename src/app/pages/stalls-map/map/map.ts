@@ -283,7 +283,7 @@ export class Map implements OnInit, AfterViewInit {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    const zoomIntensity = this._uiStateService.isMobile() ? 0.5 : 0.1;
+    const zoomIntensity = this._uiStateService.isMobile() ? 0.5 : 0.25;
     const oldScale = this.scale();
     let newScale = oldScale + (event.deltaY < 0 ? zoomIntensity : -zoomIntensity);
     newScale = Math.min(Math.max(newScale, 1), this.maxScale());
