@@ -29,6 +29,11 @@ export interface StallGroupRule {
   defaultStallId: string;
   skipStart: number;
   skipEnd: number;
+  showAnchor: boolean;
+  anchorRect: {
+    top: number;
+    left: number;
+  };
   boundingBox: {
     top: number;
     left: number;

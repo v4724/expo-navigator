@@ -96,7 +96,7 @@ export class StallService {
     return this._fetchEnd.getValue();
   }
 
-  // 只用在初始化資料後，有需要更新的情況下
+  // 只用在初始化資料後，有需要更新的情況下 (搜尋)
   fetchAllStall(searchTerm?: string | null) {
     if (!this.fetchEnd)
       return of([]).pipe(
@@ -203,6 +203,9 @@ export class StallService {
       const defaultGroupStallId = group['default_group_stall_id'];
       const skipStart = Number(group['skip_start']);
       const skipEnd = Number(group['skip_end']);
+      const showAnchor = Boolean(group['show_sign']);
+      const signLeft = Number(group['sign_left']);
+      const signTop = Number(group['sign_top']);
       const top = Number(group['bounding_box_top']);
       const left = Number(group['bounding_box_left']);
       const bottom = Number(group['bounding_box_bottom']);
@@ -218,6 +221,11 @@ export class StallService {
           left,
           bottom,
           right,
+        },
+        showAnchor,
+        anchorRect: {
+          top: signTop,
+          left: signLeft,
         },
       };
       groups.set(zoneId, g);

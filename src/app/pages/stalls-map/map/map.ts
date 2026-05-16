@@ -4,12 +4,15 @@ import {
   AfterViewInit,
   Component,
   computed,
+  effect,
   ElementRef,
   HostListener,
   inject,
+  OnDestroy,
   OnInit,
   signal,
   ViewChild,
+  viewChildren,
   WritableSignal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -17,12 +20,14 @@ import { MatIcon } from '@angular/material/icon';
 import {
   BehaviorSubject,
   catchError,
+  combineLatest,
   EMPTY,
   filter,
   finalize,
   first,
   forkJoin,
   map,
+  Subject,
   take,
 } from 'rxjs';
 import { StallGroupArea } from 'src/app/components/stall-group-area/stall-group-area';
@@ -58,10 +63,11 @@ import { WishlistLayer } from '../layers/wishlist-layer/wishlist-layer';
   templateUrl: './map.html',
   styleUrl: './map.scss',
 })
-export class Map implements OnInit, AfterViewInit {
+export class Map implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapImage') mapImage!: ElementRef<HTMLImageElement>;
   @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('mapContent') mapContent!: ElementRef<HTMLDivElement>;
+  zoneElements = viewChildren<ElementRef<HTMLDivElement>>('zoneLabel');
 
   private _stallMapService = inject(StallMapService);
   private _areaService = inject(AreaService);
@@ -171,7 +177,24 @@ export class Map implements OnInit, AfterViewInit {
   // mobile 攤位資訊高度
   mobileStallInfoDefaultH = 0;
 
-  constructor() {}
+  // 宣告一個儲存監聽器的變數
+  private resizeObserver?: ResizeObserver;
+
+  // 區域標示
+  stallZoneDefMap = toSignal(this._stallService.stallZoneDef$);
+  anchorZones = computed(() => {
+    return (this.stallZoneDef() ?? []).filter((zone) => zone.groupDef.showAnchor);
+  });
+  _zoneElLoaded = new Subject<boolean>();
+  zoneElLoaded$ = this._zoneElLoaded.asObservable();
+
+  constructor() {
+    effect(() => {
+      if (this.zoneElements().length > 0) {
+        this._zoneElLoaded.next(true);
+      }
+    });
+  }
 
   ngOnInit() {
     if (this._uiStateService.isPlatformBrowser()) {
@@ -193,8 +216,22 @@ export class Map implements OnInit, AfterViewInit {
           w,
           h,
         };
+
+        const viewportEl = this.mapContainer?.nativeElement;
+        if (viewportEl) {
+          this.resizeObserver?.observe(viewportEl);
+        }
       });
     });
+
+    combineLatest([this.mapImgLoaded$, this.zoneElLoaded$])
+      .pipe(
+        filter((res) => res[0] && res[1]),
+        take(1),
+      )
+      .subscribe(() => {
+        this.updateStickyZones(0, 0, 1);
+      });
 
     this._stallMapService.focus$.pipe(filter((val) => !!val)).subscribe((stallId) => {
       const stallData = this._stallService.findStall(stallId);
@@ -207,10 +244,119 @@ export class Map implements OnInit, AfterViewInit {
         }, 300);
       });
     });
+
+    // 建立監聽器
+    if (this._uiStateService.isPlatformBrowser()) {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          // 当 viewport 大小改變時，立即觸發重新計算
+          const w = this.mapContent.nativeElement.offsetWidth;
+          const h = this.mapContent.nativeElement.offsetHeight;
+          this.mapWidth.set(w);
+          this.mapHeight.set(h);
+          this._stallMapService.mapContentWH = {
+            w,
+            h,
+          };
+          this.updateStickyZones(this.freePosition.x, this.freePosition.y, this.scale());
+        }
+      });
+    }
   }
 
   ngAfterViewInit() {
     this.runApp();
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver?.disconnect();
+  }
+
+  /**
+   * 當地圖 Pan 或 Zoom 觸發時，呼叫此方法更新標籤位置
+   * @param tx 地圖當前的 transformX (px)
+   * @param ty 地圖當前的 transformY (px)
+   * @param scale 地圖當前的縮放比例
+   */
+  updateStickyZones(tx: number, ty: number, scale: number) {
+    const viewportEl = this.mapContainer?.nativeElement;
+    const labels = this.zoneElements();
+
+    if (!viewportEl || labels.length === 0) return;
+
+    // 1. 取得當前可視視窗的實際總寬高
+    const viewW = viewportEl.clientWidth;
+    const viewH = viewportEl.clientHeight;
+
+    // 2. 假設地圖設計圖的基準尺寸（如果你本來就是用百分比，要給定一個基礎虛擬寬高，例如 2000x2000）
+    const baseMapWidth = this.mapWidth();
+    const baseMapHeight = this.mapHeight();
+
+    // 當視窗比地圖大時，這個值是正數（代表留白寬度）；反之則是負數
+    const initialCenterX = (viewW - baseMapWidth) / 2;
+    const initialCenterY = (viewH - baseMapHeight) / 2;
+
+    const baseSize = 22; // anchor 寬高
+    const baseFontSize = 12; // anchor 字大小(地圖寬度為1067時對應的大小)
+    const currentFontSize = (baseFontSize / 1200) * viewW * scale;
+    const currentSize = (baseSize / 1200) * viewW * scale;
+    const radius = currentSize / 2; // 半徑：用來將中心點對齊
+
+    // 安全邊距（Padding）
+    const paddingR = -radius;
+    const paddingL = -radius;
+    const paddingT = radius / 2;
+    const paddingB = 0;
+
+    let maxZoneIdx = -1;
+    // 3. 重新計算每一個字母的位置
+    labels.forEach((labelRef, idx) => {
+      const el = labelRef.nativeElement;
+      const zoneName = el.getAttribute('data-zone');
+      const zoneData = this.stallZoneDefMap()?.get(zoneName ?? '');
+
+      if (!zoneData) return;
+
+      // 算出該點在原始地圖上的實際 px 座標
+      const originalX = (zoneData.groupDef.anchorRect.left / 100) * baseMapWidth;
+      const originalY = (zoneData.groupDef.anchorRect.top / 100) * baseMapHeight;
+
+      // 1. 計算原始與目標座標
+      const diffW = (viewW * (scale - 1)) / 2;
+      const diffH = (viewH * (scale - 1)) / 2;
+      const targetX = (initialCenterX + originalX + tx) * scale - diffW;
+      const targetY = (initialCenterY + originalY + ty) * scale - diffH;
+
+      // 2. 計算 Sticky 限制邊界 (動態考慮當前縮放後的標籤尺寸)
+      const minX = paddingL + radius;
+      const maxX = viewW - paddingR - radius;
+      const minY = paddingT + radius;
+      const maxY = viewH - paddingB - radius;
+
+      const currentX = Math.max(minX, Math.min(maxX, targetX));
+      const currentY = Math.max(minY, Math.min(maxY, targetY));
+
+      const finalX = currentX - radius;
+      const finalY = currentY - radius;
+
+      // 3. 使用 transform 進行平移與縮放
+      el.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`; // transform 只用來控制位移
+
+      // 寬高與字型大小改用實際 px 給值，強迫瀏覽器以向量重新繪製 (若使用 scale 會模糊)
+      el.style.width = `${currentSize}px`;
+      el.style.height = `${currentSize}px`;
+      el.style.fontSize = `${currentFontSize}px`; // 按比例縮放字型
+
+      // 讓左側超出地圖的 anchor 顯示第一個 zoneName，不要因為 div 順序被蓋掉
+      if (maxZoneIdx === -1 && finalX <= minX) {
+        maxZoneIdx = idx;
+      }
+      if (maxZoneIdx >= 0 && idx > maxZoneIdx) {
+        el.style.display = 'none';
+      } else {
+        el.style.display = '';
+      }
+    });
   }
 
   runApp() {
@@ -406,8 +552,9 @@ export class Map implements OnInit, AfterViewInit {
       x,
       y,
     };
-  }
 
+    this.updateStickyZones(x, y, this.scale());
+  }
   onDragStarted(event: CdkDragStart) {
     this.firstMove = true;
   }

@@ -81,14 +81,14 @@ export class InsertDefaultPromo {
             //   service = this._coomic4KimetsuService;
             //   break;
             // }
-            case 'COOMIC4_BOKYAKU': {
-              service = this._coomic4BokyakuService;
-              break;
-            }
-            // case 'COOMIC4_DEFAULT': {
-            //   service = this._defaultService;
+            // case 'COOMIC4_BOKYAKU': {
+            //   service = this._coomic4BokyakuService;
             //   break;
             // }
+            case 'COOMIC4_DEFAULT': {
+              service = this._defaultService;
+              break;
+            }
           }
 
           if (!service) return;

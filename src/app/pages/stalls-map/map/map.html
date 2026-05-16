@@ -1,4 +1,7 @@
-<div class="h-full flex items-center justify-center overflow-hidden bg-transparent relative">
+<div
+  #mapViewport
+  class="h-full flex items-center justify-center overflow-hidden bg-transparent relative"
+>
   <div
     class="absolute top-0 left-0 h-full w-full opacity-10 bg-center bg-repeat bg-size-[auto_150px] bg-[url(assets/images/icon-coomic4.png)]"
   ></div>
@@ -99,7 +102,22 @@
           }
         }
       </div>
+
+      <!-- <div class="">
+        <div class="absolute" [style.top.%]="50" [style.left.%]="80">A</div>
+        <div class="absolute" [style.top.%]="50" [style.left.%]="75">B</div>
+        <div class="absolute" [style.top.%]="50" [style.left.%]="70">C</div>
+      </div> -->
     </div>
+  </div>
+
+  <!-- Sticky 區域標籤層（與地圖內容同級，不隨地圖 transform） -->
+  <div class="absolute inset-0 pointer-events-none">
+    @for (zone of anchorZones(); track zone) {
+      <div #zoneLabel class="absolute zone-sticky-label" [attr.data-zone]="zone.zoneId">
+        {{ zone.zoneId }}
+      </div>
+    }
   </div>
 
   @let ref = hoveredStallInfo();

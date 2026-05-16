@@ -1,0 +1,28 @@
+.zone-sticky-label {
+  /* 轉向中心點對齊 */
+  // transform: translate(-50%, -50%);
+
+  /* 圓點或盾牌造型 */
+  background-color: #000;
+  color: #ffffff;
+  font-weight: bold;
+  border-radius: 50%;
+
+  /* 文字置中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #ffffff;
+
+  transition:
+    left 0.05s ease-out,
+    top 0.05s ease-out;
+
+  /* 核心優化：通知瀏覽器這個元件會頻繁變動位置，提前做好硬體加速 */
+  will-change: transform;
+
+  /* 注意：移除任何 transition! 在高頻率拖曳中，transition 反而會造成落後殘影 */
+  transition: none !important;
+}
