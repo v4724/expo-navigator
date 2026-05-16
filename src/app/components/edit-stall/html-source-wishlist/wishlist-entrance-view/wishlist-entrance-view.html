@@ -47,6 +47,12 @@
       [wishlistConfigJson]="wishlistConfigJson()"
     ></app-coomic4-bokyaku-view>
   }
+  @case ('COOMIC4_ORIG') {
+    <app-coomic4-orig-view
+      [wishlistId]="wishlistId()"
+      [wishlistConfigJson]="wishlistConfigJson()"
+    ></app-coomic4-orig-view>
+  }
   @case ('COOMIC4_DEFAULT') {
     <app-default-view
       [wishlistId]="wishlistId()"

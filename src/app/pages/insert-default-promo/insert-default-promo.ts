@@ -16,6 +16,7 @@ import { BaseService } from 'src/app/components/edit-stall/html-source-wishlist/
 import { PromoApiService } from 'src/app/core/services/api/promo-api.service';
 import { UpdatePromoStallDto } from 'src/app/core/models/promo-stall.model';
 import { WishlistDefaultService } from 'src/app/components/edit-stall/html-source-wishlist/model/default-service';
+import { Coomic4OrigService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-orig/coomic4-orig-service';
 
 // 堪用，找到每個吃土單上的攤位，檢查目前攤位有沒有設定該吃土單資訊，若無則(根據吃土單上的作者)新增該攤位對應的宣傳車。
 
@@ -36,6 +37,7 @@ export class InsertDefaultPromo {
   private _coomic4100MService = inject(Coomic4100MService);
   private _coomic4KimetsuService = inject(Coomic4KimetsuService);
   private _coomic4BokyakuService = inject(Coomic4BokyakuService);
+  private _coomin4OrigService = inject(Coomic4OrigService);
   private _defaultService = inject(WishlistDefaultService);
 
   private _promoApiService = inject(PromoApiService);
@@ -85,10 +87,14 @@ export class InsertDefaultPromo {
             //   service = this._coomic4BokyakuService;
             //   break;
             // }
-            case 'COOMIC4_DEFAULT': {
-              service = this._defaultService;
+            case 'COOMIC4_ORIG': {
+              service = this._coomin4OrigService;
               break;
             }
+            // case 'COOMIC4_DEFAULT': {
+            //   service = this._defaultService;
+            //   break;
+            // }
           }
 
           if (!service) return;
@@ -153,6 +159,15 @@ export class InsertDefaultPromo {
                         }
                         if (item.cp.trim()) {
                           set.add(item.cp.trim());
+                        }
+                        break;
+                      }
+                      case 'COOMIC4_ORIG': {
+                        if (item.subject.trim()) {
+                          set.add(item.subject.trim());
+                        }
+                        if (item.cp.length) {
+                          item.cp.forEach((cat: string) => cat.trim() && set.add(cat.trim()));
                         }
                         break;
                       }
