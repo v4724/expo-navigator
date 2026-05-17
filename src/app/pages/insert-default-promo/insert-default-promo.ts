@@ -55,46 +55,46 @@ export class InsertDefaultPromo {
         this._wishlistService.allWishlistItems.forEach((wishlist) => {
           let service: BaseService<any> | null = null;
           switch (wishlist.id) {
-            // case 'COOMIC4_R1': {
-            //   service = this._coomic4R1Service;
-            //   break;
-            // }
-            // case 'COOMIC4_UOTO': {
-            //   service = this._coomic4UotoService;
-            //   break;
-            // }
-            // case 'COOMIC4_NUCARNIVAL': {
-            //   service = this._coomic4NucarnivalService;
-            //   break;
-            // }
-            // case 'COOMIC4_TOUKEN': {
-            //   service = this._coomic4ToukenService;
-            //   break;
-            // }
-            // case 'COOMIC4_KOREA': {
-            //   service = this._coomic4KoreaService;
-            //   break;
-            // }
+            case 'COOMIC4_R1': {
+              service = this._coomic4R1Service;
+              break;
+            }
+            case 'COOMIC4_UOTO': {
+              service = this._coomic4UotoService;
+              break;
+            }
+            case 'COOMIC4_NUCARNIVAL': {
+              service = this._coomic4NucarnivalService;
+              break;
+            }
+            case 'COOMIC4_TOUKEN': {
+              service = this._coomic4ToukenService;
+              break;
+            }
+            case 'COOMIC4_KOREA': {
+              service = this._coomic4KoreaService;
+              break;
+            }
             // case 'COOMIC4_100_M': {
             //   service = this._coomic4100MService;
             //   break;
             // }
-            // case 'COOMIC4_KIMETSU': {
-            //   service = this._coomic4KimetsuService;
-            //   break;
-            // }
-            // case 'COOMIC4_BOKYAKU': {
-            //   service = this._coomic4BokyakuService;
-            //   break;
-            // }
+            case 'COOMIC4_KIMETSU': {
+              service = this._coomic4KimetsuService;
+              break;
+            }
+            case 'COOMIC4_BOKYAKU': {
+              service = this._coomic4BokyakuService;
+              break;
+            }
             case 'COOMIC4_ORIG': {
               service = this._coomin4OrigService;
               break;
             }
-            // case 'COOMIC4_DEFAULT': {
-            //   service = this._defaultService;
-            //   break;
-            // }
+            case 'COOMIC4_DEFAULT': {
+              service = this._defaultService;
+              break;
+            }
           }
 
           if (!service) return;

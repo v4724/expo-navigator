@@ -133,16 +133,19 @@
                 }
               </div>
 
-              <div class="flex flex-wrap justify-between gap-1">
+              <div class="flex justify-between gap-1">
                 <div class="flex flex-wrap gap-2">
                   <div class="flex font-bold text-base">{{ item.itemName }}</div>
-                  <div
-                    class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-200 dark:bg-gray-700"
-                  >
-                    {{ item.category.join(', ') }}
-                  </div>
+
+                  @for (cp of item.cp; track cp) {
+                    <div
+                      class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-200 dark:bg-gray-700"
+                    >
+                      {{ cp }}
+                    </div>
+                  }
                 </div>
-                <div class="flex ml-auto items-center justify-center gap-1">
+                <div class="flex ml-auto items-start justify-center gap-1">
                   <i
                     class="pi pi-dollar border border-gray-400 rounded-full p-[2px] bg-yellow-100 dark:text-gray-600"
                     style="font-size: 0.75rem"
@@ -152,14 +155,16 @@
               </div>
               <div class="flex justify-between gap-1">
                 <div class="flex relative">
-                  <div class="absolute bottom-0 left-0 w-full bg-gray-300 h-1/5"></div>
-                  <div class="z-2">{{ item.cp.join(',') }}</div>
+                  <div
+                    class="absolute bottom-0 left-0 w-full bg-gray-300 h-1/5 dark:bg-gray-500"
+                  ></div>
+                  <div class="z-2 text-xs dark:text-gray-300">{{ item.category.join(', ') }}</div>
                 </div>
               </div>
 
-              <div class="flex flex-wrap gap-2 justify-between mt-1">
+              <div class="flex flex-wrap gap-2 justify-between mt-2">
                 @if (item.note) {
-                  <div class="flex text-xs">{{ item.note }}</div>
+                  <div class="flex whitespace-pre-line text-start">{{ item.note }}</div>
                 }
                 @if (item.promotional.href) {
                   <div class="ml-auto">
