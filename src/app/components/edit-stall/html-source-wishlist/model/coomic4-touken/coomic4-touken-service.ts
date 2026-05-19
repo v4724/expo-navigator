@@ -43,19 +43,22 @@ export class Coomic4ToukenService extends BaseService<C4ToukenAuthor> {
         this.cacheByStallId.add(stallId);
       }
 
-      // 當前作者的第一列 (新的一位)
-      if (authorName) {
+      // 當前的作者
+      const key = this.keyForMapping({
+        stallId: currDay1,
+        authorName,
+      } as C4ToukenConfig);
+      const existAuthor = this.cache.get(key);
+      if (authorName && !existAuthor) {
         currAuthor = {
           stallId: currDay1,
           authorName,
           sns: [],
           items: [],
         };
-        const key = this.keyForMapping({
-          stallId: currDay1,
-          authorName,
-        } as C4ToukenConfig);
         this.cache.set(key, currAuthor);
+      } else if (authorName && existAuthor) {
+        currAuthor = existAuthor;
       }
       if (!currAuthor) return;
 
@@ -78,14 +81,18 @@ export class Coomic4ToukenService extends BaseService<C4ToukenAuthor> {
 
       let promotional = { title: promotionalTitle, href: '' };
       if (promotionalTitle) {
-        promotional = this.getLink(promotionalTitle, thId, 1, 15);
+        if (stallId === 'F25/F26' && promotionalTitle === '工商資訊\n(噗浪)') {
+          promotional = { title: '工商資訊\n噗浪', href: 'https://www.plurk.com/p/3iosli9p0c' };
+        } else {
+          promotional = this.getLink(promotionalTitle, thId, 1, 15);
+        }
       }
 
       const item: C4ToukenData = {
         cp,
         category,
         itemName,
-        rated18: rated18 === 'TRUE' ? true : false,
+        rated18: rated18 === 'R18' ? true : false,
         price,
         newProduct: newProduct === '新刊/品' ? true : false,
         promotional,

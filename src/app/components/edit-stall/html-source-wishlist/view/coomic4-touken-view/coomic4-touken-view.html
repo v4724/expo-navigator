@@ -114,6 +114,15 @@
                     value="R18"
                   />
                 }
+
+                @if (item.category === '無料') {
+                  <p-tag
+                    class="-rotate-30 -translate-y-2 -translate-x-6 !text-[0.6rem] !p-x-[0.25rem] leading-none"
+                    severity="info"
+                    [rounded]="true"
+                    value="無料"
+                  />
+                }
               </div>
 
               <div class="flex justify-between gap-1">
