@@ -6,20 +6,22 @@ import { WishlistDefaultService } from '../../model/default-service';
 import { Skeleton } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { BaseWishlistView } from '../base-wishlist-view';
+import { Coomic4HeroService } from '../../model/coomic4-hero-mihayo/coomic4-hero-service';
+import { C4HeroMihayoAuthor } from '../../model/coomic4-hero-mihayo/coomic4-hero-mihayo';
 
 @Component({
-  selector: 'app-default-view',
+  selector: 'app-coomic4-hero-view',
   imports: [Skeleton, TagModule],
-  templateUrl: './default-view.html',
-  styleUrl: './default-view.scss',
+  templateUrl: './coomic4-hero-view.html',
+  styles: '',
 })
-export class DefaultView extends BaseWishlistView<WishlistAuthor> {
+export class Coomic4HeroView extends BaseWishlistView<C4HeroMihayoAuthor> {
   wishlistId: InputSignal<string> = input.required();
   wishlistConfigJson: InputSignal<string> = input.required();
   customTagsFromView = output<string>();
-  author?: WishlistAuthor;
+  author?: C4HeroMihayoAuthor;
 
-  protected _service = inject(WishlistDefaultService);
+  protected _service = inject(Coomic4HeroService);
   isLoading = toSignal(this._service.isLoading$);
 
   // 拿到 input 設定 > 更新 service 設定 確認設定OK > 確認 service 狀態(?這一步是不是可以跳過) 載入資料
@@ -58,8 +60,8 @@ export class DefaultView extends BaseWishlistView<WishlistAuthor> {
       if (item.subject?.trim()) {
         set.add(item.subject.trim());
       }
-      if (item.cp) {
-        item.cp.forEach((cat) => cat.trim() && set.add(cat.trim()));
+      if (item.cp?.trim()) {
+        set.add(item.cp.trim());
       }
     });
     this.customTagsFromView.emit(Array.from(set).join(', '));

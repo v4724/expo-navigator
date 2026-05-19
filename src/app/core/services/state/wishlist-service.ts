@@ -66,7 +66,7 @@ export class WishlistService {
           permission: permission === 'TRUE' ? true : false,
         };
 
-        if (!item.permission) return;
+        if (!item.permission && item.id !== 'COOMIC4_HERO' && item.id !== 'COOMIC4_MIHAYO') return;
 
         this.allWishlistItems.set(id, item);
       }

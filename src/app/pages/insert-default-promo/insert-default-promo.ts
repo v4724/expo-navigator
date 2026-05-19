@@ -17,6 +17,8 @@ import { PromoApiService } from 'src/app/core/services/api/promo-api.service';
 import { UpdatePromoStallDto } from 'src/app/core/models/promo-stall.model';
 import { WishlistDefaultService } from 'src/app/components/edit-stall/html-source-wishlist/model/default-service';
 import { Coomic4OrigService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-orig/coomic4-orig-service';
+import { Coomic4MihayoService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-mihayo-service';
+import { Coomic4HeroService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-hero-service';
 
 // 堪用，找到每個吃土單上的攤位，檢查目前攤位有沒有設定該吃土單資訊，若無則(根據吃土單上的作者)新增該攤位對應的宣傳車。
 
@@ -38,6 +40,8 @@ export class InsertDefaultPromo {
   private _coomic4KimetsuService = inject(Coomic4KimetsuService);
   private _coomic4BokyakuService = inject(Coomic4BokyakuService);
   private _coomin4OrigService = inject(Coomic4OrigService);
+  private _coomic4HeroService = inject(Coomic4HeroService);
+  private _coomic4MihayoService = inject(Coomic4MihayoService);
   private _defaultService = inject(WishlistDefaultService);
 
   private _promoApiService = inject(PromoApiService);
@@ -55,51 +59,61 @@ export class InsertDefaultPromo {
         this._wishlistService.allWishlistItems.forEach((wishlist) => {
           let service: BaseService<any> | null = null;
           switch (wishlist.id) {
-            case 'COOMIC4_R1': {
-              service = this._coomic4R1Service;
-              break;
-            }
-            case 'COOMIC4_UOTO': {
-              service = this._coomic4UotoService;
-              break;
-            }
-            case 'COOMIC4_NUCARNIVAL': {
-              service = this._coomic4NucarnivalService;
-              break;
-            }
-            case 'COOMIC4_TOUKEN': {
-              service = this._coomic4ToukenService;
-              break;
-            }
-            case 'COOMIC4_KOREA': {
-              service = this._coomic4KoreaService;
-              break;
-            }
+            // case 'COOMIC4_R1': {
+            //   service = this._coomic4R1Service;
+            //   break;
+            // }
+            // case 'COOMIC4_UOTO': {
+            //   service = this._coomic4UotoService;
+            //   break;
+            // }
+            // case 'COOMIC4_NUCARNIVAL': {
+            //   service = this._coomic4NucarnivalService;
+            //   break;
+            // }
+            // case 'COOMIC4_TOUKEN': {
+            //   service = this._coomic4ToukenService;
+            //   break;
+            // }
+            // case 'COOMIC4_KOREA': {
+            //   service = this._coomic4KoreaService;
+            //   break;
+            // }
             // case 'COOMIC4_100_M': {
             //   service = this._coomic4100MService;
             //   break;
             // }
-            case 'COOMIC4_KIMETSU': {
-              service = this._coomic4KimetsuService;
+            // case 'COOMIC4_KIMETSU': {
+            //   service = this._coomic4KimetsuService;
+            //   break;
+            // }
+            // case 'COOMIC4_BOKYAKU': {
+            //   service = this._coomic4BokyakuService;
+            //   break;
+            // }
+            // case 'COOMIC4_ORIG': {
+            //   service = this._coomin4OrigService;
+            //   break;
+            // }
+            // case 'COOMIC4_HERO': {
+            //   service = this._coomic4HeroService;
+            //   break;
+            // }
+            case 'COOMIC4_MIHAYO': {
+              service = this._coomic4MihayoService;
               break;
             }
-            case 'COOMIC4_BOKYAKU': {
-              service = this._coomic4BokyakuService;
-              break;
-            }
-            case 'COOMIC4_ORIG': {
-              service = this._coomin4OrigService;
-              break;
-            }
-            case 'COOMIC4_DEFAULT': {
-              service = this._defaultService;
-              break;
-            }
+            // case 'COOMIC4_DEFAULT': {
+            //   service = this._defaultService;
+            //   break;
+            // }
           }
 
           if (!service) return;
           service.initial(wishlist.data, wishlist.html);
           service.fetchEnd$().subscribe(() => {
+            console.log(wishlist.id);
+
             Array.from(service.cacheByStallId.values()).forEach((sId) => {
               const s: StallData = this._stallService.findStall(sId as string) as StallData;
               if (!s) return;
@@ -153,11 +167,13 @@ export class InsertDefaultPromo {
                         }
                         break;
                       }
+                      case 'COOMIC4_HERO':
+                      case 'COOMIC4_MIHAYO':
                       case 'COOMIC4_KOREA': {
-                        if (item.subject.trim()) {
+                        if (item.subject?.trim()) {
                           set.add(item.subject.trim());
                         }
-                        if (item.cp.trim()) {
+                        if (item.cp?.trim()) {
                           set.add(item.cp.trim());
                         }
                         break;
