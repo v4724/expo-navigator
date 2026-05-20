@@ -16,6 +16,8 @@ import { WishlistDefaultService } from 'src/app/components/edit-stall/html-sourc
 import { Coomic4OrigService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-orig/coomic4-orig-service';
 import { Coomic4MihayoService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-mihayo-service';
 import { Coomic4HeroService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-hero-service';
+import { Coomic4NijisanjiService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nijisanji/coomic4-nijisanji-service';
+import { Coomic4NintamaService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nintama/coomic4-nintama-service';
 
 @Component({
   selector: 'app-wishlist-layer',
@@ -41,6 +43,8 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
   private _coomic4OrigService = inject(Coomic4OrigService);
   private _coomic4HeroService = inject(Coomic4HeroService);
   private _coomic4MihayoService = inject(Coomic4MihayoService);
+  private _coomic4NijisanjiService = inject(Coomic4NijisanjiService);
+  private _coomic4NintamaService = inject(Coomic4NintamaService);
   private _wishlistDefaultService = inject(WishlistDefaultService);
 
   wishlistLayerShow = toSignal(this._wishlistLayerService.show$);
@@ -141,6 +145,14 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
         }
         case 'COOMIC4_MIHAYO': {
           service = this._coomic4MihayoService;
+          break;
+        }
+        case 'COOMIC4_NIJISANJI': {
+          service = this._coomic4NijisanjiService;
+          break;
+        }
+        case 'COOMIC4_NINTAMA': {
+          service = this._coomic4NintamaService;
           break;
         }
         case 'COOMIC4_DEFAULT': {

@@ -65,6 +65,18 @@
       [wishlistConfigJson]="wishlistConfigJson()"
     ></app-coomic4-mihayo-view>
   }
+  @case ('COOMIC4_NIJISANJI') {
+    <app-coomic4-nijisanji-view
+      [wishlistId]="wishlistId()"
+      [wishlistConfigJson]="wishlistConfigJson()"
+    ></app-coomic4-nijisanji-view>
+  }
+  @case ('COOMIC4_NINTAMA') {
+    <app-coomic4-nintama-view
+      [wishlistId]="wishlistId()"
+      [wishlistConfigJson]="wishlistConfigJson()"
+    ></app-coomic4-nintama-view>
+  }
   @case ('COOMIC4_DEFAULT') {
     <app-default-view
       [wishlistId]="wishlistId()"

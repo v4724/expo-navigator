@@ -19,6 +19,8 @@ import { WishlistDefaultService } from 'src/app/components/edit-stall/html-sourc
 import { Coomic4OrigService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-orig/coomic4-orig-service';
 import { Coomic4MihayoService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-mihayo-service';
 import { Coomic4HeroService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-hero-service';
+import { Coomic4NijisanjiService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nijisanji/coomic4-nijisanji-service';
+import { Coomic4NintamaService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nintama/coomic4-nintama-service';
 
 // 堪用，找到每個吃土單上的攤位，檢查目前攤位有沒有設定該吃土單資訊，若無則(根據吃土單上的作者)新增該攤位對應的宣傳車。
 
@@ -42,6 +44,8 @@ export class InsertDefaultPromo {
   private _coomin4OrigService = inject(Coomic4OrigService);
   private _coomic4HeroService = inject(Coomic4HeroService);
   private _coomic4MihayoService = inject(Coomic4MihayoService);
+  private _coomic4NijisanjiService = inject(Coomic4NijisanjiService);
+  private _coomic4NintamaService = inject(Coomic4NintamaService);
   private _defaultService = inject(WishlistDefaultService);
 
   private _promoApiService = inject(PromoApiService);
@@ -99,8 +103,16 @@ export class InsertDefaultPromo {
             //   service = this._coomic4HeroService;
             //   break;
             // }
-            case 'COOMIC4_MIHAYO': {
-              service = this._coomic4MihayoService;
+            // case 'COOMIC4_MIHAYO': {
+            //   service = this._coomic4MihayoService;
+            //   break;
+            // }
+            case 'COOMIC4_NIJISANJI': {
+              service = this._coomic4NijisanjiService;
+              break;
+            }
+            case 'COOMIC4_NINTAMA': {
+              service = this._coomic4NintamaService;
               break;
             }
             // case 'COOMIC4_DEFAULT': {
@@ -158,16 +170,18 @@ export class InsertDefaultPromo {
                         }
                         break;
                       }
+                      case 'COOMIC4_HERO':
                       case 'COOMIC4_NUCARNIVAL':
                       case 'COOMIC4_TOUKEN':
                       case 'COOMIC4_100_M':
+                      case 'COOMIC4_NIJISANJI':
+                      case 'COOMIC4_NINTAMA':
                       case 'COOMIC4_BOKYAKU': {
                         if (item.cp.trim()) {
                           set.add(item.cp.trim());
                         }
                         break;
                       }
-                      case 'COOMIC4_HERO':
                       case 'COOMIC4_MIHAYO':
                       case 'COOMIC4_KOREA': {
                         if (item.subject?.trim()) {
@@ -178,15 +192,7 @@ export class InsertDefaultPromo {
                         }
                         break;
                       }
-                      case 'COOMIC4_ORIG': {
-                        if (item.subject.trim()) {
-                          set.add(item.subject.trim());
-                        }
-                        if (item.cp.length) {
-                          item.cp.forEach((cat: string) => cat.trim() && set.add(cat.trim()));
-                        }
-                        break;
-                      }
+                      case 'COOMIC4_ORIG':
                       case 'COOMIC4_DEFAULT': {
                         if (item.subject.trim()) {
                           set.add(item.subject.trim());
