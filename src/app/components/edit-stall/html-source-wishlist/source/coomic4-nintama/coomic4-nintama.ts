@@ -10,7 +10,12 @@ import { Default } from '../default/default';
   imports: [CommonModule, Default],
   template: ` <app-default></app-default>`,
   styles: '',
-  providers: [{ provide: WishlistDefaultService, useClass: Coomic4NintamaService }],
+  providers: [
+    {
+      provide: WishlistDefaultService,
+      useExisting: Coomic4NintamaService,
+    },
+  ],
   viewProviders: [
     {
       provide: ControlContainer,

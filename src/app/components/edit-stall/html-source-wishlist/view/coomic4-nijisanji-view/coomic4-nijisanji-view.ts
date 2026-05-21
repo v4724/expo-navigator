@@ -12,7 +12,7 @@ import { Coomic4NijisanjiService } from '../../model/coomic4-nijisanji/coomic4-n
     (customTagsFromView)="customTagsFromView.emit($event)"
   />`,
   styles: '',
-  providers: [{ provide: WishlistDefaultService, useClass: Coomic4NijisanjiService }],
+  providers: [{ provide: WishlistDefaultService, useExisting: Coomic4NijisanjiService }],
 })
 export class Coomic4NijisanjiView {
   wishlistId: InputSignal<string> = input.required();

@@ -12,7 +12,7 @@ import { Coomic4NintamaService } from '../../model/coomic4-nintama/coomic4-ninta
     (customTagsFromView)="customTagsFromView.emit($event)"
   />`,
   styles: '',
-  providers: [{ provide: WishlistDefaultService, useClass: Coomic4NintamaService }],
+  providers: [{ provide: WishlistDefaultService, useExisting: Coomic4NintamaService }],
 })
 export class Coomic4NintamaView {
   wishlistId: InputSignal<string> = input.required();

@@ -11,7 +11,8 @@
       "@app/*": ["app/*"],
       "@core/*": ["app/core/*"],
       "@features/*": ["app/features/*"],
-      "@shared/*": ["app/shared/*"]
+      "@shared/*": ["app/shared/*"],
+      "@coomic4Model/*": ["src/app/components/edit-stall/html-source-wishlist/model/*"]
     },
     "strict": true,
     "noImplicitOverride": true,
