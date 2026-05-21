@@ -27,4 +27,6 @@ export interface WishlistProductData {
   promotional: WishlistLink;
   note: string;
   freeCategory: boolean;
+
+  productInfo?: string; // 商品規格
 }

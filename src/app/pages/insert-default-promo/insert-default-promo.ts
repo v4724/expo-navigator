@@ -21,6 +21,7 @@ import { Coomic4MihayoService } from 'src/app/components/edit-stall/html-source-
 import { Coomic4HeroService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-hero-service';
 import { Coomic4NijisanjiService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nijisanji/coomic4-nijisanji-service';
 import { Coomic4NintamaService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nintama/coomic4-nintama-service';
+import { Coomic4LoveService } from '@coomic4Model/coomic4-love/coomic4-love-service';
 
 // 堪用，找到每個吃土單上的攤位，檢查目前攤位有沒有設定該吃土單資訊，若無則(根據吃土單上的作者)新增該攤位對應的宣傳車。
 
@@ -46,6 +47,7 @@ export class InsertDefaultPromo {
   private _coomic4MihayoService = inject(Coomic4MihayoService);
   private _coomic4NijisanjiService = inject(Coomic4NijisanjiService);
   private _coomic4NintamaService = inject(Coomic4NintamaService);
+  private _coomic4LoveService = inject(Coomic4LoveService);
   private _defaultService = inject(WishlistDefaultService);
 
   private _promoApiService = inject(PromoApiService);
@@ -107,12 +109,16 @@ export class InsertDefaultPromo {
             //   service = this._coomic4MihayoService;
             //   break;
             // }
-            case 'COOMIC4_NIJISANJI': {
-              service = this._coomic4NijisanjiService;
-              break;
-            }
-            case 'COOMIC4_NINTAMA': {
-              service = this._coomic4NintamaService;
+            // case 'COOMIC4_NIJISANJI': {
+            //   service = this._coomic4NijisanjiService;
+            //   break;
+            // }
+            // case 'COOMIC4_NINTAMA': {
+            //   service = this._coomic4NintamaService;
+            //   break;
+            // }
+            case 'COOMIC4_LOVE': {
+              service = this._coomic4LoveService;
               break;
             }
             // case 'COOMIC4_DEFAULT': {
@@ -155,6 +161,7 @@ export class InsertDefaultPromo {
                   author.items.forEach((item: any) => {
                     switch (wishlist.id) {
                       case 'COOMIC4_R1':
+                      case 'COOMIC4_LOVE':
                       case 'COOMIC4_KIMETSU': {
                         if (item.cp.length) {
                           item.cp.forEach((cat: string) => cat.trim() && set.add(cat.trim()));

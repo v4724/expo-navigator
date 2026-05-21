@@ -16,6 +16,7 @@ import { Coomic4MihayoView } from '../view/coomic4-mihayo-view/coomic4-mihayo-vi
 import { Coomic4Nijisanji } from '../source/coomic4-nijisanji/coomic4-nijisanji';
 import { Coomic4NijisanjiView } from '../view/coomic4-nijisanji-view/coomic4-nijisanji-view';
 import { Coomic4NintamaView } from '../view/coomic4-nintama-view/coomic4-nintama-view';
+import { Coomic4LoveView } from '../view/coomic4-love-view/coomic4-love-view';
 
 /**
  * 攤位編輯 - 吃土單入口
@@ -39,6 +40,7 @@ import { Coomic4NintamaView } from '../view/coomic4-nintama-view/coomic4-nintama
     Coomic4MihayoView,
     Coomic4NijisanjiView,
     Coomic4NintamaView,
+    Coomic4LoveView,
   ],
   templateUrl: './wishlist-entrance-view.html',
   styleUrl: './wishlist-entrance-view.scss',

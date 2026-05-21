@@ -73,12 +73,21 @@
                       {{ item.subject }}
                     </div>
                   }
-                  @if (item.cp) {
+                  @let isString = typeof item.cp === 'string';
+                  @if (isString) {
                     <div
                       class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-200 dark:bg-gray-700"
                     >
                       {{ item.cp }}
                     </div>
+                  } @else {
+                    @for (cp of item.cp; track cp) {
+                      <div
+                        class="flex rounded-full bg-gray-100 px-2 py-1 text-xs dark:text-gray-200 dark:bg-gray-700"
+                      >
+                        {{ cp }}
+                      </div>
+                    }
                   }
                 </div>
                 <div class="flex ml-auto items-start justify-center gap-1">
@@ -94,7 +103,12 @@
                   <div
                     class="absolute bottom-0 left-0 w-full bg-gray-300 h-1/5 dark:bg-gray-500"
                   ></div>
-                  <div class="z-2 text-xs dark:text-gray-300">{{ item.category }}</div>
+                  <div class="z-2 text-xs dark:text-gray-300">
+                    {{ item.category }}
+                    @if (item.productInfo) {
+                      {{ item.productInfo }}
+                    }
+                  </div>
                 </div>
               </div>
 
@@ -102,6 +116,7 @@
                 @if (item.note) {
                   <div class="flex whitespace-pre-line text-start">{{ item.note }}</div>
                 }
+
                 @if (item.promotional.href) {
                   <div class="ml-auto">
                     宣傳：
