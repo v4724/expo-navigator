@@ -36,10 +36,9 @@ export class Coomic4KoreaService extends BaseService<C4KoreaAuthor> {
         currStallNum = stallNum.padStart(2, '0');
       }
       let stallId = currStallZone + currStallNum;
-      if (currStallNum === '30/31') {
-        stallId = `${currStallZone}30/${currStallZone}31`;
-      } else if (currStallNum === '33/34') {
-        stallId = `${currStallZone}33/${currStallZone}34`;
+      if (currStallNum.includes('/')) {
+        const arr = currStallNum.split('/');
+        stallId = `${currStallZone}${arr[0]}/${currStallZone}${arr[1]}`;
       }
 
       // 非品項列 (ex: 標題或空白列)

@@ -58,8 +58,11 @@ export class DefaultView extends BaseWishlistView<WishlistAuthor> {
       if (item.subject?.trim()) {
         set.add(item.subject.trim());
       }
-      if (item.cp) {
+      if (Array.isArray(item.cp)) {
         item.cp.forEach((cat) => cat.trim() && set.add(cat.trim()));
+      } else if (typeof item.cp === 'string') {
+        const cp: string = item.cp ?? '';
+        cp && set.add(cp.trim());
       }
     });
     this.customTagsFromView.emit(Array.from(set).join(', '));
