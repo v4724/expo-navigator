@@ -8,22 +8,22 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Coomic4R1 } from '../source/coomic4-r1/coomic4-r1';
+import { Coomic4R1 } from '../source/coomic4/coomic4-r1/coomic4-r1';
 import { ControlContainer, FormGroup } from '@angular/forms';
-import { Coomic4Uoto } from '../source/coomic4-uoto/coomic4-uoto';
-import { Coomic4Nucarnival } from '../source/coomic4-nucarnival/coomic4-nucarnival';
-import { Coomic4Touken } from '../source/coomic4-touken/coomic4-touken';
-import { Coomic4Korea } from '../source/coomic4-korea/coomic4-korea';
-import { Coomic4100M } from '../source/coomic4-100-m/coomic4-100-m';
-import { Coomic4Kimetsu } from '../source/coomic4-kimetsu/coomic4-kimetsu';
-import { Coomic4Bokyaku } from '../source/coomic4-bokyaku/coomic4-bokyaku';
+import { Coomic4Uoto } from '../source/coomic4/coomic4-uoto/coomic4-uoto';
+import { Coomic4Nucarnival } from '../source/coomic4/coomic4-nucarnival/coomic4-nucarnival';
+import { Coomic4Touken } from '../source/coomic4/coomic4-touken/coomic4-touken';
+import { Coomic4Korea } from '../source/coomic4/coomic4-korea/coomic4-korea';
+import { Coomic4100M } from '../source/coomic4/coomic4-100-m/coomic4-100-m';
+import { Coomic4Kimetsu } from '../source/coomic4/coomic4-kimetsu/coomic4-kimetsu';
+import { Coomic4Bokyaku } from '../source/coomic4/coomic4-bokyaku/coomic4-bokyaku';
 import { Default } from '../source/default/default';
-import { Coomic4Orig } from '../source/coomic4-orig/coomic4-orig';
-import { Coomic4Hero } from '../source/coomic4-hero/coomic4-hero';
-import { Coomic4Mihayo } from '../source/coomic4-mihayo/coomic4-mihayo';
-import { Coomic4Nijisanji } from '../source/coomic4-nijisanji/coomic4-nijisanji';
-import { Coomic4Nintama } from '../source/coomic4-nintama/coomic4-nintama';
-import { Coomic4Love } from '../source/coomic4-love/coomic4-love';
+import { Coomic4Orig } from '../source/coomic4/coomic4-orig/coomic4-orig';
+import { Coomic4Hero } from '../source/coomic4/coomic4-hero/coomic4-hero';
+import { Coomic4Mihayo } from '../source/coomic4/coomic4-mihayo/coomic4-mihayo';
+import { Coomic4Nijisanji } from '../source/coomic4/coomic4-nijisanji/coomic4-nijisanji';
+import { Coomic4Nintama } from '../source/coomic4/coomic4-nintama/coomic4-nintama';
+import { Coomic4Love } from '../source/coomic4/coomic4-love/coomic4-love';
 
 /**
  * 攤位編輯 - 吃土單入口

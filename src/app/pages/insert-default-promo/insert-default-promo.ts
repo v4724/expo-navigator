@@ -2,26 +2,26 @@ import { Component, inject } from '@angular/core';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { combineLatest, filter, take } from 'rxjs';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
-import { Coomic4100MService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-100-m/coomic4-100-m-service';
-import { Coomic4BokyakuService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-bokyaku/coomic4-bokyaku-service';
-import { Coomic4KimetsuService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-kimetsu/coomic4-kimetsu-service';
-import { Coomic4KoreaService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-korea/coomic4-korea-service';
-import { Coomic4NucarnivalService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nucarnival/coomic4-nucarnival-service';
-import { Coomic4R1Service } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-r1/coomic4-r1-service';
-import { Coomic4ToukenService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-touken/coomic4-touken-service';
-import { Coomic4UotoService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-uoto/coomic4-uoto-service';
+import { Coomic4100MService } from '@coomic4Model/coomic4/coomic4-100-m/coomic4-100-m-service';
+import { Coomic4BokyakuService } from '@coomic4Model/coomic4/coomic4-bokyaku/coomic4-bokyaku-service';
+import { Coomic4KimetsuService } from '@coomic4Model/coomic4/coomic4-kimetsu/coomic4-kimetsu-service';
+import { Coomic4KoreaService } from '@coomic4Model/coomic4/coomic4-korea/coomic4-korea-service';
+import { Coomic4NucarnivalService } from '@coomic4Model/coomic4/coomic4-nucarnival/coomic4-nucarnival-service';
+import { Coomic4R1Service } from '@coomic4Model/coomic4/coomic4-r1/coomic4-r1-service';
+import { Coomic4ToukenService } from '@coomic4Model/coomic4/coomic4-touken/coomic4-touken-service';
+import { Coomic4UotoService } from '@coomic4Model/coomic4/coomic4-uoto/coomic4-uoto-service';
 
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { BaseService } from 'src/app/components/edit-stall/html-source-wishlist/model/base-service';
 import { PromoApiService } from 'src/app/core/services/api/promo-api.service';
 import { UpdatePromoStallDto } from 'src/app/core/models/promo-stall.model';
 import { WishlistDefaultService } from 'src/app/components/edit-stall/html-source-wishlist/model/default-service';
-import { Coomic4OrigService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-orig/coomic4-orig-service';
-import { Coomic4MihayoService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-mihayo-service';
-import { Coomic4HeroService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-hero-mihayo/coomic4-hero-service';
-import { Coomic4NijisanjiService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nijisanji/coomic4-nijisanji-service';
-import { Coomic4NintamaService } from 'src/app/components/edit-stall/html-source-wishlist/model/coomic4-nintama/coomic4-nintama-service';
-import { Coomic4LoveService } from '@coomic4Model/coomic4-love/coomic4-love-service';
+import { Coomic4OrigService } from '@coomic4Model/coomic4/coomic4-orig/coomic4-orig-service';
+import { Coomic4MihayoService } from '@coomic4Model/coomic4/coomic4-hero-mihayo/coomic4-mihayo-service';
+import { Coomic4HeroService } from '@coomic4Model/coomic4/coomic4-hero-mihayo/coomic4-hero-service';
+import { Coomic4NijisanjiService } from '@coomic4Model/coomic4/coomic4-nijisanji/coomic4-nijisanji-service';
+import { Coomic4NintamaService } from '@coomic4Model/coomic4/coomic4-nintama/coomic4-nintama-service';
+import { Coomic4LoveService } from '@coomic4Model/coomic4/coomic4-love/coomic4-love-service';
 
 // 堪用，找到每個吃土單上的攤位，檢查目前攤位有沒有設定該吃土單資訊，若無則(根據吃土單上的作者)新增該攤位對應的宣傳車。
 
@@ -65,66 +65,66 @@ export class InsertDefaultPromo {
         this._wishlistService.allWishlistItems.forEach((wishlist) => {
           let service: BaseService<any> | null = null;
           switch (wishlist.id) {
-            // case 'COOMIC4_R1': {
-            //   service = this._coomic4R1Service;
-            //   break;
-            // }
+            case 'COOMIC4_R1': {
+              service = this._coomic4R1Service;
+              break;
+            }
             // case 'COOMIC4_UOTO': {
             //   service = this._coomic4UotoService;
             //   break;
             // }
-            // case 'COOMIC4_NUCARNIVAL': {
-            //   service = this._coomic4NucarnivalService;
-            //   break;
-            // }
-            // case 'COOMIC4_TOUKEN': {
-            //   service = this._coomic4ToukenService;
-            //   break;
-            // }
-            // case 'COOMIC4_KOREA': {
-            //   service = this._coomic4KoreaService;
-            //   break;
-            // }
+            case 'COOMIC4_NUCARNIVAL': {
+              service = this._coomic4NucarnivalService;
+              break;
+            }
+            case 'COOMIC4_TOUKEN': {
+              service = this._coomic4ToukenService;
+              break;
+            }
+            case 'COOMIC4_KOREA': {
+              service = this._coomic4KoreaService;
+              break;
+            }
             // case 'COOMIC4_100_M': {
             //   service = this._coomic4100MService;
             //   break;
             // }
-            // case 'COOMIC4_KIMETSU': {
-            //   service = this._coomic4KimetsuService;
-            //   break;
-            // }
-            // case 'COOMIC4_BOKYAKU': {
-            //   service = this._coomic4BokyakuService;
-            //   break;
-            // }
-            // case 'COOMIC4_ORIG': {
-            //   service = this._coomin4OrigService;
-            //   break;
-            // }
-            // case 'COOMIC4_HERO': {
-            //   service = this._coomic4HeroService;
-            //   break;
-            // }
-            // case 'COOMIC4_MIHAYO': {
-            //   service = this._coomic4MihayoService;
-            //   break;
-            // }
-            // case 'COOMIC4_NIJISANJI': {
-            //   service = this._coomic4NijisanjiService;
-            //   break;
-            // }
-            // case 'COOMIC4_NINTAMA': {
-            //   service = this._coomic4NintamaService;
-            //   break;
-            // }
+            case 'COOMIC4_KIMETSU': {
+              service = this._coomic4KimetsuService;
+              break;
+            }
+            case 'COOMIC4_BOKYAKU': {
+              service = this._coomic4BokyakuService;
+              break;
+            }
+            case 'COOMIC4_ORIG': {
+              service = this._coomin4OrigService;
+              break;
+            }
+            case 'COOMIC4_HERO': {
+              service = this._coomic4HeroService;
+              break;
+            }
+            case 'COOMIC4_MIHAYO': {
+              service = this._coomic4MihayoService;
+              break;
+            }
+            case 'COOMIC4_NIJISANJI': {
+              service = this._coomic4NijisanjiService;
+              break;
+            }
+            case 'COOMIC4_NINTAMA': {
+              service = this._coomic4NintamaService;
+              break;
+            }
             case 'COOMIC4_LOVE': {
               service = this._coomic4LoveService;
               break;
             }
-            // case 'COOMIC4_DEFAULT': {
-            //   service = this._defaultService;
-            //   break;
-            // }
+            case 'COOMIC4_DEFAULT': {
+              service = this._defaultService;
+              break;
+            }
           }
 
           if (!service) return;

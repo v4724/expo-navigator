@@ -1,23 +1,23 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Coomic4R1Service } from '@coomic4Model/coomic4-r1/coomic4-r1-service';
+import { Coomic4R1Service } from '@coomic4Model/coomic4/coomic4-r1/coomic4-r1-service';
 import { WishlistLayerService } from 'src/app/core/services/state/wishlist-layer-service';
 import { WishlistService } from 'src/app/core/services/state/wishlist-service';
 import { BaseLayer } from '../base-layer';
-import { Coomic4UotoService } from '@coomic4Model/coomic4-uoto/coomic4-uoto-service';
-import { Coomic4NucarnivalService } from '@coomic4Model/coomic4-nucarnival/coomic4-nucarnival-service';
-import { Coomic4ToukenService } from '@coomic4Model/coomic4-touken/coomic4-touken-service';
-import { Coomic4KoreaService } from '@coomic4Model/coomic4-korea/coomic4-korea-service';
-import { Coomic4100MService } from '@coomic4Model/coomic4-100-m/coomic4-100-m-service';
-import { Coomic4KimetsuService } from '@coomic4Model/coomic4-kimetsu/coomic4-kimetsu-service';
-import { Coomic4BokyakuService } from '@coomic4Model/coomic4-bokyaku/coomic4-bokyaku-service';
+import { Coomic4UotoService } from '@coomic4Model/coomic4/coomic4-uoto/coomic4-uoto-service';
+import { Coomic4NucarnivalService } from '@coomic4Model/coomic4/coomic4-nucarnival/coomic4-nucarnival-service';
+import { Coomic4ToukenService } from '@coomic4Model/coomic4/coomic4-touken/coomic4-touken-service';
+import { Coomic4KoreaService } from '@coomic4Model/coomic4/coomic4-korea/coomic4-korea-service';
+import { Coomic4100MService } from '@coomic4Model/coomic4/coomic4-100-m/coomic4-100-m-service';
+import { Coomic4KimetsuService } from '@coomic4Model/coomic4/coomic4-kimetsu/coomic4-kimetsu-service';
+import { Coomic4BokyakuService } from '@coomic4Model/coomic4/coomic4-bokyaku/coomic4-bokyaku-service';
 import { WishlistDefaultService } from '@coomic4Model/default-service';
-import { Coomic4OrigService } from '@coomic4Model/coomic4-orig/coomic4-orig-service';
-import { Coomic4MihayoService } from '@coomic4Model/coomic4-hero-mihayo/coomic4-mihayo-service';
-import { Coomic4HeroService } from '@coomic4Model/coomic4-hero-mihayo/coomic4-hero-service';
-import { Coomic4NijisanjiService } from '@coomic4Model/coomic4-nijisanji/coomic4-nijisanji-service';
-import { Coomic4NintamaService } from '@coomic4Model/coomic4-nintama/coomic4-nintama-service';
-import { Coomic4LoveService } from '@coomic4Model/coomic4-love/coomic4-love-service';
+import { Coomic4OrigService } from '@coomic4Model/coomic4/coomic4-orig/coomic4-orig-service';
+import { Coomic4MihayoService } from '@coomic4Model/coomic4/coomic4-hero-mihayo/coomic4-mihayo-service';
+import { Coomic4HeroService } from '@coomic4Model/coomic4/coomic4-hero-mihayo/coomic4-hero-service';
+import { Coomic4NijisanjiService } from '@coomic4Model/coomic4/coomic4-nijisanji/coomic4-nijisanji-service';
+import { Coomic4NintamaService } from '@coomic4Model/coomic4/coomic4-nintama/coomic4-nintama-service';
+import { Coomic4LoveService } from '@coomic4Model/coomic4/coomic4-love/coomic4-love-service';
 
 @Component({
   selector: 'app-wishlist-layer',
