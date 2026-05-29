@@ -1,10 +1,4 @@
-<!-- header -->
-<app-topbar></app-topbar>
-
-<app-left-sidebar></app-left-sidebar>
-
-<div id="app" class="overflow-hidden dark:bg-zinc-900">
-  <!-- Map container: will hold the map image and dynamically injected stall areas -->
+<div id="app" class="overflow-hidden dark:bg-zinc-900 h-full p-5 pl-0 text-center">
   <mat-sidenav-container class="size-full">
     <mat-sidenav-content>
       <app-map></app-map>
@@ -12,16 +6,13 @@
     <mat-sidenav
       #sidenav
       mode="side"
+      opened
       [position]="'end'"
       [fixedInViewport]="true"
       [fixedTopGap]="60"
       [fixedBottomGap]="20"
     >
-      <app-stall-side-nav
-        class="flex flex-col h-full bg-white dark:bg-zinc-800"
-        (close)="sidenav.close()"
-        (open)="sidenav.open()"
-      >
+      <app-stall-side-nav class="flex flex-col h-full bg-white dark:bg-zinc-800">
       </app-stall-side-nav>
     </mat-sidenav>
   </mat-sidenav-container>

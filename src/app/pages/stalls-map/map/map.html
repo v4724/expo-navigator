@@ -2,6 +2,7 @@
   #mapViewport
   class="h-full flex items-center justify-center overflow-hidden bg-transparent relative"
 >
+  <!-- 背景圖 -->
   <div
     class="absolute top-0 left-0 h-full w-full opacity-10 bg-center bg-repeat bg-size-[auto_150px] bg-[url(assets/images/icon-coomic4.png)]"
   ></div>
@@ -19,6 +20,7 @@
     </div>
   } @else if (isInitialError()) {}
 
+  <!-- 地圖 container 負責 transform 放大縮小 -->
   <div
     id="download-map-container"
     #mapContainer
@@ -26,6 +28,7 @@
     [style.transform]="`scale(${scale()})`"
     (wheel)="onWheel($event)"
   >
+    <!-- 地圖 content 負責 拖曳互動 -->
     <div
       #mapContent
       class="relative max-w-full max-h-full rounded-lg overflow-hidden select-none cursor-grab active:cursor-grabbing touch-none"
@@ -41,6 +44,7 @@
       (touchmove)="onTouchMove($event)"
       (touchend)="onTouchEnd($event)"
     >
+      <!-- 攤位底圖 -->
       @if (mapImgSrc()) {
         <img
           #mapImage
@@ -51,7 +55,8 @@
           (error)="onMapImageError()"
         />
       }
-      <!-- 攤位 -->
+
+      <!-- 攤位樣式和互動 -->
       <div class="">
         <app-stalls-canvas></app-stalls-canvas>
         <app-wishlist-layer></app-wishlist-layer>
@@ -119,17 +124,4 @@
       </div>
     }
   </div>
-
-  @let ref = hoveredStallInfo();
-  @if (ref) {
-    <div
-      class="absolute bg-transparent"
-      [style.top.px]="ref.rect.top - 20"
-      [style.left.px]="ref.rect.left - 20"
-      [style.width.px]="ref.rect.width"
-      [style.height.px]="ref.rect.height"
-      [pTooltip]="ref.s?.stallTitle ?? ''"
-      (click)="passThroughEvent($event)"
-    ></div>
-  }
 </div>

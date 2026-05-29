@@ -32,13 +32,14 @@
     <ng-content select="[editBtn]"></ng-content>
   }
 
-  <button
+  <!-- 關閉側邊欄按鈕 -->
+  <!-- <button
     class="text-base flex items-center transition hover:scale-110"
     aria-label="Close dialog"
     (click)="onClose()"
   >
     <mat-icon [inline]="true" class="">close</mat-icon>
-  </button>
+  </button> -->
 
   <!-- 書籤 -->
   @if (isLogin() && bookmarkSwitch()) {

@@ -45,14 +45,6 @@ body.body-modal-open {
   overflow: hidden;
 }
 
-#app {
-  height: 100%;
-  /* max-width: 90%; */
-  margin: auto;
-  padding: 20px;
-  text-align: center;
-}
-
 h1 {
   color: var(--primary-color);
   margin-bottom: 10px;

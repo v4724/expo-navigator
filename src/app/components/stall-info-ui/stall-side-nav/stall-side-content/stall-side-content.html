@@ -25,12 +25,16 @@
     </div>
   </div>
 }
-<!-- 條件顯示 -->
+<!-- 無資料 -->
 <div
   class="p-4 mb-2 flex-grow flex items-center justify-center"
   [ngClass]="{ hidden: (this.stall()?.promoData ?? []).length }"
 >
-  暫無宣傳資訊。
+  @if (this.stall()) {
+    暫無宣傳資訊。
+  } @else {
+    請點選攤位查看攤位資訊。
+  }
 </div>
 <!-- 條件顯示 -->
 <p-tabs

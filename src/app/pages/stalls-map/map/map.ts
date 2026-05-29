@@ -655,32 +655,6 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
   openUrl(link: string) {
     link && window.open(link);
   }
-
-  // 為了讓 click 事件可以傳到底下的互動層
-  passThroughEvent(event: MouseEvent) {
-    // 1. 暫時隱藏自己
-    const target = event.currentTarget as HTMLElement;
-    target.style.pointerEvents = 'none';
-
-    // 2. 找到點擊位置下方的真正元素
-    const underlyingElement = document.elementFromPoint(event.clientX, event.clientY);
-
-    // 3. 手動觸發該元素的點擊
-    if (underlyingElement) {
-      underlyingElement.dispatchEvent(
-        new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true,
-          view: window,
-          clientX: event.clientX,
-          clientY: event.clientY,
-        }),
-      );
-    }
-
-    // 4. 恢復自己的 pointer-events
-    target.style.pointerEvents = 'auto';
-  }
 }
 
 // function renderDebugBorders(mapContainer: HTMLElement) {

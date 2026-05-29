@@ -6,10 +6,11 @@ import { SearchAndFilterService } from 'src/app/core/services/state/search-and-f
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-result-list-btn',
-  imports: [CommonModule, ButtonModule],
+  imports: [CommonModule, ButtonModule, TooltipModule],
   templateUrl: './result-list-btn.html',
   styleUrl: './result-list-btn.scss',
 })

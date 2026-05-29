@@ -1,10 +1,33 @@
 <main>
   <div class="h-screen flex flex-col relative">
-    <div class="flex-grow flex flex-col h-full">
+    <div class="flex-grow flex h-full">
+      <app-left-sidebar></app-left-sidebar>
+
+      <div class="flex flex-col h-full py-2 px-2 gap-2">
+        <app-result-list-btn></app-result-list-btn>
+
+        @if (isLogin() && bookmarkSwitch()) {
+          <app-marked-list-btn></app-marked-list-btn>
+        }
+
+        @if (areaCnt() > 0) {
+          <app-only-area-btn></app-only-area-btn>
+        }
+
+        @if (wishlistCnt() > 0) {
+          <app-wishlist-layer-btn></app-wishlist-layer-btn>
+        }
+      </div>
+
+      <app-topbar></app-topbar>
+
       <div class="flex-grow h-full text-gray-600 dark:text-gray-50">
         <app-stalls-map></app-stalls-map>
       </div>
     </div>
+
+    <!-- 攤位 hover tooltip -->
+    <app-stall-tooltip></app-stall-tooltip>
 
     <div class="absolute z-1 bottom-0 w-full">
       <app-footer></app-footer>
