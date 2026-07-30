@@ -181,8 +181,8 @@
         <p-tabpanels class="min-h-[calc(100dvh-465px)]">
           @for (promo of promos.controls; track promo; let promoIndex = $index) {
             <p-tabpanel [value]="promo.get('promoSort')?.value">
-              <div [formGroupName]="promoIndex" class="flex flex-col gap-3 mt-4">
-                <div class="flex flex-col gap-1 w-full md:w-1/2">
+              <div [formGroupName]="promoIndex" class="grid grid-cols-2 gap-3 mt-4">
+                <div class="flex flex-col gap-1 col-span-2 md:col-span-1">
                   <p-floatlabel variant="on">
                     <input
                       class="w-full"
@@ -195,7 +195,7 @@
                     <label [for]="`${promoIndex}-name`">宣傳車名稱</label>
                   </p-floatlabel>
                 </div>
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1 col-span-2 md:col-span-1">
                   <p-floatlabel variant="on">
                     <input
                       class="w-full"
@@ -210,8 +210,19 @@
                 </div>
 
                 <!-- 標籤 -->
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-3 col-span-2">
                   @if (promoCustomTagOnly()) {
+                    <p-floatlabel variant="on">
+                      <input
+                        class="w-full"
+                        pInputText
+                        type="text"
+                        [id]="`${promoIndex}-subjectTags`"
+                        formControlName="subjectTags"
+                        autocomplete="off"
+                      />
+                      <label [for]="`${promoIndex}-subjectTags`">作品/主題 TAG (多個用,分隔)</label>
+                    </p-floatlabel>
                     <p-floatlabel variant="on">
                       <input
                         class="w-full"
@@ -390,8 +401,8 @@
                 </div>
 
                 <!-- HTML 來源選項 -->
-                <div class="flex items-center mt-2">
-                  <div class="flex items-center text-base">宣傳車內容</div>
+                <div class="flex items-center mt-2 col-span-2">
+                  <div class="flex items-center text-base">內容</div>
                   <p-button
                     icon="pi pi-question-circle"
                     size="small"
@@ -404,6 +415,7 @@
                 </div>
 
                 <p-tabs
+                  class="col-span-2"
                   [value]="promo.get('htmlSourceOption')?.value"
                   scrollable
                   (valueChange)="promo.get('htmlSourceOption')?.setValue($event)"

@@ -233,6 +233,7 @@ export class InsertDefaultPromo {
                     promoHtmlWishlistConfigJson: config,
                     series: [],
                     tags: [],
+                    subjectTags: '',
                     customTags: Array.from(set)
                       .filter((val) => !!val)
                       .join(','),

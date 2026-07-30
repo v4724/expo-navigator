@@ -447,6 +447,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
         htmlWishlistId: promo.promoHtmlWishlistId?.toString() || '',
         htmlWishlistConfigJson: promo.promoHtmlWishlistConfigJson || '{}',
         html: promo.promoHtml,
+        subjectTags: promo.subjectTags,
         customTags: promo.customTags,
       });
 
@@ -844,6 +845,7 @@ export class EditStallModal implements OnInit, AfterViewInit, OnDestroy {
       htmlWishlistConfigJson: ['{}'],
       html: [''],
       seriesAndTags: this._createSeriesAndTagsGroup(),
+      subjectTags: [''],
       customTags: [''],
     });
   }

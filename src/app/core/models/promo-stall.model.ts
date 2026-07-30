@@ -31,6 +31,9 @@ export interface PromoStallDto {
   // 宣傳車 tag
   tags: number[] | null;
 
+  // 宣傳車作品/主題 tag
+  subjectTags: string;
+
   // 宣傳車自訂 tag
   customTags: string;
 }
