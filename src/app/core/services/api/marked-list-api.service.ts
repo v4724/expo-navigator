@@ -17,19 +17,19 @@ export class MarkedListApiService {
 
   create(acc: string, dto: MarkedListCreateDto): Observable<CreateResponse> {
     return this.http
-      .post<CreateResponse>(`${this.apiUrl}/api/markedList`, { acc, create: dto })
+      .post<CreateResponse>(`${this.apiUrl}api/markedList`, { acc, create: dto })
       .pipe(tap((res) => console.debug(res)));
   }
 
   update(id: number, acc: string, dto: MarkedListUpdateDto): Observable<Response> {
     return this.http
-      .put<Response>(`${this.apiUrl}/api/markedList/${id}`, { acc, update: dto })
+      .put<Response>(`${this.apiUrl}api/markedList/${id}`, { acc, update: dto })
       .pipe(tap((res) => console.debug(res)));
   }
 
   delete(id: number, acc: string): Observable<Response> {
     return this.http
-      .delete<Response>(`${this.apiUrl}/api/markedList/${id}`, { body: { acc } })
+      .delete<Response>(`${this.apiUrl}api/markedList/${id}`, { body: { acc } })
       .pipe(tap((res) => console.debug(res)));
   }
 

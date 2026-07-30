@@ -18,7 +18,7 @@ export class StallApiService {
     return this.http
       .get<
         FetchResponse<StallDto[]>
-      >(`${this.apiUrl}/api/stalls`, { params: { timestamp: +new Date() } })
+      >(`${this.apiUrl}api/stalls`, { params: { timestamp: +new Date() } })
       .pipe(map((res) => res.data));
   }
 
@@ -27,7 +27,7 @@ export class StallApiService {
     return this.http
       .get<
         FetchResponse<StallDto>
-      >(`${this.apiUrl}/api/stall/${id}`, { params: { timestamp: +new Date() } })
+      >(`${this.apiUrl}api/stall/${id}`, { params: { timestamp: +new Date() } })
       .pipe(
         map((res) => {
           (res.data.promotion ?? []).sort((a, b) =>
@@ -41,7 +41,7 @@ export class StallApiService {
   update(id: string, dto: UpdateStallDto): Observable<Response> {
     id = encodeURIComponent(id);
     return this.http
-      .put<Response>(`${this.apiUrl}/api/stall/${id}`, dto)
+      .put<Response>(`${this.apiUrl}api/stall/${id}`, dto)
       .pipe(tap((res) => console.debug(res)));
   }
 
@@ -51,7 +51,7 @@ export class StallApiService {
   ): Observable<UpdateResponse<StallDto>> {
     id = encodeURIComponent(id);
     return this.http
-      .put<UpdateResponse<StallDto>>(`${this.apiUrl}/api/stallWithPromo/${id}`, dto)
+      .put<UpdateResponse<StallDto>>(`${this.apiUrl}api/stallWithPromo/${id}`, dto)
       .pipe(
         tap((res) =>
           res.data.promotion?.sort((a, b) =>

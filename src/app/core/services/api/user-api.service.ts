@@ -20,19 +20,19 @@ export class UserApiService {
     return this.http
       .get<
         FetchResponse<UserDto>
-      >(`${this.apiUrl}/api/user/${acc}`, { params: { timestamp: +new Date() } })
+      >(`${this.apiUrl}api/user/${acc}`, { params: { timestamp: +new Date() } })
       .pipe(tap((res) => console.debug(res)));
   }
 
   create(user: UserDto): Observable<CreateResponse> {
     return this.http
-      .post<CreateResponse>(`${this.apiUrl}/api/user`, user)
+      .post<CreateResponse>(`${this.apiUrl}api/user`, user)
       .pipe(tap((res) => console.debug(res)));
   }
 
   update(id: number, user: UserDto): Observable<UpdateResponse<UserDto>> {
     return this.http
-      .put<UpdateResponse<UserDto>>(`${this.apiUrl}/api/user/${id}`, user)
+      .put<UpdateResponse<UserDto>>(`${this.apiUrl}api/user/${id}`, user)
       .pipe(tap((res) => console.debug(res)));
   }
 
@@ -40,7 +40,7 @@ export class UserApiService {
     return this.http
       .delete<
         UpdateResponse<UserDto>
-      >(`${this.apiUrl}/api/user/${id}`, { body: { acc: acc.toString() } })
+      >(`${this.apiUrl}api/user/${id}`, { body: { acc: acc.toString() } })
       .pipe(tap((res) => console.debug(res)));
   }
 

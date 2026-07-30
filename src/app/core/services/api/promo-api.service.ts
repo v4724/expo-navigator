@@ -20,7 +20,7 @@ export class PromoApiService {
   constructor(private http: HttpClient) {}
 
   getPromotions(): Observable<PromoStallDto[]> {
-    return this.http.get<{ result: { data: PromoStallDto[] } }>(`${this.apiUrl}/api/promos`).pipe(
+    return this.http.get<{ result: { data: PromoStallDto[] } }>(`${this.apiUrl}api/promos`).pipe(
       tap((res) => console.debug(res)),
       // 只回傳 data 陣列
       map((res: { result: { data: PromoStallDto[] } }) => res.result.data),
@@ -45,6 +45,7 @@ export class PromoApiService {
         promoLinks: promo.promoLinks,
         series: promo.series,
         tags: promo.tags,
+        subjectTags: promo.subjectTags,
         customTags: promo.customTags,
       };
       return dto;
@@ -52,7 +53,7 @@ export class PromoApiService {
 
     stallId = encodeURIComponent(stallId);
     return this.http
-      .put<UpdateResponse<PromoStallDto>>(`${this.apiUrl}/api/promos/${stallId}`, data)
+      .put<UpdateResponse<PromoStallDto>>(`${this.apiUrl}api/promos/${stallId}`, data)
       .pipe(tap((res) => console.debug(res)));
   }
 
@@ -69,10 +70,11 @@ export class PromoApiService {
       promoLinks: promo.promoLinks,
       series: promo.series,
       tags: promo.tags,
+      subjectTags: promo.subjectTags,
       customTags: promo.customTags,
     };
     return this.http
-      .put<UpdateResponse<PromoStallDto>>(`${this.apiUrl}/api/promo`, data)
+      .put<UpdateResponse<PromoStallDto>>(`${this.apiUrl}api/promo`, data)
       .pipe(tap((res) => console.debug(res)));
   }
 
@@ -105,6 +107,7 @@ export class PromoApiService {
       promoLinks: dto.promoLinks || [],
       series: dto.series || [],
       tags: dto.tags || [],
+      subjectTags: dto.subjectTags,
       customTags: dto.customTags,
     };
 
