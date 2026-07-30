@@ -1,4 +1,4 @@
-import { CdkDragEnd, CdkDragMove, CdkDragStart, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragEnd, CdkDragStart, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -580,29 +580,42 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
 
     this.updateStickyZones(x, y, this.scale());
   }
+
   onDragStarted(event: CdkDragStart) {
     this.firstMove = true;
   }
 
-  onDragMoved(event: CdkDragMove) {
+  constrainPosition = (userPos: { x: number; y: number }) => {
     if (this.firstMove) {
       this.dragStartPointer = {
-        x: event.pointerPosition.x,
-        y: event.pointerPosition.y,
+        x: userPos.x,
+        y: userPos.y,
       };
       this.dragStartPos = { ...this.freePosition };
       this.firstMove = false;
     }
 
     const s = this.scale();
-    const dx = (event.pointerPosition.x - this.dragStartPointer.x) / s;
-    const dy = (event.pointerPosition.y - this.dragStartPointer.y) / s;
 
-    const origX = this.dragStartPos.x + dx;
-    const origY = this.dragStartPos.y + dy;
+    // 1. 計算目前的 freePosition 與 CDK 算出的點之間的相對位移 (delta)
+    const dx = userPos.x - this.dragStartPointer.x;
+    const dy = userPos.y - this.dragStartPointer.y;
+    const origX = this.dragStartPos.x + dx / s;
+    const origY = this.dragStartPos.y + dy / s;
 
-    this._setPosition({ x: origX, y: origY });
-  }
+    const { x, y } = this.clampPosition(origX, origY);
+    this.freePosition = {
+      x,
+      y,
+    };
+
+    this.updateStickyZones(x, y, this.scale());
+
+    return {
+      x,
+      y,
+    };
+  };
 
   onDragEnded(event: CdkDragEnd) {
     // 可以在這裡做最後修正或發送位置

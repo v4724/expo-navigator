@@ -37,8 +37,8 @@
       [style.aspect-ratio]="imageAspectRatio()"
       cdkDrag
       (cdkDragStarted)="onDragStarted($event)"
-      (cdkDragMoved)="onDragMoved($event)"
       (cdkDragEnded)="onDragEnded($event)"
+      [cdkDragConstrainPosition]="constrainPosition"
       [cdkDragFreeDragPosition]="freePosition"
       (touchstart)="onTouchStart($event)"
       (touchmove)="onTouchMove($event)"
