@@ -8,6 +8,7 @@ import {
   ElementRef,
   HostListener,
   inject,
+  NgZone,
   OnDestroy,
   OnInit,
   signal,
@@ -427,46 +428,60 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
     if (this._selectStallService.selected) return;
   }
 
-  onWheel(event: WheelEvent) {
+  private ngZone = inject(NgZone);
+  private debouncedSyncTimer: any = null;
+  private animFrameId: number | null = null;
+
+  onWheel(event: Event) {
     event.preventDefault();
-    const oldScale = this.scale();
+    this.ngZone.runOutsideAngular(() => {
+      const oldScale = this.scale();
 
-    const zoomFactor =
-      event.deltaY < 0
-        ? this._uiStateService.isMobile()
-          ? 1.5
-          : 1.25
-        : this._uiStateService.isMobile()
-          ? 0.5
-          : 0.75;
+      const zoomFactor =
+        (event as WheelEvent).deltaY < 0
+          ? this._uiStateService.isMobile()
+            ? 1.25
+            : 1.2
+          : this._uiStateService.isMobile()
+            ? 0.5
+            : 0.75;
 
-    let newScale = Math.min(Math.max(oldScale * zoomFactor, 1), this.maxScale());
+      let newScale = Math.min(Math.max(oldScale * zoomFactor, 1), this.maxScale());
 
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
 
-    // 滑鼠相對於容器的座標 (視窗內位置 - 容器左上角)
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+      // 滑鼠相對於容器的座標 (視窗內位置 - 容器左上角)
+      const mouseX = (event as WheelEvent).clientX - rect.left;
+      const mouseY = (event as WheelEvent).clientY - rect.top;
 
-    // 可視範圍中心點
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+      // 可視範圍中心點
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
 
-    // 滑鼠相對於可視範圍中心的位移（像素）
-    const dx = (mouseX - centerX) / oldScale;
-    const dy = (mouseY - centerY) / oldScale;
+      // 滑鼠相對於可視範圍中心的位移（像素）
+      const dx = (mouseX - centerX) / oldScale;
+      const dy = (mouseY - centerY) / oldScale;
 
-    // 比例差（縮放前後）
-    const scaleDelta = newScale / oldScale;
+      // 比例差（縮放前後）
+      const scaleDelta = newScale / oldScale;
 
-    // 平移補償，讓滑鼠對應到的內容點不會移動
-    const currentX = this.freePosition.x;
-    const currentY = this.freePosition.y;
-    const nextX = currentX - dx * (scaleDelta - 1);
-    const nextY = currentY - dy * (scaleDelta - 1);
+      // 平移補償，讓滑鼠對應到的內容點不會移動
+      const currentX = this.freePosition.x;
+      const currentY = this.freePosition.y;
+      const nextX = currentX - dx * (scaleDelta - 1);
+      const nextY = currentY - dy * (scaleDelta - 1);
 
-    this.scale.set(newScale);
-    this._setPosition({ x: nextX, y: nextY });
+      this.scale.set(newScale);
+      this._setPosition({ x: nextX, y: nextY });
+      // 🔴 步驟 3：防抖（Debounce）—— 只有停止滾動 150ms 後，才觸發一次 Change Detection 同步狀態
+      clearTimeout(this.debouncedSyncTimer);
+      this.debouncedSyncTimer = setTimeout(() => {
+        this.ngZone.run(() => {
+          this.scale.set(newScale);
+          this._setPosition({ x: nextX, y: nextY });
+        });
+      }, 150);
+    });
   }
 
   // 將指定攤位置中於畫面
