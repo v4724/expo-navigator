@@ -348,8 +348,13 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
       el.style.height = `${currentSize}px`;
       el.style.fontSize = `${currentFontSize}px`; // 按比例縮放字型
 
-      // 讓左側超出地圖的 anchor 顯示第一個 zoneName，不要因為 div 順序被蓋掉
-      if (maxZoneIdx === -1 && finalX <= minX) {
+      // 另外幾排
+      if (idx == 19 || idx >= 36) {
+        maxZoneIdx = -1;
+      }
+
+      // 讓上方超出地圖的 anchor 顯示第一個 zoneName，不要因為 div 順序被蓋掉
+      if (maxZoneIdx === -1 && finalY <= minY) {
         maxZoneIdx = idx;
       }
       if (maxZoneIdx >= 0 && idx > maxZoneIdx) {
