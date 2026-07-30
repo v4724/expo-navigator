@@ -12,13 +12,14 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { MatIconRegistry } from '@angular/material/icon';
 
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { provideServiceWorker } from '@angular/service-worker';
+import { ssrApiInterceptor } from './core/interceptor/ssr-api.interceptor';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -53,7 +54,9 @@ const MyPreset = definePreset(Aura, {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideIonicAngular(), // 初始化 Ionic
-    provideHttpClient(),
+    provideHttpClient(
+      withInterceptors([ssrApiInterceptor]), // 註冊攔截器
+    ),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
