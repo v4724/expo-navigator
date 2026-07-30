@@ -1,4 +1,3 @@
-import { CdkDragEnd, CdkDragStart, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -8,7 +7,6 @@ import {
   ElementRef,
   HostListener,
   inject,
-  NgZone,
   OnDestroy,
   OnInit,
   signal,
@@ -54,7 +52,6 @@ import { WishlistLayer } from '../layers/wishlist-layer/wishlist-layer';
     CommonModule,
     StallGroupArea,
     MatIcon,
-    DragDropModule,
     StallsCanvas,
     InteractiveLayer,
     SearchLayer,
@@ -86,7 +83,9 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
   mapWidth = signal<number>(0);
   mapHeight = signal<number>(0);
 
-  // 縮放、拖曳的計算值
+  // 縮放、拖曳
+  // 地圖狀態 signal
+  pan = signal<{ x: number; y: number }>({ x: 0, y: 0 });
   scale = signal(1);
   maxScale = toSignal(
     forkJoin([
@@ -122,10 +121,11 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
     ),
     { initialValue: 3 },
   );
-  freePosition = { x: 0, y: 0 }; // cdkDragFreeDragPosition 來源
-  private dragStartPointer = { x: 0, y: 0 };
-  private dragStartPos = { x: 0, y: 0 };
-  private firstMove = true;
+  // 組合出單一流暢的 transform 字串 (由 GPU 直接處理)
+  private isDragging = false;
+  private startPointer = { x: 0, y: 0 };
+  private startPan = { x: 0, y: 0 };
+  private rafId: number | null = null;
 
   mapImgSrc = toSignal(this._expoStateService.mapImageUrl$.pipe(filter((url) => !!url)), {
     initialValue: '',
@@ -222,6 +222,10 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
         if (viewportEl) {
           this.resizeObserver?.observe(viewportEl);
         }
+
+        const x = (viewportEl.offsetWidth - w) / 2;
+        const y = (viewportEl.offsetHeight - h) / 2;
+        this._setPosition({ x, y });
       });
     });
 
@@ -231,7 +235,11 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
         take(1),
       )
       .subscribe(() => {
-        this.updateStickyZones(0, 0, 1);
+        requestAnimationFrame(() => {
+          const x = (this.mapContainer?.nativeElement.offsetWidth - this.mapWidth()) / 2;
+          const y = (this.mapContainer?.nativeElement.offsetHeight - this.mapHeight()) / 2;
+          this.updateStickyZones(x, y, 1, this.autoFocusing());
+        });
       });
 
     this._stallMapService.focus$.pipe(filter((val) => !!val)).subscribe((stallId) => {
@@ -259,7 +267,7 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
             w,
             h,
           };
-          this.updateStickyZones(this.freePosition.x, this.freePosition.y, this.scale());
+          this.updateStickyZones(this.pan().x, this.pan().y, this.scale(), this.autoFocusing());
         }
       });
     }
@@ -279,38 +287,43 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
    * @param ty 地圖當前的 transformY (px)
    * @param scale 地圖當前的縮放比例
    */
-  updateStickyZones(tx: number, ty: number, scale: number) {
+  updateStickyZones(tx: number, ty: number, scale: number, isAnimating: boolean) {
     const viewportEl = this.mapContainer?.nativeElement;
     const labels = this.zoneElements();
 
     if (!viewportEl || labels.length === 0) return;
 
-    // 1. 取得當前可視視窗的實際總寬高
+    // 1. 取得可視範圍尺寸與原始地圖設計圖基準尺寸
     const viewW = viewportEl.clientWidth;
     const viewH = viewportEl.clientHeight;
 
-    // 2. 假設地圖設計圖的基準尺寸（如果你本來就是用百分比，要給定一個基礎虛擬寬高，例如 2000x2000）
     const baseMapWidth = this.mapWidth();
     const baseMapHeight = this.mapHeight();
 
-    // 當視窗比地圖大時，這個值是正數（代表留白寬度）；反之則是負數
-    const initialCenterX = (viewW - baseMapWidth) / 2;
-    const initialCenterY = (viewH - baseMapHeight) / 2;
-
-    const baseSize = 22; // anchor 寬高
-    const baseFontSize = 12; // anchor 字大小(地圖寬度為1067時對應的大小)
+    // 2. 算式簡化：基於可視範圍寬度與 scale 動態計算標籤大小與字型
+    const baseSize = 22;
+    const baseFontSize = 12;
     const currentFontSize = (baseFontSize / 1200) * viewW * scale;
     const currentSize = (baseSize / 1200) * viewW * scale;
     const radius = currentSize / 2; // 半徑：用來將中心點對齊
 
-    // 安全邊距（Padding）
+    // 安全邊距 Padding
     const paddingR = 0;
     const paddingL = 0;
     const paddingT = radius / 2;
     const paddingB = 0;
 
+    // 3. 計算 Sticky 鎖定極限邊界 (可視範圍內絕對 px)
+    const minX = paddingL + radius;
+    const maxX = viewW - paddingR - radius;
+    const minY = paddingT + radius;
+    const maxY = viewH - paddingB - radius;
+
     let maxZoneIdx = -1;
-    // 3. 重新計算每一個字母的位置
+    // 當 autoFocusing 為 true 時啟用 300ms transition，拖曳時 (false) 則設為 none
+    const transitionStyle = isAnimating ? 'transform 300ms cubic-bezier(0, 0, 0.2, 1)' : 'none';
+
+    // 4. 計算並更新每一個 Sticky 標籤位置
     labels.forEach((labelRef, idx) => {
       const el = labelRef.nativeElement;
       const zoneName = el.getAttribute('data-zone');
@@ -318,45 +331,45 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
 
       if (!zoneData) return;
 
-      // 算出該點在原始地圖上的實際 px 座標
+      // 算出該點在原始 100% 未縮放地圖上的 px 座標
       const originalX = (zoneData.groupDef.anchorRect.left / 100) * baseMapWidth;
       const originalY = (zoneData.groupDef.anchorRect.top / 100) * baseMapHeight;
 
-      // 1. 計算原始與目標座標
-      const diffW = (viewW * (scale - 1)) / 2;
-      const diffH = (viewH * (scale - 1)) / 2;
-      const targetX = (initialCenterX + originalX + tx) * scale - diffW;
-      const targetY = (initialCenterY + originalY + ty) * scale - diffH;
+      // [核心修正] 在 transform-origin: 0 0 下，點位在地圖畫布上的螢幕絕對座標
+      const targetX = tx + originalX * scale;
+      const targetY = ty + originalY * scale;
 
-      // 2. 計算 Sticky 限制邊界 (動態考慮當前縮放後的標籤尺寸)
-      const minX = paddingL + radius;
-      const maxX = viewW - paddingR - radius;
-      const minY = paddingT + radius;
-      const maxY = viewH - paddingB - radius;
-
+      // 進行邊界鎖定 (Clamp)
       const currentX = Math.max(minX, Math.min(maxX, targetX));
       const currentY = Math.max(minY, Math.min(maxY, targetY));
 
+      // 對齊中心點
       const finalX = currentX - radius;
       const finalY = currentY - radius;
 
-      // 3. 使用 transform 進行平移與縮放
-      el.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`; // transform 只用來控制位移
+      // 套用 Transform 位移與向量尺寸
+      el.style.transition = transitionStyle;
 
-      // 寬高與字型大小改用實際 px 給值，強迫瀏覽器以向量重新繪製 (若使用 scale 會模糊)
+      // 套用位移
+      el.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`;
       el.style.width = `${currentSize}px`;
       el.style.height = `${currentSize}px`;
-      el.style.fontSize = `${currentFontSize}px`; // 按比例縮放字型
+      el.style.fontSize = `${currentFontSize}px`;
 
-      // 另外幾排
-      if (idx == 19 || idx >= 36) {
+      // 處理分排與重疊隱藏邏輯
+      if (idx < 3 || idx >= 36) {
+        return;
+      }
+
+      if (zoneName === 'C' || zoneName === 'T') {
         maxZoneIdx = -1;
       }
 
-      // 讓上方超出地圖的 anchor 顯示第一個 zoneName，不要因為 div 順序被蓋掉
+      // 當頂部 Anchor 貼齊上邊界時的遮蔽優先級判斷
       if (maxZoneIdx === -1 && finalY <= minY) {
         maxZoneIdx = idx;
       }
+
       if (maxZoneIdx >= 0 && idx > maxZoneIdx) {
         el.style.display = 'none';
       } else {
@@ -433,232 +446,76 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
     if (this._selectStallService.selected) return;
   }
 
-  private ngZone = inject(NgZone);
-  private debouncedSyncTimer: any = null;
-  private animFrameId: number | null = null;
-
-  onWheel(event: Event) {
-    event.preventDefault();
-    this.ngZone.runOutsideAngular(() => {
-      const oldScale = this.scale();
-
-      const zoomFactor =
-        (event as WheelEvent).deltaY < 0
-          ? this._uiStateService.isMobile()
-            ? 1.25
-            : 1.2
-          : this._uiStateService.isMobile()
-            ? 0.5
-            : 0.75;
-
-      let newScale = Math.min(Math.max(oldScale * zoomFactor, 1), this.maxScale());
-
-      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-
-      // 滑鼠相對於容器的座標 (視窗內位置 - 容器左上角)
-      const mouseX = (event as WheelEvent).clientX - rect.left;
-      const mouseY = (event as WheelEvent).clientY - rect.top;
-
-      // 可視範圍中心點
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      // 滑鼠相對於可視範圍中心的位移（像素）
-      const dx = (mouseX - centerX) / oldScale;
-      const dy = (mouseY - centerY) / oldScale;
-
-      // 比例差（縮放前後）
-      const scaleDelta = newScale / oldScale;
-
-      // 平移補償，讓滑鼠對應到的內容點不會移動
-      const currentX = this.freePosition.x;
-      const currentY = this.freePosition.y;
-      const nextX = currentX - dx * (scaleDelta - 1);
-      const nextY = currentY - dy * (scaleDelta - 1);
-
-      this.scale.set(newScale);
-      this._setPosition({ x: nextX, y: nextY });
-      // 🔴 步驟 3：防抖（Debounce）—— 只有停止滾動 150ms 後，才觸發一次 Change Detection 同步狀態
-      clearTimeout(this.debouncedSyncTimer);
-      this.debouncedSyncTimer = setTimeout(() => {
-        this.ngZone.run(() => {
-          this.scale.set(newScale);
-          this._setPosition({ x: nextX, y: nextY });
-        });
-      }, 150);
-    });
-  }
-
   // 將指定攤位置中於畫面
   focus(stall: StallData) {
-    if (!stall || !this.mapImage || !this.mapContent) return;
+    if (!stall || !this.mapContainer) return;
 
-    if (this.scale() < this.focusScale()) {
-      const targetScale = Math.max(this.scale(), this.focusScale());
+    const viewEl = this.mapContainer.nativeElement;
+    const viewW = viewEl.offsetWidth;
+
+    // Mobile 下方如果有展開的攤位卡片，扣除該高度以取得真正的可視區域高度
+    const mobileCardH = this._uiStateService.isMobile() ? this.mobileStallInfoDefaultH : 0;
+    const viewH = viewEl.offsetHeight - mobileCardH;
+
+    if (viewW === 0 || viewH === 0) return;
+
+    // 1. 決定目標 Scale (若當前縮放小於 focusScale，則放大至 focusScale)
+    const targetScale = Math.max(this.scale(), this.focusScale());
+    if (targetScale !== this.scale()) {
       this.scale.set(targetScale);
     }
 
-    const mapEl = this.mapImage.nativeElement;
-    const viewEl = this.mapContainer.nativeElement;
+    // 2. 取得地圖原始基準寬高 (未縮放前的 100% 尺寸)
+    const baseMapW = this.mapWidth();
+    const baseMapH = this.mapHeight();
 
-    const mapW = mapEl.offsetWidth;
-    const mapH = mapEl.offsetHeight;
-    const scaleMapW = mapW * this.scale();
-    const scaleMapH = mapH * this.scale();
-    const viewW = viewEl.offsetWidth;
-    const viewH = this._uiStateService.isMobile()
-      ? viewEl.offsetHeight - this.mobileStallInfoDefaultH
-      : viewEl.offsetHeight;
+    // 3. 計算攤位中心點在 100% 原始地圖上的 px 座標 (Original X, Y)
+    const stallLeft = (stall.coords.left / 100) * baseMapW;
+    const stallTop = (stall.coords.top / 100) * baseMapH;
+    const stallW = (stall.coords.width / 100) * baseMapW;
+    const stallH = (stall.coords.height / 100) * baseMapH;
 
-    console.debug('mapWH', mapW, mapH);
-    console.debug('scaleMapWH', scaleMapW, scaleMapH);
-    console.debug('viewWH', viewW, viewH);
-    if (scaleMapW === 0 || scaleMapH === 0 || viewW === 0 || viewH === 0) return;
+    const stallCenterX = stallLeft + stallW / 2;
+    const stallCenterY = stallTop + stallH / 2;
 
-    // 將百分比座標轉換為地圖實際座標
-    const stallLeft = (stall.coords.left / 100) * scaleMapW;
-    const stallTop = (stall.coords.top / 100) * scaleMapH;
-    const stallWidth = (stall.coords.width / 100) * scaleMapW;
-    const stallHeight = (stall.coords.height / 100) * scaleMapH;
+    // 4. 計算可視範圍（Viewport）的有效中心點
+    let viewCenterX = viewW / 2;
+    let viewCenterY = viewH / 2;
 
-    const stallCenterX = stallLeft + stallWidth / 2;
-    const stallCenterY = stallTop + stallHeight / 2;
-
-    console.debug('orig stall position on screen', stallCenterX, stallCenterY);
-
-    // 目前平移 XY
-    const translateX = this.freePosition.x;
-    const translateY = this.freePosition.y;
-
-    // 畫面中心（容器內的視圖中心點）
-    const viewCenterX = viewW / 2;
-    const viewCenterY = viewH / 2;
-
-    // 地圖縮放後中心
-    const scaledMapCenterX = scaleMapW / 2;
-    const scaledMapCenterY = scaleMapH / 2;
-
-    // 攤位在縮放後地圖的座標
-    const scaledStallX = stallCenterX;
-    const scaledStallY = stallCenterY;
-
-    // 攤位目前在畫面上的位置
-    const screenX = stallCenterX;
-    const screenY = stallCenterY;
-    console.debug('scale stall position on screen', screenX, screenY);
-
-    // desktop 左方有選單，中心要再往右移
-    const centerX = !this._uiStateService.isMobile() && this._leftSidebarService.curr ? 310 / 2 : 0;
-    // mobile 下方有攤位資訊，中心要再往上移
-    const centerY = this._uiStateService.isMobile()
-      ? this.mobileStallInfoDefaultH / this.scale() / 2
-      : 0;
-    // 將攤位置中（相對於地圖中心 0,0）
-    const newTranslateX = (scaledMapCenterX - scaledStallX) / this.scale() + centerX;
-    const newTranslateY = (scaledMapCenterY - scaledStallY) / this.scale() - Math.abs(centerY);
-
-    console.debug('orig focus position');
-    console.debug(newTranslateX, scaledMapCenterX, '-', scaledStallX, '/', this.scale());
-    console.debug(
-      newTranslateY,
-      scaledMapCenterY,
-      '-',
-      scaledStallY,
-      '/',
-      this.scale(),
-      '-',
-      Math.abs(centerY),
-    );
-
-    // 應用 clamp 限制（避免地圖超出畫面邊界）
-    this._setPosition({ x: newTranslateX, y: newTranslateY });
-  }
-
-  _setPosition(newTranslateXY: TargetXY) {
-    const { x, y } = this.clampPosition(newTranslateXY.x, newTranslateXY.y);
-
-    // console.debug('set map position', x, y);
-    this.freePosition = {
-      x,
-      y,
-    };
-
-    this.updateStickyZones(x, y, this.scale());
-  }
-
-  onDragStarted(event: CdkDragStart) {
-    this.firstMove = true;
-  }
-
-  constrainPosition = (userPos: { x: number; y: number }) => {
-    if (this.firstMove) {
-      this.dragStartPointer = {
-        x: userPos.x,
-        y: userPos.y,
-      };
-      this.dragStartPos = { ...this.freePosition };
-      this.firstMove = false;
+    // Desktop 左側如果開啟側邊欄 (310px)，將視覺中心向右偏移
+    if (!this._uiStateService.isMobile() && this._leftSidebarService.curr) {
+      const sidebarWidth = 310;
+      viewCenterX = sidebarWidth + (viewW - sidebarWidth) / 2;
     }
 
-    const s = this.scale();
+    // 5. 核心算式：在 transform-origin: 0 0 下，要讓點 (stallCenterX * targetScale) 移動到 viewCenter
+    // 公式：targetPan = viewCenter - (originalPoint * targetScale)
+    const targetPanX = viewCenterX - stallCenterX * targetScale;
+    const targetPanY = viewCenterY - stallCenterY * targetScale;
 
-    // 1. 計算目前的 freePosition 與 CDK 算出的點之間的相對位移 (delta)
-    const dx = userPos.x - this.dragStartPointer.x;
-    const dy = userPos.y - this.dragStartPointer.y;
-    const origX = this.dragStartPos.x + dx / s;
-    const origY = this.dragStartPos.y + dy / s;
+    // 6. 開啟 transition 動畫並套用邊界限制 (Clamp)
+    this.autoFocusing.set(true);
+    this._setPosition({ x: targetPanX, y: targetPanY });
 
-    const { x, y } = this.clampPosition(origX, origY);
-    this.freePosition = {
-      x,
-      y,
-    };
-
-    this.updateStickyZones(x, y, this.scale());
-
-    return {
-      x,
-      y,
-    };
-  };
-
-  onDragEnded(event: CdkDragEnd) {
-    // 可以在這裡做最後修正或發送位置
+    // 7. 動畫結束後關閉 autoFocusing (配合 CSS 300ms transition)
+    setTimeout(() => {
+      this.autoFocusing.set(false);
+    }, 300);
   }
 
-  // 中心點 0,0 限制拖曳範圍
-  private clampPosition(x: number, y: number): { x: number; y: number } {
-    const content = this.mapContent.nativeElement;
+  private ticking = false;
+  _setPosition(newTranslateXY: TargetXY, newScale = this.scale()) {
+    const { x, y } = this.clampPosition(newTranslateXY.x, newTranslateXY.y);
+    this.pan.set({ x, y });
 
-    const mapWidth = content.offsetWidth;
-    const mapHeight = content.offsetHeight;
-
-    // 計算縮放後的地圖大小
-    const s = this.scale();
-    const displayWidth = mapWidth * s;
-    const displayHeight = mapHeight * s;
-
-    const cw = content.offsetWidth;
-    const ch = content.offsetHeight;
-
-    // 邊界，可拖曳的範圍值
-    // sidebarW desktop 假設左側元件寬度
-    const sidebarW = !this._uiStateService.isMobile() && !!this._leftSidebarService.curr ? 310 : 0;
-    // mobileStallInfoH mobile 有選擇攤位的時候，調整可視範圍高度
-    const mobileStallInfoH =
-      this._uiStateService.isMobile() && this._selectStallService.selected
-        ? this.mobileStallInfoDefaultH
-        : 0;
-    let minX = (cw - displayWidth) / 2 / s;
-    let maxX = ((displayWidth - cw) / 2 + sidebarW) / s;
-    let minY = ((ch - displayHeight) / 2 - mobileStallInfoH) / s;
-    let maxY = (displayHeight - ch) / 2 / s;
-
-    // x > 0 (往右方拖曳，地圖往右平移)
-    x = x > 0 ? Math.min(x, maxX) : Math.max(x, minX);
-    y = y > 0 ? Math.min(y, maxY) : Math.max(y, minY);
-
-    return { x, y };
+    // 如果這幀還沒繪製，才預約下一幀繪製
+    if (!this.ticking) {
+      requestAnimationFrame(() => {
+        this.renderMap(x, y, newScale);
+        this.ticking = false;
+      });
+      this.ticking = true;
+    }
   }
 
   private initialDistance = 0;
@@ -697,6 +554,156 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
 
   openUrl(link: string) {
     link && window.open(link);
+  }
+
+  onWheel(event: WheelEvent) {
+    // 阻止瀏覽器預設的全頁面滾動
+    event.preventDefault();
+    this.autoFocusing.set(false); // 關閉 Transition
+
+    if (!this.mapContainer) return;
+
+    const currentScale = this.scale();
+    const zoomFactor =
+      (event as WheelEvent).deltaY < 0
+        ? this._uiStateService.isMobile()
+          ? 1.25
+          : 1.2
+        : this._uiStateService.isMobile()
+          ? 0.5
+          : 0.75;
+
+    const newScale = Math.min(Math.max(currentScale * zoomFactor, 1), this.maxScale());
+
+    // 如果已經達到縮放極限，不做任何計算
+    if (newScale === currentScale) return;
+
+    // 2. 取得滑鼠相對於 #mapContainer 可視範圍左上角的座標 (px, py)
+    const containerRect = this.mapContainer.nativeElement.getBoundingClientRect();
+    const px = event.clientX - containerRect.left;
+    const py = event.clientY - containerRect.top;
+
+    // 3. 核心數學：以滑鼠點為中心計算新的 (x, y) translate 位移
+    // 算式原理：NewPan = Pointer - (Pointer - OldPan) * (NewScale / OldScale)
+    const currentPan = this.pan();
+    const scaleRatio = newScale / currentScale;
+
+    const rawNewX = px - (px - currentPan.x) * scaleRatio;
+    const rawNewY = py - (py - currentPan.y) * scaleRatio;
+
+    // 4. 更新 Scale 並將新座標送入 clamp 鎖定邊界
+    this.scale.set(newScale);
+    this._setPosition({ x: rawNewX, y: rawNewY });
+  }
+
+  onPointerDown(event: PointerEvent) {
+    this.autoFocusing.set(false); // 關閉 Transition
+
+    // 鎖定指標，即使滑鼠滑出瀏覽器邊界依然能持續捕捉拖曳
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+
+    this.isDragging = true;
+    this.startPointer = { x: event.clientX, y: event.clientY };
+    this.startPan = { ...this.pan() };
+  }
+
+  onPointerMove(event: PointerEvent) {
+    if (!this.isDragging) return;
+
+    const dx = event.clientX - this.startPointer.x;
+    const dy = event.clientY - this.startPointer.y;
+
+    const rawX = this.startPan.x + dx;
+    const rawY = this.startPan.y + dy;
+
+    // 使用 requestAnimationFrame 來對齊螢幕刷新率（60fps / 120fps）
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+
+    this.rafId = requestAnimationFrame(() => {
+      this._setPosition({ x: rawX, y: rawY });
+
+      this.rafId = null;
+    });
+  }
+
+  onPointerUp(event: PointerEvent) {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+
+    try {
+      (event.target as HTMLElement).releasePointerCapture(event.pointerId);
+    } catch {}
+  }
+
+  private clampPosition(x: number, y: number): { x: number; y: number } {
+    if (!this.mapContainer || !this.mapContent) return { x, y };
+
+    const container = this.mapContainer.nativeElement;
+    const content = this.mapContent.nativeElement;
+
+    const containerW = container.clientWidth;
+    const containerH = container.clientHeight;
+
+    const s = this.scale();
+    const mapW = content.offsetWidth * s;
+    const mapH = content.offsetHeight * s;
+
+    // 取得 UI 邊界偏移量
+    const sidebarW = !this._uiStateService.isMobile() && !!this._leftSidebarService.curr ? 310 : 0;
+    const mobileStallInfoH =
+      this._uiStateService.isMobile() && this._selectStallService.selected
+        ? this.mobileStallInfoDefaultH
+        : 0;
+
+    // --- X 軸邊界 ---
+    // minX: 地圖拉到最左側時（右邊緣切齊容器右邊）
+    const minX = containerW - mapW;
+    // maxX: 地圖拉到最右側時（允許向右推到 sidebarW 的位置）
+    const maxX = sidebarW;
+
+    // --- Y 軸邊界 ---
+    // minY: 地圖拉到最上方時（留出底部手機資訊欄）
+    const minY = containerH - mapH - mobileStallInfoH;
+    // maxY: 地圖拉到最下方時（上邊緣切齊容器頂部）
+    const maxY = 0;
+
+    // 防護：如果地圖縮放後比容器還小，強制自動置中，不讓地圖隨意飄走
+    let finalX = x;
+    let finalY = y;
+
+    if (mapW < containerW) {
+      finalX = (containerW - mapW) / 2 + sidebarW / 2;
+    } else {
+      finalX = Math.min(Math.max(x, minX), maxX);
+    }
+
+    if (mapH < containerH) {
+      finalY = (containerH - mapH) / 2 - mobileStallInfoH / 2;
+    } else {
+      finalY = Math.min(Math.max(y, minY), maxY);
+    }
+
+    return { x: finalX, y: finalY };
+  }
+
+  /**
+   * 統一的地圖與 Sticky 標籤渲染函式
+   * 確保兩者在同一幀（Frame）內同步更新，解決拖曳延遲問題
+   */
+  private renderMap(tx: number, ty: number, scale: number) {
+    const contentEl = this.mapContent?.nativeElement;
+    if (!contentEl) return;
+
+    const isAnimating = this.autoFocusing();
+    const transitionStyle = isAnimating ? 'transform 300ms cubic-bezier(0, 0, 0.2, 1)' : 'none';
+
+    // 1. 直接更新 #mapContent 的 DOM 樣式 (不經過 Angular Binding)
+    contentEl.style.transition = transitionStyle;
+    contentEl.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+
+    // 2. 同步更新 Sticky 標籤層
+    this.updateStickyZones(tx, ty, scale, isAnimating);
   }
 }
 

@@ -307,7 +307,7 @@ export class StallService {
     // (e.g., one for official data, multiple for promo data) into a single object.
     const stallsMap = new Map<string, StallData>();
 
-    rawData.forEach((rawStall) => {
+    (rawData ?? []).forEach((rawStall) => {
       const id = rawStall.id;
       if (!id) return; // Skip rows without an ID, as they can't be processed.
 

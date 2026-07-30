@@ -26,3 +26,16 @@
   /* 注意：移除任何 transition! 在高頻率拖曳中，transition 反而會造成落後殘影 */
   transition: none !important;
 }
+
+.style-gpu-accelerated {
+  /* 強制建立獨立的 GPU Compositing Layer */
+  transform: translateZ(0);
+  will-change: transform;
+
+  /* 關閉瀏覽器嘗試對文字進行運動平滑插值導致的模糊與殘影 */
+  -webkit-font-smoothing: antialiased;
+
+  /* 避免拖曳時文字與邊框重繪 (Repaint) */
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
