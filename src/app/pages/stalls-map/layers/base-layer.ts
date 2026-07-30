@@ -48,14 +48,21 @@ export class BaseLayer {
     if (!img || !canvas) return;
     this.loadLegendColor();
 
-    // 設定畫布解析度與圖片一致
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    // 考量 Retina 螢幕 DPR
+    const dpr = window.devicePixelRatio || 1;
+
+    // 畫布像素設定為 原始圖片寬高 × DPR
+    canvas.width = img.naturalWidth * dpr;
+    canvas.height = img.naturalHeight * dpr;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // 開啟抗鋸齒平滑優化
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     // 設定樣式
-    ctx.font = '12px Arial';
+    ctx.font = '16px Arial';
     ctx.textAlign = 'center';
 
     this.stalls().forEach((s) => {
@@ -63,6 +70,8 @@ export class BaseLayer {
       const { x, y, w, h } = this.getCanvasCoord(s);
       this.drawDefaultStall(s, ctx, x, y, w, h);
     });
+
+    ctx.restore();
   }
 
   loadLegendColor() {

@@ -24,7 +24,7 @@
   <div
     id="download-map-container"
     #mapContainer
-    class="h-full w-full flex items-center justify-center overflow-hidden"
+    class="h-full w-full flex items-center justify-center overflow-hidden will-change-transform"
     [style.transform]="`scale(${scale()})`"
     (wheel)="onWheel($event)"
   >

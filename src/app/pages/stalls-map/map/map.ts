@@ -303,8 +303,8 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
     const radius = currentSize / 2; // 半徑：用來將中心點對齊
 
     // 安全邊距（Padding）
-    const paddingR = -radius;
-    const paddingL = -radius;
+    const paddingR = 0;
+    const paddingL = 0;
     const paddingT = radius / 2;
     const paddingB = 0;
 
@@ -429,34 +429,44 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    const zoomIntensity = this._uiStateService.isMobile() ? 0.5 : 0.25;
     const oldScale = this.scale();
-    let newScale = oldScale + (event.deltaY < 0 ? zoomIntensity : -zoomIntensity);
-    newScale = Math.min(Math.max(newScale, 1), this.maxScale());
+
+    const zoomFactor =
+      event.deltaY < 0
+        ? this._uiStateService.isMobile()
+          ? 1.5
+          : 1.25
+        : this._uiStateService.isMobile()
+          ? 0.5
+          : 0.75;
+
+    let newScale = Math.min(Math.max(oldScale * zoomFactor, 1), this.maxScale());
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
 
     // 滑鼠相對於容器的座標 (視窗內位置 - 容器左上角)
-    const offsetX = event.clientX - rect.left;
-    const offsetY = event.clientY - rect.top;
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
 
     // 可視範圍中心點
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
     // 滑鼠相對於可視範圍中心的位移（像素）
-    const mouseOffsetXFromCenter = offsetX - centerX;
-    const mouseOffsetYFromCenter = offsetY - centerY;
+    const dx = (mouseX - centerX) / oldScale;
+    const dy = (mouseY - centerY) / oldScale;
 
     // 比例差（縮放前後）
     const scaleDelta = newScale / oldScale;
 
     // 平移補償，讓滑鼠對應到的內容點不會移動
-    const newTranslateX = this.freePosition.x - mouseOffsetXFromCenter * (scaleDelta - 1);
-    const newTranslateY = this.freePosition.y - mouseOffsetYFromCenter * (scaleDelta - 1);
+    const currentX = this.freePosition.x;
+    const currentY = this.freePosition.y;
+    const nextX = currentX - dx * (scaleDelta - 1);
+    const nextY = currentY - dy * (scaleDelta - 1);
 
     this.scale.set(newScale);
-    this._setPosition({ x: newTranslateX, y: newTranslateY });
+    this._setPosition({ x: nextX, y: nextY });
   }
 
   // 將指定攤位置中於畫面
