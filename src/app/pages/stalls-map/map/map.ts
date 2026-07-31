@@ -45,6 +45,7 @@ import { InteractiveLayer } from '../layers/interactive-layer/interactive-layer'
 import { SearchLayer } from '../layers/search-layer/search-layer';
 import { TooltipModule } from 'primeng/tooltip';
 import { WishlistLayer } from '../layers/wishlist-layer/wishlist-layer';
+import { BookmarkLayer } from '../layers/bookmark-layer/bookmark-layer';
 
 @Component({
   selector: 'app-map',
@@ -57,6 +58,7 @@ import { WishlistLayer } from '../layers/wishlist-layer/wishlist-layer';
     SearchLayer,
     TooltipModule,
     WishlistLayer,
+    BookmarkLayer,
   ],
   templateUrl: './map.html',
   styleUrl: './map.scss',
