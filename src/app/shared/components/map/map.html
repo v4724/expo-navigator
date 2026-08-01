@@ -1,0 +1,71 @@
+<div
+  #mapViewport
+  class="h-full flex items-center justify-center overflow-hidden bg-transparent relative"
+>
+  <!-- 背景圖 -->
+  <div
+    class="absolute top-0 left-0 h-full w-full opacity-10 bg-center bg-repeat bg-size-[auto_150px] bg-[url(assets/images/icon-coomic4.png)]"
+  ></div>
+
+  @if (isInitialLoading() || !mapImgLoaded()) {
+    <div
+      class="absolute top-0 left-0 z-1 size-full flex items-center justify-center bg-gray-200/50"
+    >
+      <mat-icon
+        class="animate-spin dark:!text-gray-600"
+        aria-hidden="false"
+        aria-label="auto renew"
+        fontIcon="autorenew"
+      ></mat-icon>
+    </div>
+  } @else if (isInitialError()) {}
+
+  <!-- 地圖 container  -->
+  <div
+    id="download-map-container"
+    #mapContainer
+    class="relative h-full w-full overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp($event)"
+    (pointercancel)="onPointerUp($event)"
+    (wheel)="onWheel($event)"
+  >
+    <div
+      #mapContent
+      class="absolute left-0 top-0 style-gpu-accelerated"
+      style="transform-origin: 0px 0px"
+      [style.width.px]="imgWidth() > 0 ? imgWidth() : ''"
+      [style.height.px]="imgHeight() > 0 ? imgHeight() : ''"
+    >
+      <!-- 攤位底圖 -->
+      @if (mapImgSrc()) {
+        <img
+          #mapImage
+          class="w-full h-full object-contain pointer-events-none"
+          [src]="mapImgSrc()"
+          alt="Background Map"
+          (load)="onMapImageLoad($event)"
+          (error)="onMapImageError()"
+        />
+      }
+      <!-- 攤位樣式/互動 (100% 精確貼齊圖片實際渲染範圍) -->
+      <div class="absolute inset-0 w-full h-full pointer-events-auto">
+        <ng-content></ng-content>
+      </div>
+    </div>
+
+    <!-- Sticky 區域標籤層（與地圖內容同級，不隨地圖 transform） -->
+    <div class="absolute inset-0 pointer-events-none">
+      @for (zone of anchorZones(); track zone) {
+        <div
+          #zoneLabel
+          class="absolute zone-sticky-label style-gpu-accelerated"
+          [attr.data-zone]="zone.zoneId"
+        >
+          {{ zone.zoneId }}
+        </div>
+      }
+    </div>
+  </div>
+</div>

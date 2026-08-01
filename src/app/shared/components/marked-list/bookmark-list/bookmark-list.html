@@ -101,7 +101,7 @@
                     <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
                     <span class="text-xs">{{ stall.stallTitle }} </span>
                   </button>
-                  @if ($index == 0) {
+                  @if (bookmarkRoutingSwitch() && atRoutingPage() && $index == 0) {
                     <div class="ml-auto flex items-center">起點</div>
                   }
                 </div>

@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   inject,
@@ -10,10 +11,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { combineLatest, filter, map, take, tap } from 'rxjs';
 import { RoutingStallService } from 'src/app/core/services/state/routing-stall-service';
-import { CanvasCoord, Path, PathNode } from '../core/util';
+import { Path, PathNode } from '../core/util';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
+import { StallService } from 'src/app/core/services/state/stall-service';
 
 @Component({
   selector: 'app-routing-layer',
@@ -22,12 +24,13 @@ import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
   </canvas>`,
   styleUrl: './routing-layer.scss',
 })
-export class RoutingLayer implements OnInit {
+export class RoutingLayer implements OnInit, AfterViewInit {
   @ViewChild('stallCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   item: InputSignal<MarkedList> = input.required();
 
   private _routingStallService = inject(RoutingStallService);
+  private _stallService = inject(StallService);
 
   pathFinder = toSignal(this._routingStallService.pathFinder$);
   canvasWH = toSignal(
@@ -45,21 +48,6 @@ export class RoutingLayer implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    // 載入路徑
-    this._routingStallService.pathFinder$
-      .pipe(
-        filter((val) => !!val),
-        take(1),
-        tap(() => {
-          this.reset();
-          if (this.item().showPath) {
-            const path = this.routeByOrder(this.item().list);
-            this.drawMapAndPath(this.item(), path);
-          }
-        }),
-      )
-      .subscribe();
-
     // 該書籤:攤位數量有調整、起點有更改、開啟/關閉顯示路徑
     combineLatest([this._routingStallService.togglePath$])
       .pipe(
@@ -108,11 +96,27 @@ export class RoutingLayer implements OnInit {
       .subscribe();
   }
 
+  ngAfterViewInit() {
+    // 顯示初始路徑
+    combineLatest([this._routingStallService.pathFinder$])
+      .pipe(
+        filter(([val]) => !!val),
+        take(1),
+        tap(() => {
+          this.reset();
+          if (this.item().showPath) {
+            const path = this.routeByOrder(this.item().list);
+            this.drawMapAndPath(this.item(), path);
+          }
+        }),
+      )
+      .subscribe();
+  }
+
   drawMapAndPath(bookmark: MarkedList, paths: Array<Path>) {
     const canvas = this.canvasRef?.nativeElement;
     const ctx = canvas?.getContext('2d')!;
-
-    if (!canvas || !ctx) {
+    if (!ctx) {
       return;
     }
 
@@ -122,10 +126,6 @@ export class RoutingLayer implements OnInit {
     ctx.beginPath();
     paths.forEach((p) => {
       const path = p.path;
-      // 攤位點
-      // ctx.arc(p.start.x, p.start.y, 5, 0, Math.PI * 2);
-
-      // 路線
       ctx.moveTo(path[0].x, path[0].y);
       for (let i = 1; i < path.length; i++) {
         ctx.lineTo(path[i].x, path[i].y);
@@ -136,7 +136,7 @@ export class RoutingLayer implements OnInit {
       ? bookmark.cusIconColor
       : (bookmark.iconColor ?? '#FF0000');
 
-    ctx.globalAlpha = 0.7; // 設定整體透明度
+    ctx.globalAlpha = 0.8; // 設定整體透明度
     ctx.strokeStyle = color;
     ctx.lineWidth = 4;
     ctx.lineCap = 'round';
@@ -210,7 +210,7 @@ export class RoutingLayer implements OnInit {
   }
 
   // 調整路線規劃時所對應的攤位中心點位置
-  private getStallCenter(s: StallData): CanvasCoord {
+  private getStallCenter(s: StallData): PathNode {
     const pathFinder = this.pathFinder();
     const orig =
       pathFinder != null ? pathFinder.getCanvasCoord(s.coords) : { x: 0, y: 0, w: 0, h: 0 };
@@ -233,7 +233,7 @@ export class RoutingLayer implements OnInit {
         x = orig.x + orig.w / 2;
         break;
     }
-    return { ...orig, x, y };
+    return { ...orig, x, y, stall: s };
   }
 
   private updateBookmarkPathOrder(item: MarkedList, paths: Array<Path>) {

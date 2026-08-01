@@ -9,6 +9,8 @@ import { BookmarkList } from 'src/app/shared/components/marked-list/bookmark-lis
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
+import { Map } from 'src/app/shared/components/map/map';
+import { StallsCanvas } from '../stalls-map/layers/stalls-canvas/stalls-canvas';
 
 @Component({
   selector: 'app-routing',
@@ -20,6 +22,8 @@ import { RouterModule } from '@angular/router';
     ButtonModule,
     TooltipModule,
     RouterModule,
+    Map,
+    StallsCanvas,
   ],
   templateUrl: './routing.html',
   styleUrl: './routing.scss',
