@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal, ViewChild } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import { PopoverModule } from 'primeng/popover';
@@ -10,19 +10,21 @@ import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { UserService } from 'src/app/core/services/state/user-service';
+import { StallBookmarkPopover } from '../bookmark/stall-bookmark-popover/stall-bookmark-popover';
 
 @Component({
   selector: 'app-bookmark-popover',
-  imports: [CommonModule, MatIcon, PopoverModule],
+  imports: [CommonModule, MatIcon, PopoverModule, StallBookmarkPopover],
   templateUrl: './bookmark-popover.html',
   styleUrl: './bookmark-popover.scss',
 })
 export class BookmarkPopover implements OnInit {
+  @ViewChild(StallBookmarkPopover) markedListPopover!: StallBookmarkPopover;
+
   isPreview = input<boolean>(false);
   stall = input.required<StallData | undefined>();
   stall$ = toObservable(this.stall);
 
-  private _markedListApiService = inject(MarkedListApiService);
   private _markedListService = inject(MarkedStallService);
   private _userService = inject(UserService);
   private _uiStateService = inject(UiStateService);
@@ -50,52 +52,8 @@ export class BookmarkPopover implements OnInit {
     }
   }
 
-  removeFromMarkedList(data: MarkedList) {
-    const id = this.stall()?.id;
-    if (!id) return;
-
-    const dto = this._markedListApiService.transformToDto(data);
-
-    const index = dto.list.indexOf(id);
-    dto.list.splice(index, 1);
-
-    data.isUpdating = true;
-    this._markedListApiService
-      .update(data.id, this.user()?.acc!, dto)
-      .pipe(
-        finalize(() => {
-          data.isUpdating = false;
-        }),
-      )
-      .subscribe((res) => {
-        if (res.success) {
-          this._markedListService.update(dto);
-        }
-        this.updateMarkedSignal(this.stall());
-      });
-  }
-
-  addToMarkedList(data: MarkedList) {
-    const id = this.stall()?.id;
-    if (!id) return;
-
-    const dto = this._markedListApiService.transformToDto(data);
-    dto.list.push(id);
-
-    data.isUpdating = true;
-    this._markedListApiService
-      .update(data.id, this.user()?.acc!, dto)
-      .pipe(
-        finalize(() => {
-          data.isUpdating = false;
-        }),
-      )
-      .subscribe((res) => {
-        if (res.success) {
-          this._markedListService.update(dto);
-        }
-        this.updateMarkedSignal(this.stall());
-      });
+  afterUpdate() {
+    this.updateMarkedSignal(this.stall());
   }
 
   updateMarkedSignal(stall: StallData | undefined) {
@@ -105,5 +63,9 @@ export class BookmarkPopover implements OnInit {
       isMarked = this._markedListService.isMarked(stallId);
     }
     this.isMarkedSignal.set(isMarked);
+  }
+
+  click(e: Event) {
+    !this.isPreview() && this.markedListPopover.op.toggle(e);
   }
 }
