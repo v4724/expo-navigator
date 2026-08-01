@@ -13,6 +13,17 @@
         </div>
       </div>
       <div class="ml-auto">
+        @if (bookmarkRoutingSwitch()) {
+          <p-button
+            icon="pi pi-directions"
+            size="small"
+            pTooltip="前往路徑規劃"
+            [rounded]="true"
+            [text]="true"
+            [routerLink]="['/routing']"
+          >
+          </p-button>
+        }
         <p-button
           icon="pi pi-times"
           size="small"

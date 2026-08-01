@@ -7,4 +7,6 @@ export interface MarkedList extends Omit<MarkedListDto, 'list'> {
   show: boolean;
 
   isUpdating: boolean;
+
+  showPath: boolean;
 }

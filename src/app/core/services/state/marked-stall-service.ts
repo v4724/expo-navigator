@@ -168,6 +168,7 @@ export class MarkedStallService {
       list,
       show: true,
       isUpdating: false,
+      showPath: true,
     };
   }
 }

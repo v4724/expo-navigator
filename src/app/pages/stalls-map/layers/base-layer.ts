@@ -1,5 +1,6 @@
 import { ElementRef, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -37,8 +38,28 @@ export class BaseLayer {
     { initialValue: [] }, // 給予初始空陣列避免前端讀取 undefined
   );
   mapImage = toSignal(this._stallMapService.mapImage$);
+  canvasWH = toSignal(
+    this._stallMapService.mapImage$.pipe(
+      filter((el) => !!el),
+      map((el) => {
+        // 考量 Retina 螢幕 DPR
+        const dpr = this.customDPR > 0 ? this.customDPR : window.devicePixelRatio || 1;
+        return {
+          width: Math.floor(el.naturalWidth * dpr),
+          height: Math.floor(el.naturalHeight * dpr),
+        };
+      }),
+    ),
+    { initialValue: { width: 0, height: 0 } },
+  );
+  canvasWH$ = toObservable(this.canvasWH);
 
   isBackground = false;
+  customDPR = -1; // 自訂解析度
+
+  constructor(customDPR?: number) {
+    this.customDPR = customDPR ? customDPR : -1;
+  }
 
   drawStalls() {
     const canvas = this.canvasRef?.nativeElement;
@@ -48,12 +69,8 @@ export class BaseLayer {
     if (!img || !canvas) return;
     this.loadLegendColor();
 
-    // 考量 Retina 螢幕 DPR
-    const dpr = window.devicePixelRatio || 1;
-
-    // 畫布像素設定為 原始圖片寬高 × DPR
-    canvas.width = img.naturalWidth * dpr;
-    canvas.height = img.naturalHeight * dpr;
+    canvas.width = this.canvasWH().width;
+    canvas.height = this.canvasWH().height;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -140,12 +157,10 @@ export class BaseLayer {
 
   // 將百分比座標轉換為畫布像素座標
   protected getCanvasCoord(s: StallData): CanvasCoord {
-    const canvas = this.canvasRef?.nativeElement;
-
-    const x = (s.coords.left / 100) * canvas.width;
-    const y = (s.coords.top / 100) * canvas.height;
-    const w = (s.coords.width / 100) * canvas.width;
-    const h = (s.coords.height / 100) * canvas.height;
+    const x = (s.coords.left / 100) * this.canvasWH().width;
+    const y = (s.coords.top / 100) * this.canvasWH().height;
+    const w = (s.coords.width / 100) * this.canvasWH().width;
+    const h = (s.coords.height / 100) * this.canvasWH().height;
 
     return { x, y, w, h };
   }

@@ -1,3 +1,5 @@
+import { Point } from 'src/app/pages/routing-test/core/util';
+
 export interface MarkedListDto {
   id: number;
   userId: number;

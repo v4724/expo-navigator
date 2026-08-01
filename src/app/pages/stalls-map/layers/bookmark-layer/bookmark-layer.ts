@@ -76,6 +76,8 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     const canvas = this.canvasRef?.nativeElement;
     const ctx = canvas?.getContext('2d')!;
 
+    if (!canvas || !ctx) return;
+
     // 開啟抗鋸齒平滑優化
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -142,15 +144,12 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     const ctx = canvas?.getContext('2d')!;
     const img = this.mapImage();
 
-    if (!img || !canvas) return;
+    if (!canvas || !img || !ctx) return;
     this.loadLegendColor();
 
-    // 考量 Retina 螢幕 DPR
-    const dpr = window.devicePixelRatio || 1;
-
     // 畫布像素設定為 原始圖片寬高 × DPR
-    canvas.width = img.naturalWidth * dpr;
-    canvas.height = img.naturalHeight * dpr;
+    canvas.width = this.canvasWH().width;
+    canvas.height = this.canvasWH().height;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }

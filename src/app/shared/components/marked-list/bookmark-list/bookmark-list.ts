@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { EditBtn } from 'src/app/components/edit-marked-list/edit-btn/edit-btn';
@@ -16,6 +16,11 @@ import { finalize } from 'rxjs';
 import { StallZoneBadge } from '../../stall-info/stall-zone-badge/stall-zone-badge';
 import { CheckboxModule } from 'primeng/checkbox';
 import { FormsModule } from '@angular/forms';
+import { RoutingStallService } from 'src/app/core/services/state/routing-stall-service';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { Router } from '@angular/router';
+import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { StallData } from 'src/app/core/interfaces/stall.interface';
 
 @Component({
   selector: 'app-bookmark-list',
@@ -28,26 +33,40 @@ import { FormsModule } from '@angular/forms';
     StallZoneBadge,
     CheckboxModule,
     FormsModule,
+    CdkDropList,
+    CdkDrag,
   ],
   templateUrl: './bookmark-list.html',
   styleUrl: './bookmark-list.scss',
 })
-export class BookmarkList {
+export class BookmarkList implements OnInit {
   @ViewChild(Accordion) accordion!: Accordion;
 
+  private _router = inject(Router);
   private _userService = inject(UserService);
   private _markedListService = inject(MarkedStallService);
   private _markedListApiService = inject(MarkedListApiService);
   private _selectStallService = inject(SelectStallService);
   private _stallMapService = inject(StallMapService);
   private _confirmService = inject(ConfirmationService);
+  private _routingStallService = inject(RoutingStallService);
+  private _expoStateService = inject(ExpoStateService);
   private readonly _messageService = inject(MessageService);
 
   user = toSignal(this._userService.user$);
   fetchEnd = toSignal(this._markedListService.fetchEnd$);
   allList = toSignal(this._markedListService.markedList$, { initialValue: [] });
+  bookmarkRoutingSwitch = toSignal(this._expoStateService.bookmarkRoutingSwitch$, {
+    initialValue: false,
+  });
 
+  atRoutingPage = signal<boolean>(false);
   accordionShow = signal<boolean>(true);
+
+  ngOnInit() {
+    const currentUrl = this._router.url;
+    this.atRoutingPage.set(currentUrl.includes('routing'));
+  }
 
   selectAndFocus(stallId: string) {
     this._selectStallService.selected = stallId;
@@ -114,5 +133,26 @@ export class BookmarkList {
   // 為了 drawer 開/關 後寬度問題，重畫元件
   setAccordionShow(val: boolean) {
     this.accordionShow.set(val);
+  }
+
+  togglePath(item: MarkedList, e: Event) {
+    e.stopPropagation();
+
+    item.showPath = !item.showPath;
+    this._routingStallService.togglePath(item);
+  }
+
+  autoRouting(item: MarkedList, e: Event) {
+    e?.stopPropagation();
+
+    this._routingStallService.autoRouting(item);
+  }
+
+  // 手動變更順序
+  drop(event: CdkDragDrop<StallData[]>, bookmark: MarkedList) {
+    const cat = Array.from(bookmark.list);
+    moveItemInArray(cat, event.previousIndex, event.currentIndex);
+
+    this._routingStallService.updateOrderByManual(bookmark, cat);
   }
 }

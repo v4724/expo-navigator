@@ -10,6 +10,10 @@ export const routes: Routes = [
         : import('./layout/layout').then((m) => m.Layout),
   },
   {
+    path: 'routing',
+    loadComponent: () => import('./pages/routing-test/routing').then((m) => m.Routing),
+  },
+  {
     path: 'grid-helper',
     loadComponent: () => import('./pages/grid-helper/grid-helper').then((m) => m.GridHelper),
   },

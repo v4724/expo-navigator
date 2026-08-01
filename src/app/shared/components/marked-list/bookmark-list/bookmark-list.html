@@ -33,6 +33,32 @@
                 <span class="flex text-nowrap pr-2">{{ bookmark.listName }}</span>
                 <div>({{ bookmark.list.length }})</div>
                 <div class="flex gap-1 items-center ml-auto">
+                  <!-- 路徑規劃 -->
+                  @if (bookmarkRoutingSwitch() && atRoutingPage()) {
+                    <button
+                      class="transition hover:scale-110 flex items-center text-gray-400"
+                      (click)="togglePath(bookmark, $event)"
+                    >
+                      <mat-icon
+                        inline
+                        aria-hidden="false"
+                        aria-label="direction icon"
+                        [fontIcon]="bookmark.showPath ? 'remove_red_eye' : 'visibility_off'"
+                      ></mat-icon>
+                    </button>
+                    <button
+                      class="transition hover:scale-110 flex items-center text-gray-400"
+                      (click)="autoRouting(bookmark, $event)"
+                    >
+                      <mat-icon
+                        inline
+                        aria-hidden="false"
+                        aria-label="auto route icon"
+                        [fontIcon]="'route'"
+                      ></mat-icon>
+                    </button>
+                  }
+
                   <button
                     class="transition hover:scale-110 flex items-center text-gray-400"
                     (click)="deleteList($event, bookmark)"
@@ -53,18 +79,32 @@
             </div>
           </p-accordion-header>
           <p-accordion-content>
-            <div class="flex flex-col">
+            <div
+              class="flex flex-col example-list"
+              [cdkDropListDisabled]="
+                bookmark.list.length <= 1 || !bookmarkRoutingSwitch() || !atRoutingPage()
+              "
+              cdkDropList
+              cdkDropListOrientation="vertical"
+              (cdkDropListDropped)="drop($event, bookmark)"
+            >
               @for (stall of bookmark.list; track $index) {
-                <button
-                  pButton
-                  class="w-full !justify-start dark:text-gray-50!"
-                  (click)="selectAndFocus(stall.id)"
-                  size="small"
-                  text="true"
-                >
-                  <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
-                  <span class="text-xs">{{ stall.stallTitle }} </span>
-                </button>
+                <div class="flex">
+                  <button
+                    cdkDrag
+                    pButton
+                    class="flex-grow !justify-start dark:text-gray-50!"
+                    (click)="selectAndFocus(stall.id)"
+                    size="small"
+                    text="true"
+                  >
+                    <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
+                    <span class="text-xs">{{ stall.stallTitle }} </span>
+                  </button>
+                  @if ($index == 0) {
+                    <div class="ml-auto flex items-center">起點</div>
+                  }
+                </div>
               }
             </div>
           </p-accordion-content>

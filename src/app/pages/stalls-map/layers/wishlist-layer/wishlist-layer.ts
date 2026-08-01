@@ -54,6 +54,10 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
     return this._wishlistLayerService.checkedIds;
   }
 
+  constructor() {
+    super();
+  }
+
   ngOnInit() {
     this._wishlistLayerService.show$.pipe().subscribe((val) => {
       if (val) {
@@ -79,8 +83,8 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
     if (!img || !canvas) return;
 
     // 設定畫布解析度與圖片一致
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    canvas.width = this.canvasWH().width;
+    canvas.height = this.canvasWH().height;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -192,8 +196,8 @@ export class WishlistLayer extends BaseLayer implements OnInit, AfterViewInit {
     if (!img || !canvas) return;
 
     // 設定畫布解析度與圖片一致
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    canvas.width = this.canvasWH().width;
+    canvas.height = this.canvasWH().height;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }

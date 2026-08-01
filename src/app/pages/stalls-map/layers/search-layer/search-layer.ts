@@ -21,6 +21,10 @@ export class SearchLayer extends BaseLayer implements OnInit {
 
   override stalls = toSignal(this._searchAndFilterService.filterStalls$, { initialValue: [] });
 
+  constructor() {
+    super();
+  }
+
   ngOnInit() {
     combineLatest([
       this._selectStallService.selectedStallId$,

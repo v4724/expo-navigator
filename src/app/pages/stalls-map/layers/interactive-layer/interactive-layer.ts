@@ -40,6 +40,10 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     ),
   );
 
+  constructor() {
+    super();
+  }
+
   ngOnInit() {
     this._selectStallService.selectedStallId$.subscribe(() => {
       this.drawStall();
@@ -55,8 +59,8 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     this.loadLegendColor();
 
     // 設定畫布解析度與圖片一致
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    canvas.width = this.canvasWH().width;
+    canvas.height = this.canvasWH().height;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 

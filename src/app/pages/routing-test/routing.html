@@ -1,0 +1,68 @@
+<main>
+  <div class="h-screen flex flex-col relative">
+    <div class="flex-grow flex h-full">
+      <div class="flex flex-col flex-grow overflow-y-auto h-full gap-2 p-4 max-w-[350px]">
+        <div class="flex items-center">
+          書籤列表
+          <p-button
+            class="ml-auto"
+            icon="pi pi-home"
+            size="small"
+            pTooltip="返回攤位地圖"
+            [rounded]="true"
+            [text]="true"
+            [routerLink]="['/']"
+          >
+          </p-button>
+        </div>
+        <app-create-marked-list-btn> </app-create-marked-list-btn>
+
+        <div>
+          <app-bookmark-list> </app-bookmark-list>
+        </div>
+      </div>
+
+      <div class="flex-grow h-full text-gray-600 dark:text-gray-50">
+        <div
+          #mapViewport
+          class="h-full flex items-center justify-center overflow-hidden bg-transparent relative"
+        >
+          <!-- 背景圖 -->
+          <div
+            class="absolute top-0 left-0 h-full w-full opacity-10 bg-center bg-repeat bg-size-[auto_150px] bg-[url(assets/images/icon-coomic4.png)]"
+          ></div>
+
+          <!-- 地圖 container  -->
+          <div
+            #mapContainer
+            class="relative h-full w-full overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing"
+          >
+            <!-- 地圖 content   -->
+            <div
+              #mapContent
+              class="absolute left-0 top-0 style-gpu-accelerated"
+              style="transform-origin: 0px 0px"
+            >
+              <!-- 攤位底圖 -->
+              @if (mapImgSrc()) {
+                <img
+                  #mapImage
+                  class="w-full h-full object-contain pointer-events-none"
+                  [src]="mapImgSrc()"
+                  alt="Background Map"
+                  (load)="onMapImageLoad($event)"
+                />
+              }
+
+              <!-- 攤位樣式和互動 -->
+              <div class="">
+                <app-routing-layers></app-routing-layers>
+                <app-bookmark-layer></app-bookmark-layer>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

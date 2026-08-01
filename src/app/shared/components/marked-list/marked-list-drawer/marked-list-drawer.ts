@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Button } from 'primeng/button';
 import { LeftSidebarService, SidebarType } from 'src/app/core/services/state/left-sidebar-service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -11,6 +11,8 @@ import { MarkedStallService } from 'src/app/core/services/state/marked-stall-ser
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
 import { UserService } from 'src/app/core/services/state/user-service';
+import { Router, RouterModule } from '@angular/router';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-marked-list-drawer',
@@ -22,6 +24,7 @@ import { UserService } from 'src/app/core/services/state/user-service';
     CreateMarkedListBtn,
     FormsModule,
     ToggleSwitch,
+    RouterModule,
   ],
   templateUrl: './marked-list-drawer.html',
   styleUrl: './marked-list-drawer.scss',
@@ -30,6 +33,8 @@ export class MarkedListDrawer implements OnInit {
   private readonly _leftSidebarService = inject(LeftSidebarService);
   private _markedListService = inject(MarkedStallService);
   private _userService = inject(UserService);
+  private _expoStateService = inject(ExpoStateService);
+  private _router = inject(Router);
 
   showControls = toSignal(
     this._leftSidebarService.show$.pipe(
@@ -39,10 +44,14 @@ export class MarkedListDrawer implements OnInit {
     ),
   );
   isLogin = toSignal(this._userService.isLogin$);
+  bookmarkRoutingSwitch = toSignal(this._expoStateService.bookmarkRoutingSwitch$);
+  atRoutingPage = signal<boolean>(false);
 
   checked = false;
 
   ngOnInit(): void {
+    this.atRoutingPage.set(this._router.url.includes('routing'));
+
     this._markedListService.layerShown$.subscribe((val) => {
       this.checked = val;
     });
