@@ -12,7 +12,7 @@
       @for (bookmark of allList(); track bookmark) {
         <p-accordion-panel [value]="$index">
           <p-accordion-header>
-            <div class="w-full flex items-center py-1 gap-x-2">
+            <div class="w-full flex items-center py-1 gap-x-2 min-w-0">
               <p-checkbox
                 size="small"
                 [binary]="true"
@@ -29,9 +29,11 @@
                   [fontIcon]="bookmark.icon || 'star'"
                 ></mat-icon>
               </button>
-              <div class="w-full flex items-center text-left pr-1">
-                <span class="flex text-nowrap pr-2">{{ bookmark.listName }}</span>
-                <div>({{ bookmark.list.length }})</div>
+              <div class="w-full flex items-center text-left pr-1 min-w-0">
+                <div class="flex flex-1 min-w-0 pr-1">
+                  <span class="pr-1 truncate">{{ bookmark.listName }}</span>
+                  <div class="shrink-0">({{ bookmark.list.length }})</div>
+                </div>
                 <div class="flex gap-1 items-center ml-auto">
                   <!-- 路徑規劃 -->
                   @if (bookmarkRoutingSwitch() && atRoutingPage()) {

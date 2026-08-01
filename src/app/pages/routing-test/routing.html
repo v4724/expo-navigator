@@ -24,44 +24,10 @@
 
       <div class="flex-grow h-full text-gray-600 dark:text-gray-50">
         <app-map>
-          <app-stalls-canvas></app-stalls-canvas>
           <app-routing-layers></app-routing-layers>
           <app-bookmark-layer></app-bookmark-layer>
+          <app-interactive-layer></app-interactive-layer>
         </app-map>
-        <!-- <div
-          #mapViewport
-          class="h-full flex items-center justify-center overflow-hidden bg-transparent relative"
-        >
-          <div
-            class="absolute top-0 left-0 h-full w-full opacity-10 bg-center bg-repeat bg-size-[auto_150px] bg-[url(assets/images/icon-coomic4.png)]"
-          ></div>
-
-          <div
-            #mapContainer
-            class="relative h-full w-full overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing"
-          >
-            <div
-              #mapContent
-              class="absolute left-0 top-0 style-gpu-accelerated"
-              style="transform-origin: 0px 0px"
-            >
-              @if (mapImgSrc()) {
-                <img
-                  #mapImage
-                  class="w-full h-full object-contain pointer-events-none"
-                  [src]="mapImgSrc()"
-                  alt="Background Map"
-                  (load)="onMapImageLoad($event)"
-                />
-              }
-
-              <div class="">
-                <app-routing-layers></app-routing-layers>
-                <app-bookmark-layer></app-bookmark-layer>
-              </div>
-            </div>
-          </div>
-        </div> -->
       </div>
     </div>
   </div>

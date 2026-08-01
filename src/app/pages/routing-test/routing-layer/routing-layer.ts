@@ -15,7 +15,7 @@ import { Path, PathNode } from '../core/util';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
-import { StallService } from 'src/app/core/services/state/stall-service';
+import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 
 @Component({
   selector: 'app-routing-layer',
@@ -30,7 +30,7 @@ export class RoutingLayer implements OnInit, AfterViewInit {
   item: InputSignal<MarkedList> = input.required();
 
   private _routingStallService = inject(RoutingStallService);
-  private _stallService = inject(StallService);
+  private _markedStallService = inject(MarkedStallService);
 
   pathFinder = toSignal(this._routingStallService.pathFinder$);
   canvasWH = toSignal(
@@ -48,15 +48,30 @@ export class RoutingLayer implements OnInit, AfterViewInit {
   constructor() {}
 
   ngOnInit() {
-    // 該書籤:攤位數量有調整、起點有更改、開啟/關閉顯示路徑
-    combineLatest([this._routingStallService.togglePath$])
+    // 該書籤:攤位數量有調整、起點有更改、開啟/關閉顯示路徑、
+    this._routingStallService.togglePath$
       .pipe(
-        tap(([toggleItem]) => {
+        tap((toggleItem) => {
           if (toggleItem == this.item()) {
             this.reset();
             if (toggleItem.showPath) {
               const path = this.routeByOrder(toggleItem.list);
               this.drawMapAndPath(toggleItem, path);
+            }
+          }
+        }),
+      )
+      .subscribe();
+
+    // 該書籤:有編輯儲存
+    this._markedStallService.updated$
+      .pipe(
+        tap((id) => {
+          if (id == this.item().id) {
+            this.reset();
+            if (this.item().showPath) {
+              const path = this.routeByOrder(this.item().list);
+              this.drawMapAndPath(this.item(), path);
             }
           }
         }),
@@ -84,7 +99,7 @@ export class RoutingLayer implements OnInit, AfterViewInit {
     this._routingStallService.reRoutingItem$
       .pipe(
         tap((item) => {
-          if (item == this.item()) {
+          if (item?.id == this.item().id) {
             this.reset();
             if (item.showPath) {
               const path = this.routeByOrder(item.list);

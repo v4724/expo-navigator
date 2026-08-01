@@ -5,7 +5,7 @@
 @if (hs) {
   <div
     #hoveredStallRef
-    class="absolute bg-transparent"
+    class="absolute bg-transparent pointer-events-none"
     [style.top]="`${hs.coords.top}%`"
     [style.left]="`${hs.coords.left}%`"
     [style.width]="`${hs.coords.width}%`"
@@ -13,6 +13,7 @@
     #tooltip
     [pTooltip]="`${hs.id} ${hs.stallTitle}`"
     [tooltipDisabled]="!hoveredStall()"
+    tooltipPosition="top"
     appendTo="body"
   ></div>
 }

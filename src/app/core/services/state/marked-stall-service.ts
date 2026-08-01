@@ -10,6 +10,8 @@ import { MarkedList } from '../../interfaces/marked-stall.interface';
 export class MarkedStallService {
   defaultLayerShown = true;
 
+  private _updated = new BehaviorSubject<number>(-1);
+
   private _origData: MarkedListDto[] = [];
   private _markedIds = new Set<string>();
 
@@ -25,6 +27,8 @@ export class MarkedStallService {
   private _markedMapByStallId = new BehaviorSubject<Map<string, Set<number>>>(new Map());
 
   private _toggleList = new Subject<MarkedList>();
+
+  updated$ = this._updated.asObservable();
 
   fetchEnd$ = this._fetchEnd.asObservable();
   markedList$ = this._markedList.asObservable();
@@ -104,6 +108,7 @@ export class MarkedStallService {
         .filter((item) => !!item);
 
       this._updateInnerMap();
+      this._updated.next(id);
     }
   }
 

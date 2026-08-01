@@ -46,6 +46,8 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
 
   ngOnInit() {
     this._selectStallService.selectedStallId$.subscribe(() => {
+      const stall = this._selectStallService.selectedStall;
+      this.clickedStall.set(stall);
       this.drawStall();
     });
   }
@@ -102,6 +104,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     this.cdr.detectChanges();
 
     const op = this.bookmarkPopover?.op;
+
     if (mappingStall) {
       requestAnimationFrame(() => {
         if (op.overlayVisible) {
@@ -130,14 +133,17 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
         mouseY <= s.coords.top + s.coords.height
       );
     });
+    const last = this.hoveredStall();
     this.hoveredStall.set(hoveredStall);
 
     if (hoveredStall) {
-      this.cdr.detectChanges();
-      // 傳入當前的 MouseEvent 讓 Tooltip 知道滑鼠游標座標
-      requestAnimationFrame(() => {
-        this.tooltip?.show();
-      });
+      if (hoveredStall.id != last?.id) {
+        this.cdr.detectChanges();
+        // 傳入當前的 MouseEvent 讓 Tooltip 知道滑鼠游標座標
+        requestAnimationFrame(() => {
+          this.tooltip?.show();
+        });
+      }
     } else {
       this.tooltip?.hide();
     }

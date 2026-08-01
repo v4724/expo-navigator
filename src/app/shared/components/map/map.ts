@@ -38,7 +38,6 @@ import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { StallService } from 'src/app/core/services/state/stall-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { TooltipModule } from 'primeng/tooltip';
-import { RoutingStallService } from 'src/app/core/services/state/routing-stall-service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -59,7 +58,6 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
   private _selectStallService = inject(SelectStallService);
   private _leftSidebarService = inject(LeftSidebarService);
   private _expoStateService = inject(ExpoStateService);
-  private _routingStallService = inject(RoutingStallService);
   private _router = inject(Router);
 
   isMobile: WritableSignal<boolean> = signal<boolean>(false);
@@ -112,7 +110,7 @@ export class Map implements OnInit, AfterViewInit, OnDestroy {
     { initialValue: 3 },
   );
   // 組合出單一流暢的 transform 字串 (由 GPU 直接處理)
-  private isDragging = false;
+  isDragging = false;
   private startPointer = { x: 0, y: 0 };
   private startPan = { x: 0, y: 0 };
   private rafId: number | null = null;

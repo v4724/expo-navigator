@@ -10,7 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
 import { Map } from 'src/app/shared/components/map/map';
-import { StallsCanvas } from '../stalls-map/layers/stalls-canvas/stalls-canvas';
+import { InteractiveLayer } from './interactive-layer/interactive-layer';
 
 @Component({
   selector: 'app-routing',
@@ -23,7 +23,7 @@ import { StallsCanvas } from '../stalls-map/layers/stalls-canvas/stalls-canvas';
     TooltipModule,
     RouterModule,
     Map,
-    StallsCanvas,
+    InteractiveLayer,
   ],
   templateUrl: './routing.html',
   styleUrl: './routing.scss',

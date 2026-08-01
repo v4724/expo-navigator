@@ -24,7 +24,8 @@
   <div
     id="download-map-container"
     #mapContainer
-    class="relative h-full w-full overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing"
+    class="relative h-full w-full overflow-hidden select-none touch-none"
+    [class.active:cursor-grabbing]="isDragging"
     (pointerdown)="onPointerDown($event)"
     (pointermove)="onPointerMove($event)"
     (pointerup)="onPointerUp($event)"
