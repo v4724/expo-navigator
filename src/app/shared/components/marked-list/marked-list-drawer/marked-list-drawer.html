@@ -6,7 +6,7 @@
   <div class="flex flex-col h-full">
     <div class="px-2 pb-3 flex items-center">
       <div class="flex gap-1 items-center">
-        <div class="">書籤列表</div>
+        <div class="dark:text-gray-300">書籤列表</div>
 
         <div class="flex items-center h-[16px]">
           <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
@@ -15,14 +15,14 @@
       <div class="ml-auto">
         @if (bookmarkRoutingSwitch()) {
           <p-button
+            class="dark:!text-gray-300"
             icon="pi pi-directions"
             size="small"
             pTooltip="前往路徑規劃"
             [rounded]="true"
             [text]="true"
-            [routerLink]="['/routing']"
-          >
-          </p-button>
+            (click)="gotoRouting()"
+          ></p-button>
         }
         <p-button
           icon="pi pi-times"

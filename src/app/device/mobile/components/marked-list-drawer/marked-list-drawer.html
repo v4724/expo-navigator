@@ -5,16 +5,16 @@
       <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
     }
     @if (bookmarkRoutingSwitch() && !atRoutingPage()) {
-      <p-button
-        class="ml-auto"
+      <button
+        pButton
+        class="ml-auto dark:!text-gray-300"
         icon="pi pi-directions"
         size="small"
         pTooltip="前往路徑規劃"
         [rounded]="true"
         [text]="true"
         (onClick)="gotoRouting()"
-      >
-      </p-button>
+      ></button>
     }
   </div>
 

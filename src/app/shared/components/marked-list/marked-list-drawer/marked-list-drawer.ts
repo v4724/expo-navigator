@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Button } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { LeftSidebarService, SidebarType } from 'src/app/core/services/state/left-sidebar-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -19,7 +19,7 @@ import { ExpoStateService } from 'src/app/core/services/state/expo-state-service
   imports: [
     CommonModule,
     BookmarkList,
-    Button,
+    ButtonModule,
     TooltipModule,
     CreateMarkedListBtn,
     FormsModule,
@@ -69,5 +69,10 @@ export class MarkedListDrawer implements OnInit {
 
   close() {
     this._leftSidebarService.toggle('');
+  }
+
+  gotoRouting() {
+    this.close();
+    this._router.navigate(['/routing']);
   }
 }

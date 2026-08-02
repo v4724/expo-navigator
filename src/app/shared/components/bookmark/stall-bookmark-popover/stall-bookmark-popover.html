@@ -1,5 +1,5 @@
 <p-popover #markedListPopover appendTo="body" [dismissable]="dismissable()">
-  <div class="flex flex-col gap-2 min-w-[150px]">
+  <div class="flex flex-col gap-2 min-w-[150px] dark:text-gray-300">
     <ng-content></ng-content>
 
     @if (!allMarkedList()?.length) {
@@ -7,7 +7,14 @@
     }
     @for (list of allMarkedList(); track $index) {
       <div class="flex items-center gap-2">
-        <mat-icon inline [style.color]="list.iconColor" [fontIcon]="list.icon || 'star'"></mat-icon>
+        <button class="flex items-center justify-center">
+          <mat-icon
+            inline
+            [style.color]="list.iconColor"
+            [fontIcon]="list.icon || 'star'"
+            class="bg-white/30 rounded-full p-1 border border-white/40"
+          ></mat-icon>
+        </button>
         <div class="mr-auto">{{ list.listName }}</div>
         @let id = this.stall()?.id;
         @if (list.isUpdating) {
@@ -22,7 +29,7 @@
           </button>
         } @else if (id && markedMapByStallId()?.get(id)?.has(list.id)) {
           <button
-            class="flex items-center text-gray-400 transition hover:scale-110 hover:text-red-700"
+            class="flex items-center text-gray-400 dark:text-gray-300 transition hover:scale-110 hover:text-red-700"
             (click)="removeFromMarkedList(list)"
           >
             <mat-icon
@@ -34,7 +41,7 @@
           </button>
         } @else {
           <button
-            class="flex items-center text-gray-400 transition hover:scale-110 hover:text-green-600"
+            class="flex items-center text-gray-400 dark:text-gray-300 transition hover:scale-110 hover:text-green-600"
             (click)="addToMarkedList(list)"
           >
             <mat-icon inline aria-hidden="false" aria-label="add icon" fontIcon="add"></mat-icon>

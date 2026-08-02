@@ -1,13 +1,14 @@
 <main>
-  <div class="h-screen flex flex-col relative">
+  <div class="h-screen flex flex-col relative dark:bg-zinc-900">
     <div class="flex-grow flex h-full">
-      <div class="flex flex-col flex-grow h-full gap-2 p-4 max-w-[350px]">
+      <!-- 左側書籤欄 -->
+      <div class="flex flex-col flex-grow h-full gap-2 p-4 max-w-[350px] bg-white dark:bg-zinc-800">
         <div class="flex items-center justify-between">
-          <div class="py-2 text-lg">走走走走走</div>
+          <div class="py-2 text-lg font-bold dark:text-gray-300">走走走走走</div>
           <app-user></app-user>
         </div>
         <div class="flex items-center">
-          <div class="">書籤列表</div>
+          <div class="dark:text-gray-300">書籤列表</div>
           @if (!bookmarkRoutingOnly()) {
             <p-button
               class="ml-auto"
@@ -32,6 +33,7 @@
         </div>
       </div>
 
+      <!-- 右側地圖 -->
       <div class="flex-grow h-full text-gray-600 dark:text-gray-50">
         <app-routing-map></app-routing-map>
       </div>
