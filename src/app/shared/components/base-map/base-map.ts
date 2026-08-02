@@ -517,39 +517,39 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // private initialDistance = 0;
-  // private initialScale = 1;
+  private initialDistance = 0;
+  private initialScale = 1;
 
-  // onTouchStart(event: TouchEvent) {
-  //   if (event.touches.length === 2) {
-  //     event.preventDefault(); // 阻止滾動
-  //     this.initialDistance = this.getDistance(event.touches);
-  //     this.initialScale = this.scale();
-  //   }
-  // }
+  onTouchStart(event: TouchEvent) {
+    if (event.touches.length === 2) {
+      event.preventDefault(); // 阻止滾動
+      this.initialDistance = this.getDistance(event.touches);
+      this.initialScale = this.scale();
+    }
+  }
 
-  // onTouchMove(event: TouchEvent) {
-  //   if (event.touches.length === 2) {
-  //     event.preventDefault();
-  //     const currentDistance = this.getDistance(event.touches);
-  //     const scaleChange = currentDistance / this.initialDistance;
-  //     let newScale = Math.min(Math.max(this.initialScale * scaleChange, 1), this.maxScale());
-  //     this.scale.set(newScale);
-  //   }
-  // }
+  onTouchMove(event: TouchEvent) {
+    if (event.touches.length === 2) {
+      event.preventDefault();
+      const currentDistance = this.getDistance(event.touches);
+      const scaleChange = currentDistance / this.initialDistance;
+      let newScale = Math.min(Math.max(this.initialScale * scaleChange, 1), this.maxScale());
+      this.scale.set(newScale);
+    }
+  }
 
-  // onTouchEnd(event: TouchEvent) {
-  //   if (event.touches.length < 2) {
-  //     this.initialDistance = 0;
-  //   }
-  // }
+  onTouchEnd(event: TouchEvent) {
+    if (event.touches.length < 2) {
+      this.initialDistance = 0;
+    }
+  }
 
-  // private getDistance(touches: TouchList): number {
-  //   const [touch1, touch2] = [touches[0], touches[1]];
-  //   const dx = touch2.clientX - touch1.clientX;
-  //   const dy = touch2.clientY - touch1.clientY;
-  //   return Math.sqrt(dx * dx + dy * dy);
-  // }
+  private getDistance(touches: TouchList): number {
+    const [touch1, touch2] = [touches[0], touches[1]];
+    const dx = touch2.clientX - touch1.clientX;
+    const dy = touch2.clientY - touch1.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
   // 「以指定座標為中心縮放」核心邏輯
   private _zoomAtPoint(targetScale: number, point: { x: number; y: number }) {

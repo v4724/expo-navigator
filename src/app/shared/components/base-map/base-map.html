@@ -30,7 +30,9 @@
     (pointermove)="onPointerMove($event)"
     (pointerup)="onPointerUp($event)"
     (pointercancel)="onPointerUp($event)"
-    (pointerleave)="onPointerUp($event)"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd($event)"
     (wheel)="onWheel($event)"
   >
     <div
