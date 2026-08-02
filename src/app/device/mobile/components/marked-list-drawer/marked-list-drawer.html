@@ -1,7 +1,7 @@
 <app-drawer-on-mobile (onShow)="onShow()">
   <div title class="flex items-center gap-2 w-full">
     <div class="text-lg">書籤</div>
-    @if (!bookmarkRoutingOnly()) {
+    @if (!atRoutingPage()) {
       <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
     }
     @if (bookmarkRoutingSwitch() && !atRoutingPage()) {

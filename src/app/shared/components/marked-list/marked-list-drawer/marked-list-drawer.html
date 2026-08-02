@@ -8,9 +8,11 @@
       <div class="flex gap-1 items-center">
         <div class="dark:text-gray-300">書籤列表</div>
 
-        <div class="flex items-center h-[16px]">
-          <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
-        </div>
+        @if (!atRoutingPage()) {
+          <div class="flex items-center h-[16px]">
+            <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
+          </div>
+        }
       </div>
       <div class="ml-auto">
         @if (bookmarkRoutingSwitch()) {
