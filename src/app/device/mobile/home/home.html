@@ -135,7 +135,7 @@
     class="flex flex-row mt-auto justify-between h-12 shadow-[0_-1px_5px_rgba(0,0,0,0.1)] z-1"
     [ngClass]="{ hidden: !isLogin() && !multiSeriesExpo() }"
   >
-    <button
+    <!-- <button
       pButton
       class="block dark:!text-gray-300"
       [ngClass]="{
@@ -145,7 +145,7 @@
       (click)="wishlistDrawer.show()"
     >
       吃土單
-    </button>
+    </button> -->
 
     @if (bookmarkSwitch()) {
       <button
@@ -154,8 +154,7 @@
         class="block dark:!text-gray-300"
         [ngClass]="{
           hidden: !isLogin(),
-          'w-1/2': isLogin() && multiSeriesExpo(),
-          'w-full': isLogin() && !multiSeriesExpo(),
+          'w-full': isLogin(),
         }"
         (click)="markedListDrawer.show()"
       >
@@ -163,7 +162,7 @@
       </button>
     }
 
-    @if (multiSeriesExpo()) {
+    <!-- @if (multiSeriesExpo()) {
       <button
         pButton
         class="block dark:!text-gray-300"
@@ -172,7 +171,7 @@
       >
         場內 only
       </button>
-    }
+    } -->
   </div>
 </div>
 

@@ -55,7 +55,7 @@
                   <!-- 路徑規劃 -->
                   @if (bookmarkRoutingSwitch() && atRoutingPage()) {
                     <button
-                      class="transition hover:scale-110 flex items-center text-gray-600"
+                      class="transition hover:scale-110 flex items-center text-gray-600 dark:text-gray-400"
                       [disabled]="bookmark.isUpdating"
                       pTooltip="顯示/關閉路線"
                       (click)="togglePath(bookmark, $event)"
@@ -68,7 +68,7 @@
                       ></mat-icon>
                     </button>
                     <button
-                      class="transition hover:scale-110 flex items-center text-gray-600"
+                      class="transition hover:scale-110 flex items-center text-gray-600 dark:text-gray-400"
                       [disabled]="bookmark.isUpdating"
                       pTooltip="自動規畫路線"
                       (click)="autoRouting(bookmark, $event)"
@@ -83,7 +83,7 @@
                   }
 
                   <button
-                    class="transition hover:scale-110 flex items-center text-gray-400"
+                    class="transition hover:scale-110 flex items-center text-gray-400 dark:text-gray-600"
                     (click)="deleteList($event, bookmark)"
                     [disabled]="bookmark.isDeleting || bookmark.isUpdating"
                   >

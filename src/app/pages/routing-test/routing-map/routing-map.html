@@ -1,0 +1,6 @@
+<app-base-map (onDragging)="onDragging = $event">
+  <app-routing-layers></app-routing-layers>
+  <app-bookmark-layer></app-bookmark-layer>
+  <app-interactive-routing-layer></app-interactive-routing-layer>
+  <app-interactive-layer [onDragging]="onDragging"></app-interactive-layer>
+</app-base-map>

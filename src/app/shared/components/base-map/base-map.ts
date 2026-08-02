@@ -173,7 +173,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     if (this._uiStateService.isPlatformBrowser()) {
       const vH = window.visualViewport?.height;
-      const mobileStallInfoDefaultH = vH ? vH * 0.25 : 300;
+      const mobileStallInfoDefaultH = vH ? vH * 0.5 : 300;
       this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? mobileStallInfoDefaultH : 0;
     }
 
@@ -441,10 +441,11 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
 
     const viewEl = this.mapContainer.nativeElement;
     const viewW = viewEl.offsetWidth;
+    let viewH = viewEl.offsetHeight;
 
     // Mobile 下方如果有展開的攤位卡片，扣除該高度以取得真正的可視區域高度
     const mobileCardH = this._uiStateService.isMobile() ? this.mobileStallInfoDefaultH : 0;
-    const viewH = viewEl.offsetHeight - mobileCardH;
+    viewH = viewH - mobileCardH;
 
     if (viewW === 0 || viewH === 0) return;
 
@@ -507,32 +508,32 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private initialDistance = 0;
-  private initialScale = 1;
+  // private initialDistance = 0;
+  // private initialScale = 1;
 
-  onTouchStart(event: TouchEvent) {
-    if (event.touches.length === 2) {
-      event.preventDefault(); // 阻止滾動
-      this.initialDistance = this.getDistance(event.touches);
-      this.initialScale = this.scale();
-    }
-  }
+  // onTouchStart(event: TouchEvent) {
+  //   if (event.touches.length === 2) {
+  //     event.preventDefault(); // 阻止滾動
+  //     this.initialDistance = this.getDistance(event.touches);
+  //     this.initialScale = this.scale();
+  //   }
+  // }
 
-  onTouchMove(event: TouchEvent) {
-    if (event.touches.length === 2) {
-      event.preventDefault();
-      const currentDistance = this.getDistance(event.touches);
-      const scaleChange = currentDistance / this.initialDistance;
-      let newScale = Math.min(Math.max(this.initialScale * scaleChange, 1), this.maxScale());
-      this.scale.set(newScale);
-    }
-  }
+  // onTouchMove(event: TouchEvent) {
+  //   if (event.touches.length === 2) {
+  //     event.preventDefault();
+  //     const currentDistance = this.getDistance(event.touches);
+  //     const scaleChange = currentDistance / this.initialDistance;
+  //     let newScale = Math.min(Math.max(this.initialScale * scaleChange, 1), this.maxScale());
+  //     this.scale.set(newScale);
+  //   }
+  // }
 
-  onTouchEnd(event: TouchEvent) {
-    if (event.touches.length < 2) {
-      this.initialDistance = 0;
-    }
-  }
+  // onTouchEnd(event: TouchEvent) {
+  //   if (event.touches.length < 2) {
+  //     this.initialDistance = 0;
+  //   }
+  // }
 
   private getDistance(touches: TouchList): number {
     const [touch1, touch2] = [touches[0], touches[1]];
@@ -633,46 +634,76 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     const containerH = container.clientHeight;
 
     const s = this.scale();
-    const mapW = content.offsetWidth * s;
-    const mapH = content.offsetHeight * s;
+    const origMapW = content.offsetWidth;
+    const origMapH = content.offsetHeight;
+    const mapW = origMapW * s;
+    const mapH = origMapH * s;
 
     // 取得 UI 邊界偏移量
     const sidebarW =
       !this._uiStateService.isMobile() && !!this._leftSidebarService.curr && !this.atRoutingPage
         ? 310
         : 0;
-    const mobileStallInfoH =
-      this._uiStateService.isMobile() && this._selectStallService.selected
-        ? this.mobileStallInfoDefaultH
-        : 0;
 
+    const boundingX = 40;
+    const boundingY = this._uiStateService.isMobile() ? this.mobileStallInfoDefaultH : 40;
     // --- X 軸邊界 ---
     // minX: 地圖拉到最左側時（右邊緣切齊容器右邊）
-    const minX = containerW - mapW;
+    const minX = containerW - mapW - boundingX;
     // maxX: 地圖拉到最右側時（允許向右推到 sidebarW 的位置）
-    const maxX = sidebarW;
+    const maxX = sidebarW + boundingX;
 
     // --- Y 軸邊界 ---
-    // minY: 地圖拉到最上方時（留出底部手機資訊欄）
-    const minY = containerH - mapH - mobileStallInfoH;
+    // minY: 地圖拉到最上方時（留出底部資訊欄）
+    const minY = containerH - mapH - boundingY;
     // maxY: 地圖拉到最下方時（上邊緣切齊容器頂部）
-    const maxY = 0;
+    const maxY = boundingY;
 
     // 防護：如果地圖縮放後比容器還小，強制自動置中，不讓地圖隨意飄走
     let finalX = x;
     let finalY = y;
 
-    if (mapW < containerW) {
-      finalX = (containerW - mapW) / 2 + sidebarW / 2;
-    } else {
+    if (containerW <= origMapW) {
       finalX = Math.min(Math.max(x, minX), maxX);
+      if (this.isMobile()) {
+        finalY = Math.min(Math.max(y, minY), maxY);
+      } else {
+        if (mapH < containerH) {
+          const max = containerH - mapH;
+          const min = 0;
+          finalY = Math.min(Math.max(y, min), max);
+        } else {
+          finalY = Math.min(Math.max(y, minY), maxY);
+        }
+      }
     }
 
-    if (mapH < containerH) {
-      finalY = (containerH - mapH) / 2 - mobileStallInfoH / 2;
-    } else {
+    if (containerH <= origMapH) {
       finalY = Math.min(Math.max(y, minY), maxY);
+      if (mapW < containerW) {
+        const max = containerW - mapW;
+        const min = 0;
+        finalX = Math.min(Math.max(x, min), max);
+      } else {
+        finalX = Math.min(Math.max(x, minX), maxX);
+      }
     }
+
+    // if (mapW < containerW) {
+    // const max = containerW - mapW;
+    // const min = 0;
+    // finalX = Math.min(Math.max(x, min), max);
+    // } else {
+    //   finalX = Math.min(Math.max(x, minX), maxX);
+    // }
+
+    // if (mapH < containerH) {
+    //   const max = containerH - mapH;
+    //   const min = 0;
+    //   finalX = Math.min(Math.max(x, min), max);
+    // } else {
+    //   finalY = Math.min(Math.max(y, minY), maxY);
+    // }
 
     return { x: finalX, y: finalY };
   }

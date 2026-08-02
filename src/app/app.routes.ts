@@ -11,7 +11,10 @@ export const routes: Routes = [
   },
   {
     path: 'routing',
-    loadComponent: () => import('./pages/routing-test/routing').then((m) => m.Routing),
+    loadComponent: () =>
+      isMobileDevice()
+        ? import('./device/mobile/routing/routing').then((m) => m.Routing)
+        : import('./pages/routing-test/routing').then((m) => m.Routing),
   },
   {
     path: 'grid-helper',

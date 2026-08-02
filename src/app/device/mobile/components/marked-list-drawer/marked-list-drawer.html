@@ -1,12 +1,27 @@
 <app-drawer-on-mobile (onShow)="onShow()">
-  <div title class="flex items-center gap-2">
+  <div title class="flex items-center gap-2 w-full">
     <div class="text-lg">書籤</div>
-    <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
+    @if (!bookmarkRoutingOnly()) {
+      <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
+    }
+    @if (bookmarkRoutingSwitch() && !atRoutingPage()) {
+      <p-button
+        class="ml-auto"
+        icon="pi pi-directions"
+        size="small"
+        pTooltip="前往路徑規劃"
+        [rounded]="true"
+        [text]="true"
+        (onClick)="gotoRouting()"
+      >
+      </p-button>
+    }
   </div>
 
   <div class="flex flex-col gap-2">
-    <app-create-marked-list-btn> </app-create-marked-list-btn>
-
+    @if (isLogin()) {
+      <app-create-marked-list-btn> </app-create-marked-list-btn>
+    }
     <app-bookmark-list> </app-bookmark-list>
   </div>
 </app-drawer-on-mobile>

@@ -1,0 +1,92 @@
+<!-- 滑動刷新 -->
+<div class="flex flex-col flex-grow relative min-h-0">
+  <div
+    class="absolute top-0 left-0 right-0 mx-auto flex flex-col items-center justify-center transition-auto size-[36px] z-1000 rounded rounded-full bg-gray-900 dark:bg-zinc-900"
+    [style.transform]="'translateY(' + Math.min(pullDistance * 0.5, threshold * 0.5) + 'px)'"
+    [style.opacity]="pullDistance / threshold"
+    [ngClass]="{ hidden: pullDistance === 0 }"
+  >
+    <i
+      class="pi pi-refresh text-white dark:text-gray-300 transition-transform"
+      style="line-height: 1; transform-origin: center 55%; transition: transform 0.1s linear"
+      [style.transform]="'rotate(' + Math.min(360, (pullDistance / threshold) * 360) + 'deg)'"
+    ></i>
+  </div>
+</div>
+
+<div class="flex flex-col h-full dark:bg-zinc-900 text-gray-600 dark:text-gray-50">
+  <div class="flex flex-col flex-grow relative min-h-0">
+    <!-- 地圖 -->
+    <app-routing-map class="flex-grow min-h-0"></app-routing-map>
+
+    <!-- User -->
+    <div class="absolute top-2 right-2 flex flex-col items-center justify-center">
+      <button
+        pButton
+        icon="pi pi-user"
+        rounded
+        raised
+        severity="secondary"
+        class="dark:!text-gray-300 bg-white dark:bg-gray-500"
+        (click)="userDrawer.show()"
+      ></button>
+    </div>
+
+    <div class="absolute flex top-full left-1 right-1">
+      @if (expoTitle()) {
+        <div
+          class="stroke-text text-gray-600 font-bold -translate-y-full"
+          [attr.data-stroke]="expoTitle() + ' 書籤地圖'"
+        >
+          {{ expoTitle() }} 書籤地圖
+        </div>
+      }
+      @if (expoUrl()) {
+        <div
+          class="ml-auto flex flex-wrap justify-end items-end text-xs -translate-y-full gap-1 dark:text-gray-600"
+        >
+          <div></div>
+          <!-- 版權宣告 -->
+          <div class="mr-2">
+            © 2025 - {{ currYear }} 阿圖/
+            <!-- 　｜　本作品由原作者 阿圖 非官方製作，現由「」正式授權使用。 -->
+          </div>
+          <div class="">資料來源</div>
+          <button
+            pButton
+            text
+            link
+            size="small"
+            class="pointer-events-auto !p-0 dark:!text-gray-500"
+            (click)="openUrl()"
+          >
+            官網
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div
+    class="flex flex-row mt-auto justify-between h-12 shadow-[0_-1px_5px_rgba(0,0,0,0.1)] z-1"
+    [ngClass]="{ hidden: !isLogin() }"
+  >
+    @if (bookmarkSwitch()) {
+      <button
+        pButton
+        text
+        class="block dark:!text-gray-300"
+        [ngClass]="{
+          hidden: !isLogin(),
+          'w-full': isLogin(),
+        }"
+        (click)="markedListDrawer.show()"
+      >
+        書籤
+      </button>
+    }
+  </div>
+</div>
+
+<app-marked-list-drawer #markedListDrawer></app-marked-list-drawer>
+<app-user-drawer #userDrawer></app-user-drawer>

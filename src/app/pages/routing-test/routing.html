@@ -33,12 +33,7 @@
       </div>
 
       <div class="flex-grow h-full text-gray-600 dark:text-gray-50">
-        <app-base-map (onDragging)="onDragging = $event">
-          <app-routing-layers></app-routing-layers>
-          <app-bookmark-layer></app-bookmark-layer>
-          <app-interactive-routing-layer></app-interactive-routing-layer>
-          <app-interactive-layer [onDragging]="onDragging"></app-interactive-layer>
-        </app-base-map>
+        <app-routing-map></app-routing-map>
       </div>
     </div>
     <div class="absolute z-1 bottom-0 w-full">
