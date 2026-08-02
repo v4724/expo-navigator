@@ -54,7 +54,7 @@ export class RoutingLayerBase {
 
     ctx.globalAlpha = 0.8; // 設定整體透明度
     ctx.strokeStyle = color;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();

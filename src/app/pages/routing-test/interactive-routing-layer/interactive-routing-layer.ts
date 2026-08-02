@@ -126,13 +126,13 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
 
     // 💡 聚焦核心：設定外發光陰影
     ctx.shadowColor = color; // 陰影顏色與主線同色或用純白/黃色高亮
-    ctx.shadowBlur = 12; // 發光擴散範圍 (值越大越模糊擴散)
+    ctx.shadowBlur = 10; // 發光擴散範圍 (值越大越模糊擴散)
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
     ctx.globalAlpha = 1.0; // Focus 時提高透明度讓質感更亮
     ctx.strokeStyle = color;
-    ctx.lineWidth = 6; // 稍微加粗主線條 (原 4 -> 6)
+    ctx.lineWidth = 4; // 稍微加粗主線條 (原 3 -> 4)
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();

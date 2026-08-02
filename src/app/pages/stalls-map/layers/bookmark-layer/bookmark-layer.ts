@@ -130,7 +130,7 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
         x = x + w / 2;
         break;
       case 'bottom':
-        y = y + size * 2;
+        y = y + size * 1.5;
         x = x + w / 2;
         break;
     }

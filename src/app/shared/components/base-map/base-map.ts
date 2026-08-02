@@ -271,8 +271,8 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     const baseMapHeight = this.mapHeight();
 
     // 2. 算式簡化：基於可視範圍寬度與 scale 動態計算標籤大小與字型
-    const baseSize = 22;
-    const baseFontSize = 12;
+    const baseSize = 16;
+    const baseFontSize = 8;
     const currentFontSize = (baseFontSize / 1200) * viewW * scale;
     const currentSize = (baseSize / 1200) * viewW * scale;
     const radius = currentSize / 2; // 半徑：用來將中心點對齊
