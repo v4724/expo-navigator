@@ -74,6 +74,9 @@ export class SearchAndFilterService {
             const isPromoTitleMatch = stall.promoData.some((promo) =>
               promo.promoTitle.toLocaleLowerCase().includes(term),
             );
+            const isCustomSubjectTagMatch = stall.filterSubjectTags.some((data) => {
+              return data.toLocaleLowerCase().includes(term);
+            });
             const isCustomTagMatch = stall.filterCustomTags.some((data) => {
               return data.toLocaleLowerCase().includes(term);
             });
@@ -82,6 +85,7 @@ export class SearchAndFilterService {
               isIdMatch ||
               isTitleMatch ||
               isPromoTitleMatch ||
+              isCustomSubjectTagMatch ||
               isCustomTagMatch ||
               isStallAuthor
             ) {

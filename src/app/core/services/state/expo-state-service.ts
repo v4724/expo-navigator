@@ -50,7 +50,7 @@ export class ExpoStateService {
   downloadMapSwitch$ = this._downloadMapSwitch.asObservable();
   bookmarkSwitch$ = this._bookmarkSwitch.asObservable();
   bookmarkRoutingSwitch$ = this._bookmarkRoutingSwtich.asObservable();
-  bookmarkRoutingOnly$ = this._bookmarkRoutingSwtich.asObservable();
+  bookmarkRoutingOnly$ = this._bookmarkRoutingOnly.asObservable();
   multiSeriesExpo$ = this._multiSeriesExpo.asObservable();
   specifiedSeriesId$ = this._specifiedSeriesId.asObservable();
   areaCSVUrl$ = this._areaCSVUrl.asObservable();

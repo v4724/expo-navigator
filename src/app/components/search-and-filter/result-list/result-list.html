@@ -95,6 +95,14 @@
                       <span class="promo-tag inline-flex"> #{{ tags | tagPipe }} </span>
                     }
                   }
+                  @if (item.filterSubjectTags.length) {
+                    @for (tag of item.filterSubjectTags; track $index) {
+                      @let list = tag.split(',');
+                      @for (text of list; track text) {
+                        <span class="promo-tag inline-flex text-start">#{{ text }}</span>
+                      }
+                    }
+                  }
                   @if (item.filterCustomTags.length) {
                     @for (tag of item.filterCustomTags; track $index) {
                       @let list = tag.split(',');

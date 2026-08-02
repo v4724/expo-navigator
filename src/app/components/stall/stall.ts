@@ -127,6 +127,9 @@ export class Stall implements OnInit, AfterViewInit {
         const hasPromoTitleMatch = this.stall().promoData.some((promo) =>
           promo.promoTitle.toLowerCase().includes(searchTerm),
         );
+        const hasSubjectTagMatch = this.stall().filterSubjectTags.some((tag) =>
+          tag.toLowerCase().includes(searchTerm),
+        );
         const hasTagMatch = this.stall().filterCustomTags.some((tag) =>
           tag.toLowerCase().includes(searchTerm),
         );
@@ -135,6 +138,7 @@ export class Stall implements OnInit, AfterViewInit {
           this.stall().id.toLowerCase().includes(searchTerm) ||
           this.stall().stallTitle.toLowerCase().includes(searchTerm) ||
           hasPromoTitleMatch ||
+          hasSubjectTagMatch ||
           hasTagMatch;
       }
 

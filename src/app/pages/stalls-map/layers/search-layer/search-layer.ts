@@ -87,6 +87,9 @@ export class SearchLayer extends BaseLayer implements OnInit {
       const hasPromoTitleMatch = stall.promoData.some((promo) =>
         promo.promoTitle.toLowerCase().includes(searchTerm),
       );
+      const hasSubjectTagMatch = stall.filterSubjectTags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm),
+      );
       const hasTagMatch = stall.filterCustomTags.some((tag) =>
         tag.toLowerCase().includes(searchTerm),
       );
@@ -96,6 +99,7 @@ export class SearchLayer extends BaseLayer implements OnInit {
         stall.stallTitle.toLowerCase().includes(searchTerm) ||
         stall.stallAuthor.toLowerCase().includes(searchTerm) ||
         hasPromoTitleMatch ||
+        hasSubjectTagMatch ||
         hasTagMatch;
     }
 

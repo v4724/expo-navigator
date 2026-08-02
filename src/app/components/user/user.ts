@@ -55,7 +55,9 @@ export class User implements OnInit {
 
   toggle(e: Event) {
     if (this.isLogin()) {
-      this.userInfoPopover?.toggle(e);
+      if (!this.bookmarkRoutingOnly()) {
+        this.userInfoPopover?.toggle(e);
+      }
     } else {
       this.loginPopover?.toggle(e);
       // 等待 popover DOM 完成顯示後再 focus

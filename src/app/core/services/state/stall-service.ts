@@ -177,6 +177,12 @@ export class StallService {
     });
     stall.filterSeries = Array.from(series);
 
+    const subjectTags = new Set<string>();
+    stall.promoData.forEach((promo) => {
+      !!promo.subjectTags && subjectTags.add(promo.subjectTags);
+    });
+    stall.filterSubjectTags = Array.from(subjectTags);
+
     const customTags = new Set<string>();
     stall.promoData.forEach((promo) => {
       !!promo.customTags && customTags.add(promo.customTags);
@@ -447,6 +453,7 @@ export class StallService {
           hasPromo: !!(promoData || []).length,
           filterSeries: [],
           filterTags: [],
+          filterSubjectTags: [],
           filterCustomTags: [],
           isSearchMatch: false,
           rule: stallDef,

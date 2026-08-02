@@ -32,6 +32,8 @@ export interface StallData extends Omit<StallDto, 'promotion'> {
 
   filterSeries: number[];
 
+  filterSubjectTags: string[];
+
   filterCustomTags: string[];
 
   rule: StallRule;
