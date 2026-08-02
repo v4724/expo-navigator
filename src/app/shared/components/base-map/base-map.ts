@@ -522,7 +522,10 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
 
   onTouchStart(event: TouchEvent) {
     if (event.touches.length === 2) {
-      event.preventDefault(); // 阻止滾動
+      // 💡 當進入雙指模式時，中斷單指拖動，避免畫面抖動
+      this.isDragging = false;
+      this.autoFocusing.set(false);
+
       this.initialDistance = this.getDistance(event.touches);
       this.initialScale = this.scale();
     }
@@ -530,11 +533,24 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
 
   onTouchMove(event: TouchEvent) {
     if (event.touches.length === 2) {
-      event.preventDefault();
+      event.preventDefault(); // 阻止瀏覽器預設 Pinch 頁面放大行為
+
       const currentDistance = this.getDistance(event.touches);
+      if (this.initialDistance <= 0 || currentDistance <= 0) return;
+
+      // 1. 計算目標 Scale
       const scaleChange = currentDistance / this.initialDistance;
-      let newScale = Math.min(Math.max(this.initialScale * scaleChange, 1), this.maxScale());
-      this.scale.set(newScale);
+      const targetScale = this.initialScale * scaleChange;
+
+      // 2. 💡 算雙指中心點 (Viewport 座標)
+      const center = this.getTouchCenter(event.touches);
+
+      // 3. 💡 套用 rAF + _zoomAtPoint 以雙指中心為基準進行縮放與位移
+      if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+      this.rafId = requestAnimationFrame(() => {
+        this._zoomAtPoint(targetScale, center);
+        this.rafId = null;
+      });
     }
   }
 
@@ -544,11 +560,24 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // -----------------------------------------------------------
+  // 🧮 幾何計算輔助 Function
+  // -----------------------------------------------------------
+
   private getDistance(touches: TouchList): number {
     const [touch1, touch2] = [touches[0], touches[1]];
     const dx = touch2.clientX - touch1.clientX;
     const dy = touch2.clientY - touch1.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
+    return Math.hypot(dx, dy); // 等同 Math.sqrt(dx * dx + dy * dy)
+  }
+
+  // 💡 新增：取得雙指中心點
+  private getTouchCenter(touches: TouchList): { x: number; y: number } {
+    const [touch1, touch2] = [touches[0], touches[1]];
+    return {
+      x: (touch1.clientX + touch2.clientX) / 2,
+      y: (touch1.clientY + touch2.clientY) / 2,
+    };
   }
 
   // 「以指定座標為中心縮放」核心邏輯
