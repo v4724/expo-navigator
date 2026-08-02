@@ -73,6 +73,7 @@ export class Home {
   isReadyToRefresh = false; // 是否已經拉到位（放開就會更新）
 
   Math = Math;
+  readonly currYear = new Date().getFullYear();
 
   constructor() {
     addIcons({ person });

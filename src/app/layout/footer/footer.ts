@@ -21,6 +21,7 @@ export class Footer implements OnInit {
   reportUrl = toSignal(this._expoStateService.reportUrl$);
 
   appVersion: string = 'x.x.x';
+  readonly currYear = new Date().getFullYear();
 
   ngOnInit(): void {
     this.appVersion = packageJson.version;

@@ -100,9 +100,9 @@
       @if (expoTitle()) {
         <div
           class="stroke-text text-gray-600 font-bold -translate-y-full"
-          [attr.data-stroke]="expoTitle() + ' 互動地圖'"
+          [attr.data-stroke]="expoTitle() + ' 書籤地圖'"
         >
-          {{ expoTitle() }} 互動地圖
+          {{ expoTitle() }} 書籤地圖
         </div>
       }
       @if (expoUrl()) {
@@ -112,7 +112,7 @@
           <div></div>
           <!-- 版權宣告 -->
           <div class="mr-2">
-            © 2025 阿圖/
+            © 2025 - {{ currYear }} 阿圖/
             <!-- 　｜　本作品由原作者 阿圖 非官方製作，現由「」正式授權使用。 -->
           </div>
           <div class="">資料來源</div>
