@@ -114,17 +114,28 @@
             >
               @for (stall of bookmark.list; track $index) {
                 <div class="flex">
-                  <button
-                    cdkDrag
-                    pButton
-                    class="flex-grow !justify-start dark:text-gray-50!"
-                    (click)="selectAndFocus(stall.id)"
-                    size="small"
-                    text="true"
-                  >
-                    <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
-                    <span class="text-xs">{{ stall.stallTitle }} </span>
-                  </button>
+                  <div cdkDrag class="flex items-center w-full min-w-0">
+                    <div
+                      cdkDragHandle
+                      class="flex items-center justify-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:text-gray-400 touch-none select-none shrink-0"
+                      aria-label="拖曳調整順序"
+                    >
+                      <mat-icon
+                        fontIcon="drag_indicator"
+                        class="flex items-center justify-center !w-5 !h-5 !text-lg !leading-none"
+                      ></mat-icon>
+                    </div>
+                    <button
+                      pButton
+                      class="flex flex-grow !justify-start dark:text-gray-50!"
+                      (click)="selectAndFocus(stall.id)"
+                      size="small"
+                      text="true"
+                    >
+                      <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
+                      <span class="text-xs">{{ stall.stallTitle }} </span>
+                    </button>
+                  </div>
                   @if (bookmarkRoutingSwitch() && atRoutingPage() && $index == 0) {
                     <div class="shrink-0 ml-auto flex items-center">起點</div>
                   }

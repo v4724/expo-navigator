@@ -24,7 +24,13 @@ import { FormsModule } from '@angular/forms';
 import { RoutingStallService } from 'src/app/core/services/state/routing-stall-service';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { Router } from '@angular/router';
-import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CdkDropList,
+  CdkDrag,
+  CdkDragDrop,
+  moveItemInArray,
+  DragDropModule,
+} from '@angular/cdk/drag-drop';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { Tooltip } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
@@ -42,6 +48,7 @@ import { BadgeModule } from 'primeng/badge';
     FormsModule,
     CdkDropList,
     CdkDrag,
+    DragDropModule,
     Tooltip,
     BadgeModule,
   ],
