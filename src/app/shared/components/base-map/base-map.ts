@@ -113,14 +113,6 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     { initialValue: 3 },
   );
 
-  // 1. 追蹤當前活頁中的觸控點 (Pointer ID -> Coordinate)
-  private activePointers = new Map<number, { x: number; y: number }>();
-
-  // 2. 雙指縮放專用的暫存變數
-  private initialPinchDistance = 0;
-  private initialPinchScale = 1;
-  private pinchCenter = { x: 0, y: 0 };
-
   // 組合出單一流暢的 transform 字串 (由 GPU 直接處理)
   isDragging = false;
   private startPointer = { x: 0, y: 0 };
@@ -563,7 +555,6 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   // -----------------------------------------------------------
   // 🧮 幾何計算輔助 Function
   // -----------------------------------------------------------
-
   private getDistance(touches: TouchList): number {
     const [touch1, touch2] = [touches[0], touches[1]];
     const dx = touch2.clientX - touch1.clientX;
@@ -634,133 +625,46 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     this._zoomAtPoint(targetScale, { x: event.clientX, y: event.clientY });
   }
 
-  // 手機 Pinch 縮放呼叫處
-  // （在 onPointerMove 當 activePointers.size === 2 時呼叫）：
-  private _onPinchMove() {
-    const currentDistance = this.getPointersDistance();
-    if (this.initialPinchDistance > 0 && currentDistance > 0) {
-      // 計算滑動當下的目標 Scale
-      const factor = currentDistance / this.initialPinchDistance;
-      const targetScale = this.initialPinchScale * factor;
-
-      // 使用 rAF 呼叫共用縮放邏輯
-      if (this.rafId !== null) cancelAnimationFrame(this.rafId);
-      this.rafId = requestAnimationFrame(() => {
-        // 帶入雙指中心點坐標，無縫套用相同縮放演算法！
-        this._zoomAtPoint(targetScale, this.pinchCenter);
-        this.rafId = null;
-      });
-    }
-  }
-
   onPointerDown(event: PointerEvent) {
     this.autoFocusing.set(false); // 關閉 Transition
 
     // 鎖定指標，即使滑鼠滑出瀏覽器邊界依然能持續捕捉拖曳
     (event.target as HTMLElement).setPointerCapture(event.pointerId);
 
-    // 記錄觸控點
-    this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-
-    // ------------------------------------------
-    // 情境 A：單指 / 滑鼠（執行拖拽平移準備）
-    // ------------------------------------------
-    if (this.activePointers.size === 1) {
-      this.isDragging = true;
-      this.startPointer = { x: event.clientX, y: event.clientY };
-      this.startPan = { ...this.pan() };
-      this.onDragging.emit(true);
-    }
-    // ------------------------------------------
-    // 情境 B：雙指（執行 Pinch 縮放準備）
-    // ------------------------------------------
-    else if (this.activePointers.size === 2) {
-      this.isDragging = false; // 進入雙指模式時，中斷單指拖拽
-      this.initialPinchDistance = this.getPointersDistance();
-      this.initialPinchScale = this.scale(); // 假設你的 scale 也是 Signal
-      this.pinchCenter = this.getPinchCenter();
-    }
+    this.isDragging = true;
+    this.startPointer = { x: event.clientX, y: event.clientY };
+    this.startPan = { ...this.pan() };
+    this.onDragging.emit(true);
   }
 
   onPointerMove(event: PointerEvent) {
     if (!this.isDragging) return;
 
-    // 更新當前觸控點座標
-    this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const dx = event.clientX - this.startPointer.x;
+    const dy = event.clientY - this.startPointer.y;
 
-    // 1. 雙指 Pinch 縮放邏輯
-    // ------------------------------------------
-    if (this.activePointers.size === 2) {
-      // 實時更新雙指中心點（確保 Pinch 過程中手指移動，縮放中心也會跟著動）
-      this.pinchCenter = this.getPinchCenter();
+    const rawX = this.startPan.x + dx;
+    const rawY = this.startPan.y + dy;
 
-      // 👈 在這裡呼叫！
-      this._onPinchMove();
-      return;
-    }
+    // 使用 requestAnimationFrame 來對齊螢幕刷新率（60fps / 120fps）
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
 
-    // 2. 單指 / 滑鼠 平移拖拽邏輯 (你原本的邏輯)
-    // ------------------------------------------
-    if (this.activePointers.size === 1 && this.isDragging) {
-      const dx = event.clientX - this.startPointer.x;
-      const dy = event.clientY - this.startPointer.y;
+    this.rafId = requestAnimationFrame(() => {
+      this._setPosition({ x: rawX, y: rawY });
 
-      const rawX = this.startPan.x + dx;
-      const rawY = this.startPan.y + dy;
-
-      if (this.rafId !== null) cancelAnimationFrame(this.rafId);
-      this.rafId = requestAnimationFrame(() => {
-        this._setPosition({ x: rawX, y: rawY });
-        this.rafId = null;
-      });
-    }
+      this.rafId = null;
+    });
   }
 
   onPointerUp(event: PointerEvent) {
-    // 移除觸控點
-    this.activePointers.delete(event.pointerId);
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    this.onDragging.emit(false);
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
 
     try {
       (event.target as HTMLElement).releasePointerCapture(event.pointerId);
     } catch {}
-
-    // 如果手指少於 2 隻，重置 Pinch 狀態
-    if (this.activePointers.size < 2) {
-      this.initialPinchDistance = 0;
-    }
-
-    // 當所有手指抬起時，結束 Dragging
-    if (this.activePointers.size === 0) {
-      if (this.isDragging) {
-        this.isDragging = false;
-        this.onDragging.emit(false);
-      }
-      if (this.rafId !== null) cancelAnimationFrame(this.rafId);
-    }
-    // 💡 如果從雙指變回單指（有一隻手指抬起），無縫重置單指拖曳基準點
-    else if (this.activePointers.size === 1) {
-      const remainingPointer = Array.from(this.activePointers.values())[0];
-      this.isDragging = true;
-      this.startPointer = { x: remainingPointer.x, y: remainingPointer.y };
-      this.startPan = { ...this.pan() };
-    }
-  }
-
-  // 計算兩點之間的幾何距離
-  private getPointersDistance(): number {
-    const points = Array.from(this.activePointers.values());
-    if (points.length < 2) return 0;
-    return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
-  }
-
-  // 計算雙指中心點 (Viewport 座標)
-  private getPinchCenter(): { x: number; y: number } {
-    const points = Array.from(this.activePointers.values());
-    if (points.length < 2) return { x: 0, y: 0 };
-    return {
-      x: (points[0].x + points[1].x) / 2,
-      y: (points[0].y + points[1].y) / 2,
-    };
   }
 
   private clampPosition(x: number, y: number): { x: number; y: number } {
@@ -827,22 +731,6 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
         finalX = Math.min(Math.max(x, minX), maxX);
       }
     }
-
-    // if (mapW < containerW) {
-    // const max = containerW - mapW;
-    // const min = 0;
-    // finalX = Math.min(Math.max(x, min), max);
-    // } else {
-    //   finalX = Math.min(Math.max(x, minX), maxX);
-    // }
-
-    // if (mapH < containerH) {
-    //   const max = containerH - mapH;
-    //   const min = 0;
-    //   finalX = Math.min(Math.max(x, min), max);
-    // } else {
-    //   finalY = Math.min(Math.max(y, minY), maxY);
-    // }
 
     return { x: finalX, y: finalY };
   }
