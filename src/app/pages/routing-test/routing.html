@@ -1,7 +1,7 @@
 <main>
   <div class="h-screen flex flex-col relative">
     <div class="flex-grow flex h-full">
-      <div class="flex flex-col flex-grow overflow-y-auto h-full gap-2 p-4 max-w-[350px]">
+      <div class="flex flex-col flex-grow h-full gap-2 p-4 max-w-[350px]">
         <div class="flex items-center">
           書籤列表
           <p-button
@@ -17,7 +17,7 @@
         </div>
         <app-create-marked-list-btn> </app-create-marked-list-btn>
 
-        <div>
+        <div class="overflow-y-auto">
           <app-bookmark-list> </app-bookmark-list>
         </div>
       </div>
@@ -26,6 +26,7 @@
         <app-map>
           <app-routing-layers></app-routing-layers>
           <app-bookmark-layer></app-bookmark-layer>
+          <app-interactive-routing-layer></app-interactive-routing-layer>
           <app-interactive-layer></app-interactive-layer>
         </app-map>
       </div>

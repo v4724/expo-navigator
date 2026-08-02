@@ -22,7 +22,7 @@
           </button>
         } @else if (id && markedMapByStallId()?.get(id)?.has(list.id)) {
           <button
-            class="flex items-center text-gray-400 transition hover:scale-110 hover:text-gray-700"
+            class="flex items-center text-gray-400 transition hover:scale-110 hover:text-red-700"
             (click)="removeFromMarkedList(list)"
           >
             <mat-icon
@@ -34,7 +34,7 @@
           </button>
         } @else {
           <button
-            class="flex items-center text-gray-400 transition hover:scale-110 hover:text-gray-600"
+            class="flex items-center text-gray-400 transition hover:scale-110 hover:text-green-600"
             (click)="addToMarkedList(list)"
           >
             <mat-icon inline aria-hidden="false" aria-label="add icon" fontIcon="add"></mat-icon>

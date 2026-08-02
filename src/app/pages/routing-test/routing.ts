@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
 import { Map } from 'src/app/shared/components/map/map';
 import { InteractiveLayer } from './interactive-layer/interactive-layer';
+import { InteractiveRoutingLayer } from './interactive-routing-layer/interactive-routing-layer';
 
 @Component({
   selector: 'app-routing',
@@ -24,6 +25,7 @@ import { InteractiveLayer } from './interactive-layer/interactive-layer';
     RouterModule,
     Map,
     InteractiveLayer,
+    InteractiveRoutingLayer,
   ],
   templateUrl: './routing.html',
   styleUrl: './routing.scss',

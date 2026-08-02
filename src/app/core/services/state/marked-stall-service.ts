@@ -26,7 +26,8 @@ export class MarkedStallService {
   // 快速查詢用 攤位有沒有被加在清單上 <stallId, Set<listId>>
   private _markedMapByStallId = new BehaviorSubject<Map<string, Set<number>>>(new Map());
 
-  private _toggleList = new Subject<MarkedList>();
+  private _focusList = new BehaviorSubject<MarkedList | undefined>(undefined);
+  private _toggleListShown = new Subject<MarkedList>();
 
   updated$ = this._updated.asObservable();
 
@@ -35,7 +36,8 @@ export class MarkedStallService {
   markedMapByStallId$ = this._markedMapByStallId.asObservable();
 
   layerShown$ = this._show.asObservable();
-  toggleList$ = this._toggleList.asObservable();
+  toggleList$ = this._toggleListShown.asObservable();
+  focusList$ = this._focusList.asObservable();
 
   private _stallService = inject(StallService);
 
@@ -64,6 +66,10 @@ export class MarkedStallService {
     this._markedList.next(data);
   }
 
+  set focusList(data: MarkedList | undefined) {
+    this._focusList.next(data);
+  }
+
   isMarked(stallId: string): boolean {
     const size = this._markedMapByStallId.getValue().get(stallId)?.size;
     if (size) {
@@ -80,8 +86,8 @@ export class MarkedStallService {
     this._show.next(!this._show.getValue());
   }
 
-  toggleList(list: MarkedList) {
-    this._toggleList.next(list);
+  toggleListShown(list: MarkedList) {
+    this._toggleListShown.next(list);
   }
 
   add(data: MarkedListDto) {

@@ -7,7 +7,12 @@ import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { UserService } from 'src/app/core/services/state/user-service';
-import { Accordion, AccordionModule } from 'primeng/accordion';
+import {
+  Accordion,
+  AccordionModule,
+  AccordionTabCloseEvent,
+  AccordionTabOpenEvent,
+} from 'primeng/accordion';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +26,7 @@ import { ExpoStateService } from 'src/app/core/services/state/expo-state-service
 import { Router } from '@angular/router';
 import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-bookmark-list',
@@ -35,6 +41,7 @@ import { StallData } from 'src/app/core/interfaces/stall.interface';
     FormsModule,
     CdkDropList,
     CdkDrag,
+    Tooltip,
   ],
   templateUrl: './bookmark-list.html',
   styleUrl: './bookmark-list.scss',
@@ -76,7 +83,7 @@ export class BookmarkList implements OnInit {
   }
 
   toggleList(bookmark: MarkedList) {
-    this._markedListService.toggleList(bookmark);
+    this._markedListService.toggleListShown(bookmark);
   }
 
   deleteList(e: Event, list: MarkedList) {
@@ -133,6 +140,14 @@ export class BookmarkList implements OnInit {
   // 為了 drawer 開/關 後寬度問題，重畫元件
   setAccordionShow(val: boolean) {
     this.accordionShow.set(val);
+  }
+
+  onTabOpen(e: AccordionTabOpenEvent) {
+    this._markedListService.focusList = this.allList()[e.index];
+  }
+
+  onTabClose(e: AccordionTabCloseEvent) {
+    this._markedListService.focusList = undefined;
   }
 
   togglePath(item: MarkedList, e: Event) {

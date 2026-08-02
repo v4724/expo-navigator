@@ -86,7 +86,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
       y -= dh / 2;
       w *= scale;
       h *= scale;
-      ctx.font = '14px Arial';
+      ctx.font = '24px Arial';
       if (s?.id === hs.id) {
         this.drawSelectedStall(hs, ctx, x, y, w, h);
       } else {

@@ -1,0 +1,43 @@
+<!-- 攤位繪製層 -->
+<canvas #stallCanvas class="absolute top-0 left-0 w-full h-full pointer-events-none"> </canvas>
+
+@let hs = hoveredStall();
+@if (hs) {
+  <div
+    #hoveredStallRef
+    class="absolute bg-transparent pointer-events-none"
+    [style.top]="`${hs.coords.top}%`"
+    [style.left]="`${hs.coords.left}%`"
+    [style.width]="`${hs.coords.width}%`"
+    [style.height]="`${hs.coords.height}%`"
+    #tooltip
+    [pTooltip]="`${hs.id} ${hs.stallTitle}`"
+    [tooltipDisabled]="!hoveredStall()"
+    tooltipPosition="top"
+    appendTo="body"
+  ></div>
+}
+@let cs = clickedStall();
+<div
+  #opTarget
+  class="absolute bg-transparent pointer-events-none"
+  [style.top]="`${cs?.coords?.top}%`"
+  [style.left]="`${cs?.coords?.left}%`"
+  [style.width]="`${cs?.coords?.width}%`"
+  [style.height]="`${cs?.coords?.height}%`"
+></div>
+<app-stall-bookmark-popover [stall]="cs" [dismissable]="false">
+  <div class="flex flex-col py-2">
+    <div class="flex gap-1">
+      <div class="font-semibold">{{ cs?.id }}</div>
+      <div class="flex-inline">{{ cs?.stallTitle }}</div>
+    </div>
+  </div>
+</app-stall-bookmark-popover>
+
+<!-- 互動感應層 (透明的，用來偵測滑鼠) -->
+<div
+  class="absolute top-0 left-0 w-full h-full"
+  (mousemove)="onMouseMove($event)"
+  (click)="onMapClick($event)"
+></div>
