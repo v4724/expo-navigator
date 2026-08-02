@@ -23,6 +23,8 @@ import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { StallFilterInput } from 'src/app/shared/components/stall-filter-input/stall-filter-input';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export interface DialogData {
   isEdit: boolean;
@@ -60,8 +62,10 @@ export class CreateUserModal implements OnInit {
   private readonly _userService = inject(UserService);
   private readonly _userApiService = inject(UserApiService);
   private readonly _ref = inject(DynamicDialogRef);
+  private readonly _expoStateService = inject(ExpoStateService);
 
   isSubmitting = signal<boolean>(false);
+  bookmarkRoutingOnly = toSignal(this._expoStateService.bookmarkRoutingOnly$);
 
   userForm: FormGroup;
   filteredStallIds: string[] = [];

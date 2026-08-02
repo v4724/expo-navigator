@@ -58,6 +58,11 @@ export class MarkedStallService {
     this._fetchEnd.next(true);
   }
 
+  afterLogout() {
+    this._fetchEnd.next(false);
+    this._processMarkedList([]);
+  }
+
   get allList(): MarkedList[] {
     return this._markedList.getValue();
   }
@@ -80,6 +85,7 @@ export class MarkedStallService {
 
   resetLayerStatus() {
     this._show.next(this.defaultLayerShown);
+    this.afterLogout();
   }
 
   toggleLayer() {

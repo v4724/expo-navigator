@@ -12,6 +12,8 @@ import { CreateUserModal } from './create-user-modal/create-user-modal';
 import { UserInfoPopover } from 'src/app/shared/components/user/user-info-popover/user-info-popover';
 import { DialogService } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
+import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 
 @Component({
   selector: 'app-user',
@@ -36,9 +38,11 @@ export class User implements OnInit {
   private _userService = inject(UserService);
   private _dialogService = inject(DialogService);
   private readonly _messageService = inject(MessageService);
+  private readonly _expoStateService = inject(ExpoStateService);
 
   isLogin = toSignal(this._userService.isLogin$);
   user = toSignal(this._userService.user$);
+  bookmarkRoutingOnly = toSignal(this._expoStateService.bookmarkRoutingOnly$);
 
   acc: string = '';
 
@@ -87,7 +91,8 @@ export class User implements OnInit {
       });
   }
 
-  logout() {
+  logout(e: Event) {
+    e?.stopPropagation();
     this._userService.logout();
     this.userInfoPopover?.hide();
   }

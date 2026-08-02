@@ -632,9 +632,12 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     const mapH = content.offsetHeight * s;
 
     // 取得 UI 邊界偏移量
-    const sidebarW = !this._uiStateService.isMobile() && !!this._leftSidebarService.curr ? 310 : 0;
+    const sidebarW =
+      !this._uiStateService.isMobile() && !!this._leftSidebarService.curr && !this.atRoutingPage
+        ? 310
+        : 0;
     const mobileStallInfoH =
-      this._uiStateService.isMobile() && this._selectStallService.selected && !this.atRoutingPage
+      this._uiStateService.isMobile() && this._selectStallService.selected
         ? this.mobileStallInfoDefaultH
         : 0;
 

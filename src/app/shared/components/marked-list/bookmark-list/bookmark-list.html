@@ -1,4 +1,4 @@
-@if (!fetchEnd()) {
+@if (user() && !fetchEnd()) {
   <div class="w-full h-full flex items-center justify-center">
     <mat-icon
       class="animate-spin"

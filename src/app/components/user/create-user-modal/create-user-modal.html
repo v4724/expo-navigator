@@ -15,15 +15,18 @@
           <label for="acc">使用者帳號</label>
         </p-floatlabel>
       </div>
-      <div class="flex gap-1 w-full">
-        <p-checkbox
-          #isStallOwnerRef
-          formControlName="isStallOwner"
-          [binary]="true"
-          inputId="isStallOwner"
-        />
-        <label for="isStallOwner"> 是否有擺攤 </label>
-      </div>
+
+      @if (!bookmarkRoutingOnly()) {
+        <div class="flex gap-1 w-full">
+          <p-checkbox
+            #isStallOwnerRef
+            formControlName="isStallOwner"
+            [binary]="true"
+            inputId="isStallOwner"
+          />
+          <label for="isStallOwner"> 是否有擺攤 </label>
+        </div>
+      }
 
       <!-- 設定攤位代號 -->
       <div

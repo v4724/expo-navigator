@@ -22,6 +22,7 @@ export class ExpoStateService {
   private _downloadMapSwitch = new BehaviorSubject<boolean>(false);
   private _bookmarkSwitch = new BehaviorSubject<boolean>(false);
   private _bookmarkRoutingSwtich = new BehaviorSubject<boolean>(false);
+  private _bookmarkRoutingOnly = new BehaviorSubject<boolean>(false);
   private _multiSeriesExpo = new BehaviorSubject<boolean>(false);
   private _specifiedSeriesId = new BehaviorSubject<number>(-1);
   private _areaCSVUrl = new BehaviorSubject<string>('');
@@ -49,6 +50,7 @@ export class ExpoStateService {
   downloadMapSwitch$ = this._downloadMapSwitch.asObservable();
   bookmarkSwitch$ = this._bookmarkSwitch.asObservable();
   bookmarkRoutingSwitch$ = this._bookmarkRoutingSwtich.asObservable();
+  bookmarkRoutingOnly$ = this._bookmarkRoutingSwtich.asObservable();
   multiSeriesExpo$ = this._multiSeriesExpo.asObservable();
   specifiedSeriesId$ = this._specifiedSeriesId.asObservable();
   areaCSVUrl$ = this._areaCSVUrl.asObservable();
@@ -125,6 +127,9 @@ export class ExpoStateService {
             break;
           case 'BOOKMARK_ROUTING_SWITCH':
             this._bookmarkRoutingSwtich.next(value.toLowerCase() === 'false' ? false : true);
+            break;
+          case 'BOOKMARK_ROUTING_ONLY':
+            this._bookmarkRoutingOnly.next(value.toLowerCase() === 'false' ? false : true);
             break;
           case 'MULTI_SERIES_EXPO':
             this._multiSeriesExpo.next(value.toLowerCase() === 'false' ? false : true);
