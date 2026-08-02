@@ -64,7 +64,13 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
       .subscribe();
 
     // 自動規畫路徑
-    this._routingStallService.autoRoutingItem$.pipe(tap((item) => this.redraw(item))).subscribe();
+    this._routingStallService.autoRoutingItem$
+      .pipe(
+        tap((item) => {
+          this.redraw(item, true);
+        }),
+      )
+      .subscribe();
 
     // 手動調整路徑
     this._routingStallService.reRoutingItem$.pipe(tap((item) => this.redraw(item))).subscribe();
@@ -73,10 +79,15 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
     this._markedStallService.focusList$.pipe(tap((item) => this.redraw(item))).subscribe();
   }
 
-  redraw(item: MarkedList | undefined | null) {
+  redraw(item: MarkedList | undefined | null, byAuto?: boolean) {
     this.reset();
     if (item && item.showPath && item.id == this.focusList()?.id) {
-      const path = this.routeByOrder(item.list);
+      let path;
+      if (byAuto) {
+        path = this.autoRouting(item);
+      } else {
+        path = this.routeByOrder(item.list);
+      }
       this.drawFocusPath(item, path);
     }
   }
@@ -176,57 +187,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
     }
   }
 
-  onMapClick(event: MouseEvent) {
-    const mappingStall = this.hoveredStall();
-    this.clickedStall.set(mappingStall);
-    this.cdr.detectChanges();
+  onMapClick(event: MouseEvent) {}
 
-    const op = this.bookmarkPopover?.op;
-
-    if (mappingStall) {
-      requestAnimationFrame(() => {
-        if (op.overlayVisible) {
-          op.align();
-        } else {
-          op.show(null, this.opTarget.nativeElement);
-        }
-      });
-    } else {
-      op.hide();
-    }
-  }
-
-  // 偵測滑鼠指到哪個攤位
-  onMouseMove(event: MouseEvent) {
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
-    const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
-
-    // 2000 個資料搜尋大約只需 1-2ms，遠快於 DOM 渲染
-    const hoveredStall = this.stalls().find((s) => {
-      return (
-        mouseX >= s.coords.left &&
-        mouseX <= s.coords.left + s.coords.width &&
-        mouseY >= s.coords.top &&
-        mouseY <= s.coords.top + s.coords.height
-      );
-    });
-    const last = this.hoveredStall();
-    this.hoveredStall.set(hoveredStall);
-
-    if (hoveredStall) {
-      if (hoveredStall.id != last?.id) {
-        this.cdr.detectChanges();
-        // 傳入當前的 MouseEvent 讓 Tooltip 知道滑鼠游標座標
-        requestAnimationFrame(() => {
-          this.tooltip?.show();
-        });
-      }
-    } else {
-      this.tooltip?.hide();
-    }
-    // this.updateHoverdStallInfo(this._hoveredStallRef);
-
-    // this.drawStall();
-  }
+  onMouseMove(event: MouseEvent) {}
 }

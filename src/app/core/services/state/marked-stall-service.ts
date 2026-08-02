@@ -179,6 +179,7 @@ export class MarkedStallService {
       list,
       show: true,
       isUpdating: false,
+      isDeleting: false,
       showPath: true,
     };
   }

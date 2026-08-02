@@ -30,6 +30,9 @@ export class RoutingStallService {
   autoRoutingItem$ = this._autoRoutingItem.asObservable();
   reRoutingItem$ = this._reRoutingItem.asObservable();
 
+  private _unstoreItemIds = new Set<number>();
+  unstoreItemsWithOrigOrder = new Map<number, StallData[]>();
+
   user = toSignal(this._userService.user$);
 
   // 路徑規劃
@@ -63,6 +66,19 @@ export class RoutingStallService {
         }),
       )
       .subscribe();
+
+    this._markedListService.updated$
+      .pipe(
+        tap((id) => {
+          this.removeUnstoreCache(id);
+        }),
+      )
+      .subscribe();
+  }
+
+  unstoredCache(id: number) {
+    const find = this.unstoreItemsWithOrigOrder.get(id);
+    return find;
   }
 
   autoRouting(item: MarkedList) {
@@ -73,45 +89,47 @@ export class RoutingStallService {
     this._togglePath.next(item);
   }
 
-  // 以新順序重新串接路徑 (同時 API 更新順序)
+  // 以新順序重新串接路徑 (紀錄舊順序)
   updateOrderByManual(item: MarkedList, newOrder: StallData[]) {
+    this.addUnstoreCache(item);
+
     item.list = newOrder;
-    item.isUpdating = true;
-
     this._reRoutingItem.next(item);
-
-    const dto = this._markedListApiService.transformToDto(item);
-    this._markedListApiService
-      .update(item.id, this.user()?.acc!, dto)
-      .pipe(
-        finalize(() => {
-          item.isUpdating = false;
-        }),
-      )
-      .subscribe((res) => {
-        if (res.success) {
-          this._markedListService.update(dto);
-        }
-      });
   }
 
-  // 已重新規畫路徑 (一併 API 更新順序)
+  // 已重新規畫路徑 (紀錄舊順序)
   updateOrderAfterAuto(item: MarkedList, newOrder: StallData[]) {
-    item.list = newOrder;
-    item.isUpdating = true;
+    this.addUnstoreCache(item);
 
-    const dto = this._markedListApiService.transformToDto(item);
-    this._markedListApiService
-      .update(item.id, this.user()?.acc!, dto)
-      .pipe(
-        finalize(() => {
-          item.isUpdating = false;
-        }),
-      )
-      .subscribe((res) => {
-        if (res.success) {
-          this._markedListService.update(dto);
-        }
-      });
+    item.list = newOrder;
+  }
+
+  restoreByCache(item: MarkedList) {
+    const idSet = this._unstoreItemIds;
+    const id = item.id;
+    if (idSet.has(id)) {
+      idSet.delete(id);
+      const origOrder = this.unstoreItemsWithOrigOrder.get(id);
+      item.list = origOrder ?? [];
+      this._reRoutingItem.next(item);
+      this.unstoreItemsWithOrigOrder.delete(id);
+    }
+  }
+
+  private removeUnstoreCache(id: number) {
+    const idSet = this._unstoreItemIds;
+    if (idSet.has(id)) {
+      idSet.delete(id);
+      this.unstoreItemsWithOrigOrder.delete(id);
+    }
+  }
+
+  private addUnstoreCache(item: MarkedList) {
+    const idSet = this._unstoreItemIds;
+    const id = item.id;
+    if (!idSet.has(id)) {
+      idSet.add(id);
+      this.unstoreItemsWithOrigOrder.set(id, Array.from(item.list ?? []));
+    }
   }
 }

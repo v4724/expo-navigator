@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { EditBtn } from 'src/app/components/edit-marked-list/edit-btn/edit-btn';
@@ -27,6 +27,7 @@ import { Router } from '@angular/router';
 import { CdkDropList, CdkDrag, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { Tooltip } from 'primeng/tooltip';
+import { BadgeModule } from 'primeng/badge';
 
 @Component({
   selector: 'app-bookmark-list',
@@ -42,6 +43,7 @@ import { Tooltip } from 'primeng/tooltip';
     CdkDropList,
     CdkDrag,
     Tooltip,
+    BadgeModule,
   ],
   templateUrl: './bookmark-list.html',
   styleUrl: './bookmark-list.scss',
@@ -58,6 +60,8 @@ export class BookmarkList implements OnInit {
   private _confirmService = inject(ConfirmationService);
   private _routingStallService = inject(RoutingStallService);
   private _expoStateService = inject(ExpoStateService);
+  private cdr = inject(ChangeDetectorRef);
+
   private readonly _messageService = inject(MessageService);
 
   user = toSignal(this._userService.user$);
@@ -104,12 +108,12 @@ export class BookmarkList implements OnInit {
         text: true,
       },
       accept: () => {
-        list.isUpdating = true;
+        list.isDeleting = true;
         this._markedListApiService
           .delete(list.id, this.user()?.acc!)
           .pipe(
             finalize(() => {
-              list.isUpdating = false;
+              list.isDeleting = false;
             }),
           )
           .subscribe((res) => {
@@ -120,7 +124,7 @@ export class BookmarkList implements OnInit {
               });
               this._markedListService.delete(list.id);
             } else {
-              list.isUpdating = false;
+              list.isDeleting = false;
               this._messageService.add({
                 severity: 'custom',
                 summary: `刪除失敗 ${res.errors[0]}`,
@@ -169,5 +173,37 @@ export class BookmarkList implements OnInit {
     moveItemInArray(cat, event.previousIndex, event.currentIndex);
 
     this._routingStallService.updateOrderByManual(bookmark, cat);
+  }
+
+  isUnstored(bookmark: MarkedList) {
+    const origOrder = this._routingStallService.unstoredCache(bookmark.id);
+    return !!origOrder;
+  }
+
+  saveUnstore(e: Event, bookmark: MarkedList) {
+    e.stopPropagation();
+
+    if (bookmark.isUpdating) {
+      return;
+    }
+
+    const dto = this._markedListApiService.transformToDto(bookmark);
+
+    bookmark.isUpdating = true;
+    this._markedListApiService
+      .update(bookmark.id, this.user()?.acc!, dto)
+      .pipe(
+        finalize(() => {
+          bookmark.isUpdating = false;
+        }),
+      )
+      .subscribe((res) => {
+        if (res.success) {
+          this._markedListService.update(dto);
+          requestAnimationFrame(() => {
+            this.cdr.detectChanges();
+          });
+        }
+      });
   }
 }
