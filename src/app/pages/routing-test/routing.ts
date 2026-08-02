@@ -9,7 +9,7 @@ import { BookmarkList } from 'src/app/shared/components/marked-list/bookmark-lis
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
-import { Map } from 'src/app/shared/components/map/map';
+import { BaseMap } from 'src/app/shared/components/base-map/base-map';
 import { InteractiveLayer } from './interactive-layer/interactive-layer';
 import { InteractiveRoutingLayer } from './interactive-routing-layer/interactive-routing-layer';
 
@@ -23,7 +23,7 @@ import { InteractiveRoutingLayer } from './interactive-routing-layer/interactive
     ButtonModule,
     TooltipModule,
     RouterModule,
-    Map,
+    BaseMap,
     InteractiveLayer,
     InteractiveRoutingLayer,
   ],

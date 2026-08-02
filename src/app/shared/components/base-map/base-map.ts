@@ -41,12 +41,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-map',
+  selector: 'app-base-map',
   imports: [CommonModule, MatIcon, TooltipModule],
-  templateUrl: './map.html',
-  styleUrl: './map.scss',
+  templateUrl: './base-map.html',
+  styleUrl: './base-map.scss',
 })
-export class Map implements OnInit, AfterViewInit, OnDestroy {
+export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapImage') mapImage!: ElementRef<HTMLImageElement>;
   @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('mapContent') mapContent!: ElementRef<HTMLDivElement>;

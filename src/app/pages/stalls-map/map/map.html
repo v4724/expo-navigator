@@ -1,125 +1,58 @@
-<div
-  #mapViewport
-  class="h-full flex items-center justify-center overflow-hidden bg-transparent relative"
->
-  <!-- 背景圖 -->
-  <div
-    class="absolute top-0 left-0 h-full w-full opacity-10 bg-center bg-repeat bg-size-[auto_150px] bg-[url(assets/images/icon-coomic4.png)]"
-  ></div>
+<app-base-map>
+  <!-- 攤位樣式和互動 -->
+  <app-stalls-canvas></app-stalls-canvas>
+  <app-wishlist-layer></app-wishlist-layer>
+  <app-search-layer></app-search-layer>
+  <app-interactive-layer></app-interactive-layer>
+  <app-bookmark-layer></app-bookmark-layer>
 
-  @if (isInitialLoading() || !mapImgLoaded()) {
-    <div
-      class="absolute top-0 left-0 z-1 size-full flex items-center justify-center bg-gray-200/50"
-    >
-      <mat-icon
-        class="animate-spin dark:!text-gray-600"
-        aria-hidden="false"
-        aria-label="auto renew"
-        fontIcon="autorenew"
-      ></mat-icon>
-    </div>
-  } @else if (isInitialError()) {}
+  <!-- group 攤位 -->
+  <!-- <div class="">
+    @for (zone of stallZoneDef(); track $index) {
+      <app-stall-group-area [zone]="zone"></app-stall-group-area>
+    }
+  </div> -->
 
-  <!-- 地圖 container  -->
-  <div
-    id="download-map-container"
-    #mapContainer
-    class="relative h-full w-full overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing"
-    (pointerdown)="onPointerDown($event)"
-    (pointermove)="onPointerMove($event)"
-    (pointerup)="onPointerUp($event)"
-    (pointercancel)="onPointerUp($event)"
-    (wheel)="onWheel($event)"
-  >
-    <!-- 地圖 content   -->
-    <div
-      #mapContent
-      class="absolute left-0 top-0 style-gpu-accelerated"
-      style="transform-origin: 0px 0px"
-    >
-      <!-- 攤位底圖 -->
-      @if (mapImgSrc()) {
-        <img
-          #mapImage
-          class="w-full h-full object-contain pointer-events-none"
-          [src]="mapImgSrc()"
-          alt="Background Map"
-          (load)="onMapImageLoad($event)"
-          (error)="onMapImageError()"
-        />
-      }
-
-      <!-- 攤位樣式和互動 -->
-      <div class="">
-        <app-stalls-canvas></app-stalls-canvas>
-        <app-wishlist-layer></app-wishlist-layer>
-        <app-search-layer></app-search-layer>
-        <app-interactive-layer></app-interactive-layer>
-        <app-bookmark-layer></app-bookmark-layer>
-      </div>
-
-      <!-- group 攤位 -->
-      <div class="">
-        @for (zone of stallZoneDef(); track $index) {
-          <app-stall-group-area [zone]="zone"></app-stall-group-area>
-        }
-      </div>
-
-      <!-- 場內 only 區 -->
-      <div class="pointer-events-none">
-        @if (showAreas()) {
-          @for (area of selectedAreas(); track $index) {
-            <div
-              class="absolute top-0 left-0 w-full h-full pointer-events-none"
-              [ngClass]="{ 'hover:cursor-pointer': area.link }"
-              (click)="openUrl(area.link)"
-            >
-              <svg [attr.viewBox]="`0 0 ${mapWidth()} ${mapHeight()}`" class="pointer-events-none">
-                <!-- 動態繪製攤位的多邊形 -->
-                <polygon
-                  [attr.points]="area.polygonPoints"
-                  [attr.fill]="area.fillColor"
-                  [attr.opacity]="0.5"
-                  [attr.stroke]="'gray'"
-                  stroke-width="1"
-                />
-                <!-- 文字顯示在 polygon 中心 -->
-                <text
-                  [attr.fill]="area.textColor"
-                  [attr.x]="area.textPointX"
-                  [attr.y]="area.textPointY"
-                  text-anchor="middle"
-                  alignment-baseline="middle"
-                  font-size="8"
-                  style="pointer-events: none"
-                  [style.writingMode]="area.textLayout === 'VERTICAL' ? 'vertical-rl' : ''"
-                >
-                  {{ area.name }}
-                </text>
-              </svg>
-            </div>
-          }
-        }
-      </div>
-
-      <!-- <div class="">
-        <div class="absolute" [style.top.%]="50" [style.left.%]="80">A</div>
-        <div class="absolute" [style.top.%]="50" [style.left.%]="75">B</div>
-        <div class="absolute" [style.top.%]="50" [style.left.%]="70">C</div>
-      </div> -->
-    </div>
-
-    <!-- Sticky 區域標籤層（與地圖內容同級，不隨地圖 transform） -->
-    <div class="absolute inset-0 pointer-events-none">
-      @for (zone of anchorZones(); track zone) {
+  <!-- 場內 only 區 -->
+  <!-- <div class="pointer-events-none">
+    @if (showAreas()) {
+      @for (area of selectedAreas(); track $index) {
         <div
-          #zoneLabel
-          class="absolute zone-sticky-label style-gpu-accelerated"
-          [attr.data-zone]="zone.zoneId"
+          class="absolute top-0 left-0 w-full h-full pointer-events-none"
+          [ngClass]="{ 'hover:cursor-pointer': area.link }"
+          (click)="openUrl(area.link)"
         >
-          {{ zone.zoneId }}
+          <svg [attr.viewBox]="`0 0 ${mapWidth()} ${mapHeight()}`" class="pointer-events-none"> -->
+  <!-- 動態繪製攤位的多邊形 -->
+  <!-- <polygon
+              [attr.points]="area.polygonPoints"
+              [attr.fill]="area.fillColor"
+              [attr.opacity]="0.5"
+              [attr.stroke]="'gray'"
+              stroke-width="1"
+            /> -->
+  <!-- 文字顯示在 polygon 中心 -->
+  <!-- <text
+              [attr.fill]="area.textColor"
+              [attr.x]="area.textPointX"
+              [attr.y]="area.textPointY"
+              text-anchor="middle"
+              alignment-baseline="middle"
+              font-size="8"
+              style="pointer-events: none"
+              [style.writingMode]="area.textLayout === 'VERTICAL' ? 'vertical-rl' : ''"
+            >
+              {{ area.name }}
+            </text>
+          </svg>
         </div>
       }
-    </div>
-  </div>
-</div>
+    }
+  </div> -->
+
+  <!-- <div class="">
+    <div class="absolute" [style.top.%]="50" [style.left.%]="80">A</div>
+    <div class="absolute" [style.top.%]="50" [style.left.%]="75">B</div>
+    <div class="absolute" [style.top.%]="50" [style.left.%]="70">C</div>
+  </div> -->
+</app-base-map>
