@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, finalize, map, take, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, finalize, map, Subject, take, tap } from 'rxjs';
 import { StallService } from './stall-service';
 import { MarkedList } from '../../interfaces/marked-stall.interface';
 import { StallData } from '../../interfaces/stall.interface';
@@ -14,10 +14,9 @@ import { UserService } from './user-service';
   providedIn: 'root',
 })
 export class RoutingStallService {
-  private _routingStalls = new BehaviorSubject<StallData[]>([]);
-  private _togglePath = new BehaviorSubject<MarkedList | null>(null);
-  private _autoRoutingItem = new BehaviorSubject<MarkedList | null>(null);
-  private _reRoutingItem = new BehaviorSubject<MarkedList | null>(null);
+  private _togglePath = new Subject<MarkedList>();
+  private _autoRoutingItem = new Subject<MarkedList>();
+  private _reRoutingItem = new Subject<MarkedList>();
 
   private _stallService = inject(StallService);
   private _stallMapService = inject(StallMapService);
@@ -25,7 +24,6 @@ export class RoutingStallService {
   private _markedListService = inject(MarkedStallService);
   private _userService = inject(UserService);
 
-  routingStalls$ = this._routingStalls.asObservable();
   togglePath$ = this._togglePath.asObservable();
   autoRoutingItem$ = this._autoRoutingItem.asObservable();
   reRoutingItem$ = this._reRoutingItem.asObservable();
@@ -74,6 +72,13 @@ export class RoutingStallService {
         }),
       )
       .subscribe();
+
+    this._userService.isLogin$.subscribe((val) => {
+      if (!val) {
+        this._unstoreItemIds = new Set();
+        this.unstoreItemsWithOrigOrder = new Map();
+      }
+    });
   }
 
   unstoredCache(id: number) {

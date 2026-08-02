@@ -199,11 +199,11 @@ export class StallService {
     zoneDefRawData.forEach((group) => {
       const zoneId = group['zone_id'];
       const zoneSort = Number(group['zone_sort']);
-      const isGrouped = Boolean(group['is_grouped']);
+      const isGrouped = group['is_grouped'].toLowerCase() === 'true';
       const defaultGroupStallId = group['default_group_stall_id'];
       const skipStart = Number(group['skip_start']);
       const skipEnd = Number(group['skip_end']);
-      const showAnchor = Boolean(group['show_sign']);
+      const showAnchor = group['show_sign'].toLowerCase() === 'true';
       const signLeft = Number(group['sign_left']);
       const signTop = Number(group['sign_top']);
       const top = Number(group['bounding_box_top']);

@@ -18,6 +18,7 @@ import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { Path, PathNode } from '../core/util';
 import { RoutingLayerBase } from '../core/routing-layer-base';
 import { StallService } from 'src/app/core/services/state/stall-service';
+import { UserService } from 'src/app/core/services/state/user-service';
 
 @Component({
   selector: 'app-interactive-routing-layer',
@@ -33,6 +34,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
 
   private cdr = inject(ChangeDetectorRef);
   private _stallService = inject(StallService);
+  private _userService = inject(UserService);
 
   focusList = toSignal(this._markedStallService.focusList$);
 
@@ -48,6 +50,12 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
   }
 
   ngOnInit() {
+    this._userService.isLogin$.subscribe((val) => {
+      if (!val) {
+        this.reset();
+      }
+    });
+
     // 該書籤:攤位數量有調整、起點有更改、開啟/關閉顯示路徑、
     this._routingStallService.togglePath$.pipe(tap((item) => this.redraw(item))).subscribe();
 
