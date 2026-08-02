@@ -9,6 +9,7 @@ import {
   inject,
   OnDestroy,
   OnInit,
+  output,
   signal,
   ViewChild,
   viewChildren,
@@ -51,6 +52,8 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('mapContent') mapContent!: ElementRef<HTMLDivElement>;
   zoneElements = viewChildren<ElementRef<HTMLDivElement>>('zoneLabel');
+
+  onDragging = output<boolean>();
 
   private _stallMapService = inject(StallMapService);
   private _uiStateService = inject(UiStateService);
@@ -587,6 +590,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     this.isDragging = true;
     this.startPointer = { x: event.clientX, y: event.clientY };
     this.startPan = { ...this.pan() };
+    this.onDragging.emit(true);
   }
 
   onPointerMove(event: PointerEvent) {
@@ -611,6 +615,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   onPointerUp(event: PointerEvent) {
     if (!this.isDragging) return;
     this.isDragging = false;
+    this.onDragging.emit(false);
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
 
     try {

@@ -43,4 +43,7 @@ export class Routing {
   isLogin = toSignal(this._userService.isLogin$);
   expoTitle = toSignal(this._expoStateService.expoTitle$);
   mapImgSrc = toSignal(this._expoStateService.mapImageUrl$);
+  bookmarkRoutingOnly = toSignal(this._expoStateService.bookmarkRoutingOnly$);
+
+  onDragging = false;
 }

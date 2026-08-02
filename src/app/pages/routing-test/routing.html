@@ -8,16 +8,18 @@
         </div>
         <div class="flex items-center">
           <div class="">書籤列表</div>
-          <!-- <p-button
-            class="ml-auto"
-            icon="pi pi-home"
-            size="small"
-            pTooltip="返回攤位地圖"
-            [rounded]="true"
-            [text]="true"
-            [routerLink]="['/']"
-          >
-          </p-button> -->
+          @if (!bookmarkRoutingOnly()) {
+            <p-button
+              class="ml-auto"
+              icon="pi pi-home"
+              size="small"
+              pTooltip="返回攤位地圖"
+              [rounded]="true"
+              [text]="true"
+              [routerLink]="['/']"
+            >
+            </p-button>
+          }
         </div>
         <div class="flex grow flex-col gap-2 overflow-y-auto">
           @if (isLogin()) {
@@ -31,11 +33,11 @@
       </div>
 
       <div class="flex-grow h-full text-gray-600 dark:text-gray-50">
-        <app-base-map>
+        <app-base-map (onDragging)="onDragging = $event">
           <app-routing-layers></app-routing-layers>
           <app-bookmark-layer></app-bookmark-layer>
           <app-interactive-routing-layer></app-interactive-routing-layer>
-          <app-interactive-layer></app-interactive-layer>
+          <app-interactive-layer [onDragging]="onDragging"></app-interactive-layer>
         </app-base-map>
       </div>
     </div>

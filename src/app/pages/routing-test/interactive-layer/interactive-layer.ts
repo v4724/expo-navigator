@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   inject,
+  input,
   OnInit,
   signal,
   ViewChild,
@@ -25,6 +26,8 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
   @ViewChild(StallBookmarkPopover) bookmarkPopover!: StallBookmarkPopover;
   @ViewChild('opTarget') opTarget!: ElementRef<HTMLDivElement>;
   @ViewChild(Tooltip, { read: Tooltip }) tooltip!: Tooltip;
+
+  onDragging = input<boolean>();
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -120,6 +123,11 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
 
   // 偵測滑鼠指到哪個攤位
   onMouseMove(event: MouseEvent) {
+    if (this.onDragging()) {
+      this.hoveredStall.set(undefined);
+      return;
+    }
+
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
     const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
