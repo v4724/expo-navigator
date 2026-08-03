@@ -36,7 +36,7 @@ export class RoutingStallService {
   // 路徑規劃
   pathFinder = signal<PathFinder | null>(null);
   pathFinder$ = toObservable(this.pathFinder);
-  customDPR = 0.5;
+  customDPR = 1;
 
   constructor() {
     combineLatest({ el: this._stallMapService.mapImage$, all: this._stallService.allStalls$ })

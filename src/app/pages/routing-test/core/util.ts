@@ -45,27 +45,38 @@ export class PathFinder {
   width: number = 0;
   height: number = 0;
 
+  gridWidth: number = 0;
+  gridHeight: number = 0;
+
+  pathGridScale = 10;
+
   // cache 兩點的路徑
   cacheStallPath = new Map<string, Map<String, Path>>();
 
   constructor(width: number, height: number, blockedPercentRects: Array<StallCoords>) {
     this.width = width;
     this.height = height;
+    this.gridWidth = Math.floor(width / this.pathGridScale);
+    this.gridHeight = Math.floor(height / this.pathGridScale);
     // 1. 初始化 pathfinding 的 Grid 物件 (預設全部可通行)
-    this.baseGrid = new PF.Grid(width, height);
+    this.baseGrid = new PF.Grid(this.gridWidth, this.gridHeight);
 
     const blockedRects = blockedPercentRects.map((coord) => {
-      return this.getCanvasCoord(coord);
+      return this.getGridCoord(coord);
     });
     // 2. 將所有攤位矩形範圍設為不可通行 (false)
     blockedRects.forEach((rect) => {
-      for (let y = rect.y; y < rect.y + rect.h; y++) {
-        for (let x = rect.x; x < rect.x + rect.w; x++) {
-          // 加上邊界檢查，避免超出網格大小
-          const tX = Math.floor(x);
-          const tY = Math.floor(y);
-          if (tX >= 0 && tX < width && tY >= 0 && tY < height) {
-            this.baseGrid.setWalkableAt(tX, tY, false);
+      // 使用 Math.floor 與 Math.ceil 確保完整的網格涵蓋
+      const startX = Math.floor(rect.x);
+      const startY = Math.floor(rect.y);
+      const endX = Math.ceil(rect.x + rect.w);
+      const endY = Math.ceil(rect.y + rect.h);
+
+      for (let gY = startY; gY < endY; gY++) {
+        for (let gX = startX; gX < endX; gX++) {
+          // 💡 正確的邊界檢查：必須比對 gridWidth 與 gridHeight！
+          if (gX >= 0 && gX < this.gridWidth && gY >= 0 && gY < this.gridHeight) {
+            this.baseGrid.setWalkableAt(gX, gY, false);
           }
         }
       }
@@ -81,8 +92,6 @@ export class PathFinder {
 
   // A* 尋路 API (可使用套件如 pathfinding.js)
   findPath(start: PathNode, end: PathNode): Path {
-    const gridClone = this.baseGrid;
-
     let cachePath;
     if (start.stall && end.stall) {
       cachePath = this.getCachePath(start.stall, end.stall);
@@ -90,29 +99,56 @@ export class PathFinder {
 
     if (cachePath) return cachePath;
 
-    const sX = Math.floor(start.x);
-    const sY = Math.floor(start.y);
-    const eX = Math.floor(end.x);
-    const eY = Math.floor(end.y);
+    const sX = Math.floor(start.x / this.pathGridScale);
+    const sY = Math.floor(start.y / this.pathGridScale);
+    const eX = Math.floor(end.x / this.pathGridScale);
+    const eY = Math.floor(end.y / this.pathGridScale);
 
-    if (sX >= this.width || sY >= this.height || eX > this.width || eY > this.height) {
-      return { start: { x: sX, y: sY }, end: { x: eX, y: eY }, path: [] };
+    if (
+      sX < 0 ||
+      sX >= this.gridWidth ||
+      sY < 0 ||
+      sY >= this.gridHeight ||
+      eX < 0 ||
+      eX >= this.gridWidth ||
+      eY < 0 ||
+      eY >= this.gridHeight
+    ) {
+      return {
+        start: { x: start.x, y: start.y, stall: start.stall },
+        end: { x: end.x, y: end.y, stall: end.stall },
+        path: [],
+      };
     }
 
-    // 不再 clone()，直接在原本共用的 baseGrid 上做清空重置
+    // 不再 clone()，直接在原本共用的 baseGrid 上清空重置
     this.resetGrid(this.baseGrid);
 
+    this.baseGrid.setWalkableAt(sX, sY, true);
+    this.baseGrid.setWalkableAt(eX, eY, true);
+
     // 2. 執行尋路，取得原始格式： [[x0, y0], [x1, y1], [x2, y2], ...]
-    const rawPath = this.finder.findPath(sX, sY, eX, eY, gridClone);
+    const rawPath = this.finder.findPath(sX, sY, eX, eY, this.baseGrid);
 
     // 3. 將套件回傳的二次元陣列格式轉換回你的 Point[] ({x, y}) 格式
     const path = {
-      start: { x: sX, y: sY, stall: start.stall },
-      end: { x: eX, y: eY, stall: end.stall },
-      path: rawPath.map(([x, y]) => ({ x, y })),
+      start: {
+        x: sX * this.pathGridScale + this.pathGridScale / 2,
+        y: sY * this.pathGridScale + this.pathGridScale / 2,
+        stall: start.stall,
+      },
+      end: {
+        x: eX * this.pathGridScale + this.pathGridScale / 2,
+        y: eY * this.pathGridScale + this.pathGridScale / 2,
+        stall: end.stall,
+      },
+      path: rawPath.map(([x, y]) => ({
+        x: x * this.pathGridScale + this.pathGridScale / 2,
+        y: y * this.pathGridScale + this.pathGridScale / 2,
+      })),
     };
 
-    if (start.stall && end.stall) {
+    if (start.stall && end.stall && rawPath.length > 0) {
       this.setCachePath(start.stall, end.stall, path);
     }
 
@@ -151,7 +187,16 @@ export class PathFinder {
     return arr;
   }
 
-  // 將百分比座標轉換為畫布像素座標
+  // 將百分比座標轉換為grid座標
+  getGridCoord(coords: StallCoords): CanvasCoord {
+    const x = (coords.left / 100) * this.gridWidth;
+    const y = (coords.top / 100) * this.gridHeight;
+    const w = (coords.width / 100) * this.gridWidth;
+    const h = (coords.height / 100) * this.gridHeight;
+
+    return { x, y, w, h };
+  }
+  // 將百分比座標轉換為canvas座標
   getCanvasCoord(coords: StallCoords): CanvasCoord {
     const x = (coords.left / 100) * this.width;
     const y = (coords.top / 100) * this.height;
@@ -171,20 +216,30 @@ export class PathFinder {
   }
 
   private setCachePath(a: StallData, b: StallData, path: Path) {
-    let map = this.cacheStallPath.get(a.id);
-    if (!map) {
-      map = new Map();
-      this.cacheStallPath.set(a.id, map);
+    if (!this.cacheStallPath.has(a.id)) {
+      this.cacheStallPath.set(a.id, new Map());
     }
-    map.set(b.id, path);
+    this.cacheStallPath.get(a.id)!.set(b.id, path);
+
+    // 順便寫入反向路徑 (B -> A)
+    if (!this.cacheStallPath.has(b.id)) {
+      this.cacheStallPath.set(b.id, new Map());
+    }
+    const reversedPath: Path = {
+      start: path.end, // 起點變終點
+      end: path.start, // 終點變起點
+      path: [...path.path].reverse(), // 陣列點倒轉
+    };
+
+    this.cacheStallPath.get(b.id)!.set(a.id, reversedPath);
   }
 
   // 寫一個重置 Grid 狀態的 Helper Function
   private resetGrid(grid: PF.Grid) {
     const nodes = (grid as ExtendedGrid).nodes;
 
-    for (let y = 0; y < this.height; y++) {
-      for (let x = 0; x < this.width; x++) {
+    for (let y = 0; y < this.gridHeight; y++) {
+      for (let x = 0; x < this.gridWidth; x++) {
         const node = nodes[y][x];
         node.f = 0;
         node.g = 0;

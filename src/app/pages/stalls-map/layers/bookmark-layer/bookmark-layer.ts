@@ -109,7 +109,7 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     h: number,
   ) {
     // 設定字型為 Material Icons (需確保 CSS 已載入該字型)
-    const size = 20;
+    const size = 24;
     ctx.font = `${size}px "Material Icons", "Material Symbols Outlined"`;
     ctx.fillStyle = setting.iconColor;
     ctx.textAlign = 'center';
@@ -118,7 +118,7 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     // 根據size大小及顯示位置調整座標
     switch (s.rule.bookmarkPosition) {
       case 'right':
-        x = x + size * 2;
+        x = x + w + size / 2;
         y = y + h / 2;
         break;
       case 'left':
@@ -130,7 +130,7 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
         x = x + w / 2;
         break;
       case 'bottom':
-        y = y + size * 1.5;
+        y = y + h;
         x = x + w / 2;
         break;
     }

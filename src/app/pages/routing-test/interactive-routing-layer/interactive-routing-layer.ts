@@ -157,8 +157,12 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
     // 攤位點+label
     paths.forEach((p) => {
       ctx.beginPath();
+
       ctx.arc(p.start.x, p.start.y, actualRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#000';
       ctx.fill();
+      ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
+      ctx.strokeStyle = '#FFF';
       ctx.stroke();
 
       this.drawPathStallLabel(p.start, ctx);
@@ -166,7 +170,10 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
     const endP = paths[paths.length - 1];
     ctx.beginPath();
     ctx.arc(endP.end.x, endP.end.y, actualRadius, 0, Math.PI * 2);
+    ctx.fillStyle = '#000';
     ctx.fill();
+    ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
+    ctx.strokeStyle = 'FFF';
     ctx.stroke();
 
     this.drawPathStallLabel(endP.end, ctx);

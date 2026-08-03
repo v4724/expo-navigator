@@ -82,7 +82,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
 
     if (hs) {
       let { x, y, w, h } = this.getCanvasCoord(hs);
-      const scale = 1.4;
+      const scale = 1.2;
       const dw = w * (scale - 1);
       const dh = h * (scale - 1);
       x -= dw / 2;

@@ -29,17 +29,17 @@ export class RoutingLayerBase {
   );
 
   // defulat
-  readonly pathLineWidth = 3; // 希望螢幕上看到的線寬 (px)
-  readonly nodePointRadius = 5; // 希望螢幕上看到的點半徑 (px)
-  readonly startPointRadius = 10; // 希望螢幕上看到的點半徑 (px)
-  readonly startPointLineWidth = 2; // 希望螢幕上看到的線寬 (px)
+  readonly pathLineWidth = 4; // 希望螢幕上看到的線寬 (px)
+  readonly nodePointRadius = 10; // 希望螢幕上看到的點半徑 (px)
+  readonly startPointRadius = 16; // 希望螢幕上看到的點半徑 (px)
+  readonly startPointLineWidth = 6; // 希望螢幕上看到的線寬 (px)
 
   // highlight
   readonly pathHighlightLineBlur = 12; // 希望螢幕上看到的線寬 (px)
-  readonly pathHighlightLineWidth = 4; // 希望螢幕上看到的線寬 (px)
-  readonly nodePointHighlightRadius = 6; // 希望螢幕上看到的點半徑 (px)
-  readonly startPointHighlightRadius = 10; // 希望螢幕上看到的點半徑 (px)
-  readonly startPointHighlightLineWidth = 2; // 希望螢幕上看到的線寬 (px)
+  readonly pathHighlightLineWidth = 6; // 希望螢幕上看到的線寬 (px)
+  readonly nodePointHighlightRadius = 8; // 希望螢幕上看到的點半徑 (px)
+  readonly startPointHighlightRadius = 20; // 希望螢幕上看到的點半徑 (px)
+  readonly startPointHighlightLineWidth = 6; // 希望螢幕上看到的線寬 (px)
 
   constructor() {}
 
@@ -92,17 +92,17 @@ export class RoutingLayerBase {
     ctx.stroke();
 
     // 攤位點
-    paths.forEach((p) => {
-      ctx.beginPath();
-      ctx.arc(p.start.x, p.start.y, actualRadius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-    });
-    const endP = paths[paths.length - 1];
-    ctx.beginPath();
-    ctx.arc(endP.end.x, endP.end.y, actualRadius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+    // paths.forEach((p) => {
+    //   ctx.beginPath();
+    //   ctx.arc(p.start.x, p.start.y, actualRadius, 0, Math.PI * 2);
+    //   ctx.fill();
+    //   ctx.stroke();
+    // });
+    // const endP = paths[paths.length - 1];
+    // ctx.beginPath();
+    // ctx.arc(endP.end.x, endP.end.y, actualRadius, 0, Math.PI * 2);
+    // ctx.fill();
+    // ctx.stroke();
   }
 
   protected reset() {
