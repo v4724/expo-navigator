@@ -26,6 +26,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
   @ViewChild('stallCanvas') declare canvasRef: ElementRef<HTMLCanvasElement>;
   @ViewChild(StallBookmarkPopover) bookmarkPopover!: StallBookmarkPopover;
   @ViewChild('opTarget') opTarget!: ElementRef<HTMLDivElement>;
+  @ViewChild('container') container!: ElementRef<HTMLDivElement>;
   @ViewChild(Tooltip, { read: Tooltip }) tooltip!: Tooltip;
 
   onDragging = input<boolean>();
@@ -90,7 +91,8 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
       y -= dh / 2;
       w *= scale;
       h *= scale;
-      ctx.font = '24px Arial';
+      // 簡約現代風格 (字重 bold 會更有質感)
+      ctx.font = '20px "Inter", "Roboto", "Segoe UI", sans-serif';
       if (s?.id === hs.id) {
         this.drawSelectedStall(hs, ctx, x, y, w, h);
       } else {
@@ -102,7 +104,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     }
   }
 
-  onMapClick(event: MouseEvent) {
+  onMapClick(event: MouseEvent | TouchEvent) {
     const mappingStall = this.hoveredStall();
     if (mappingStall) {
       this.clickedStall.set(mappingStall);
@@ -176,10 +178,30 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     this._stallService.hoveredStallInfo = info;
   }
 
-  private getMappingStall(event: MouseEvent) {
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
-    const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
+  private getMappingStall(event: MouseEvent | TouchEvent) {
+    const container = this.container?.nativeElement || (event.currentTarget as HTMLElement);
+    if (!container) return undefined;
+
+    const rect = container.getBoundingClientRect();
+
+    // 💡 關鍵修正 2：相容 MouseEvent 與 TouchEvent 取得正確的 Client 座標
+    let clientX = 0;
+    let clientY = 0;
+
+    if ('touches' in event && event.touches.length > 0) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    } else if ('changedTouches' in event && event.changedTouches.length > 0) {
+      clientX = event.changedTouches[0].clientX;
+      clientY = event.changedTouches[0].clientY;
+    } else if (event instanceof MouseEvent) {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    }
+
+    // 算相對百分比 (0 - 100)
+    const mouseX = ((clientX - rect.left) / rect.width) * 100;
+    const mouseY = ((clientY - rect.top) / rect.height) * 100;
 
     // 2000 個資料搜尋大約只需 1-2ms，遠快於 DOM 渲染
     return this.stalls().find((s) => {
