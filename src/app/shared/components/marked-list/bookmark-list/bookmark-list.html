@@ -68,19 +68,21 @@
                         [fontIcon]="bookmark.showPath ? 'remove_red_eye' : 'visibility_off'"
                       ></mat-icon>
                     </button>
-                    <button
-                      class="transition hover:scale-110 flex items-center text-gray-600 dark:text-gray-400"
-                      [disabled]="bookmark.isUpdating"
-                      pTooltip="自動規畫路線"
-                      (click)="autoRouting(bookmark, $event)"
-                    >
-                      <mat-icon
-                        inline
-                        aria-hidden="false"
-                        aria-label="auto route icon"
-                        [fontIcon]="'route'"
-                      ></mat-icon>
-                    </button>
+                    @if (bookmark.showPath) {
+                      <button
+                        class="transition hover:scale-110 flex items-center text-gray-600 dark:text-gray-400"
+                        [disabled]="bookmark.isUpdating"
+                        pTooltip="自動規劃路線"
+                        (click)="autoRouting(bookmark, $event)"
+                      >
+                        <mat-icon
+                          inline
+                          aria-hidden="false"
+                          aria-label="auto route icon"
+                          [fontIcon]="'route'"
+                        ></mat-icon>
+                      </button>
+                    }
                   }
 
                   <button

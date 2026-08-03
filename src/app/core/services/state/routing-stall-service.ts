@@ -102,7 +102,7 @@ export class RoutingStallService {
     this._reRoutingItem.next(item);
   }
 
-  // 已重新規畫路徑 (紀錄舊順序)
+  // 已重新規劃路徑 (紀錄舊順序)
   updateOrderAfterAuto(item: MarkedList, newOrder: MarkedStallInfo[]) {
     this.addUnstoreCache(item);
 

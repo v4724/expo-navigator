@@ -71,7 +71,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
       )
       .subscribe();
 
-    // 自動規畫路徑
+    // 自動規劃路徑
     this._routingStallService.autoRoutingItem$
       .pipe(
         tap((item) => {

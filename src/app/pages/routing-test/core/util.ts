@@ -132,16 +132,16 @@ export class PathFinder {
     const rawPath = this.finder.findPath(sX, sY, eX, eY, this.baseGrid);
 
     // 3. 將套件回傳的二次元陣列格式轉換回你的 Point[] ({x, y}) 格式
-    const path = {
+    const path: Path = {
       start: {
         x: sX * this.pathGridScale + this.pathGridScale / 2,
         y: sY * this.pathGridScale + this.pathGridScale / 2,
-        stall: start.info,
+        info: start.info,
       },
       end: {
         x: eX * this.pathGridScale + this.pathGridScale / 2,
         y: eY * this.pathGridScale + this.pathGridScale / 2,
-        stall: end.info,
+        info: end.info,
       },
       path: rawPath.map(([x, y]) => ({
         x: x * this.pathGridScale + this.pathGridScale / 2,
