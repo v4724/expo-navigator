@@ -14,6 +14,7 @@ import { Tooltip, TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { BaseLayer } from '../../stalls-map/layers/base-layer';
 import { StallBookmarkPopover } from '../../../shared/components/bookmark/stall-bookmark-popover/stall-bookmark-popover';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 @Component({
   selector: 'app-interactive-layer',
@@ -103,7 +104,12 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
 
   onMapClick(event: MouseEvent) {
     const mappingStall = this.hoveredStall();
-    this.clickedStall.set(mappingStall);
+    if (mappingStall) {
+      this.clickedStall.set(mappingStall);
+    } else {
+      this.clickedStall.set(this.getMappingStall(event));
+    }
+
     this.cdr.detectChanges();
 
     const op = this.bookmarkPopover?.op;
@@ -123,24 +129,12 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
 
   // 偵測滑鼠指到哪個攤位
   onMouseMove(event: MouseEvent) {
-    if (this.onDragging()) {
+    if (this._uiStateService.isMobile() || this.onDragging()) {
       this.hoveredStall.set(undefined);
       return;
     }
 
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
-    const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
-
-    // 2000 個資料搜尋大約只需 1-2ms，遠快於 DOM 渲染
-    const hoveredStall = this.stalls().find((s) => {
-      return (
-        mouseX >= s.coords.left &&
-        mouseX <= s.coords.left + s.coords.width &&
-        mouseY >= s.coords.top &&
-        mouseY <= s.coords.top + s.coords.height
-      );
-    });
+    const hoveredStall = this.getMappingStall(event);
     const last = this.hoveredStall();
     this.hoveredStall.set(hoveredStall);
 
@@ -180,5 +174,21 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     const rect = content.nativeElement.getBoundingClientRect();
     const info = { rect, s: this.hoveredStall() };
     this._stallService.hoveredStallInfo = info;
+  }
+
+  private getMappingStall(event: MouseEvent) {
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
+    const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
+
+    // 2000 個資料搜尋大約只需 1-2ms，遠快於 DOM 渲染
+    return this.stalls().find((s) => {
+      return (
+        mouseX >= s.coords.left &&
+        mouseX <= s.coords.left + s.coords.width &&
+        mouseY >= s.coords.top &&
+        mouseY <= s.coords.top + s.coords.height
+      );
+    });
   }
 }
