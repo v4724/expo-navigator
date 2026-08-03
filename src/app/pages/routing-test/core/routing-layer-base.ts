@@ -130,11 +130,11 @@ export class RoutingLayerBase {
       return;
     }
 
-    ctx.font = '20px "Inter", "Roboto", "Segoe UI", sans-serif';
+    ctx.font = '600 20px "Inter", "Roboto", "Segoe UI", sans-serif';
 
     // 1. 繪製文字白色外框（防止文字與背景地圖混在一起）
     ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.lineJoin = 'round';
     ctx.strokeText(text, x, y);
 

@@ -10,6 +10,7 @@ import { User } from 'src/app/components/user/user';
 import { Footer } from 'src/app/layout/footer/footer';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { RoutingMap } from './routing-map/routing-map';
+import { filter, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-routing',
@@ -34,7 +35,13 @@ export class Routing {
   isLogin = toSignal(this._userService.isLogin$);
   expoTitle = toSignal(this._expoStateService.expoTitle$);
   mapImgSrc = toSignal(this._expoStateService.mapImageUrl$);
-  bookmarkRoutingOnly = toSignal(this._expoStateService.bookmarkRoutingOnly$);
+  bookmarkRoutingOnly = toSignal(
+    this._expoStateService.fetchEnd$.pipe(
+      filter((val) => val),
+      switchMap(() => this._expoStateService.bookmarkRoutingOnly$),
+    ),
+    { initialValue: true },
+  );
 
   onDragging = false;
 }
