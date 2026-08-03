@@ -165,6 +165,14 @@ export class BookmarkList implements OnInit {
 
     item.showPath = !item.showPath;
     this._routingStallService.togglePath(item);
+    this._markedListApiService
+      .updateShowPath(item.id, this.user()?.acc!, item.showPath)
+      .pipe()
+      .subscribe((res) => {
+        if (res.success) {
+          item.isPathVisible = item.showPath;
+        }
+      });
   }
 
   autoRouting(item: MarkedList, e: Event) {

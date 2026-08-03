@@ -186,7 +186,7 @@ export class MarkedStallService {
       show: true,
       isUpdating: false,
       isDeleting: false,
-      showPath: true,
+      showPath: dto.isPathVisible,
     };
   }
 }

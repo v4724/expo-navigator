@@ -114,6 +114,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
       cusIconColorInput: ['#000000'],
       isCusIcon: [false],
       isCusIconColor: [false],
+      isPathVisible: [true],
       stallId: [''],
       list: this._fb.array([]),
     });
@@ -147,6 +148,10 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     return this.editForm.get('isCusIconColor')?.getRawValue();
   }
 
+  get isPathVisible(): boolean {
+    return this.editForm.get('isPathVisible')?.getRawValue();
+  }
+
   get list(): FormArray {
     return this.editForm.get('list') as FormArray;
   }
@@ -177,6 +182,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
       cusIconColorInput: item.isCusIconColor ? item.iconColor : '#000000',
       isCusIcon: item.isCusIcon ? item.isCusIcon : false,
       isCusIconColor: item.isCusIconColor,
+      isPathVisible: item.isPathVisible,
     });
 
     item.list.forEach((item) => {

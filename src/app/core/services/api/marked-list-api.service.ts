@@ -33,6 +33,15 @@ export class MarkedListApiService {
       .pipe(tap((res) => console.debug(res)));
   }
 
+  updateShowPath(id: number, acc: string, isPathVisible: boolean): Observable<Response> {
+    return this.http
+      .put<Response>(`${this.apiUrl}api/markedList/${id}/path-visibility`, {
+        acc,
+        isPathVisible,
+      })
+      .pipe(tap((res) => console.debug(res)));
+  }
+
   // transformDtoToUser(dto: MarkedListDto): MarkedList {
   //   return {
   //     id: dto.id,

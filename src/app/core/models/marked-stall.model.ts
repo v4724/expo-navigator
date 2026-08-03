@@ -9,6 +9,7 @@ export interface MarkedListDto {
   cusIconColor: string;
   isCusIcon: boolean;
   isCusIconColor: boolean;
+  isPathVisible: boolean;
   listName: string;
   list: string[];
 }

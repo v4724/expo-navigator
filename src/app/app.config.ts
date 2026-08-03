@@ -20,6 +20,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { provideServiceWorker } from '@angular/service-worker';
 import { ssrApiInterceptor } from './core/interceptor/ssr-api.interceptor';
+import { apiErrorInterceptor } from './core/interceptor/api-error.interceptor';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -55,7 +56,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideIonicAngular(), // 初始化 Ionic
     provideHttpClient(
-      withInterceptors([ssrApiInterceptor]), // 註冊攔截器
+      withInterceptors([ssrApiInterceptor, apiErrorInterceptor]), // 註冊攔截器
     ),
     provideAnimationsAsync(),
     providePrimeNG({

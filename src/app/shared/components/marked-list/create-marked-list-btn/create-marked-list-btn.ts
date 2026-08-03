@@ -40,6 +40,7 @@ export class CreateMarkedListBtn {
       cusIconColor: '',
       isCusIcon: false,
       isCusIconColor: false,
+      isPathVisible: true,
       list: [],
     };
     this.isCreating.set(true);
