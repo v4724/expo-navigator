@@ -119,3 +119,7 @@ body {
   transition: opacity 300ms ease-in;
   opacity: 0;
 }
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
