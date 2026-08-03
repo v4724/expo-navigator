@@ -57,6 +57,10 @@ export class BaseLayer {
   isBackground = false;
   customDPR = -1; // 自訂解析度
 
+  get baseMapScale() {
+    return this._stallMapService.mapContentScale;
+  }
+
   constructor(customDPR?: number) {
     this.customDPR = customDPR ? customDPR : -1;
   }

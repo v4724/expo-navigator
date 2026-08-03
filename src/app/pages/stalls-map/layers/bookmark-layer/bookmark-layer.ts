@@ -14,7 +14,7 @@ import { ExpoStateService } from 'src/app/core/services/state/expo-state-service
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
-import { combineLatest, forkJoin, switchMap, filter, take, tap, first, startWith } from 'rxjs';
+import { combineLatest, switchMap, filter, take, tap, startWith, debounceTime } from 'rxjs';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 
 @Component({
@@ -68,6 +68,16 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
           this.drawBookmarks();
         }
       });
+
+    // scale 改變
+    this._stallMapService.mapContentScale$
+      .pipe(
+        debounceTime(200),
+        tap((val) => {
+          this.drawBookmarks();
+        }),
+      )
+      .subscribe();
   }
 
   drawBookmarks() {
@@ -109,7 +119,7 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     h: number,
   ) {
     // 設定字型為 Material Icons (需確保 CSS 已載入該字型)
-    const size = 24;
+    const size = 24 * Math.sqrt(this.baseMapScale);
     ctx.font = `${size}px "Material Icons", "Material Symbols Outlined"`;
     ctx.fillStyle = setting.iconColor;
     ctx.textAlign = 'center';
