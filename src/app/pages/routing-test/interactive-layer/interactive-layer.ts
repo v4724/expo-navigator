@@ -105,18 +105,19 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
   }
 
   onMapClick(event: MouseEvent | TouchEvent) {
-    const mappingStall = this.hoveredStall();
-    if (mappingStall) {
-      this.clickedStall.set(mappingStall);
+    let stall = this.hoveredStall();
+    if (stall) {
+      this.clickedStall.set(stall);
     } else {
-      this.clickedStall.set(this.getMappingStall(event));
+      stall = this.getMappingStall(event);
+      this.clickedStall.set(stall);
     }
 
     this.cdr.detectChanges();
 
     const op = this.bookmarkPopover?.op;
 
-    if (mappingStall) {
+    if (stall) {
       requestAnimationFrame(() => {
         if (op.overlayVisible) {
           op.align();
