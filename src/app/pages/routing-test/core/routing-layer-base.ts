@@ -6,15 +6,16 @@ import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
+import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 
 export class RoutingLayerBase {
   canvasRef!: ElementRef<HTMLCanvasElement>;
 
   protected _routingStallService = inject(RoutingStallService);
   protected _markedStallService = inject(MarkedStallService);
+  protected _stallMapService = inject(StallMapService);
 
   protected pathFinder = toSignal(this._routingStallService.pathFinder$);
-  // TODO 解析度根據路徑規劃網格設定，導致文字線段模糊，應要再做一層轉換。
   protected canvasWH = toSignal(
     this._routingStallService.pathFinder$.pipe(
       map((pathFinder) => {
@@ -27,9 +28,26 @@ export class RoutingLayerBase {
     { initialValue: { width: 0, height: 0 } },
   );
 
+  // defulat
+  readonly pathLineWidth = 3; // 希望螢幕上看到的線寬 (px)
+  readonly nodePointRadius = 5; // 希望螢幕上看到的點半徑 (px)
+  readonly startPointRadius = 10; // 希望螢幕上看到的點半徑 (px)
+  readonly startPointLineWidth = 2; // 希望螢幕上看到的線寬 (px)
+
+  // highlight
+  readonly pathHighlightLineBlur = 12; // 希望螢幕上看到的線寬 (px)
+  readonly pathHighlightLineWidth = 4; // 希望螢幕上看到的線寬 (px)
+  readonly nodePointHighlightRadius = 6; // 希望螢幕上看到的點半徑 (px)
+  readonly startPointHighlightRadius = 10; // 希望螢幕上看到的點半徑 (px)
+  readonly startPointHighlightLineWidth = 2; // 希望螢幕上看到的線寬 (px)
+
   constructor() {}
 
-  protected drawMapAndPath(bookmark: MarkedList, paths: Array<Path>) {
+  get baseMapScale() {
+    return this._stallMapService.mapContentScale;
+  }
+
+  protected drawMapAndPath(bookmark: MarkedList, paths: Path[]) {
     const canvas = this.canvasRef?.nativeElement;
     const ctx = canvas?.getContext('2d')!;
     if (!ctx) {
@@ -37,6 +55,11 @@ export class RoutingLayerBase {
     }
 
     if (paths.length < 2) return;
+
+    const actualLineWidth = this.pathLineWidth / this.baseMapScale;
+    const actualRadius = this.nodePointRadius / this.baseMapScale;
+    const actualStartRadius = this.startPointRadius / this.baseMapScale;
+    const actualStartPointLineWidth = this.startPointLineWidth / this.baseMapScale;
 
     // 繪製規劃路線
     ctx.beginPath();
@@ -52,32 +75,32 @@ export class RoutingLayerBase {
       ? bookmark.cusIconColor
       : (bookmark.iconColor ?? '#FF0000');
 
-    ctx.globalAlpha = 0.8; // 設定整體透明度
+    ctx.globalAlpha = 1; // 設定整體透明度
     ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = actualLineWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
 
     // 畫起點
     ctx.beginPath();
-    ctx.arc(paths[0].start.x, paths[0].start.y, 10, 0, Math.PI * 2);
+    ctx.arc(paths[0].start.x, paths[0].start.y, actualStartRadius, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
-    ctx.lineWidth = 2; //加上白色外框增強對比度
+    ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
     ctx.strokeStyle = '#FFFFFF';
     ctx.stroke();
 
     // 攤位點
     paths.forEach((p) => {
       ctx.beginPath();
-      ctx.arc(p.start.x, p.start.y, 5, 0, Math.PI * 2);
+      ctx.arc(p.start.x, p.start.y, actualRadius, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
     });
     const endP = paths[paths.length - 1];
     ctx.beginPath();
-    ctx.arc(endP.end.x, endP.end.y, 5, 0, Math.PI * 2);
+    ctx.arc(endP.end.x, endP.end.y, actualRadius, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
   }
@@ -120,8 +143,8 @@ export class RoutingLayerBase {
     ctx.restore();
   }
 
-  protected routeByOrder(list: StallData[]): Array<Path> {
-    let routingPath: Array<Path> = [];
+  protected routeByOrder(list: StallData[]): Path[] {
+    let routingPath: Path[] = [];
     for (let i = 1; i < list.length; i++) {
       const last = this.getStallCenter(list[i - 1]);
       const curr = this.getStallCenter(list[i]);
@@ -135,7 +158,7 @@ export class RoutingLayerBase {
     return routingPath;
   }
 
-  protected autoRouting(bookmark: MarkedList): Array<Path> {
+  protected autoRouting(bookmark: MarkedList): Path[] {
     if (bookmark.list.length < 1) {
       return [];
     }
@@ -177,7 +200,7 @@ export class RoutingLayerBase {
     return { ...orig, x, y, stall: s };
   }
 
-  protected updateBookmarkPathOrder(item: MarkedList, paths: Array<Path>) {
+  protected updateBookmarkPathOrder(item: MarkedList, paths: Path[]) {
     let end: StallData | undefined;
     const order = paths
       .map((path) => {

@@ -8,6 +8,8 @@ export class StallMapService {
   private _mapImage = new BehaviorSubject<HTMLImageElement | null>(null);
   private _mapContentWH = new BehaviorSubject<{ w: number; h: number }>({ w: 0, h: 0 });
   private _mapContainer = new BehaviorSubject<HTMLElement | null>(null);
+  private _mapContent = new BehaviorSubject<HTMLElement | null>(null);
+  private _mapContentScale = new BehaviorSubject<number>(1);
   private _matchStallsId = new BehaviorSubject<Map<string, Set<string>>>(
     new Map<string, Set<string>>(),
   );
@@ -16,6 +18,8 @@ export class StallMapService {
   mapImage$ = this._mapImage.asObservable();
   mapContentWH$ = this._mapContentWH.asObservable();
   mapContainer$ = this._mapContainer.asObservable();
+  mapContent$ = this._mapContent.asObservable();
+  mapContentScale$ = this._mapContentScale.asObservable();
   matchStallsId$ = this._matchStallsId.asObservable();
   focus$ = this._focus.asObservable();
 
@@ -29,6 +33,14 @@ export class StallMapService {
 
   set mapContainer(el: HTMLElement) {
     this._mapContainer.next(el);
+  }
+
+  set mapContent(el: HTMLElement) {
+    this._mapContent.next(el);
+  }
+
+  set mapContentScale(val: number) {
+    this._mapContentScale.next(val);
   }
 
   updateMatchStallsId(groupId: string, stallId: string, isMatch: boolean) {
@@ -58,6 +70,10 @@ export class StallMapService {
 
   get mapImage(): HTMLImageElement | null {
     return this._mapImage.getValue();
+  }
+
+  get mapContentScale(): number {
+    return this._mapContentScale.getValue();
   }
 
   focusStall(stallId: string) {

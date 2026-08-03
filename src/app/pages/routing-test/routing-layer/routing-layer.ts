@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { combineLatest, filter, map, take, tap } from 'rxjs';
+import { combineLatest, debounceTime, filter, take, tap } from 'rxjs';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { RoutingLayerBase } from '../core/routing-layer-base';
 
@@ -29,17 +29,13 @@ export class RoutingLayer extends RoutingLayerBase implements OnInit, AfterViewI
   }
 
   ngOnInit() {
-    // 該書籤:攤位數量有調整、起點有更改、開啟/關閉顯示路徑、
+    // 開啟/關閉顯示路徑
     this._routingStallService.togglePath$
       .pipe(
         tap((toggleItem) => {
-          if (toggleItem == this.item()) {
-            this.reset();
-            if (toggleItem.showPath) {
-              const path = this.routeByOrder(toggleItem.list);
-              this.drawMapAndPath(toggleItem, path);
-            }
-          }
+          if (toggleItem?.id !== this.item().id) return;
+
+          this.redraw();
         }),
       )
       .subscribe();
@@ -48,13 +44,9 @@ export class RoutingLayer extends RoutingLayerBase implements OnInit, AfterViewI
     this._markedStallService.updated$
       .pipe(
         tap((id) => {
-          if (id == this.item().id) {
-            this.reset();
-            if (this.item().showPath) {
-              const path = this.routeByOrder(this.item().list);
-              this.drawMapAndPath(this.item(), path);
-            }
-          }
+          if (id !== this.item().id) return;
+
+          this.redraw();
         }),
       )
       .subscribe();
@@ -62,9 +54,8 @@ export class RoutingLayer extends RoutingLayerBase implements OnInit, AfterViewI
     // 自動規畫路徑
     this._routingStallService.autoRoutingItem$
       .pipe(
-        filter((item) => item != null && item.id == this.item().id),
         tap((item) => {
-          if (item == null) return;
+          if (item?.id !== this.item().id) return;
 
           this.reset();
           if (item.showPath) {
@@ -80,13 +71,19 @@ export class RoutingLayer extends RoutingLayerBase implements OnInit, AfterViewI
     this._routingStallService.reRoutingItem$
       .pipe(
         tap((item) => {
-          if (item?.id == this.item().id) {
-            this.reset();
-            if (item.showPath) {
-              const path = this.routeByOrder(item.list);
-              this.drawMapAndPath(item, path);
-            }
-          }
+          if (item?.id !== this.item().id) return;
+
+          this.redraw();
+        }),
+      )
+      .subscribe();
+
+    // scale 改變
+    this._stallMapService.mapContentScale$
+      .pipe(
+        debounceTime(200),
+        tap((val) => {
+          this.redraw();
         }),
       )
       .subscribe();
@@ -99,13 +96,17 @@ export class RoutingLayer extends RoutingLayerBase implements OnInit, AfterViewI
         filter(([val]) => !!val),
         take(1),
         tap(() => {
-          this.reset();
-          if (this.item().showPath) {
-            const path = this.routeByOrder(this.item().list);
-            this.drawMapAndPath(this.item(), path);
-          }
+          this.redraw();
         }),
       )
       .subscribe();
+  }
+
+  redraw() {
+    this.reset();
+    if (this.item().showPath) {
+      const path = this.routeByOrder(this.item().list);
+      this.drawMapAndPath(this.item(), path);
+    }
   }
 }

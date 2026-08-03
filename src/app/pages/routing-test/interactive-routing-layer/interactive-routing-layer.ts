@@ -13,7 +13,7 @@ import { Tooltip, TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { StallBookmarkPopover } from '../../../shared/components/bookmark/stall-bookmark-popover/stall-bookmark-popover';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { tap } from 'rxjs';
+import { debounceTime, tap } from 'rxjs';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { Path, PathNode } from '../core/util';
 import { RoutingLayerBase } from '../core/routing-layer-base';
@@ -56,7 +56,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
       }
     });
 
-    // 該書籤:攤位數量有調整、起點有更改、開啟/關閉顯示路徑、
+    // 開啟/關閉顯示路徑
     this._routingStallService.togglePath$.pipe(tap((item) => this.redraw(item))).subscribe();
 
     // 該書籤:有編輯儲存
@@ -85,9 +85,19 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
 
     // focus的書籤
     this._markedStallService.focusList$.pipe(tap((item) => this.redraw(item))).subscribe();
+
+    // scale 改變
+    this._stallMapService.mapContentScale$
+      .pipe(
+        debounceTime(200),
+        tap((val) => {
+          this.redraw(this.focusList());
+        }),
+      )
+      .subscribe();
   }
 
-  redraw(item: MarkedList | undefined | null, byAuto?: boolean) {
+  redraw(item: MarkedList | undefined, byAuto?: boolean) {
     this.reset();
     if (item && item.showPath && item.id == this.focusList()?.id) {
       let path;
@@ -110,6 +120,13 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
 
     if (paths.length < 2) return;
 
+    // 除以外層的 CSS Scale 進行反向抵銷
+    const actualLineBlur = this.pathHighlightLineBlur / this.baseMapScale;
+    const actualLineWidth = this.pathHighlightLineWidth / this.baseMapScale;
+    const actualRadius = this.nodePointHighlightRadius / this.baseMapScale;
+    const actualStartRadius = this.startPointHighlightRadius / this.baseMapScale;
+    const actualStartPointLineWidth = this.startPointHighlightLineWidth / this.baseMapScale;
+
     // 繪製規劃路線
     ctx.beginPath();
     paths.forEach((p) => {
@@ -126,23 +143,21 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
 
     // 💡 聚焦核心：設定外發光陰影
     ctx.shadowColor = color; // 陰影顏色與主線同色或用純白/黃色高亮
-    ctx.shadowBlur = 10; // 發光擴散範圍 (值越大越模糊擴散)
+    ctx.shadowBlur = actualLineBlur; // 發光擴散範圍 (值越大越模糊擴散)
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
-    ctx.globalAlpha = 1.0; // Focus 時提高透明度讓質感更亮
+    ctx.globalAlpha = 1.0; // Focus 時提高透明度更亮
     ctx.strokeStyle = color;
-    ctx.lineWidth = 4; // 稍微加粗主線條 (原 3 -> 4)
+    ctx.lineWidth = actualLineWidth; // 稍微加粗主線條 (原 3 -> 4)
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // ctx.restore();
-
     // 攤位點+label
     paths.forEach((p) => {
       ctx.beginPath();
-      ctx.arc(p.start.x, p.start.y, 5, 0, Math.PI * 2);
+      ctx.arc(p.start.x, p.start.y, actualRadius, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
@@ -150,7 +165,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
     });
     const endP = paths[paths.length - 1];
     ctx.beginPath();
-    ctx.arc(endP.end.x, endP.end.y, 5, 0, Math.PI * 2);
+    ctx.arc(endP.end.x, endP.end.y, actualRadius, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
@@ -158,10 +173,10 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
 
     // 畫起點
     ctx.beginPath();
-    ctx.arc(paths[0].start.x, paths[0].start.y, 10, 0, Math.PI * 2);
+    ctx.arc(paths[0].start.x, paths[0].start.y, actualStartRadius, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
-    ctx.lineWidth = 2; //加上白色外框增強對比度
+    ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
     ctx.strokeStyle = '#FFFFFF';
     ctx.stroke();
 

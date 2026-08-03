@@ -1,5 +1,22 @@
 import PF from 'pathfinding';
 import { StallCoords, StallData } from 'src/app/core/interfaces/stall.interface';
+// 1. 定義內部 Node 結構
+interface PFNode {
+  x: number;
+  y: number;
+  walkable: boolean;
+  f?: number;
+  g?: number;
+  h?: number;
+  opened?: boolean;
+  closed?: boolean;
+  parent?: PFNode | null;
+}
+
+// 2. 擴充 Grid 類型，讓 TypeScript 認得 nodes 屬性
+interface ExtendedGrid extends PF.Grid {
+  nodes: PFNode[][];
+}
 export interface PathNode extends Point {
   stall?: StallData;
 }
@@ -27,6 +44,9 @@ export class PathFinder {
 
   width: number = 0;
   height: number = 0;
+
+  // cache 兩點的路徑
+  cacheStallPath = new Map<string, Map<String, Path>>();
 
   constructor(width: number, height: number, blockedPercentRects: Array<StallCoords>) {
     this.width = width;
@@ -61,8 +81,14 @@ export class PathFinder {
 
   // A* 尋路 API (可使用套件如 pathfinding.js)
   findPath(start: PathNode, end: PathNode): Path {
-    // 1. 複製一份 Grid 副本 (關鍵！否則重複尋路會失效)
-    const gridClone = this.baseGrid.clone();
+    const gridClone = this.baseGrid;
+
+    let cachePath;
+    if (start.stall && end.stall) {
+      cachePath = this.getCachePath(start.stall, end.stall);
+    }
+
+    if (cachePath) return cachePath;
 
     const sX = Math.floor(start.x);
     const sY = Math.floor(start.y);
@@ -73,15 +99,24 @@ export class PathFinder {
       return { start: { x: sX, y: sY }, end: { x: eX, y: eY }, path: [] };
     }
 
+    // 不再 clone()，直接在原本共用的 baseGrid 上做清空重置
+    this.resetGrid(this.baseGrid);
+
     // 2. 執行尋路，取得原始格式： [[x0, y0], [x1, y1], [x2, y2], ...]
     const rawPath = this.finder.findPath(sX, sY, eX, eY, gridClone);
 
     // 3. 將套件回傳的二次元陣列格式轉換回你的 Point[] ({x, y}) 格式
-    return {
+    const path = {
       start: { x: sX, y: sY, stall: start.stall },
       end: { x: eX, y: eY, stall: end.stall },
       path: rawPath.map(([x, y]) => ({ x, y })),
     };
+
+    if (start.stall && end.stall) {
+      this.setCachePath(start.stall, end.stall, path);
+    }
+
+    return path;
   }
 
   planFullRoute(startPt: PathNode, bookmarkPts: PathNode[]): Array<Path> {
@@ -124,5 +159,40 @@ export class PathFinder {
     const h = (coords.height / 100) * this.height;
 
     return { x, y, w, h };
+  }
+
+  private getCachePath(a: StallData, b: StallData) {
+    let path;
+    const map = this.cacheStallPath.get(a.id);
+    if (map) {
+      path = map.get(b.id);
+    }
+    return path;
+  }
+
+  private setCachePath(a: StallData, b: StallData, path: Path) {
+    let map = this.cacheStallPath.get(a.id);
+    if (!map) {
+      map = new Map();
+      this.cacheStallPath.set(a.id, map);
+    }
+    map.set(b.id, path);
+  }
+
+  // 寫一個重置 Grid 狀態的 Helper Function
+  private resetGrid(grid: PF.Grid) {
+    const nodes = (grid as ExtendedGrid).nodes;
+
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        const node = nodes[y][x];
+        node.f = 0;
+        node.g = 0;
+        node.h = 0;
+        node.opened = false;
+        node.closed = false;
+        node.parent = null;
+      }
+    }
   }
 }

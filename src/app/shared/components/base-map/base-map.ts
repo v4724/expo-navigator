@@ -15,7 +15,7 @@ import {
   viewChildren,
   WritableSignal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import {
   BehaviorSubject,
@@ -113,6 +113,8 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     { initialValue: 3 },
   );
 
+  scale$ = toObservable(this.scale);
+
   // 組合出單一流暢的 transform 字串 (由 GPU 直接處理)
   isDragging = false;
   private startPointer = { x: 0, y: 0 };
@@ -172,6 +174,10 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.scale$.subscribe((val) => {
+      this._stallMapService.mapContentScale = val;
+    });
+
     if (this._uiStateService.isPlatformBrowser()) {
       const vH = window.visualViewport?.height;
       const mobileStallInfoDefaultH = vH ? vH * 0.5 : 300;
@@ -181,6 +187,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     this._mapImgLoaded.pipe(first((val) => !!val)).subscribe(() => {
       this._stallMapService.mapImage = this.mapImage.nativeElement;
       this._stallMapService.mapContainer = this.mapContainer.nativeElement;
+      this._stallMapService.mapContent = this.mapContent.nativeElement;
 
       requestAnimationFrame(() => {
         const w = this.mapContent.nativeElement.offsetWidth;
