@@ -191,14 +191,14 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
   }
 
   private drawPathStallLabel(node: PathNode, ctx: CanvasRenderingContext2D) {
-    const s = node.stall;
+    const s = node.info;
     if (s) {
       let x = node.x;
       let y = node.y;
-      const labelL = s.id.length;
+      const labelL = s.stall.id.length;
       const charWH = 6;
       const stallWH = charWH * 2;
-      switch (s.rule.bookmarkPosition) {
+      switch (s.stall.rule.bookmarkPosition) {
         case 'right':
           x = x - charWH * labelL - stallWH;
           y += charWH / 2;
@@ -213,7 +213,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
           y -= stallWH;
           break;
       }
-      this.drawLabel(ctx, s.id, x, y, '#000');
+      this.drawLabel(ctx, s.stall.id, x, y, '#000');
     }
   }
 

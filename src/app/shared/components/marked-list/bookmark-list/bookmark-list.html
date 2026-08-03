@@ -112,7 +112,7 @@
               cdkDropListOrientation="vertical"
               (cdkDropListDropped)="drop($event, bookmark)"
             >
-              @for (stall of bookmark.list; track $index) {
+              @for (info of bookmark.list; track $index) {
                 <div class="flex">
                   <div cdkDrag class="flex items-center w-full min-w-0">
                     @if (bookmark.list.length > 1 && bookmarkRoutingSwitch() && isAtRoutingPage()) {
@@ -130,12 +130,12 @@
                     <button
                       pButton
                       class="flex flex-grow !justify-start dark:text-gray-50! !pl-1"
-                      (click)="selectAndFocus(stall.id)"
+                      (click)="selectAndFocus(info.stall.id)"
                       size="small"
                       text="true"
                     >
-                      <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
-                      <span class="text-xs">{{ stall.stallTitle }} </span>
+                      <app-stall-zone-badge [stall]="info.stall"></app-stall-zone-badge>
+                      <span class="text-xs">{{ info.stall.stallTitle }} </span>
                     </button>
                   </div>
                   @if (bookmarkRoutingSwitch() && isAtRoutingPage() && $index == 0) {

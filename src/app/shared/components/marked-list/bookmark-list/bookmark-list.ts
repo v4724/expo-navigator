@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, inject, OnInit, signal, ViewChild } from 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { EditBtn } from 'src/app/components/edit-marked-list/edit-btn/edit-btn';
-import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
+import { MarkedList, MarkedStallInfo } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { UserService } from 'src/app/core/services/state/user-service';
@@ -182,7 +182,7 @@ export class BookmarkList implements OnInit {
   }
 
   // 手動變更順序
-  drop(event: CdkDragDrop<StallData[]>, bookmark: MarkedList) {
+  drop(event: CdkDragDrop<MarkedStallInfo[]>, bookmark: MarkedList) {
     const cat = Array.from(bookmark.list);
     moveItemInArray(cat, event.previousIndex, event.currentIndex);
 

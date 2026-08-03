@@ -52,9 +52,14 @@ export class MarkedListApiService {
   // }
 
   transformToDto(orig: MarkedList): MarkedListUpdateDto {
-    const { show, isUpdating, list, ...data } = orig;
+    const { show, isUpdating, list: list, ...data } = orig;
 
-    const dto = { ...data, list: orig.list.map((stall) => stall.id) };
+    const dto = {
+      ...data,
+      list: orig.list.map((info) => {
+        return { stallId: info.stall.id, note: info.note };
+      }),
+    };
 
     return dto;
   }

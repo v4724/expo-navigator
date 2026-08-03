@@ -4,7 +4,7 @@ import { RoutingStallService } from 'src/app/core/services/state/routing-stall-s
 import { Path, PathNode } from './util';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
+import { MarkedList, MarkedStallInfo } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
 
@@ -145,7 +145,7 @@ export class RoutingLayerBase {
     ctx.restore();
   }
 
-  protected routeByOrder(list: StallData[]): Path[] {
+  protected routeByOrder(list: MarkedStallInfo[]): Path[] {
     let routingPath: Path[] = [];
     for (let i = 1; i < list.length; i++) {
       const last = this.getStallCenter(list[i - 1]);
@@ -154,7 +154,7 @@ export class RoutingLayerBase {
       if (p && p.path.length > 0) {
         routingPath.push(p);
       } else {
-        console.warn(`路徑出錯查無此路線 ${list[i - 1].id} > ${list[i].id}`);
+        console.warn(`路徑出錯查無此路線 ${list[i - 1].stall.id} > ${list[i].stall.id}`);
       }
     }
     return routingPath;
@@ -164,9 +164,9 @@ export class RoutingLayerBase {
     if (bookmark.list.length < 1) {
       return [];
     }
-    let pathNodes = bookmark.list.map((stall) => {
-      const { x, y } = this.getStallCenter(stall);
-      return { stall, x, y } as PathNode;
+    let pathNodes = bookmark.list.map((item) => {
+      const { x, y } = this.getStallCenter(item);
+      return { info: item, x, y } as PathNode;
     });
     const start = pathNodes[0];
     pathNodes.splice(0, 1);
@@ -176,7 +176,8 @@ export class RoutingLayerBase {
   }
 
   // 調整路線規劃時所對應的攤位中心點位置
-  protected getStallCenter(s: StallData): PathNode {
+  protected getStallCenter(info: MarkedStallInfo): PathNode {
+    const s = info.stall;
     const pathFinder = this.pathFinder();
     const orig =
       pathFinder != null ? pathFinder.getCanvasCoord(s.coords) : { x: 0, y: 0, w: 0, h: 0 };
@@ -199,15 +200,15 @@ export class RoutingLayerBase {
         x = orig.x + orig.w / 2;
         break;
     }
-    return { ...orig, x, y, stall: s };
+    return { ...orig, x, y, info };
   }
 
   protected updateBookmarkPathOrder(item: MarkedList, paths: Path[]) {
-    let end: StallData | undefined;
+    let end: MarkedStallInfo | undefined;
     const order = paths
       .map((path) => {
-        end = path.end.stall;
-        return path.start.stall;
+        end = path.end.info;
+        return path.start.info;
       })
       .filter((val) => !!val);
     if (end) {

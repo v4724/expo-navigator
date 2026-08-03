@@ -127,15 +127,15 @@
         class="flex gap-2 flex-wrap mt-2 example-list"
         (cdkDropListDropped)="drop($event)"
       >
-        @for (stall of selectedStalls; track stall) {
+        @for (info of selectedStalls; track info) {
           <p-chip
             [removable]="true"
             (onRemove)="remove($index)"
             cdkDrag
             class="border border-gray-200 !rounded-full cursor-grab"
           >
-            <app-stall-zone-badge [stall]="stall"></app-stall-zone-badge>
-            <span class="">{{ stall.stallTitle }} </span>
+            <app-stall-zone-badge [stall]="info.stall"></app-stall-zone-badge>
+            <span class="">{{ info.stall.stallTitle }} </span>
           </p-chip>
         }
       </div>

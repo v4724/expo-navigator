@@ -57,8 +57,8 @@ export class Bookmarks implements OnInit {
     const list = all?.filter((list) => {
       return (
         list.show &&
-        list.list.some((stall) => {
-          return stall.stallZone === this.zoneId();
+        list.list.some((info) => {
+          return info.stall.stallZone === this.zoneId();
         })
       );
     });

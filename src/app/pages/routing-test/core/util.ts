@@ -1,4 +1,5 @@
 import PF from 'pathfinding';
+import { MarkedStallInfo } from 'src/app/core/interfaces/marked-stall.interface';
 import { StallCoords, StallData } from 'src/app/core/interfaces/stall.interface';
 // 1. 定義內部 Node 結構
 interface PFNode {
@@ -18,7 +19,7 @@ interface ExtendedGrid extends PF.Grid {
   nodes: PFNode[][];
 }
 export interface PathNode extends Point {
-  stall?: StallData;
+  info?: MarkedStallInfo;
 }
 export interface Point {
   x: number;
@@ -93,8 +94,8 @@ export class PathFinder {
   // A* 尋路 API (可使用套件如 pathfinding.js)
   findPath(start: PathNode, end: PathNode): Path {
     let cachePath;
-    if (start.stall && end.stall) {
-      cachePath = this.getCachePath(start.stall, end.stall);
+    if (start.info && end.info) {
+      cachePath = this.getCachePath(start.info.stall, end.info.stall);
     }
 
     if (cachePath) return cachePath;
@@ -115,8 +116,8 @@ export class PathFinder {
       eY >= this.gridHeight
     ) {
       return {
-        start: { x: start.x, y: start.y, stall: start.stall },
-        end: { x: end.x, y: end.y, stall: end.stall },
+        start: { x: start.x, y: start.y, info: start.info },
+        end: { x: end.x, y: end.y, info: end.info },
         path: [],
       };
     }
@@ -135,12 +136,12 @@ export class PathFinder {
       start: {
         x: sX * this.pathGridScale + this.pathGridScale / 2,
         y: sY * this.pathGridScale + this.pathGridScale / 2,
-        stall: start.stall,
+        stall: start.info,
       },
       end: {
         x: eX * this.pathGridScale + this.pathGridScale / 2,
         y: eY * this.pathGridScale + this.pathGridScale / 2,
-        stall: end.stall,
+        stall: end.info,
       },
       path: rawPath.map(([x, y]) => ({
         x: x * this.pathGridScale + this.pathGridScale / 2,
@@ -148,8 +149,8 @@ export class PathFinder {
       })),
     };
 
-    if (start.stall && end.stall && rawPath.length > 0) {
-      this.setCachePath(start.stall, end.stall, path);
+    if (start.info && end.info && rawPath.length > 0) {
+      this.setCachePath(start.info.stall, end.info.stall, path);
     }
 
     return path;

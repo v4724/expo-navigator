@@ -20,7 +20,7 @@ import {
 import { finalize, tap } from 'rxjs';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { MarkedListUpdateDto } from 'src/app/core/models/marked-stall.model';
-import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
+import { MarkedList, MarkedStallInfo } from 'src/app/core/interfaces/marked-stall.interface';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Divider } from 'primeng/divider';
 import { StallData } from '../../../core/interfaces/stall.interface';
@@ -156,7 +156,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     return this.editForm.get('list') as FormArray;
   }
 
-  get selectedStalls(): StallData[] {
+  get selectedStalls(): MarkedStallInfo[] {
     return this.list.value ?? [];
   }
 
@@ -249,10 +249,10 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
 
   onFilterSelect(stall: StallData) {
     const list = this.list.value;
-    if (list.includes(stall)) {
+    if (list.find((info: MarkedStallInfo) => info.stall.id == stall.id)) {
       return;
     }
-    this.list.push(this._fb.control(stall));
+    this.list.push(this._fb.control({ stall, note: '' }));
   }
 
   remove(index: number) {
@@ -331,7 +331,7 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
     window.open(this.fontIconUrl, '_target');
   }
 
-  drop(event: CdkDragDrop<StallData[]>) {
+  drop(event: CdkDragDrop<MarkedStallInfo[]>) {
     const cat = Array.from(this.selectedStalls);
     moveItemInArray(cat, event.previousIndex, event.currentIndex);
     this.list.patchValue(cat, { emitEvent: false });
@@ -356,7 +356,9 @@ export class EditMarkedListModal implements OnInit, AfterViewInit, OnDestroy {
   private _getDataFromForm(): MarkedListUpdateDto {
     const rawValue = this.editForm.getRawValue();
 
-    rawValue.list = rawValue.list.map((stall: StallData) => stall.id);
+    rawValue.list = rawValue.list.map((info: MarkedStallInfo) => {
+      return { stallId: info.stall.id, note: info.note };
+    });
     delete rawValue.stallId;
     delete rawValue.cusIconColorInput;
 

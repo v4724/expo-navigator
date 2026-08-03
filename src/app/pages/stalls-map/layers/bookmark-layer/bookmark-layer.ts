@@ -101,8 +101,8 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
 
       item.list.forEach((s) => {
         // 將百分比座標轉換為畫布像素座標
-        const { x, y, w, h } = this.getCanvasCoord(s);
-        this.drawBookmark(s, item, ctx, x, y, w, h);
+        const { x, y, w, h } = this.getCanvasCoord(s.stall);
+        this.drawBookmark(s.stall, item, ctx, x, y, w, h);
       });
     });
 

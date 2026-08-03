@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, combineLatest, filter, finalize, map, Subject, take, tap } from 'rxjs';
 import { StallService } from './stall-service';
-import { MarkedList } from '../../interfaces/marked-stall.interface';
+import { MarkedList, MarkedStallInfo } from '../../interfaces/marked-stall.interface';
 import { StallData } from '../../interfaces/stall.interface';
 import { StallMapService } from './stall-map-service';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -29,7 +29,7 @@ export class RoutingStallService {
   reRoutingItem$ = this._reRoutingItem.asObservable();
 
   private _unstoreItemIds = new Set<number>();
-  unstoreItemsWithOrigOrder = new Map<number, StallData[]>();
+  unstoreItemsWithOrigOrder = new Map<number, MarkedStallInfo[]>();
 
   user = toSignal(this._userService.user$);
 
@@ -95,7 +95,7 @@ export class RoutingStallService {
   }
 
   // 以新順序重新串接路徑 (紀錄舊順序)
-  updateOrderByManual(item: MarkedList, newOrder: StallData[]) {
+  updateOrderByManual(item: MarkedList, newOrder: MarkedStallInfo[]) {
     this.addUnstoreCache(item);
 
     item.list = newOrder;
@@ -103,7 +103,7 @@ export class RoutingStallService {
   }
 
   // 已重新規畫路徑 (紀錄舊順序)
-  updateOrderAfterAuto(item: MarkedList, newOrder: StallData[]) {
+  updateOrderAfterAuto(item: MarkedList, newOrder: MarkedStallInfo[]) {
     this.addUnstoreCache(item);
 
     item.list = newOrder;

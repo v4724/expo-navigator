@@ -110,12 +110,14 @@ export class MarkedStallService {
       orig.icon = data.icon;
       orig.iconColor = data.iconColor;
       orig.list = data.list
-        .map((stallId) => {
-          const find = this._stallService.findStall(stallId);
-          if (find) {
-            return find;
-          }
-          return null;
+        .map((item) => {
+          const find = this._stallService.findStall(item.stallId);
+          if (!find) return null;
+
+          return {
+            stall: find,
+            note: item.note,
+          };
         })
         .filter((item) => !!item);
 
@@ -153,11 +155,11 @@ export class MarkedStallService {
 
     allList.forEach((item: MarkedList) => {
       const listId = item.id;
-      item.list.forEach((stall) => {
-        let markEntry: Set<number> | undefined = markedMapByStallId.get(stall.id);
+      item.list.forEach((item) => {
+        let markEntry: Set<number> | undefined = markedMapByStallId.get(item.stall.id);
         if (!markEntry) {
           markEntry = new Set();
-          markedMapByStallId.set(stall.id, markEntry);
+          markedMapByStallId.set(item.stall.id, markEntry);
         }
         markEntry.add(listId);
       });
@@ -171,10 +173,13 @@ export class MarkedStallService {
 
   dtoToMarkedList(dto: MarkedListDto): MarkedList {
     const list = dto.list
-      .map((stallId) => {
-        const stallInfo = this._stallService.findStall(stallId);
+      .map((item) => {
+        const stallInfo = this._stallService.findStall(item.stallId);
         if (stallInfo) {
-          return stallInfo;
+          return {
+            stall: stallInfo,
+            note: item.note,
+          };
         }
         return null;
       })
@@ -182,7 +187,7 @@ export class MarkedStallService {
 
     return {
       ...dto,
-      list,
+      list: list,
       show: true,
       isUpdating: false,
       isDeleting: false,

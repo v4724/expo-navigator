@@ -11,7 +11,7 @@ export interface MarkedListDto {
   isCusIconColor: boolean;
   isPathVisible: boolean;
   listName: string;
-  list: string[];
+  list: { stallId: string; note: string }[];
 }
 
 export interface MarkedListUpdateDto extends MarkedListDto {}

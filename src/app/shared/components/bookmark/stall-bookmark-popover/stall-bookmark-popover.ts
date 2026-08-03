@@ -42,7 +42,7 @@ export class StallBookmarkPopover implements OnInit {
 
     const dto = this._markedListApiService.transformToDto(data);
 
-    const index = dto.list.indexOf(id);
+    const index = dto.list.map((item) => item.stallId).indexOf(id);
     dto.list.splice(index, 1);
 
     data.isUpdating = true;
@@ -66,7 +66,7 @@ export class StallBookmarkPopover implements OnInit {
     if (!id) return;
 
     const dto = this._markedListApiService.transformToDto(data);
-    dto.list.push(id);
+    dto.list.push({ stallId: id, note: '' });
 
     data.isUpdating = true;
     this._markedListApiService
