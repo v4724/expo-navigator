@@ -11,6 +11,7 @@ import { UserService } from 'src/app/core/services/state/user-service';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 @Component({
   selector: 'app-marked-list-drawer',
@@ -35,17 +36,16 @@ export class MarkedListDrawer implements OnInit {
   private _markedListService = inject(MarkedStallService);
   private _userService = inject(UserService);
   private _expoStateService = inject(ExpoStateService);
+  private _uiStateService = inject(UiStateService);
 
   isLogin = toSignal(this._userService.isLogin$);
   bookmarkRoutingSwitch = toSignal(this._expoStateService.bookmarkRoutingSwitch$);
   bookmarkRoutingOnly = toSignal(this._expoStateService.bookmarkRoutingOnly$);
 
   checked = true;
-  atRoutingPage = signal(false);
+  isAtRoutingPage = toSignal(this._uiStateService.isAtRoutingPage$);
 
-  constructor() {
-    this.atRoutingPage.set(this._router.url.includes('routing'));
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this._markedListService.layerShown$.subscribe((val) => {

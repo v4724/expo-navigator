@@ -162,10 +162,8 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   _zoneElLoaded = new Subject<boolean>();
   zoneElLoaded$ = this._zoneElLoaded.asObservable();
 
-  atRoutingPage = false;
+  isAtRoutingPage = toSignal(this._uiStateService.isAtRoutingPage$);
   constructor() {
-    this.atRoutingPage = this._router.url.includes('routing');
-
     effect(() => {
       if (this.zoneElements().length > 0) {
         this._zoneElLoaded.next(true);
@@ -691,7 +689,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
 
     // 取得 UI 邊界偏移量
     const sidebarW =
-      !this._uiStateService.isMobile() && !!this._leftSidebarService.curr && !this.atRoutingPage
+      !this._uiStateService.isMobile() && !!this._leftSidebarService.curr && !this.isAtRoutingPage()
         ? 310
         : 0;
 

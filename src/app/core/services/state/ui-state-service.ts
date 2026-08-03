@@ -1,18 +1,36 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { inject, Inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { BehaviorSubject, filter, map } from 'rxjs';
 import { isPlatform } from '@ionic/core';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UiStateService {
   private _showUiState = new BehaviorSubject<boolean>(false);
+  private _currUrl = new BehaviorSubject<string>('');
 
   showUiState$ = this._showUiState.asObservable();
+  currUrl$ = this._currUrl.asObservable();
+  isAtRoutingPage$ = this.currUrl$.pipe(
+    map((url) => {
+      return url.includes('routing');
+    }),
+  );
 
   // 避免 SSR 錯誤
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  private platformId = inject(PLATFORM_ID);
+  private _router = inject(Router);
+
+  constructor() {
+    this._router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        // 更新當前 URL (包含 queryParams/fragment)
+        this._currUrl.next(event.urlAfterRedirects);
+      });
+  }
 
   isPlatformBrowser() {
     return isPlatformBrowser(this.platformId);

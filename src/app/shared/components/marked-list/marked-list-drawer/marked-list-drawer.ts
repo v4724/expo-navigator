@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { Router, RouterModule } from '@angular/router';
 import { ExpoStateService } from 'src/app/core/services/state/expo-state-service';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 @Component({
   selector: 'app-marked-list-drawer',
@@ -34,6 +35,7 @@ export class MarkedListDrawer implements OnInit {
   private _markedListService = inject(MarkedStallService);
   private _userService = inject(UserService);
   private _expoStateService = inject(ExpoStateService);
+  private _uiStateService = inject(UiStateService);
   private _router = inject(Router);
 
   showControls = toSignal(
@@ -45,13 +47,11 @@ export class MarkedListDrawer implements OnInit {
   );
   isLogin = toSignal(this._userService.isLogin$);
   bookmarkRoutingSwitch = toSignal(this._expoStateService.bookmarkRoutingSwitch$);
-  atRoutingPage = signal<boolean>(false);
+  isAtRoutingPage = toSignal(this._uiStateService.isAtRoutingPage$);
 
   checked = false;
 
   ngOnInit(): void {
-    this.atRoutingPage.set(this._router.url.includes('routing'));
-
     this._markedListService.layerShown$.subscribe((val) => {
       this.checked = val;
     });

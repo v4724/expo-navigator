@@ -1,10 +1,10 @@
 <app-drawer-on-mobile (onShow)="onShow()">
   <div title class="flex items-center gap-2 w-full">
     <div class="text-lg">書籤</div>
-    @if (!atRoutingPage()) {
+    @if (!isAtRoutingPage()) {
       <p-toggleswitch [(ngModel)]="checked" (change)="toggleLayer()" />
     }
-    @if (bookmarkRoutingSwitch() && !atRoutingPage()) {
+    @if (bookmarkRoutingSwitch() && !isAtRoutingPage()) {
       <button
         pButton
         class="ml-auto dark:!text-gray-300"

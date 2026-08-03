@@ -34,6 +34,7 @@ import {
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { Tooltip } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
+import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 
 @Component({
   selector: 'app-bookmark-list',
@@ -67,6 +68,7 @@ export class BookmarkList implements OnInit {
   private _confirmService = inject(ConfirmationService);
   private _routingStallService = inject(RoutingStallService);
   private _expoStateService = inject(ExpoStateService);
+  private _uiStateService = inject(UiStateService);
   private cdr = inject(ChangeDetectorRef);
 
   private readonly _messageService = inject(MessageService);
@@ -78,13 +80,10 @@ export class BookmarkList implements OnInit {
     initialValue: false,
   });
 
-  atRoutingPage = signal<boolean>(false);
+  isAtRoutingPage = toSignal(this._uiStateService.isAtRoutingPage$);
   accordionShow = signal<boolean>(true);
 
-  ngOnInit() {
-    const currentUrl = this._router.url;
-    this.atRoutingPage.set(currentUrl.includes('routing'));
-  }
+  ngOnInit() {}
 
   selectAndFocus(stallId: string) {
     this._selectStallService.selected = stallId;
