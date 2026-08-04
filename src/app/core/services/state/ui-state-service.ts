@@ -10,6 +10,7 @@ import { NavigationEnd, Router } from '@angular/router';
 export class UiStateService {
   private _showUiState = new BehaviorSubject<boolean>(false);
   private _currUrl = new BehaviorSubject<string>('');
+  private _markedListDrawerShown = new BehaviorSubject<boolean>(false);
 
   showUiState$ = this._showUiState.asObservable();
   currUrl$ = this._currUrl.asObservable();
@@ -18,6 +19,7 @@ export class UiStateService {
       return url.includes('routing');
     }),
   );
+  markedListDrawerShown$ = this._markedListDrawerShown.asObservable();
 
   // 避免 SSR 錯誤
   private platformId = inject(PLATFORM_ID);
@@ -59,4 +61,6 @@ export class UiStateService {
   zoomFactor() {
     return this.isSmallScreen() ? 4.5 : 1.8;
   }
+
+  markedListDrawerShown() {}
 }

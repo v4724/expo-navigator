@@ -12,6 +12,9 @@ import { ExpoStateService } from 'src/app/core/services/state/expo-state-service
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
+import { LeftSidebarService, SidebarType } from 'src/app/core/services/state/left-sidebar-service';
+import { map } from 'rxjs';
+import { MobileDrawerService } from 'src/app/core/services/state/mobile-drawer-service';
 
 @Component({
   selector: 'app-marked-list-drawer',
@@ -37,6 +40,7 @@ export class MarkedListDrawer implements OnInit {
   private _userService = inject(UserService);
   private _expoStateService = inject(ExpoStateService);
   private _uiStateService = inject(UiStateService);
+  private _mobileDrawerService = inject(MobileDrawerService);
 
   isLogin = toSignal(this._userService.isLogin$);
   bookmarkRoutingSwitch = toSignal(this._expoStateService.bookmarkRoutingSwitch$);
@@ -62,14 +66,17 @@ export class MarkedListDrawer implements OnInit {
   show() {
     this.drawer.show();
     this.bookmarkList.setAccordionShow(false);
+    this._mobileDrawerService.show('bookmarkList', this.drawer);
   }
 
   onShow() {
     this.bookmarkList.setAccordionShow(true);
+    this._mobileDrawerService.show('bookmarkList', this.drawer);
   }
 
   close() {
     this.drawer?.close();
+    this._mobileDrawerService.show('', this.drawer);
   }
 
   toggleLayer() {

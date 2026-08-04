@@ -116,7 +116,7 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     h: number,
   ) {
     // 設定字型為 Material Icons (需確保 CSS 已載入該字型)
-    const baseSize = 24;
+    const baseSize = 20;
     const scaleFactor = 16;
     const size = baseSize + scaleFactor * Math.sqrt(this.baseMapScale);
     const color = this.getColor(setting);

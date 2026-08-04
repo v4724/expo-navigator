@@ -72,8 +72,23 @@
       }
     </div>
 
-    <div class="absolute bottom-8 right-2">
-      <button class="!p-1 dark:!text-gray-200" pButton rounded (click)="focusCenterCenter()">
+    <div
+      class="absolute"
+      [class.right-3]="isMobile()"
+      [class.right-2]="!isMobile()"
+      [style.bottom.px]="isMobile() ? null : 30"
+      [style.top.px]="isMobile() ? 55 : null"
+    >
+      <button
+        class="!p-1 dark:!text-gray-200"
+        [ngClass]="{
+          '!bg-gray-200 !text-gray-400 !border-none dark:!text-gray-200 dark:!text-gray-600':
+            isMobile(),
+        }"
+        pButton
+        rounded
+        (click)="focusCenterCenter()"
+      >
         <mat-icon aria-hidden="false" aria-label="center" fontIcon="my_location"></mat-icon>
       </button>
     </div>

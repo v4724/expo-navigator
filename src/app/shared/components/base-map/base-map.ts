@@ -29,6 +29,7 @@ import {
   map,
   Subject,
   take,
+  tap,
 } from 'rxjs';
 import { TargetXY } from 'src/app/core/directives/draggable';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
@@ -41,6 +42,7 @@ import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { MobileDrawerService } from 'src/app/core/services/state/mobile-drawer-service';
 
 @Component({
   selector: 'app-base-map',
@@ -61,6 +63,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   private _stallService = inject(StallService);
   private _selectStallService = inject(SelectStallService);
   private _leftSidebarService = inject(LeftSidebarService);
+  private _mobileDrawerService = inject(MobileDrawerService);
   private _expoStateService = inject(ExpoStateService);
   private _router = inject(Router);
 
@@ -164,6 +167,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
   zoneElLoaded$ = this._zoneElLoaded.asObservable();
 
   isAtRoutingPage = toSignal(this._uiStateService.isAtRoutingPage$);
+
   constructor() {
     effect(() => {
       if (this.zoneElements().length > 0) {
@@ -179,7 +183,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
 
     if (this._uiStateService.isPlatformBrowser()) {
       const vH = window.visualViewport?.height;
-      const mobileStallInfoDefaultH = vH ? vH * 0.5 : 300;
+      const mobileStallInfoDefaultH = vH ? vH * 0.3 : 300;
       this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? mobileStallInfoDefaultH : 0;
     }
 
@@ -251,7 +255,22 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
         }
       });
     }
+
+    // 根據牌卡高度調整 focus icon
+    this._mobileDrawerService.drawer$
+      .pipe(
+        tap((drawer) => {
+          if (drawer) {
+            const height = drawer.drawerHeight;
+            this.focusBottomPx.set(height);
+          } else {
+            this.focusBottomPx.set(20);
+          }
+        }),
+      )
+      .subscribe();
   }
+  focusBottomPx = signal(20);
 
   ngAfterViewInit() {
     this.runApp();
@@ -485,7 +504,10 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     let viewH = viewEl.offsetHeight;
 
     // Mobile 下方如果有展開的攤位卡片，扣除該高度以取得真正的可視區域高度
-    const mobileCardH = this._uiStateService.isMobile() ? this.mobileStallInfoDefaultH : 0;
+    const mobileCardH =
+      this._uiStateService.isMobile() && this._mobileDrawerService.curr
+        ? this.mobileStallInfoDefaultH
+        : 0;
     viewH = viewH - mobileCardH;
 
     if (viewW === 0 || viewH === 0) return;
@@ -520,7 +542,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     let viewCenterY = viewH / 2;
 
     // Desktop 左側如果開啟側邊欄 (310px)，將視覺中心向右偏移
-    if (!this._uiStateService.isMobile() && this._leftSidebarService.curr) {
+    if (!this._uiStateService.isMobile()) {
       const sidebarWidth = 310;
       viewCenterX = sidebarWidth + (viewW - sidebarWidth) / 2;
     }

@@ -111,6 +111,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
       stall = this.getMappingStall(event);
     }
     this.clickedStall.set(stall);
+    this._selectStallService.selected = stall ? stall.id : null;
 
     this.cdr.detectChanges();
 
