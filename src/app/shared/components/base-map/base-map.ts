@@ -310,6 +310,31 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
 
       if (!zoneData) return;
 
+      const region = zoneData.groupDef.boundingBox; // 假設格式為 { top, left, right, bottom } (百分比)
+
+      if (region) {
+        const regionScreenLeft = tx + (region.left / 100) * baseMapWidth * scale;
+        const regionScreenRight = tx + (region.right / 100) * baseMapWidth * scale;
+        const regionScreenTop = ty + (region.top / 100) * baseMapHeight * scale;
+        const regionScreenBottom = ty + (region.bottom / 100) * baseMapHeight * scale;
+
+        // 判斷 Region 矩形與 Viewport 矩形 (0, 0, viewW, viewH) 是否有交集
+        const isRegionInView =
+          regionScreenRight > 0 &&
+          regionScreenLeft < viewW &&
+          regionScreenBottom > 0 &&
+          regionScreenTop < viewH;
+
+        // 設定背景色：出現於視窗內設為 Highlight 顏色，反之為淺灰色
+        if (isRegionInView) {
+          el.style.backgroundColor = '#000'; // 高亮顏色 (例如 Highlight 藍)
+          el.style.color = '#ffffff';
+        } else {
+          el.style.backgroundColor = '#99a1af'; // 淺灰色 (Gray-200)
+          el.style.color = '#ffffff'; // 灰色文字
+        }
+      }
+
       // 算出該點在原始 100% 未縮放地圖上的 px 座標
       const originalX = (zoneData.groupDef.anchorRect.left / 100) * baseMapWidth;
       const originalY = (zoneData.groupDef.anchorRect.top / 100) * baseMapHeight;
