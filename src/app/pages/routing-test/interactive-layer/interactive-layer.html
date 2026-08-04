@@ -28,11 +28,11 @@
 ></div>
 <app-stall-bookmark-popover [stall]="cs" [dismissable]="false">
   <div class="flex flex-col py-2">
-    <div class="flex gap-1">
+    <div class="flex gap-1 items-center">
       <div class="font-semibold">{{ cs?.id }}</div>
       <div class="flex-inline">{{ cs?.stallTitle }}</div>
       @if (cs?.stallLink) {
-        <button class="ml-auto" pButton pButtonIcon>
+        <button class="ml-auto ml-1" pButton pButtonIcon>
           <mat-icon
             inline
             aria-hidden="false"

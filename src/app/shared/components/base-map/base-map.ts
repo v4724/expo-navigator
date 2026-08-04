@@ -40,10 +40,11 @@ import { StallService } from 'src/app/core/services/state/stall-service';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-base-map',
-  imports: [CommonModule, MatIcon, TooltipModule],
+  imports: [CommonModule, MatIcon, ButtonModule, TooltipModule],
   templateUrl: './base-map.html',
   styleUrl: './base-map.scss',
 })
@@ -466,9 +467,18 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     if (this._selectStallService.selected) return;
   }
 
-  // 將指定攤位置中於畫面
+  focusCenterCenter() {
+    this.focusTo(50, 50, 0, 0, 1);
+  }
+
   focus(stall: StallData) {
-    if (!stall || !this.mapContainer) return;
+    const { left, top, width, height } = stall.coords;
+    this.focusTo(left, top, width, height, this.focusScale());
+  }
+
+  // 將指定攤位置中於畫面
+  focusTo(left: number, top: number, width: number, height: number, scale?: number) {
+    if (!this.mapContainer) return;
 
     const viewEl = this.mapContainer.nativeElement;
     const viewW = viewEl.offsetWidth;
@@ -481,9 +491,15 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     if (viewW === 0 || viewH === 0) return;
 
     // 1. 決定目標 Scale (若當前縮放小於 focusScale，則放大至 focusScale)
-    const targetScale = Math.max(this.scale(), this.focusScale());
-    if (targetScale !== this.scale()) {
-      this.scale.set(targetScale);
+    let targetScale;
+    if (scale) {
+      targetScale = scale;
+      this.scale.set(scale);
+    } else {
+      targetScale = Math.max(this.scale(), this.focusScale());
+      if (targetScale !== this.scale()) {
+        this.scale.set(targetScale);
+      }
     }
 
     // 2. 取得地圖原始基準寬高 (未縮放前的 100% 尺寸)
@@ -491,10 +507,10 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     const baseMapH = this.mapHeight();
 
     // 3. 計算攤位中心點在 100% 原始地圖上的 px 座標 (Original X, Y)
-    const stallLeft = (stall.coords.left / 100) * baseMapW;
-    const stallTop = (stall.coords.top / 100) * baseMapH;
-    const stallW = (stall.coords.width / 100) * baseMapW;
-    const stallH = (stall.coords.height / 100) * baseMapH;
+    const stallLeft = (left / 100) * baseMapW;
+    const stallTop = (top / 100) * baseMapH;
+    const stallW = (width / 100) * baseMapW;
+    const stallH = (height / 100) * baseMapH;
 
     const stallCenterX = stallLeft + stallW / 2;
     const stallCenterY = stallTop + stallH / 2;
