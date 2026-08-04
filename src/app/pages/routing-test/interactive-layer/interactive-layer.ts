@@ -107,12 +107,10 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
 
   onMapClick(event: MouseEvent | TouchEvent) {
     let stall = this.hoveredStall();
-    if (stall) {
-      this.clickedStall.set(stall);
-    } else {
+    if (this._uiStateService.isMobile()) {
       stall = this.getMappingStall(event);
-      this.clickedStall.set(stall);
     }
+    this.clickedStall.set(stall);
 
     this.cdr.detectChanges();
 
