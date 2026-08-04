@@ -29,6 +29,7 @@ import {
   map,
   Subject,
   take,
+  takeUntil,
   tap,
 } from 'rxjs';
 import { TargetXY } from 'src/app/core/directives/draggable';
@@ -183,7 +184,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
 
     if (this._uiStateService.isPlatformBrowser()) {
       const vH = window.visualViewport?.height;
-      const mobileStallInfoDefaultH = vH ? vH * 0.3 : 300;
+      const mobileStallInfoDefaultH = vH ? vH * 0.5 : 300;
       this.mobileStallInfoDefaultH = this._uiStateService.isMobile() ? mobileStallInfoDefaultH : 0;
     }
 
@@ -375,7 +376,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
       el.style.transition = transitionStyle;
 
       // 套用位移
-      el.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`;
+      el.style.transform = `translate(${finalX}px, ${finalY}px)`;
       el.style.width = `${currentSize}px`;
       el.style.height = `${currentSize}px`;
       el.style.fontSize = `${currentFontSize}px`;
@@ -504,10 +505,7 @@ export class BaseMap implements OnInit, AfterViewInit, OnDestroy {
     let viewH = viewEl.offsetHeight;
 
     // Mobile 下方如果有展開的攤位卡片，扣除該高度以取得真正的可視區域高度
-    const mobileCardH =
-      this._uiStateService.isMobile() && this._mobileDrawerService.curr
-        ? this.mobileStallInfoDefaultH
-        : 0;
+    const mobileCardH = this._uiStateService.isMobile() ? 0 : 0;
     viewH = viewH - mobileCardH;
 
     if (viewW === 0 || viewH === 0) return;

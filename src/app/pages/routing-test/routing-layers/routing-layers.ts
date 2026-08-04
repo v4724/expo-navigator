@@ -1,22 +1,107 @@
-import { Component, inject } from '@angular/core';
-import { RoutingLayer } from '../routing-layer/routing-layer';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { combineLatest, debounceTime, filter, take, tap } from 'rxjs';
+import { RoutingLayerBase } from '../core/routing-layer-base';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
-import { StallMapService } from 'src/app/core/services/state/stall-map-service';
-import { StallService } from 'src/app/core/services/state/stall-service';
 
 @Component({
   selector: 'app-routing-layers',
-  imports: [RoutingLayer],
-  templateUrl: './routing-layers.html',
+  imports: [CommonModule],
+  template: `<canvas #stallCanvas class="absolute top-0 left-0 w-full h-full pointer-events-none">
+  </canvas>`,
   styleUrl: './routing-layers.scss',
 })
-export class RoutingLayers {
-  private _markedStallService = inject(MarkedStallService);
-  protected _stallMapService = inject(StallMapService);
-  protected _stallService = inject(StallService);
+export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterViewInit {
+  @ViewChild('stallCanvas') declare canvasRef: ElementRef<HTMLCanvasElement>;
 
   bookmarkList = toSignal(this._markedStallService.markedList$, { initialValue: [] });
 
-  ngOnInit() {}
+  constructor() {
+    super();
+  }
+
+  ngOnInit() {
+    // 開啟/關閉顯示路徑
+    this._routingStallService.togglePath$
+      .pipe(
+        tap(() => {
+          this.redraw();
+        }),
+      )
+      .subscribe();
+
+    // 該書籤:有編輯儲存
+    this._markedStallService.updated$
+      .pipe(
+        tap(() => {
+          this.redraw();
+        }),
+      )
+      .subscribe();
+
+    // 自動規劃路徑
+    this._routingStallService.autoRoutingItem$
+      .pipe(
+        tap((target) => {
+          this.reset();
+          this.bookmarkList().forEach((item) => {
+            if (item.showPath) {
+              let path;
+              if (item.id == target.id) {
+                path = this.autoRouting(item);
+              } else {
+                path = this.routeByOrder(item.list);
+              }
+              this.drawMapAndPath(item, path);
+              if (item.id == target.id) {
+                this.updateBookmarkPathOrder(item, path);
+              }
+            }
+          });
+        }),
+      )
+      .subscribe();
+
+    // 手動調整路徑
+    this._routingStallService.reRoutingItem$
+      .pipe(
+        tap((item) => {
+          this.redraw();
+        }),
+      )
+      .subscribe();
+
+    // scale 改變
+    this._stallMapService.mapContentScale$
+      .pipe(
+        debounceTime(200),
+        tap((val) => {
+          this.redraw();
+        }),
+      )
+      .subscribe();
+  }
+
+  ngAfterViewInit() {
+    // 顯示初始路徑
+    combineLatest([this._routingStallService.pathFinder$])
+      .pipe(
+        filter(([val]) => !!val),
+        take(1),
+        tap(() => {
+          this.redraw();
+        }),
+      )
+      .subscribe();
+  }
+
+  redraw() {
+    this.reset();
+    this.bookmarkList().forEach((item) => {
+      if (item.showPath) {
+        const path = this.routeByOrder(item.list);
+        this.drawMapAndPath(item, path);
+      }
+    });
+  }
 }

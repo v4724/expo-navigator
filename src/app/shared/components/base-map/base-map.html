@@ -62,11 +62,7 @@
     <!-- Sticky 區域標籤層（與地圖內容同級，不隨地圖 transform） -->
     <div class="absolute inset-0 pointer-events-none">
       @for (zone of anchorZones(); track zone) {
-        <div
-          #zoneLabel
-          class="absolute zone-sticky-label style-gpu-accelerated"
-          [attr.data-zone]="zone.zoneId"
-        >
+        <div #zoneLabel class="absolute zone-sticky-label" [attr.data-zone]="zone.zoneId">
           {{ zone.zoneId }}
         </div>
       }

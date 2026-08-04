@@ -21,7 +21,7 @@
     top 0.05s ease-out;
 
   /* 核心優化：通知瀏覽器這個元件會頻繁變動位置，提前做好硬體加速 */
-  will-change: transform;
+  // will-change: transform;
 
   /* 注意：移除任何 transition! 在高頻率拖曳中，transition 反而會造成落後殘影 */
   transition: none !important;

@@ -2,7 +2,6 @@ import { ElementRef, inject } from '@angular/core';
 import { map } from 'rxjs';
 import { RoutingStallService } from 'src/app/core/services/state/routing-stall-service';
 import { Path, PathNode } from './util';
-import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MarkedList, MarkedStallInfo } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
