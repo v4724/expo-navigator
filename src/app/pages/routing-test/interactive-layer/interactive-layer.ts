@@ -15,10 +15,12 @@ import { CommonModule } from '@angular/common';
 import { BaseLayer } from '../../stalls-map/layers/base-layer';
 import { StallBookmarkPopover } from '../../../shared/components/bookmark/stall-bookmark-popover/stall-bookmark-popover';
 import { UiStateService } from 'src/app/core/services/state/ui-state-service';
+import { MatIcon } from '@angular/material/icon';
+import { ButtonIcon } from 'primeng/button';
 
 @Component({
   selector: 'app-interactive-layer',
-  imports: [CommonModule, TooltipModule, StallBookmarkPopover],
+  imports: [CommonModule, TooltipModule, StallBookmarkPopover, MatIcon, ButtonIcon],
   templateUrl: './interactive-layer.html',
   styleUrl: './interactive-layer.scss',
 })
@@ -213,5 +215,9 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
         mouseY <= s.coords.top + s.coords.height
       );
     });
+  }
+
+  openUrl(url?: string) {
+    url && window.open(url);
   }
 }
