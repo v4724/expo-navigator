@@ -93,9 +93,6 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     ctx.imageSmoothingQuality = 'high';
 
     // 設定樣式
-    ctx.font = '16px Arial';
-    ctx.textAlign = 'center';
-
     this.markedList().forEach((item) => {
       if (!item.show) return;
 
@@ -122,8 +119,9 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     const baseSize = 24;
     const scaleFactor = 16;
     const size = baseSize + scaleFactor * Math.sqrt(this.baseMapScale);
+    const color = this.getColor(setting);
     ctx.font = `${size}px "Material Icons", "Material Symbols Outlined"`;
-    ctx.fillStyle = setting.iconColor;
+    ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 

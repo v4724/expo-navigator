@@ -71,9 +71,7 @@ export class RoutingLayerBase {
       }
     });
 
-    const color = bookmark.isCusIconColor
-      ? bookmark.cusIconColor
-      : (bookmark.iconColor ?? '#FF0000');
+    const color = this.getColor(bookmark);
 
     ctx.globalAlpha = 1; // 設定整體透明度
     ctx.strokeStyle = color;
@@ -90,19 +88,6 @@ export class RoutingLayerBase {
     ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
     ctx.strokeStyle = '#FFFFFF';
     ctx.stroke();
-
-    // 攤位點
-    // paths.forEach((p) => {
-    //   ctx.beginPath();
-    //   ctx.arc(p.start.x, p.start.y, actualRadius, 0, Math.PI * 2);
-    //   ctx.fill();
-    //   ctx.stroke();
-    // });
-    // const endP = paths[paths.length - 1];
-    // ctx.beginPath();
-    // ctx.arc(endP.end.x, endP.end.y, actualRadius, 0, Math.PI * 2);
-    // ctx.fill();
-    // ctx.stroke();
   }
 
   protected reset() {
@@ -216,5 +201,9 @@ export class RoutingLayerBase {
     }
 
     this._routingStallService.updateOrderAfterAuto(item, order);
+  }
+
+  protected getColor(bookmark: MarkedList) {
+    return (bookmark.isCusIconColor ? bookmark.cusIconColor : bookmark.iconColor) || '#64748b';
   }
 }

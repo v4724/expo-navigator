@@ -1,6 +1,7 @@
 import { ElementRef, inject } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
+import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { SelectStallService } from 'src/app/core/services/state/select-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
@@ -192,5 +193,9 @@ export class BaseLayer {
     // if (this.scale() > 2) {
     ctx.fillStyle = '#000';
     ctx.fillText(s.padNum, x + w / 2, y + h / 2 + 4);
+  }
+
+  protected getColor(bookmark: MarkedList) {
+    return (bookmark.isCusIconColor ? bookmark.cusIconColor : bookmark.iconColor) || '#64748b';
   }
 }

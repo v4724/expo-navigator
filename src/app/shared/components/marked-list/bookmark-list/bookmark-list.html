@@ -14,7 +14,7 @@
       @for (bookmark of allList(); track bookmark) {
         <p-accordion-panel [value]="$index">
           <p-accordion-header class="!sticky !top-0 !right-0 !z-1">
-            <div class="w-full flex items-center py-2 gap-x-2 min-w-0">
+            <div class="w-full flex items-center my-1 gap-x-2 min-w-0 h-[27px]">
               @if (!bookmarkRoutingSwitch() || !isAtRoutingPage()) {
                 <p-checkbox
                   size="small"
@@ -52,24 +52,15 @@
                     </div>
                   }
                 </div>
-                <div class="flex gap-1 items-center ml-auto">
+                <div class="flex gap-1 items-center ml-auto mr-1">
                   <!-- 路徑規劃 -->
                   @if (bookmarkRoutingSwitch() && isAtRoutingPage()) {
-                    <button
-                      class="transition hover:scale-110 flex items-center text-gray-600 dark:text-gray-400"
-                      [disabled]="bookmark.isUpdating"
-                      pTooltip="顯示/關閉路線"
-                      (click)="togglePath(bookmark, $event)"
-                    >
-                      <mat-icon
-                        inline
-                        aria-hidden="false"
-                        aria-label="direction icon"
-                        [fontIcon]="bookmark.showPath ? 'remove_red_eye' : 'visibility_off'"
-                      ></mat-icon>
-                    </button>
                     @if (bookmark.showPath) {
                       <button
+                        pButton
+                        rounded
+                        text
+                        size="small"
                         class="transition hover:scale-110 flex items-center text-gray-600 dark:text-gray-400"
                         [disabled]="bookmark.isUpdating"
                         pTooltip="自動規劃路線"
@@ -83,9 +74,24 @@
                         ></mat-icon>
                       </button>
                     }
+                    <button
+                      class="transition hover:scale-110 flex items-center text-gray-600 dark:text-gray-400"
+                      [disabled]="bookmark.isUpdating"
+                      (click)="togglePath(bookmark, $event)"
+                    >
+                      <mat-icon
+                        inline
+                        aria-hidden="false"
+                        aria-label="direction icon"
+                        [fontIcon]="bookmark.showPath ? 'remove_red_eye' : 'visibility_off'"
+                      ></mat-icon>
+                    </button>
                   }
 
                   <button
+                    rounded
+                    text
+                    size="small"
                     class="transition hover:scale-110 flex items-center text-gray-400 dark:text-gray-600"
                     (click)="deleteList($event, bookmark)"
                     [disabled]="bookmark.isDeleting || bookmark.isUpdating"

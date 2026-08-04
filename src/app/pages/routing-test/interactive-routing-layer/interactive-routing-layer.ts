@@ -99,14 +99,17 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
 
   redraw(item: MarkedList | undefined, byAuto?: boolean) {
     this.reset();
-    if (item && item.showPath && item.id == this.focusList()?.id) {
+    if (item && item.id == this.focusList()?.id) {
       let path;
-      if (byAuto) {
-        path = this.autoRouting(item);
-      } else {
-        path = this.routeByOrder(item.list);
+      if (item.showPath) {
+        if (byAuto) {
+          path = this.autoRouting(item);
+        } else {
+          path = this.routeByOrder(item.list);
+        }
+        this.drawFocusPath(item, path);
       }
-      this.drawFocusPath(item, path);
+      this.drawFocusLabel(item);
     }
   }
 
@@ -123,7 +126,6 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
     // 除以外層的 CSS Scale 進行反向抵銷
     const actualLineBlur = this.pathHighlightLineBlur / this.baseMapScale;
     const actualLineWidth = this.pathHighlightLineWidth / this.baseMapScale;
-    const actualRadius = this.nodePointHighlightRadius / this.baseMapScale;
     const actualStartRadius = this.startPointHighlightRadius / this.baseMapScale;
     const actualStartPointLineWidth = this.startPointHighlightLineWidth / this.baseMapScale;
 
@@ -137,9 +139,8 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
       }
     });
 
-    const color = bookmark.isCusIconColor
-      ? bookmark.cusIconColor
-      : (bookmark.iconColor ?? '#FF0000');
+    const color =
+      (bookmark.isCusIconColor ? bookmark.cusIconColor : bookmark.iconColor) ?? '#99a1af';
 
     // 💡 聚焦核心：設定外發光陰影
     ctx.shadowColor = color; // 陰影顏色與主線同色或用純白/黃色高亮
@@ -154,38 +155,57 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
     ctx.lineJoin = 'round';
     ctx.stroke();
 
+    // 起點
+    const p = this.getStallCenter(bookmark.list[0]);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, actualStartRadius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  drawFocusLabel(bookmark: MarkedList) {
+    const canvas = this.canvasRef?.nativeElement;
+    const ctx = canvas?.getContext('2d')!;
+
+    if (!ctx) {
+      return;
+    }
+
+    const actualLineBlur = this.pathHighlightLineBlur / this.baseMapScale;
+    const actualRadius = this.nodePointHighlightRadius / this.baseMapScale;
+    const actualStartPointLineWidth = this.startPointHighlightLineWidth / this.baseMapScale;
+
+    const color = this.getColor(bookmark);
+
+    // 💡 聚焦核心：設定外發光陰影
+    ctx.shadowColor = color; // 陰影顏色與主線同色或用純白/黃色高亮
+    ctx.shadowBlur = actualLineBlur; // 發光擴散範圍 (值越大越模糊擴散)
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    ctx.globalAlpha = 1.0; // Focus 時提高透明度更亮
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
     // 攤位點+label
-    paths.forEach((p) => {
+    bookmark.list.forEach((info) => {
+      const p = this.getStallCenter(info);
       ctx.beginPath();
 
-      ctx.arc(p.start.x, p.start.y, actualRadius, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, actualRadius, 0, Math.PI * 2);
       ctx.fillStyle = '#000';
       ctx.fill();
       ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
       ctx.strokeStyle = '#FFF';
       ctx.stroke();
 
-      this.drawPathStallLabel(p.start, ctx);
+      this.drawPathStallLabel(p, ctx);
     });
-    const endP = paths[paths.length - 1];
-    ctx.beginPath();
-    ctx.arc(endP.end.x, endP.end.y, actualRadius, 0, Math.PI * 2);
-    ctx.fillStyle = '#000';
-    ctx.fill();
-    ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
-    ctx.strokeStyle = 'FFF';
-    ctx.stroke();
-
-    this.drawPathStallLabel(endP.end, ctx);
-
-    // 畫起點
-    ctx.beginPath();
-    ctx.arc(paths[0].start.x, paths[0].start.y, actualStartRadius, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.stroke();
 
     ctx.restore();
   }

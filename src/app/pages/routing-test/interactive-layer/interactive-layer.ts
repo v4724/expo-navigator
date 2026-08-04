@@ -14,7 +14,6 @@ import { Tooltip, TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { BaseLayer } from '../../stalls-map/layers/base-layer';
 import { StallBookmarkPopover } from '../../../shared/components/bookmark/stall-bookmark-popover/stall-bookmark-popover';
-import { UiStateService } from 'src/app/core/services/state/ui-state-service';
 import { MatIcon } from '@angular/material/icon';
 import { ButtonIcon } from 'primeng/button';
 
