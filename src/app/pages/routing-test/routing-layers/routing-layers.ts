@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { combineLatest, debounceTime, filter, take, tap } from 'rxjs';
+import { combineLatest, debounceTime, filter, take, takeUntil, tap } from 'rxjs';
 import { RoutingLayerBase } from '../core/routing-layer-base';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-routing-layers',
@@ -21,12 +21,26 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
   }
 
   ngOnInit() {
+    combineLatest([this._userService.isLogin$, this._routingStallService.pathFinder$])
+      .pipe(
+        tap(([login, val]) => {
+          if (!login) {
+            this.reset();
+          } else if (login && !!val) {
+            this.redraw();
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
     // 開啟/關閉顯示路徑
     this._routingStallService.togglePath$
       .pipe(
         tap(() => {
           this.redraw();
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -36,6 +50,7 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
         tap(() => {
           this.redraw();
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -59,6 +74,7 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
             }
           });
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -68,6 +84,7 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
         tap((item) => {
           this.redraw();
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -78,22 +95,12 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
         tap((val) => {
           this.redraw();
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
 
-  ngAfterViewInit() {
-    // 顯示初始路徑
-    combineLatest([this._routingStallService.pathFinder$])
-      .pipe(
-        filter(([val]) => !!val),
-        take(1),
-        tap(() => {
-          this.redraw();
-        }),
-      )
-      .subscribe();
-  }
+  ngAfterViewInit() {}
 
   redraw() {
     this.reset();

@@ -12,13 +12,12 @@ import { StallData } from 'src/app/core/interfaces/stall.interface';
 import { Tooltip, TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { StallBookmarkPopover } from '../../../shared/components/bookmark/stall-bookmark-popover/stall-bookmark-popover';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, tap } from 'rxjs';
 import { MarkedList } from 'src/app/core/interfaces/marked-stall.interface';
 import { Path, PathNode } from '../core/util';
 import { RoutingLayerBase } from '../core/routing-layer-base';
 import { StallService } from 'src/app/core/services/state/stall-service';
-import { UserService } from 'src/app/core/services/state/user-service';
 
 @Component({
   selector: 'app-interactive-routing-layer',
@@ -34,7 +33,6 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
 
   private cdr = inject(ChangeDetectorRef);
   private _stallService = inject(StallService);
-  private _userService = inject(UserService);
 
   focusList = toSignal(this._markedStallService.focusList$);
 
@@ -50,14 +48,19 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
   }
 
   ngOnInit() {
-    this._userService.isLogin$.subscribe((val) => {
+    this._userService.isLogin$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val) => {
       if (!val) {
         this.reset();
       }
     });
 
     // 開啟/關閉顯示路徑
-    this._routingStallService.togglePath$.pipe(tap((item) => this.redraw(item))).subscribe();
+    this._routingStallService.togglePath$
+      .pipe(
+        tap((item) => this.redraw(item)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
     // 該書籤:有編輯儲存
     this._markedStallService.updated$
@@ -68,6 +71,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
             this.redraw(focusList);
           }
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -77,14 +81,25 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
         tap((item) => {
           this.redraw(item, true);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     // 手動調整路徑
-    this._routingStallService.reRoutingItem$.pipe(tap((item) => this.redraw(item))).subscribe();
+    this._routingStallService.reRoutingItem$
+      .pipe(
+        tap((item) => this.redraw(item)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
     // focus的書籤
-    this._markedStallService.focusList$.pipe(tap((item) => this.redraw(item))).subscribe();
+    this._markedStallService.focusList$
+      .pipe(
+        tap((item) => this.redraw(item)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
     // scale 改變
     this._stallMapService.mapContentScale$
@@ -93,6 +108,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit 
         tap((val) => {
           this.redraw(this.focusList());
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }

@@ -1,4 +1,4 @@
-import { ElementRef, inject } from '@angular/core';
+import { DestroyRef, ElementRef, inject } from '@angular/core';
 import { map } from 'rxjs';
 import { RoutingStallService } from 'src/app/core/services/state/routing-stall-service';
 import { Path, PathNode } from './util';
@@ -6,6 +6,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MarkedList, MarkedStallInfo } from 'src/app/core/interfaces/marked-stall.interface';
 import { MarkedStallService } from 'src/app/core/services/state/marked-stall-service';
 import { StallMapService } from 'src/app/core/services/state/stall-map-service';
+import { UserService } from 'src/app/core/services/state/user-service';
 
 export class RoutingLayerBase {
   canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -13,6 +14,8 @@ export class RoutingLayerBase {
   protected _routingStallService = inject(RoutingStallService);
   protected _markedStallService = inject(MarkedStallService);
   protected _stallMapService = inject(StallMapService);
+  protected _userService = inject(UserService);
+  protected destroyRef = inject(DestroyRef);
 
   protected pathFinder = toSignal(this._routingStallService.pathFinder$);
   protected canvasWH = toSignal(
