@@ -119,7 +119,9 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
     h: number,
   ) {
     // 設定字型為 Material Icons (需確保 CSS 已載入該字型)
-    const size = 24 * Math.sqrt(this.baseMapScale);
+    const baseSize = 24;
+    const scaleFactor = 16;
+    const size = baseSize + scaleFactor * Math.sqrt(this.baseMapScale);
     ctx.font = `${size}px "Material Icons", "Material Symbols Outlined"`;
     ctx.fillStyle = setting.iconColor;
     ctx.textAlign = 'center';
