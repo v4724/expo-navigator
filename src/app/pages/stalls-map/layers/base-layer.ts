@@ -68,14 +68,17 @@ export class BaseLayer {
 
   drawStalls() {
     const canvas = this.canvasRef?.nativeElement;
-    const ctx = canvas?.getContext('2d')!;
     const img = this.mapImage();
 
     if (!img || !canvas) return;
     this.loadLegendColor();
 
-    canvas.width = this.canvasWH().width;
-    canvas.height = this.canvasWH().height;
+    if (this.canvasWH().width != canvas.width || this.canvasWH().height != canvas.height) {
+      // console.log('3');
+      canvas.width = this.canvasWH().width;
+      canvas.height = this.canvasWH().height;
+    }
+    const ctx = canvas?.getContext('2d')!;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 

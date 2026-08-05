@@ -69,11 +69,14 @@ export class RoutingLayerBase {
     if (!canvas) return;
 
     // 畫布像素設定為 原始圖片寬高
-    canvas.width = this.canvasWH().width;
-    canvas.height = this.canvasWH().height;
+    if (this.canvasWH().width != canvas.width || this.canvasWH().height != canvas.height) {
+      // console.log('1');
+      canvas.width = this.canvasWH().width;
+      canvas.height = this.canvasWH().height;
 
-    this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+    }
 
     this.ctx?.clearRect(0, 0, canvas.width, canvas.height);
   }

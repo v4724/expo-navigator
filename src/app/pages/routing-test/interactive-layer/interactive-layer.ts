@@ -17,7 +17,7 @@ import { StallBookmarkPopover } from '../../../shared/components/bookmark/stall-
 import { MatIcon } from '@angular/material/icon';
 import { ButtonIcon } from 'primeng/button';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { tap } from 'rxjs';
+import { filter, take, tap } from 'rxjs';
 
 @Component({
   selector: 'app-interactive-layer',
@@ -95,6 +95,8 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     });
   }
 
+  ngAfterViewInit() {}
+
   isPointerDown = false;
   isDragging = false;
   onPointerDown(e: PointerEvent) {
@@ -122,8 +124,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
 
     if (hoveredStall) {
       if (hoveredStall.id != last?.id) {
-        this.cdr.detectChanges();
-        // 傳入當前的 MouseEvent 讓 Tooltip 知道滑鼠游標座標
+        // this.cdr.detectChanges();
         requestAnimationFrame(() => {
           this.tooltip?.show();
         });
@@ -177,6 +178,9 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     if (e.touches.length > 1) {
       this.isTouching = false;
       this.isTouchDragging = true;
+      this.hoveredStall.set(undefined);
+      this.clickedStall.set(undefined);
+      this.drawStall();
       return;
     }
 
@@ -230,7 +234,6 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     const stall = this.getMappingStall(e);
     this.clickedStall.set(stall);
 
-    this.cdr.detectChanges();
     const op = this.bookmarkPopover?.op;
     if (stall) {
       requestAnimationFrame(() => {
@@ -248,14 +251,19 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
 
   drawStall() {
     const canvas = this.canvasRef?.nativeElement;
-    const ctx = canvas?.getContext('2d')!;
-
-    if (!ctx) return;
-    this.loadLegendColor();
+    if (!canvas) return;
 
     // 設定畫布解析度與圖片一致
-    canvas.width = this.canvasWH().width;
-    canvas.height = this.canvasWH().height;
+    if (this.canvasWH().width != canvas.width || this.canvasWH().height != canvas.height) {
+      // console.log('2');
+      canvas.width = this.canvasWH().width;
+      canvas.height = this.canvasWH().height;
+    }
+
+    const ctx = canvas?.getContext('2d')!;
+    if (!ctx) return;
+
+    this.loadLegendColor();
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 

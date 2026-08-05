@@ -151,15 +151,19 @@ export class BookmarkLayer extends BaseLayer implements OnInit {
 
   clear() {
     const canvas = this.canvasRef?.nativeElement;
-    const ctx = canvas?.getContext('2d')!;
     const img = this.mapImage();
 
-    if (!canvas || !img || !ctx) return;
+    if (!canvas || !img) return;
     this.loadLegendColor();
 
     // 畫布像素設定為 原始圖片寬高 × DPR
-    canvas.width = this.canvasWH().width;
-    canvas.height = this.canvasWH().height;
+    if (this.canvasWH().width != canvas.width || this.canvasWH().height != canvas.height) {
+      // console.log('4');
+      canvas.width = this.canvasWH().width;
+      canvas.height = this.canvasWH().height;
+    }
+    const ctx = canvas?.getContext('2d')!;
+    if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
