@@ -1,5 +1,5 @@
-<div class="pt-2 h-[calc(100dvh-220px)] overflow-auto">
-  <form [formGroup]="editForm" class="flex flex-col w-full">
+<div class="pt-2 h-[calc(100dvh-220px)] flex">
+  <form [formGroup]="editForm" class="flex flex-grow flex-col w-full">
     <!-- 社團資訊 -->
     <div class="flex flex-wrap gap-3">
       <div class="flex flex-col gap-1 w-full">
@@ -114,7 +114,9 @@
 
     <!-- 宣傳車資訊 -->
     <!-- 設定攤位代號 -->
-    <div class="flex flex-col gap-1 w-full mt-2 transition-all duration-300">
+    <div
+      class="flex flex-grow flex-col gap-1 w-full pt-2 transition-all duration-300 overflow-y-auto"
+    >
       <app-stall-filter-input
         formControlName="stallId"
         [showTitle]="true"
@@ -124,7 +126,7 @@
       <div
         cdkDropList
         cdkDropListOrientation="mixed"
-        class="flex gap-2 flex-wrap mt-2 example-list"
+        class="flex gap-2 flex-wrap mt-2 pr-2 overflow-y-auto"
         (cdkDropListDropped)="drop($event)"
       >
         @for (info of selectedStalls; track info) {

@@ -54,12 +54,12 @@ export class StallService {
       this._expoStateService.stallGridDef$.pipe(
         filter((url) => !!url),
         take(1),
-        switchMap((url) => fetchExcelData(url)),
+        switchMap((url) => fetchExcelData(url, 2, 1, 0)),
       ),
       this._expoStateService.stallZoneDef$.pipe(
         filter((url) => !!url),
         take(1),
-        switchMap((url) => fetchExcelData(url)),
+        switchMap((url) => fetchExcelData(url, 2, 1, 0)),
       ),
     ])
       .pipe()

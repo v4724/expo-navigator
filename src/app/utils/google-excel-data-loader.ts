@@ -65,8 +65,9 @@ export async function fetchExcelData(
   googleSheetCSVUrl: string,
   dataStart: number = 2,
   headerIdx: number = 1,
+  dateNow: number = Date.now(),
 ): Promise<Record<string, string>[]> {
-  const urlWithTimestamp = `${googleSheetCSVUrl}&_=${Date.now()}`;
+  const urlWithTimestamp = `${googleSheetCSVUrl}&_=${dateNow}`;
   // --- First Attempt: With Cache-Busting Timestamp ---
   try {
     const response = await fetch(urlWithTimestamp);

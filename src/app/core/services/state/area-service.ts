@@ -24,7 +24,7 @@ export class AreaService {
 
   constructor() {
     this._expoStateService.areaCSVUrl$.pipe(filter((url) => !!url)).subscribe((url) => {
-      forkJoin([fetchExcelData(url)])
+      forkJoin([fetchExcelData(url, 2, 1, 0)])
         .pipe()
         .subscribe(([area]) => {
           this._processAreas(area);
