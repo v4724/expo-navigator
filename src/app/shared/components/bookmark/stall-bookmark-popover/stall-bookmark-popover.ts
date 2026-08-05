@@ -17,7 +17,7 @@ import { UserService } from 'src/app/core/services/state/user-service';
   styleUrl: './stall-bookmark-popover.scss',
 })
 export class StallBookmarkPopover implements OnInit {
-  @ViewChild('markedListPopover') op!: Popover;
+  @ViewChild(Popover) op!: Popover;
 
   dismissable = input<boolean>(true);
   stall = input.required<StallData | undefined>();

@@ -1,6 +1,34 @@
-<app-base-map (onDragging)="onDragging = $event">
+<app-base-map>
   <app-routing-layers></app-routing-layers>
   <app-bookmark-layer></app-bookmark-layer>
-  <app-interactive-routing-layer></app-interactive-routing-layer>
-  <app-interactive-layer [onDragging]="onDragging"></app-interactive-layer>
+
+  <div
+    class="absolute top-0 left-0 w-full h-full"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp($event)"
+    (pointercancel)="onPointerUp($event)"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd($event)"
+  >
+    <app-interactive-layer
+      [onPointerdownEvent]="pointerdown"
+      [onPointermoveEvent]="pointermove"
+      [onPointerupEvent]="pointerup"
+      [onPointercancelEvent]="pointercancel"
+      [onTourchstartEvent]="touchstart"
+      [onTouchmoveEvent]="touchmove"
+      [onTouchendEvent]="touchend"
+    ></app-interactive-layer>
+    <app-interactive-routing-layer
+      [onPointerdownEvent]="pointerdown"
+      [onPointermoveEvent]="pointermove"
+      [onPointerupEvent]="pointerup"
+      [onPointercancelEvent]="pointercancel"
+      [onTourchstartEvent]="touchstart"
+      [onTouchmoveEvent]="touchmove"
+      [onTouchendEvent]="touchend"
+    ></app-interactive-routing-layer>
+  </div>
 </app-base-map>

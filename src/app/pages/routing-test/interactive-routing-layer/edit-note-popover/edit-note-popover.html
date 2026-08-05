@@ -1,0 +1,36 @@
+<p-popover appendTo="body" #op [dismissable]="dismissable()">
+  <div class="flex flex-col gap-2 min-w-[150px] dark:text-gray-300">
+    <div class="max-w-72 w-full flex flex-col">
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-semibold text-sm">{{ node()?.info?.stall?.id }}</span>
+      </div>
+      <p-floatlabel variant="on">
+        <textarea
+          pTextarea
+          id="on_label"
+          [(ngModel)]="note"
+          rows="4"
+          cols="20"
+          style="resize: none"
+          class="h-full"
+        ></textarea>
+        <label for="on_label">備註</label>
+      </p-floatlabel>
+      <div class="flex items-center justify-between mt-2">
+        <div class="flex items-center gap-2 ml-auto">
+          <button
+            type="button"
+            pButton
+            severity="secondary"
+            variant="outlined"
+            size="small"
+            (click)="cancel()"
+          >
+            取消
+          </button>
+          <button type="button" pButton size="small" (click)="save()">儲存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</p-popover>

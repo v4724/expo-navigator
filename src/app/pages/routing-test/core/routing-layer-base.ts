@@ -30,18 +30,24 @@ export class RoutingLayerBase {
     { initialValue: { width: 0, height: 0 } },
   );
 
-  // defulat
-  readonly pathLineWidth = 4; // 希望螢幕上看到的線寬 (px)
-  readonly nodePointRadius = 10; // 希望螢幕上看到的點半徑 (px)
-  readonly startPointRadius = 16; // 希望螢幕上看到的點半徑 (px)
-  readonly startPointLineWidth = 6; // 希望螢幕上看到的線寬 (px)
+  dampedScale = toSignal(
+    this._stallMapService.mapContentScale$.pipe(
+      map((val) => {
+        return Math.sqrt(val);
+      }),
+    ),
+    { initialValue: 1 },
+  );
 
-  // highlight
-  readonly pathHighlightLineBlur = 12; // 希望螢幕上看到的線寬 (px)
-  readonly pathHighlightLineWidth = 6; // 希望螢幕上看到的線寬 (px)
-  readonly nodePointHighlightRadius = 8; // 希望螢幕上看到的點半徑 (px)
-  readonly startPointHighlightRadius = 20; // 希望螢幕上看到的點半徑 (px)
-  readonly startPointHighlightLineWidth = 6; // 希望螢幕上看到的線寬 (px)
+  // 將 ctx 快取在 class 屬性中
+  protected canvas!: HTMLCanvasElement;
+  protected ctx: CanvasRenderingContext2D | null = null;
+
+  // defulat
+  protected pathLineWidth = 4; // 希望螢幕上看到的線寬 (px)
+  protected nodePointRadius = 10; // 希望螢幕上看到的點半徑 (px)
+  protected startPointRadius = 16; // 希望螢幕上看到的點半徑 (px)
+  protected startPointLineWidth = 6; // 希望螢幕上看到的線寬 (px)
 
   constructor() {}
 
@@ -49,21 +55,40 @@ export class RoutingLayerBase {
     return this._stallMapService.mapContentScale;
   }
 
-  protected drawMapAndPath(bookmark: MarkedList, paths: Path[]) {
+  drawMap() {
+    this.reset();
+
+    const ctx = this.ctx;
+    if (!ctx) {
+      return;
+    }
+  }
+
+  protected reset() {
     const canvas = this.canvasRef?.nativeElement;
-    const ctx = canvas?.getContext('2d')!;
+    if (!canvas) return;
+
+    // 畫布像素設定為 原始圖片寬高
+    canvas.width = this.canvasWH().width;
+    canvas.height = this.canvasWH().height;
+
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+
+    this.ctx?.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  protected drawPaths(ctx: CanvasRenderingContext2D, bookmark: MarkedList, paths: Path[]) {
     if (!ctx) {
       return;
     }
 
     if (paths.length < 2) return;
 
-    const actualLineWidth = this.pathLineWidth / this.baseMapScale;
-    const actualRadius = this.nodePointRadius / this.baseMapScale;
-    const actualStartRadius = this.startPointRadius / this.baseMapScale;
-    const actualStartPointLineWidth = this.startPointLineWidth / this.baseMapScale;
-
     // 繪製規劃路線
+    const actualLineWidth = this.pathLineWidth / this.dampedScale();
+    const color = this.getColor(bookmark);
+
     ctx.beginPath();
     paths.forEach((p) => {
       const path = p.path;
@@ -73,36 +98,28 @@ export class RoutingLayerBase {
       }
     });
 
-    const color = this.getColor(bookmark);
-
     ctx.globalAlpha = 1; // 設定整體透明度
     ctx.strokeStyle = color;
     ctx.lineWidth = actualLineWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
+  }
 
+  protected drawStartPoint(ctx: CanvasRenderingContext2D, bookmark: MarkedList, node: PathNode) {
     // 畫起點
+    const actualStartRadius = this.startPointRadius / this.dampedScale();
+    const actualStartPointLineWidth = this.startPointLineWidth / this.dampedScale();
+    const color = this.getColor(bookmark);
+
     ctx.beginPath();
-    ctx.arc(paths[0].start.x, paths[0].start.y, actualStartRadius, 0, Math.PI * 2);
+    ctx.arc(node.x, node.y, actualStartRadius, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
     ctx.lineWidth = actualStartPointLineWidth; //加上白色外框增強對比度
     ctx.strokeStyle = '#FFFFFF';
+
     ctx.stroke();
-  }
-
-  protected reset() {
-    const canvas = this.canvasRef?.nativeElement;
-    const ctx = canvas?.getContext('2d')!;
-
-    if (!ctx) return;
-
-    // 畫布像素設定為 原始圖片寬高 × DPR
-    canvas.width = this.canvasWH().width;
-    canvas.height = this.canvasWH().height;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
   // 💡 繪製文字的輔助函式（包含描邊防干擾）
@@ -111,13 +128,24 @@ export class RoutingLayerBase {
     text: string,
     x: number,
     y: number,
-    color: string = '#000000',
+    color: string,
   ) {
     if (!ctx) {
       return;
     }
 
+    ctx.beginPath();
     ctx.font = '600 20px "Inter", "Roboto", "Segoe UI", sans-serif';
+    // 1. 多層 strokeText：由外向內繪製，塑造漸層擴散質感
+    // 最外層
+    ctx.strokeStyle = `${color}26`; // 15% 透明度
+    ctx.lineWidth = 28 / this.dampedScale();
+    ctx.strokeText(text, x, y);
+
+    // 中間層
+    ctx.strokeStyle = `${color}66`; // 40% 透明度
+    ctx.lineWidth = 16 / this.dampedScale();
+    ctx.strokeText(text, x, y);
 
     // 1. 繪製文字白色外框（防止文字與背景地圖混在一起）
     ctx.strokeStyle = '#FFFFFF';
@@ -126,7 +154,7 @@ export class RoutingLayerBase {
     ctx.strokeText(text, x, y);
 
     // 2. 繪製文字本體
-    ctx.fillStyle = color;
+    ctx.fillStyle = '#000000';
     ctx.fillText(text, x, y);
 
     ctx.restore();
@@ -147,11 +175,11 @@ export class RoutingLayerBase {
     return routingPath;
   }
 
-  protected autoRouting(bookmark: MarkedList): Path[] {
-    if (bookmark.list.length < 1) {
+  protected autoRouting(list: MarkedStallInfo[]): Path[] {
+    if (list.length < 1) {
       return [];
     }
-    let pathNodes = bookmark.list.map((item) => {
+    let pathNodes = list.map((item) => {
       const { x, y } = this.getStallCenter(item);
       return { info: item, x, y } as PathNode;
     });

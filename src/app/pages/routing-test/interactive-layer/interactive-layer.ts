@@ -16,6 +16,8 @@ import { BaseLayer } from '../../stalls-map/layers/base-layer';
 import { StallBookmarkPopover } from '../../../shared/components/bookmark/stall-bookmark-popover/stall-bookmark-popover';
 import { MatIcon } from '@angular/material/icon';
 import { ButtonIcon } from 'primeng/button';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-interactive-layer',
@@ -27,10 +29,15 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
   @ViewChild('stallCanvas') declare canvasRef: ElementRef<HTMLCanvasElement>;
   @ViewChild(StallBookmarkPopover) bookmarkPopover!: StallBookmarkPopover;
   @ViewChild('opTarget') opTarget!: ElementRef<HTMLDivElement>;
-  @ViewChild('container') container!: ElementRef<HTMLDivElement>;
   @ViewChild(Tooltip, { read: Tooltip }) tooltip!: Tooltip;
 
-  onDragging = input<boolean>();
+  onPointerdownEvent = input<PointerEvent>();
+  onPointermoveEvent = input<PointerEvent>();
+  onPointerupEvent = input<PointerEvent>();
+  onPointercancelEvent = input<PointerEvent>();
+  onTourchstartEvent = input<TouchEvent>();
+  onTouchmoveEvent = input<TouchEvent>();
+  onTouchendEvent = input<TouchEvent>();
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -46,6 +53,14 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
   hoveredStall: WritableSignal<StallData | undefined> = signal(undefined);
   clickedStall: WritableSignal<StallData | undefined> = signal(undefined);
 
+  onPointerdown$ = toObservable(this.onPointerdownEvent);
+  onPointermoveEvent$ = toObservable(this.onPointermoveEvent);
+  onPointerupEvent$ = toObservable(this.onPointerupEvent);
+  onPointercancelEvent$ = toObservable(this.onPointercancelEvent);
+  onTouchstartEvent$ = toObservable(this.onTourchstartEvent);
+  onTouchmoveEvent$ = toObservable(this.onTouchmoveEvent);
+  onTouchendEvent$ = toObservable(this.onTouchendEvent);
+
   constructor() {
     super();
   }
@@ -56,6 +71,179 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
       this.clickedStall.set(stall);
       this.drawStall();
     });
+
+    this.onPointerdown$.subscribe((e) => {
+      e && this.onPointerDown(e);
+    });
+    this.onPointermoveEvent$.subscribe((e) => {
+      e && this.onPointerMove(e);
+    });
+    this.onPointerupEvent$.subscribe((e) => {
+      e && this.onPointerUp(e);
+    });
+    this.onPointercancelEvent$.subscribe((e) => {
+      e && this.onPointerUp(e);
+    });
+    this.onTouchstartEvent$.subscribe((e) => {
+      e && this.onTouchStart(e);
+    });
+    this.onTouchmoveEvent$.subscribe((e) => {
+      e && this.onTouchMove(e);
+    });
+    this.onTouchendEvent$.subscribe((e) => {
+      e && this.onTouchEnd(e);
+    });
+  }
+
+  isPointerDown = false;
+  isDragging = false;
+  onPointerDown(e: PointerEvent) {
+    this.isPointerDown = true;
+    this.isDragging = false; // 初始先假設
+  }
+
+  onPointerMove(e: PointerEvent) {
+    if (this.isPointerDown && !this.isDragging) {
+      this.hoveredStall.set(undefined);
+      this.clickedStall.set(undefined);
+      this.drawStall();
+    }
+
+    this.isDragging = true;
+    if (this.isPointerDown && this.isDragging) {
+      this.hoveredStall.set(undefined);
+      this.bookmarkPopover.op.hide();
+      return;
+    }
+
+    const hoveredStall = this.getMappingStall(e);
+    const last = this.hoveredStall();
+    this.hoveredStall.set(hoveredStall);
+
+    if (hoveredStall) {
+      if (hoveredStall.id != last?.id) {
+        this.cdr.detectChanges();
+        // 傳入當前的 MouseEvent 讓 Tooltip 知道滑鼠游標座標
+        requestAnimationFrame(() => {
+          this.tooltip?.show();
+        });
+      }
+    } else {
+      this.tooltip?.hide();
+    }
+    this.updateHoverdStallInfo(this._hoveredStallRef);
+
+    this.drawStall();
+  }
+
+  onPointerUp(e: PointerEvent) {
+    const wasDragging = this.isDragging;
+
+    // 重置狀態
+    this.isPointerDown = false;
+    this.isDragging = false;
+
+    if (wasDragging) {
+      return;
+    }
+
+    let stall = this.hoveredStall();
+    this.clickedStall.set(stall);
+
+    this.cdr.detectChanges();
+    const op = this.bookmarkPopover?.op;
+
+    if (stall) {
+      requestAnimationFrame(() => {
+        if (op.overlayVisible) {
+          op.align();
+        } else {
+          op.show(null, this.opTarget.nativeElement);
+        }
+      });
+    } else {
+      op.hide();
+    }
+    this.drawStall();
+  }
+
+  // Touch 與長按相關屬性
+  private isTouching = false;
+  private isTouchDragging = false;
+  private touchStartPos = { x: 0, y: 0 };
+  private readonly TOUCH_DRAG_THRESHOLD = 8; // 手指滑動位移超過 8px 判定為拖曳
+  onTouchStart(e: TouchEvent) {
+    // 雙指以上 (如手勢縮放地圖)，取消長按與單指點擊
+    if (e.touches.length > 1) {
+      this.isTouching = false;
+      this.isTouchDragging = true;
+      return;
+    }
+
+    const touch = e.touches[0];
+    this.isTouching = true;
+    this.isTouchDragging = false;
+    this.touchStartPos = { x: touch.clientX, y: touch.clientY };
+  }
+
+  // -------------------------------------------------------------
+  // 2. Touch Move: 判斷滑動位移與取消長按
+  // -------------------------------------------------------------
+  onTouchMove(e: TouchEvent) {
+    if (!this.isTouching || e.touches.length === 0) return;
+
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - this.touchStartPos.x);
+    const dy = Math.abs(touch.clientY - this.touchStartPos.y);
+
+    // 位移超過門檻，判定為「滑動/拖曳地圖」
+    if (dx > this.TOUCH_DRAG_THRESHOLD || dy > this.TOUCH_DRAG_THRESHOLD) {
+      this.hoveredStall.set(undefined);
+      this.clickedStall.set(undefined);
+
+      if (this.isTouching && !this.isTouchDragging) {
+        requestAnimationFrame(() => {
+          this.drawStall();
+        });
+      }
+      this.isTouchDragging = true;
+      this.bookmarkPopover.op.hide();
+    }
+  }
+
+  // -------------------------------------------------------------
+  // 3. Touch End: 判斷是「短點擊 (Tap)」、「拖曳結束」或「長按結束」
+  // -------------------------------------------------------------
+  onTouchEnd(e: TouchEvent) {
+    const wasDragging = this.isTouchDragging;
+
+    // 重置 Touch 狀態
+    this.isTouching = false;
+    this.isTouchDragging = false;
+
+    // 如果是長按或拖曳滑動地圖，放開時都不觸發短點擊 (Popover)
+    if (wasDragging) {
+      return;
+    }
+
+    // --- 以下為 Mobile 短點擊 (Tap) 邏輯 ---
+    const stall = this.getMappingStall(e);
+    this.clickedStall.set(stall);
+
+    this.cdr.detectChanges();
+    const op = this.bookmarkPopover?.op;
+    if (stall) {
+      requestAnimationFrame(() => {
+        if (op.overlayVisible) {
+          op.align();
+        } else {
+          op.show(e, this.opTarget.nativeElement);
+        }
+      });
+    } else {
+      op.hide();
+    }
+    this.drawStall();
   }
 
   drawStall() {
@@ -74,7 +262,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
     // 設定樣式
     ctx.font = '12px Arial';
     ctx.textAlign = 'center';
-
+    ctx.beginPath();
     const s = this.clickedStall();
     const hs = this.hoveredStall();
     if (s) {
@@ -103,58 +291,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
       ctx.lineWidth = 1;
       ctx.strokeRect(x, y, w, h);
     }
-  }
-
-  onMapClick(event: MouseEvent | TouchEvent) {
-    let stall = this.hoveredStall();
-    if (this._uiStateService.isMobile()) {
-      stall = this.getMappingStall(event);
-    }
-    this.clickedStall.set(stall);
-    this._selectStallService.selected = stall ? stall.id : null;
-
-    this.cdr.detectChanges();
-
-    const op = this.bookmarkPopover?.op;
-
-    if (stall) {
-      requestAnimationFrame(() => {
-        if (op.overlayVisible) {
-          op.align();
-        } else {
-          op.show(null, this.opTarget.nativeElement);
-        }
-      });
-    } else {
-      op.hide();
-    }
-  }
-
-  // 偵測滑鼠指到哪個攤位
-  onMouseMove(event: MouseEvent) {
-    if (this._uiStateService.isMobile() || this.onDragging()) {
-      this.hoveredStall.set(undefined);
-      return;
-    }
-
-    const hoveredStall = this.getMappingStall(event);
-    const last = this.hoveredStall();
-    this.hoveredStall.set(hoveredStall);
-
-    if (hoveredStall) {
-      if (hoveredStall.id != last?.id) {
-        this.cdr.detectChanges();
-        // 傳入當前的 MouseEvent 讓 Tooltip 知道滑鼠游標座標
-        requestAnimationFrame(() => {
-          this.tooltip?.show();
-        });
-      }
-    } else {
-      this.tooltip?.hide();
-    }
-    this.updateHoverdStallInfo(this._hoveredStallRef);
-
-    this.drawStall();
+    ctx.stroke();
   }
 
   private drawSelectedStall(
@@ -180,7 +317,7 @@ export class InteractiveLayer extends BaseLayer implements OnInit {
   }
 
   private getMappingStall(event: MouseEvent | TouchEvent) {
-    const container = this.container?.nativeElement || (event.currentTarget as HTMLElement);
+    const container = this.canvasRef?.nativeElement || (event.currentTarget as HTMLElement);
     if (!container) return undefined;
 
     const rect = container.getBoundingClientRect();

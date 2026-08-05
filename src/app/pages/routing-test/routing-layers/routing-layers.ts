@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { combineLatest, debounceTime, filter, take, takeUntil, tap } from 'rxjs';
+import { combineLatest, debounceTime, tap } from 'rxjs';
 import { RoutingLayerBase } from '../core/routing-layer-base';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
@@ -27,7 +27,7 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
           if (!login) {
             this.reset();
           } else if (login && !!val) {
-            this.redraw();
+            this.drawMap();
           }
         }),
         takeUntilDestroyed(this.destroyRef),
@@ -38,7 +38,7 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
     this._routingStallService.togglePath$
       .pipe(
         tap(() => {
-          this.redraw();
+          this.drawMap();
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -48,7 +48,7 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
     this._markedStallService.updated$
       .pipe(
         tap(() => {
-          this.redraw();
+          this.drawMap();
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -58,21 +58,7 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
     this._routingStallService.autoRoutingItem$
       .pipe(
         tap((target) => {
-          this.reset();
-          this.bookmarkList().forEach((item) => {
-            if (item.showPath) {
-              let path;
-              if (item.id == target.id) {
-                path = this.autoRouting(item);
-              } else {
-                path = this.routeByOrder(item.list);
-              }
-              this.drawMapAndPath(item, path);
-              if (item.id == target.id) {
-                this.updateBookmarkPathOrder(item, path);
-              }
-            }
-          });
+          this.drawPathAndAutoPath(target.id);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -82,7 +68,7 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
     this._routingStallService.reRoutingItem$
       .pipe(
         tap((item) => {
-          this.redraw();
+          this.drawMap();
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -93,21 +79,53 @@ export class RoutingLayers extends RoutingLayerBase implements OnInit, AfterView
       .pipe(
         debounceTime(200),
         tap((val) => {
-          this.redraw();
+          this.drawMap();
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
 
-  ngAfterViewInit() {}
+  ngAfterViewInit() {
+    // DOM 載入後，一次性初始化並快取 canvas 與 ctx
+    this.canvas = this.canvasRef.nativeElement;
+    this.ctx = this.canvas.getContext('2d');
+  }
 
-  redraw() {
+  override drawMap() {
     this.reset();
+    const ctx = this.ctx;
+    if (!ctx) {
+      return;
+    }
+
     this.bookmarkList().forEach((item) => {
       if (item.showPath) {
         const path = this.routeByOrder(item.list);
-        this.drawMapAndPath(item, path);
+        this.drawPaths(ctx, item, path);
+      }
+    });
+  }
+
+  private drawPathAndAutoPath(autoTargetId: number) {
+    this.reset();
+    const ctx = this.ctx;
+    if (!ctx) {
+      return;
+    }
+    this.bookmarkList().forEach((item) => {
+      if (item.showPath) {
+        let path;
+        if (item.id == autoTargetId) {
+          path = this.autoRouting(item.list);
+        } else {
+          path = this.routeByOrder(item.list);
+        }
+        this.drawPaths(ctx, item, path);
+
+        if (item.id == autoTargetId) {
+          this.updateBookmarkPathOrder(item, path);
+        }
       }
     });
   }
