@@ -367,14 +367,10 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
   private isTouching = false;
   private isTouchDragging = false;
   private touchStartPos = { x: 0, y: 0 };
-  private touchTimer: any = null;
-  private isLongPressTriggered = false;
   private readonly TOUCH_DRAG_THRESHOLD = 8; // 手指滑動位移超過 8px 判定為拖曳
-  private readonly LONG_PRESS_DELAY = 500; // 長按時間門檻 (500ms)
   onTouchStart(e: TouchEvent) {
     // 雙指以上 (如手勢縮放地圖)，取消長按與單指點擊
     if (e.touches.length > 1) {
-      this.clearTouchTimer();
       this.isTouching = false;
       this.isTouchDragging = true;
       return;
@@ -383,15 +379,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
     const touch = e.touches[0];
     this.isTouching = true;
     this.isTouchDragging = false;
-    this.isLongPressTriggered = false;
     this.touchStartPos = { x: touch.clientX, y: touch.clientY };
-
-    // 啟動長按計時器
-    this.clearTouchTimer();
-    this.touchTimer = setTimeout(() => {
-      this.isLongPressTriggered = true;
-      this.onLongPress(e);
-    }, this.LONG_PRESS_DELAY);
   }
 
   // -------------------------------------------------------------
@@ -407,7 +395,6 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
     // 位移超過門檻，判定為「滑動/拖曳地圖」
     if (dx > this.TOUCH_DRAG_THRESHOLD || dy > this.TOUCH_DRAG_THRESHOLD) {
       this.isTouchDragging = true;
-      this.clearTouchTimer(); // 滑動時取消長按
       this.currHoveredNode.set(undefined);
       this.currClickNode.set(undefined);
       this.editNotePopover.op.hide();
@@ -418,18 +405,14 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
   // 3. Touch End: 判斷是「短點擊 (Tap)」、「拖曳結束」或「長按結束」
   // -------------------------------------------------------------
   onTouchEnd(e: TouchEvent) {
-    this.clearTouchTimer();
-
-    const wasLongPress = this.isLongPressTriggered;
     const wasDragging = this.isTouchDragging;
 
     // 重置 Touch 狀態
     this.isTouching = false;
     this.isTouchDragging = false;
-    this.isLongPressTriggered = false;
 
     // 如果是長按或拖曳滑動地圖，放開時都不觸發短點擊 (Popover)
-    if (wasLongPress || wasDragging) {
+    if (wasDragging) {
       return;
     }
 
@@ -447,42 +430,6 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
       });
     } else {
       this.tooltip?.hide();
-    }
-  }
-
-  // -------------------------------------------------------------
-  // 長按觸發邏輯 (Long Press)
-  // -------------------------------------------------------------
-  private onLongPress(e: TouchEvent) {
-    // 手機震動提示 (若裝置支援)
-    if ('vibrate' in navigator) {
-      navigator.vibrate(40);
-    }
-
-    const node = this.getMappingStall(e);
-    this.currClickNode.set(node);
-
-    const op = this.editNotePopover?.op;
-    if (!op) return;
-    if (node) {
-      this.updateOpTargetPosition(node);
-      requestAnimationFrame(() => {
-        if (op.overlayVisible) {
-          op.align();
-        } else {
-          op.show(null, this.opTarget.nativeElement);
-        }
-      });
-    } else {
-      op.hide();
-    }
-  }
-
-  // 清除計時器輔助函式
-  private clearTouchTimer() {
-    if (this.touchTimer) {
-      clearTimeout(this.touchTimer);
-      this.touchTimer = null;
     }
   }
 

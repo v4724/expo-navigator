@@ -144,11 +144,11 @@
                     >
                       <app-stall-zone-badge [stall]="info.stall"></app-stall-zone-badge>
                       <div class="flex flex-col items-start">
-                        <span class="text-xs text-gray-600 font-medium">
+                        <span class="text-xs text-gray-600 dark:text-gray-300 font-medium">
                           {{ info.stall.stallTitle }}
                         </span>
                         @if (info.note) {
-                          <div class="text-xs text-gray-600 text-start">
+                          <div class="text-xs text-gray-600 dark:text-gray-400 text-start">
                             {{ info.note }}
                           </div>
                         }
