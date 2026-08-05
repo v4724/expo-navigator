@@ -143,7 +143,16 @@
                       text="true"
                     >
                       <app-stall-zone-badge [stall]="info.stall"></app-stall-zone-badge>
-                      <span class="text-xs">{{ info.stall.stallTitle }} </span>
+                      <div class="flex flex-col items-start">
+                        <span class="text-xs text-gray-600 font-medium">
+                          {{ info.stall.stallTitle }}
+                        </span>
+                        @if (info.note) {
+                          <div class="text-xs text-gray-600 text-start">
+                            {{ info.note }}
+                          </div>
+                        }
+                      </div>
                     </button>
                   </div>
                   @if (bookmarkRoutingSwitch() && isAtRoutingPage() && $index == 0) {

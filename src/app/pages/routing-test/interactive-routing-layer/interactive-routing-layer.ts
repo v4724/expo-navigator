@@ -409,6 +409,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
       this.isTouchDragging = true;
       this.clearTouchTimer(); // 滑動時取消長按
       this.currHoveredNode.set(undefined);
+      this.currClickNode.set(undefined);
       this.editNotePopover.op.hide();
     }
   }
@@ -459,6 +460,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
     }
 
     const node = this.getMappingStall(e);
+    this.currClickNode.set(node);
 
     const op = this.editNotePopover?.op;
     if (!op) return;
@@ -494,8 +496,10 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
     // 1. 相容 MouseEvent 與 TouchEvent 的 clientX / clientY
     let clientX = 0;
     let clientY = 0;
+    let isTouch = false;
 
     if (window.TouchEvent && event instanceof TouchEvent) {
+      isTouch = true;
       if (event.touches.length > 0) {
         clientX = event.touches[0].clientX;
         clientY = event.touches[0].clientY;
@@ -519,9 +523,16 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
     const canvasX = (clientX - rect.left) * scaleX;
     const canvasY = (clientY - rect.top) * scaleY;
 
-    // 3. 計算點擊判定半徑 (與其平方)
-    const actualRadius = this.nodePointRadius / this.dampedScale();
-    let minDistanceSq = actualRadius * actualRadius; // 只尋找半徑內的最近點
+    const baseDomRadius = 24;
+    // (B) 手指觸控加成：Touch 裝置額外放大 1.5 倍
+    const touchMultiplier = isTouch ? 1.5 : 1.0;
+
+    // 將 DOM 顯示層面的半徑，轉換回 Canvas 的真實像素半徑
+    // 取 Math.max 確保：即使地圖縮放，點擊範圍都不會小於 (baseDomRadius * scaleX)
+    const effectiveDomRadius = Math.max(this.nodePointRadius, baseDomRadius) * touchMultiplier;
+    const actualRadius = (effectiveDomRadius / this.dampedScale()) * scaleX;
+
+    let minDistanceSq = actualRadius * actualRadius; // 使用半徑平方進行比對
 
     let foundNode: PathNode | undefined;
 
