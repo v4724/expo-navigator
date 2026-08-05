@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, input, OnInit, signal, ViewChild } from '@angular/core';
 import { PopoverModule, Popover } from 'primeng/popover';
 import { MarkedList, MarkedStallInfo } from 'src/app/core/interfaces/marked-stall.interface';
 import { PathNode } from '../../core/util';
@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { MarkedListApiService } from 'src/app/core/services/api/marked-list-api.service';
 import { UserService } from 'src/app/core/services/state/user-service';
 import { MessageService } from 'primeng/api';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-edit-note-popover',
@@ -31,6 +32,7 @@ export class EditNotePopover implements OnInit {
   private _userService = inject(UserService);
 
   user = toSignal(this._userService.user$);
+  isSaving = signal(false);
 
   note = '';
 
@@ -56,9 +58,14 @@ export class EditNotePopover implements OnInit {
     if (!bookmark) return;
 
     const dto = this._markedListApiService.transformToDto(bookmark);
+    this.isSaving.set(true);
     this._markedListApiService
       .update(bookmark.id, this.user()?.acc!, dto)
-      .pipe()
+      .pipe(
+        finalize(() => {
+          this.isSaving.set(false);
+        }),
+      )
       .subscribe((res) => {
         if (res.success) {
           this._markedListService.update(dto);

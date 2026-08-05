@@ -13,6 +13,7 @@
           cols="20"
           style="resize: none"
           class="h-full"
+          [disabled]="isSaving()"
         ></textarea>
         <label for="on_label">備註</label>
       </p-floatlabel>
@@ -25,10 +26,13 @@
             variant="outlined"
             size="small"
             (click)="cancel()"
+            [disabled]="isSaving()"
           >
             取消
           </button>
-          <button type="button" pButton size="small" (click)="save()">儲存</button>
+          <button type="button" pButton size="small" (click)="save()" [disabled]="isSaving()">
+            儲存
+          </button>
         </div>
       </div>
     </div>
