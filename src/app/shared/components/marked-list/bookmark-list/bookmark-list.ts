@@ -129,6 +129,12 @@ export class BookmarkList implements OnInit {
                 summary: '刪除成功',
               });
               this._markedListService.delete(list.id);
+              let tab = this.accordion.value() as number;
+              if (tab >= this.allList().length) {
+                tab = this.allList().length - 1;
+              }
+              const currItem = this.allList()[tab];
+              this._markedListService.focusList = currItem;
             } else {
               list.isDeleting = false;
               this._messageService.add({
