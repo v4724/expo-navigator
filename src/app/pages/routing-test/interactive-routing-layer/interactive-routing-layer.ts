@@ -200,6 +200,7 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
       }
       this.drawNodeLabels(ctx, item);
       this.drawHoverNode(ctx);
+      this.drawHoverLabel(ctx);
     }
   }
 
@@ -232,6 +233,16 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
     ctx.strokeStyle = '#FFF';
 
     ctx.stroke();
+  }
+
+  private drawHoverLabel(ctx: CanvasRenderingContext2D) {
+    const bookmark = this.focusList();
+    const node = this.currHoveredNode();
+    if (!ctx || !bookmark || !node) {
+      return;
+    }
+    const color = this.getColor(bookmark);
+    this.drawPathStallLabel(node, ctx, color);
   }
 
   private drawHoverNode(ctx: CanvasRenderingContext2D) {
@@ -306,7 +317,27 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
           y -= stallWH;
           break;
       }
+
       this.drawLabel(ctx, s.stall.id, x, y, color);
+      if (node.info?.note) {
+        // 2. 如果有 note，在文字右上角繪製一個提示小點 (Notification Badge)
+        const textMetrics = ctx.measureText(node.info.note);
+        const badgeRadius = 8 / this.dampedScale();
+        const badgeX = x - 6; // 文字右側外擴 4px
+        const badgeY = y - 14; // 文字上方 offset
+
+        // 畫小圓點 (例如亮紅色或金色)
+        ctx.beginPath();
+
+        ctx.arc(badgeX, badgeY, badgeRadius, 0, Math.PI * 2);
+        ctx.fillStyle = '#ff4d4f'; // 紅點警告色
+        ctx.fill();
+
+        // 加一層白色邊框讓紅點在複雜背景上更清晰
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
     }
   }
 
