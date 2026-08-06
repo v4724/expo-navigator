@@ -520,11 +520,15 @@ export class InteractiveRoutingLayer extends RoutingLayerBase implements OnInit,
       // 3. 更新你的 opTarget (虛擬 Anchor 節點) 的位置到當前 node 的 Canvas/Screen 座標
       this.updateOpTargetPosition(node);
 
-      this.popoverRafId = requestAnimationFrame(() => {
-        // 確保目標節點依然存在
-        this.tooltip?.show();
-        this.popoverRafId = null;
-      });
+      if (node.info?.note) {
+        this.popoverRafId = requestAnimationFrame(() => {
+          // 確保目標節點依然存在
+          this.tooltip?.show();
+          this.popoverRafId = null;
+        });
+      } else {
+        this.tooltip?.hide();
+      }
     } else {
       this.tooltip?.hide();
     }
