@@ -73,7 +73,7 @@ export class CreateUserModal implements OnInit {
   constructor() {
     this.userForm = this._fb.group({
       id: [''],
-      acc: ['', Validators.required],
+      acc: ['', Validators.required, , Validators.maxLength(30)],
       stallId: [''],
       isStallOwner: [false],
       stallIds: this._fb.array([]),

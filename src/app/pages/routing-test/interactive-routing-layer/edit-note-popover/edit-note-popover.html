@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between mb-2">
         <span class="font-semibold text-sm">{{ node()?.info?.stall?.id }}</span>
       </div>
-      <p-floatlabel variant="on">
+      <p-floatlabel variant="on" class="">
         <textarea
           pTextarea
           id="on_label"
@@ -13,11 +13,13 @@
           cols="20"
           style="resize: none"
           class="h-full"
+          maxlength="100"
           [disabled]="isSaving()"
         ></textarea>
+        <span class="char-count"> {{ note.length || 0 }}/100 </span>
         <label for="on_label">備註</label>
       </p-floatlabel>
-      <div class="flex items-center justify-between mt-2">
+      <div class="flex items-center justify-between mt-4">
         <div class="flex items-center gap-2 ml-auto">
           <button
             type="button"

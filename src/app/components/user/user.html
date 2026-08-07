@@ -31,7 +31,18 @@
   <div class="flex flex-col gap-4 max-w-sm">
     <div class="flex gap-2 items-center">
       <div class="">使用者</div>
-      <input #loginInput pInputText [(ngModel)]="acc" type="text" pSize="small" placeholder="" />
+      <div class="relative">
+        <input
+          #loginInput
+          pInputText
+          [(ngModel)]="acc"
+          type="text"
+          pSize="small"
+          placeholder=""
+          maxlength="30"
+        />
+        <span class="char-count"> {{ acc.length || 0 }}/30 </span>
+      </div>
     </div>
     <div class="flex w-full items-center justify-end">
       <button

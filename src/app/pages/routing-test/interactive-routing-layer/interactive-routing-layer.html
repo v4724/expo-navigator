@@ -14,7 +14,7 @@
 ></div>
 <ng-template #tooltipContent>
   <div class="flex flex-col gap-1">
-    <div [innerHTML]="cn?.info?.note"></div>
+    <div class="whitespace-pre-wrap">{{ cn?.info?.note }}</div>
   </div>
 </ng-template>
 

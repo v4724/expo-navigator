@@ -2,7 +2,7 @@
   <form [formGroup]="userForm" class="flex flex-col w-full pt-2">
     <!-- 社團資訊 -->
     <div class="flex flex-wrap gap-3">
-      <div class="flex flex-col gap-1 w-full">
+      <div class="relative flex flex-col gap-1 w-full">
         <p-floatlabel variant="on">
           <input
             class="w-full"
@@ -11,9 +11,12 @@
             id="acc"
             formControlName="acc"
             autocomplete="off"
+            maxlength="30"
           />
           <label for="acc">使用者帳號</label>
         </p-floatlabel>
+        <!-- 字數統計定位於右下角，避免干擾 FloatLabel 邏輯 -->
+        <span class="char-count"> {{ userForm.get('acc')?.value?.length || 0 }}/30 </span>
       </div>
 
       @if (!bookmarkRoutingOnly()) {

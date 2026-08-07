@@ -123,3 +123,13 @@ body {
 .scrollbar-none {
   scrollbar-width: none;
 }
+
+.char-count {
+  position: absolute;
+  right: 0rem;
+  bottom: -1rem;
+  font-size: 0.75rem;
+  color: #6c757d; /* 灰字顯示 */
+  pointer-events: none; /* 避免點擊數字時無法 focus input */
+  user-select: none;
+}

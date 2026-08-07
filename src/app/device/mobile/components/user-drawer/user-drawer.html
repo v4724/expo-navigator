@@ -38,8 +38,10 @@
           [(ngModel)]="acc"
           type="text"
           pSize="small"
+          maxlength="30"
           placeholder="使用者"
         />
+        <span class="char-count"> {{ acc.length || 0 }}/30 </span>
       </div>
     }
     <div class="mt-auto w-full flex items-center justify-between">
