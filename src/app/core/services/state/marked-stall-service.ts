@@ -61,6 +61,7 @@ export class MarkedStallService {
   afterLogout() {
     this._fetchEnd.next(false);
     this._processMarkedList([]);
+    this.focusList = undefined;
   }
 
   get allList(): MarkedList[] {
